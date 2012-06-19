@@ -1,0 +1,17 @@
+diff -r 306df556f68a src/api_cite.js
+--- a/src/api_cite.js	Thu Apr 28 10:59:49 2011 +0900
++++ b/src/api_cite.js	Sat Apr 30 10:36:16 2011 +0900
+@@ -441,7 +441,12 @@
+ 							// (this has some jiggery-pokery in it for parallels)
+ 							var items = citations[(j - 1)].sortedItems;
+ 							var useme = false;
+-							if ((citations[(j - 1)].sortedItems[0][1].id  == item[1].id && citations[j - 1].properties.noteIndex >= (citations[j].properties.noteIndex - 1)) || citations[(j - 1)].sortedItems[0][1].id == this.registry.registry[item[1].id].parallel) {
++
++							// See discussion:
++							// http://forums.zotero.org/discussion/17753/ibid-comments-vs-nonzotero-citations/
++							// if ((citations[(j - 1)].sortedItems[0][1].id  == item[1].id && citations[j - 1].properties.noteIndex >= (citations[j].properties.noteIndex - 1)) || citations[(j - 1)].sortedItems[0][1].id == this.registry.registry[item[1].id].parallel) {
++							//if ((citations[(j - 1)].sortedItems[0][1].id  == item[1].id && citations[j - 1].properties.noteIndex >= (citations[j].properties.noteIndex - 1)) || citations[(j - 1)].sortedItems[0][1].id == this.registry.registry[item[1].id].parallel) {
++							if (citations[(j - 1)].sortedItems[0][1].id  == item[1].id  || citations[(j - 1)].sortedItems[0][1].id == this.registry.registry[item[1].id].parallel) {
+ 								useme = true;
+ 							}
+ 							for (n = 0, nlen = items.slice(1).length; n < nlen; n += 1) {

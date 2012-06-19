@@ -1,0 +1,40 @@
+Namesets (decor from names, provides delimiters between "author" and "editor", say)
+  TermAndNameset (no decor, no delimiter)
+    Term (if label before name)
+    /Term
+    EtAlAndNameset (no decor, delimiter of space if no et-al formatting element)
+      Nameset (decor from name, optionally uses AND term as delimiter)
+        MainSeries
+          FirstAndArticular (no decor at all, delimiter controlled by articular option)
+            Name (decor follows charset)
+              Namepart (decor from namepart+name= )
+              /Namepart
+            /Name
+	    Articular
+	    /Articular
+          /FirstAndArticular
+          MiddlesAndArticular (no decor at all, delimiter controlled by articular option)
+            Name (decor follows charset)
+              Namepart (decor from namepart+name= )
+              /Namepart
+            /Name
+	    Articular
+	    /Articular
+          /MiddlesAndArticular
+	/MainSeries
+	LastAndArticular
+          Name (decor follows charset)
+            Namepart (decor from namepart+name= )
+            /Namepart
+          /Name
+	  Articular
+	  /Articular
+	/LastAndArticular
+      /Nameset
+      EtAl
+      /EtAl
+    /EtAlAndNameset
+    Term (if label after name)
+    /Term
+  /TermAndNameset
+/Namesets

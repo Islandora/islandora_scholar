@@ -1,0 +1,75 @@
+<?php
+
+// $Id$
+
+/**
+ * @file
+ *
+ * Implements hooks and callbacks for installing this module. As well as some functions that allow for conversions.
+ * 
+ * Note that bibutils converts to mods 3.1 and not any other version!
+ */
+
+/**
+ * Checks to see if the given command exists.
+ * 
+ * @param string $name 
+ *   The name of the program to check.
+ * 
+ * @return boolean
+ *   TRUE if the command is exists, FALSE otherwise.
+ */
+function command_exists($name) {
+  $return_value = FALSE;
+  system("hash $name 2>&-", $return_value);
+  return $return_value === 0;
+}
+
+/**
+ * Implementation of hook_requirements.
+ * 
+ * Checks to make sure the required executable files exist.
+ * 
+ * @param string $phase
+ *   The phase in which hook_requirements is run:
+ *    'install': the module is being installed.
+ *    'runtime': the runtime requirements are being checked and shown on the status report page.
+ * 
+ * @return array
+ *   A keyed array of requirements. Each requirement is itself an array with the following items:
+ *    'title': the name of the requirement.
+ *    'value': the current value (e.g. version, time, level, ...). During install phase, this should only be used for version numbers, do not set it if not applicable.
+ *    'description': description of the requirement/status.
+ *    'severity': the requirement's result/severity level, one of:
+ *      REQUIREMENT_INFO: For info only.
+ *      REQUIREMENT_OK: The requirement is satisfied.
+ *      REQUIREMENT_WARNING: The requirement failed with a warning.
+ *      REQUIREMENT_ERROR: The requirement failed with an error.
+ */
+function bibutils_requirements($phase) {
+  $requriements = array();
+  $commands = array(
+    'ris2xml' => t('Converts RIS files to MODS intermediate'),
+    'endx2xml' => t('Converts EndNote XML files to MODS intermediate'),
+    'xml2ris' => t('Converts MODS file to RIS')
+  );
+  foreach ($commands as $command => $description) {
+    $title = t('%command in $PATH', array('%command' => $command));
+    if (command_exists($command)) { // Exists on $PATH
+      $requriements[$command] = array(
+        'title' => $title,
+        'value' => t('Available.'),
+        'severity' => REQUIREMENT_OK,
+        'description' => $description
+      );
+    }
+    else { // Does not exist on $PATH.
+      $requriements[$command] = array(
+        'title' => $title,
+        'value' => t('Not in $PATH.'),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  }
+  return $requriements;
+}

@@ -1,0 +1,83 @@
+>>===== MODE =====>>
+citation
+<<===== MODE =====<<
+
+
+>>===== RESULT =====>>
+start
+
+    <div class="csl-block">April 10, 1998</div>
+
+
+    <div class="csl-block">April 1998</div>
+
+
+    <div class="csl-block">1998</div>
+
+
+    <div class="csl-block">04/10/1998</div>
+
+
+    <div class="csl-block">04/1998</div>
+
+
+    <div class="csl-block">1998</div>
+end
+<<===== RESULT =====<<
+
+
+>>===== CSL =====>>
+<style 
+      xmlns="http://purl.org/net/xbiblio/csl"
+      class="note"
+      version="1.0">
+  <info>
+    <id />
+    <title />
+    <updated>2009-08-10T04:49:00+09:00</updated>
+  </info>
+  <locale>
+    <date form="text">
+      <date-part name="month" suffix=" "/>
+      <date-part name="day" form="numeric-leading-zeros" suffix=", "/>
+      <date-part name="year"/>
+    </date>
+    <date form="numeric">
+      <date-part name="month" form="numeric-leading-zeros" suffix="/"/>
+      <date-part name="day" form="numeric-leading-zeros" suffix="/"/>
+      <date-part name="year"/>
+    </date>
+  </locale>
+  <citation>
+    <layout>
+	  <text value="start"/>
+      <date variable="issued" form="text" date-parts="year-month-day" display="block"/>
+      <date variable="issued" form="text" date-parts="year-month" display="block"/>
+      <date variable="issued" form="text" date-parts="year" display="block"/>
+      <date variable="issued" form="numeric" date-parts="year-month-day" display="block"/>
+      <date variable="issued" form="numeric" date-parts="year-month" display="block"/>
+      <date variable="issued" form="numeric" date-parts="year" display="block"/>
+      <text value="end"/>
+    </layout>
+  </citation>
+</style>
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[
+    {
+        "id": "ITEM-1", 
+        "issued": {
+            "date-parts": [
+                [
+                    1998, 
+                    4, 
+                    10
+                ]
+            ]
+        }, 
+        "title": "BookA"
+    }
+]
+<<===== INPUT =====<<

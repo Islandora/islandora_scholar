@@ -1,0 +1,137 @@
+>>===== MODE =====>>
+bibliography
+<<===== MODE =====<<
+
+An alternative means of counting authors, from CSL 1.0 design
+discussions.
+
+>>===== SCHEMA =====>>
+0.9 experimental
+<<===== SCHEMA =====<<
+
+
+>>===== RESULT =====>>
+Book One
+Book Two
+Book Three
+<<===== RESULT =====<<
+
+
+>>===== CSL =====>>
+<style xmlns="http://purl.org/net/xbiblio/csl" class="in-text" xml:lang="en">
+
+    <macro name="author-one">
+        <names variable="author" end="1">
+            <name name-as-sort-order="first"/>
+            <substitute>
+                <names variable="editor"/>
+            </substitute>
+        </names>
+    </macro>
+
+    <!-- If the name counts of multiple variables total,
+         something like this would capture the name count
+         of alternative variables, imitating a substitute
+         construct.
+    -->
+    <macro name="author-count">
+        <choose>
+            <if variable="author" count-min="1" count-max="1">
+                <text value="1"/>
+            </if>
+            <else-if variable="author " count-min="2" count-max="2">
+                <text value="2"/>
+            </else-if>
+            <else-if variable="author" count-min="3">
+                <text value="3"/>
+            </else-if>
+            <else>
+                <choose>
+                    <if variable="editor" count-min="1" count-max="1">
+                        <text value="1"/>
+                    </if>
+                    <else-if variable="editor" count-min="2" count-max="2">
+                        <text value="2"/>
+                    </else-if>
+                    <else-if variable="editor" count-min="3">
+                        <text value="3"/>
+                    </else-if>
+                    <else>
+                        <text value="0"/>
+                    </else>
+                </choose>
+            </else>
+        </choose>
+    </macro>
+
+    <macro name="author-all">
+        <names variable="author">
+            <name/>
+            <substitute>
+                <names variable="editor"/>
+            </substitute>
+        </names>
+    </macro>
+    <macro name="year">
+        <date>
+            <date-part name="year"/>
+        </date>
+    </macro>
+
+    <citation>
+        <layout>
+            <text value="Ignore me"/>
+        </layout>
+    </citation>
+
+    <bibliography>
+        <option name="names-count-max" value="3"/>
+        <sort>
+            <key macro="author-one"/>
+            <key macro="author-count"/>
+            <key macro="author-all"/>
+            <key macro="year"/>
+        </sort>
+        <layout>
+            <text variable="title"/>
+        </layout>        
+    </bibliography>
+
+</style>
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[
+ {
+   "id":"item-1",
+   "type": "book",
+   "author": [
+        { "name":"Doe, John" },
+   ],
+   "issued": {"year": "2000"},
+   "title": "Book One"
+ },
+ {
+   "id":"item-2",
+   "type": "book",
+   "author": [
+        { "name":"Doe, John" },
+        { "name":"Doe, Jake" },
+        { "name":"Jones, Robert" }
+   ],
+   "issued": {"year": "2000"},
+   "title": "Book Three"
+ },
+ {
+   "id":"item-3",
+   "type": "book",
+   "editor": [
+        { "name":"Doe, John" },
+        { "name":"Roe, Jane" },
+   ],
+   "issued": {"year": "2000"},
+   "title": "Book Two"
+ }
+]
+<<===== INPUT =====<<

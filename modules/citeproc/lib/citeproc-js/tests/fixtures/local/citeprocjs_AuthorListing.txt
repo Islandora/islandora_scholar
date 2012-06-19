@@ -1,0 +1,339 @@
+/*
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights
+ * Reserved.
+ *
+ * The contents of this file are subject to the Common Public
+ * Attribution License Version 1.0 (the “License”); you may not use
+ * this file except in compliance with the License. You may obtain a
+ * copy of the License at:
+ *
+ * http://bitbucket.org/fbennett/citeproc-js/src/tip/LICENSE.
+ *
+ * The License is based on the Mozilla Public License Version 1.1 but
+ * Sections 14 and 15 have been added to cover use of software over a
+ * computer network and provide for limited attribution for the
+ * Original Developer. In addition, Exhibit A has been modified to be
+ * consistent with Exhibit B.
+ *
+ * Software distributed under the License is distributed on an “AS IS”
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+ * the License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * The Original Code is the citation formatting software known as
+ * "citeproc-js" (an implementation of the Citation Style Language
+ * [CSL]), including the original test fixtures and software located
+ * under the ./std subdirectory of the distribution archive.
+ *
+ * The Original Developer is not the Initial Developer and is
+ * __________. If left blank, the Original Developer is the Initial
+ * Developer.
+ *
+ * The Initial Developer of the Original Code is Frank G. Bennett,
+ * Jr. All portions of the code written by Frank G. Bennett, Jr. are
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights Reserved.
+ *
+ * Alternatively, the contents of this file may be used under the
+ * terms of the GNU Affero General Public License (the [AGPLv3]
+ * License), in which case the provisions of [AGPLv3] License are
+ * applicable instead of those above. If you wish to allow use of your
+ * version of this file only under the terms of the [AGPLv3] License
+ * and not to allow others to use your version of this file under the
+ * CPAL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the
+ * [AGPLv3] License. If you do not delete the provisions above, a
+ * recipient may use your version of this file under either the CPAL
+ * or the [AGPLv3] License.”
+ */
+
+>>===== MODE =====>>
+bibliography
+<<===== MODE =====<<
+
+
+
+>>===== RESULT =====>>
+<div class="csl-bib-body">
+  <div class="csl-entry">
+
+    <div class="csl-block">Bennett, Frank G., Jr.</div>
+
+    <div class="csl-left-margin">2009</div><div class="csl-right-inline">Getting Property Right: “Informal” Mortgages in the Japanese Courts. <i>Pacific Rim Law &#38; Policy Journal</i> 18 (August): 463-509.</div>
+  </div>
+  <div class="csl-entry">
+
+    <div class="csl-block">D’Arcus, Bruce</div>
+
+    <div class="csl-left-margin">2005</div><div class="csl-right-inline"><i>Boundaries of Dissent: Protest and State Power in the Media Age</i>. Routledge, November 22.</div>
+  </div>
+  <div class="csl-entry">
+
+    <div class="csl-block">梶田将司</div>
+
+    <div class="csl-left-margin">2007</div><div class="csl-right-inline">高等教育機関における次世代教育学習支援プラットフォームの構築に向けて. <i>日本教育工学会論文誌</i>. December. (co-authorship: 角所考, 中澤篤志, 竹村治雄, 美濃導彦, and 間瀬健二)</div>
+  </div>
+  <div class="csl-entry">
+
+    <div class="csl-block">Malone, Nolan J.</div>
+
+    <div class="csl-left-margin">2001</div><div class="csl-right-inline"><i>Evaluating Components of International Migration: Consistency of 2000 Nativity Data</i>. Routledge, December 5. (co-authorship: U.S. Bureau of the Census)</div>
+  </div>
+  <div class="csl-entry">
+
+    <div class="csl-block">Razlogova, Elena</div>
+
+    <div class="csl-left-margin">2002</div><div class="csl-right-inline">Radio and Astonishment: The Emergence of Radio Sound, 1920-1926. May.</div>
+  </div>
+  <div class="csl-entry">
+
+    <div class="csl-block">Zelle, Rintze M.</div>
+
+    <div class="csl-left-margin">2010</div><div class="csl-right-inline">Key Process Conditions for Production of C<sub>4</sub> Dicarboxylic Acids in Bioreactor Batch Cultures of an Engineered <i>Saccharomyces cerevisiae</i> Strain. <i>Applied and Environmental Microbiology</i> 76, no. 3 (February): 744-750. (co-authorship: Erik de Hulster, Wendy Kloezen, Jack T. Pronk, and Antonius J.A. van Maris)</div>
+  </div>
+</div>
+<<===== RESULT =====<<
+
+
+>>===== CSL =====>>
+chicago-author-date-listing.csl
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[
+    {
+        "author": [
+            {
+                "family": "Malone", 
+                "given": "Nolan J.", 
+                "static-ordering": false
+            }, 
+            {
+                "literal": "U.S. Bureau of the Census"
+            }
+        ], 
+        "id": "ITEM-6", 
+        "issued": {
+            "date-parts": [
+                [
+                    2001, 
+                    12, 
+                    5
+                ]
+            ]
+        }, 
+        "publisher": "Routledge", 
+        "title": "Evaluating Components of International Migration: Consistency of 2000 Nativity Data", 
+        "type": "book"
+    }, 
+    {
+        "author": [
+            {
+                "family": "D'Arcus", 
+                "given": "Bruce", 
+                "static-ordering": false
+            }
+        ], 
+        "id": "ITEM-1", 
+        "issued": {
+            "date-parts": [
+                [
+                    2005, 
+                    11, 
+                    22
+                ]
+            ]
+        }, 
+        "publisher": "Routledge", 
+        "title": "Boundaries of Dissent: Protest and State Power in the Media Age", 
+        "type": "book"
+    }, 
+    {
+        "author": [
+            {
+                "comma-suffix": "true", 
+                "family": "Bennett", 
+                "given": "Frank G.", 
+                "static-ordering": false, 
+                "suffix": "Jr."
+            }
+        ], 
+        "container-title": "Pacific Rim Law & Policy Journal", 
+        "id": "ITEM-2", 
+        "issued": {
+            "date-parts": [
+                [
+                    2009, 
+                    8
+                ]
+            ]
+        }, 
+        "page": "463-509", 
+        "title": "Getting Property Right: \"Informal\" Mortgages in the Japanese Courts", 
+        "type": "article-journal", 
+        "volume": "18"
+    }, 
+    {
+        "author": [
+            {
+                "family": "Zelle", 
+                "given": "Rintze M."
+            }, 
+            {
+                "dropping-particle": "de", 
+                "family": "Hulster", 
+                "given": "Erik"
+            }, 
+            {
+                "family": "Kloezen", 
+                "given": "Wendy"
+            }, 
+            {
+                "family": "Pronk", 
+                "given": "Jack T."
+            }, 
+            {
+                "dropping-particle": "van", 
+                "family": "Maris", 
+                "given": "Antonius J.A."
+            }
+        ], 
+        "container-title": "Applied and Environmental Microbiology", 
+        "doi": "10.1128/AEM.02396-09", 
+        "id": "ITEM-3", 
+        "issue": "3", 
+        "issued": {
+            "date-parts": [
+                [
+                    2010, 
+                    2
+                ]
+            ]
+        }, 
+        "page": "744-750", 
+        "title": "Key Process Conditions for Production of C<sub>4</sub> Dicarboxylic Acids in Bioreactor Batch Cultures of an Engineered <i>Saccharomyces cerevisiae</i> Strain", 
+        "type": "article-journal", 
+        "volume": "76"
+    }, 
+    {
+        "author": [
+            {
+                "family": "Razlogova", 
+                "given": "Elena"
+            }
+        ], 
+        "event": "Society for Cinema Studies Annual Meeting", 
+        "event-place": "Denver, CO", 
+        "id": "ITEM-4", 
+        "issued": {
+            "date-parts": [
+                [
+                    2002, 
+                    5
+                ]
+            ]
+        }, 
+        "title": "Radio and Astonishment: The Emergence of Radio Sound, 1920-1926", 
+        "type": "paper-conference"
+    }, 
+    {
+        "author": [
+			{
+				"family": "梶田",
+				"given": "将司",
+				"multi":{
+					"_key":{
+						"ja-alalc97":{
+								"family": "Kajita",
+								"given": "Shoji"
+						}
+					}
+				}				
+			},
+			{
+				"family": "角所",
+				"given": "考",
+				"multi":{
+					"_key":{
+						"ja-alalc97":{
+							"family": "Kakusho",
+							"given": "Takashi"
+						}
+					}
+				}				
+			},
+			{
+				"family": "中澤",
+				"given": "篤志",
+				"multi":{
+					"_key":{
+						"ja-alalc97":{
+							"family": "Nakazawa",
+							"given": "Atsushi"
+						}
+					}
+				}				
+			},
+			{
+				"family": "竹村",
+				"given": "治雄",
+				"multi":{
+					"_key":{
+						"ja-alalc97":{
+							"family": "Takemura",
+							"given": "Haruo"
+						}
+					}
+				}				
+			},
+			{
+				"family": "美濃",
+				"given": "導彦",
+				"multi":{
+					"_key":{
+						"ja-alalc97":{
+							"family": "Mino",
+							"given": "Michihiko"
+						}
+					}
+				}				
+			},
+			{
+				"family": "間瀬",
+				"given": "健二",
+				"multi":{
+					"_key":{
+						"ja-alalc97":{
+							"family": "Mase",
+							"given": "Kenji"
+						}
+					}
+				}				
+			}
+        ], 
+        "container-title": "日本教育工学会論文誌", 
+        "id": "ITEM-5", 
+        "issue": "3", 
+        "issued": {
+            "date-parts": [
+                [
+                    2007, 
+                    12
+                ]
+            ]
+        }, 
+        "page": "297-305", 
+        "title": "高等教育機関における次世代教育学習支援プラットフォームの構築に向けて", 
+		"multi":{
+			"_keys":{
+				"title":{
+					"ja-alalc97": "Kōtō kyōiku ni okeru jisedai kyōiku gakushū shien puratto fōmu no kōchiku ni mukete",
+					"en": "Toward the Development of Next-Generation Platforms for Teaching and Learning in Higher Education"
+				}
+			}
+		},
+        "volume": "31"
+    }
+]
+<<===== INPUT =====<<
+

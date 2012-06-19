@@ -1,0 +1,30 @@
+>>===== MODE =====>>
+citation
+<<===== MODE =====<<
+
+>>===== SCHEMA =====>>
+0.8
+<<===== SCHEMA =====<<
+
+
+>>===== RESULT =====>>
+Book A
+<<===== RESULT =====<<
+
+
+>>===== CSL =====>>
+<citation xmlns="http://purl.org/net/xbiblio/csl">
+ <layout>
+     <text variable="title"/>
+ </layout>
+</citation>
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[{
+   "id":"ITEM-1",
+   "type": "book",
+   "title": "Book A"
+}]
+<<===== INPUT =====<<

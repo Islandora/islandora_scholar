@@ -1,0 +1,582 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<!-- 
+    The width and margin-left values of 5em in csl-label and csl-item
+     below, and the text-indent value of 1em in csl-label are derived
+     from the number of characters in the label strings.  This is the
+     same offset calculation required for similar bibliographies when
+     shipped to word processors in RTF.  In this example, the number of
+     characters in the string is 5.
+-->
+
+<LINK href="./csl-style.css" rel="stylesheet" type="text/css">
+
+</head>
+<body>
+
+<h1 id="top">Sample CSL Bibliography Formats</h1>
+
+<hr />
+
+<p>This is a sample document that illustrates the use of class attributes
+for the formatting of bibliographies output by a CSL engine.  The
+CSS style file used to control the formatting below is <a href="./csl-style.css">linked
+here for your viewing pleasure</a>.</p>
+
+<p>Hovering the mouse cursor over the <a class="revealer" style="position:static;line-height:2em;" href="#reveal">Show HTML</a> 
+button in each example will display the HTML structure that would
+be generated from the CSL layout(s) shown.  Note that most of the details of the
+formatting are controlled by CSS; only small changes in the nesting of markup
+and the assignment of classes in the output are needed to give effect to the 
+different bibliography formats.
+
+<p>Enjoy!<br />Frank Bennett<br />2009.08.07</p>
+
+
+<hr />
+
+<h2>Table of Contents</h2>
+
+<ol>
+  <li><a href="#sample1">Plain Vanilla Bibliography</a></li>
+  <li><a href="#sample2">Bibliography with Aligned Number Labels</a></li>
+  <li><a href="#sample3">Bibliography with Hanging Indent</a></li>
+  <li><a href="#sample4">Annotated Bibliography</a></li>
+  <li><a href="#sample5">Bibliography with Author Names as Headings</a></li>
+</ol>
+
+<h2 id="sample1">1. Plain Vanilla Bibliography</h2>
+
+<h3>Sample CSL</h3>
+
+<div class="pre-container">
+<a class="revealer" href="#reveal">Show HTML
+<span>
+<pre>  &lt;div class="csl-entry"&gt;
+      &lt;b&gt;John Aloysius Doe&lt;/b&gt;,
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+      (1999).
+  &lt;/div&gt;
+</pre>
+<div class="comment">The csl-entry div tag is implicit.</div>
+</span>
+</a>
+<pre>
+&lt;bibliography&gt;
+  &lt;layout&gt;
+    &lt;names variable="author" font-weight="bold" suffix=", "&gt;
+      &lt;name/&gt;
+    &lt;/names&gt;
+    &lt;text variable="title"/&gt;
+    &lt;date variable="issued" prefix="( " suffix=")."&gt;
+      &lt;date-part name="year"/&gt;
+    &lt;/date&gt;
+  &lt;/layout&gt;
+&lt;/bibliography&gt;
+</pre>
+</div>
+
+<h3>Bibliography output</h3>
+
+<div class="csl-bib-body">
+
+  <!-- BIB ENTRY: Doe 1999 -->
+  <div class="csl-entry">
+      <b>John Aloysius Doe</b>,
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa
+      (1999).
+  </div>
+
+  <!-- BIB ENTRY: Doe 2000 -->
+  <div class="csl-entry">
+      <b>John Aloysius Doe</b>,
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb 
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb
+      (2000).
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999a -->
+  <div class="csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+      (1999a).
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999b -->
+  <div class="csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd 
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd 
+      (1999b).
+  </div>
+  
+  <!-- BIB ENTRY: Roe 2000 -->
+  <div class="csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee 
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee 
+      (2000).
+  </div>
+</div>
+
+
+<h2 id="sample2">2. Bibliography with Aligned Number Labels</h2>
+
+<h3>Sample CSL</h3>
+
+With <span style="font-family:monospace;">second-field-align</span> ...
+
+<div class="pre-container">
+<a class="revealer" href="#reveal">Show HTML
+  <span>
+<pre>  &lt;div class="csl-entry"&gt;
+    &lt;div class="csl-left-label" &gt;
+      [1]
+    &lt;/div&gt;
+    &lt;div class="csl-item"&gt;
+	  &lt;b&gt;John Aloysius Doe&lt;/b&gt;,
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa
+      (2000).
+    &lt;/div&gt;
+  &lt;/div&gt;
+</pre>
+<div class="comment">Aligned margin labels can be produced with classes or with second-field-align.</div>
+</span>
+</a>
+<pre>
+&lt;bibliography&gt;
+  &lt;layout&gt;
+    &lt;option name="second-field-align" value="true"/&gt>
+    &lt;text variable="citation-number" prefix="[" suffix="]"/&gt
+    &lt;names variable="author" font-weight="bold" suffix=", "&gt;
+      &lt;name/&gt;
+    &lt;/names&gt;
+    &lt;text variable="title"/&gt;
+    &lt;date variable="issued" prefix=" (" suffix=")."&gt;
+      &lt;date-part name="year"/&gt;
+    &lt;/date&gt;
+  &lt;/layout&gt;
+&lt;/bibliography&gt;
+</pre>
+</div>
+
+... or with classes ...
+
+<div class="pre-container">
+<a class="revealer" href="#reveal">Show HTML
+  <span>
+<pre>  &lt;div class="csl-entry"&gt;
+    &lt;div class="csl-left-label" &gt;
+      [1]
+    &lt;/div&gt;
+    &lt;div class="csl-item"&gt;
+	  &lt;b&gt;John Aloysius Doe&lt;/b&gt;,
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa
+      (2000).
+    &lt;/div&gt;
+  &lt;/div&gt;
+</pre>
+<div class="comment">Aligned margin labels can be produced with classes or with second-field-align.</div>
+</span>
+</a>
+<pre>
+&lt;bibliography&gt;
+  &lt;layout&gt;
+    &lt;group class="csl-left-label">
+      &lt;text variable="citation-number" prefix="[" suffix="]"/&gt
+    &lt;/group&gt;
+    &lt;group class="csl-item"&gt;
+      &lt;names variable="author" font-weight="bold" suffix=", "&gt;
+        &lt;name/&gt;
+      &lt;/names&gt;
+      &lt;text variable="title"/&gt;
+      &lt;date variable="issued" prefix=" (" suffix=")."&gt;
+        &lt;date-part name="year"/&gt;
+      &lt;/date&gt;
+    &lt;/group&gt;
+  &lt;/layout&gt;
+&lt;/bibliography&gt;
+</pre>
+</div>
+
+<h3>Bibliography output</h3>
+
+<div class="csl-bib-body">
+
+  <!-- BIB ENTRY: Doe 1999 -->
+  <div class="csl-entry">
+    <div class="csl-left-label" >
+      [1]
+    </div>
+    <div class="csl-item">
+	  <b>John Aloysius Doe</b>,
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa
+      (1999).
+    </div>
+  </div>
+
+  <!-- BIB ENTRY: Doe 2000 -->
+  <div class="csl-entry">
+    <div class="csl-left-label" >
+      [2]
+    </div>
+    <div class="csl-item">
+	  <b>John Aloysius Doe</b>,
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb 
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb
+      (2000).
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999a -->
+  <div class="csl-entry">
+    <div class="csl-left-label" >
+      [3]
+    </div>
+    <div class="csl-item">
+      <b>Jane Henrietta Roe</b>,
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc
+      (1999a).
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999b -->
+  <div class="csl-entry">
+    <div class="csl-left-label" >
+      [4]
+    </div>
+    <div class="csl-item">
+      <b>Jane Henrietta Roe</b>,
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd 
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd
+      (1999b).
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 2000 -->
+  <div class="csl-entry">
+    <div class="csl-left-label" >
+      [5]
+    </div>
+    <div class="csl-item">
+      <b>Jane Henrietta Roe</b>,
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee 
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee
+      (2000).
+    </div>
+  </div>
+
+</div>
+
+
+<h2 id="sample3">3. Bibliography with Hanging Indent</h2>
+
+<h3>Sample CSL</h3>
+
+<div class="pre-container">
+<a class="revealer" href="#reveal">Show HTML
+  <span>
+<pre>  &lt;div class="csl-entry"&gt;
+      &lt;b&gt;John Aloysius Doe&lt;/b&gt;,
+        Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb 
+        Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb
+      (2000).
+  &lt;/div&gt;
+</pre>
+<div class="comment">Hanging indents can be styled entirely in CSS, without special markup.</div>
+</span>
+</a>
+<pre>
+&lt;bibliography&gt;
+  &lt;layout&gt;
+    &lt;option name="hanging-indent" value="true"/>
+    &lt;names variable="author" font-weight="bold" suffix=", "&gt;
+      &lt;name/&gt;
+    &lt;/names&gt;
+    &lt;text variable="title"/&gt;
+    &lt;date variable="issued" prefix=" (" suffix=")."&gt;
+      &lt;date-part name="year"/&gt;
+    &lt;/date&gt;
+  &lt;/layout&gt;
+&lt;/bibliography&gt;
+</pre>
+</div>
+
+<h3>3. Bibliography output</h3>
+
+<div class="csl-bib-body">
+
+  <!-- BIB ENTRY: Doe 1999 -->
+  <div class="actually-no-different-than-csl-entry">
+      <b>John Aloysius Doe</b>,
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa
+      (1999).
+  </div>
+
+  <!-- BIB ENTRY: Doe 2000 -->
+  <div class="actually-no-different-than-csl-entry">
+      <b>John Aloysius Doe</b>,
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb 
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb
+      (2000).
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999a -->
+  <div class="actually-no-different-than-csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc
+      (1999a).
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999b -->
+  <div class="actually-no-different-than-csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd 
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd
+      (1999b).
+  </div>
+  
+  <!-- BIB ENTRY: Roe 2000 -->
+  <div class="actually-no-different-than-csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee 
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee
+      (2000).
+  </div>
+</div>
+
+
+<h2 id="sample4">4. Annotated Bibliography</h2>
+
+<h3>Sample CSL</h3>
+
+<div class="pre-container">
+<a class="revealer" href="#reveal">Show HTML
+  <span>
+<pre>  &lt;div class="csl-entry"&gt;
+      &lt;b&gt;John Aloysius Doe&lt;/b&gt;,
+        Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb 
+        Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb Abbbb
+      (2000).
+    &lt;div class="csl-indented-block"&gt;
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+    &lt;/div&gt;
+  &lt;/div&gt;
+</pre>
+<div class="comment">A block indent is a display block with special characteristics.</div>
+</span>
+</a>
+<pre>
+&lt;bibliography&gt;
+  &lt;layout&gt;
+    &lt;names variable="author" font-weight="bold" suffix=", "&gt;
+      &lt;name/&gt;
+    &lt;/names&gt;
+    &lt;text variable="title"/&gt;
+    &lt;date variable="issued" prefix=" (" suffix=")."&gt;
+      &lt;date-part name="year"/&gt;
+    &lt;/date&gt;
+    &lt;group class="csl-indented-block"&gt;
+      &lt;text variable="abstract"&gt;
+    &lt;/group&gt;
+  &lt;/layout&gt;
+&lt;/bibliography&gt;
+</pre>
+</div>
+
+<h3>Bibliography output</h3>
+
+<div class="csl-bib-body">
+
+  <!-- BIB ENTRY: Doe 1999 -->
+  <div class="csl-entry">
+      <b>John Aloysius Doe</b>,
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa
+      (1999).
+    <div class="csl-indented-block">
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+    </div>
+  </div>
+
+  <!-- BIB ENTRY: Doe 2000 -->
+  <div class="csl-entry">
+      <b>John Aloysius Doe</b>,
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb 
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb
+      (2000).
+    <div class="csl-indented-block">
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999a -->
+  <div class="csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+      (1999a).
+    <div class="csl-indented-block">
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999b -->
+  <div class="csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd 
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd, 
+      <b>1999b</b>
+    <div class="csl-indented-block">
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 2000 -->
+  <div class="csl-entry">
+      <b>Jane Henrietta Roe</b>,
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee 
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee
+      (2000).
+    <div class="csl-indented-block">
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+        My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  My Aunt Sally.  
+    </div>
+  </div>
+</div>
+
+
+<h2 id="sample5">5. Bibliography with Author Names as Headings</h2>
+
+<h3>Sample CSL</h3>
+
+<div class="pre-container">
+<a class="revealer" href="#reveal">Show HTML
+  <span>
+<pre>  &lt;div class="csl-entry"&gt;
+  &lt;a class="thumbnail" href="#thumb"&gt;
+    &lt;div class="csl-entry-heading" &gt;
+      John Aloysius Doe
+    &lt;/div&gt;
+    &lt;div class="csl-left-label" &gt;
+      1999
+    &lt;/div&gt;
+    &lt;div class="csl-item"&gt;
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+    &lt;/div&gt;
+  &lt;/div&gt;
+</pre>
+<div class="comment">
+This layout requires separate style wrappers for each of its three elements, so that repeated author names can be safely dropped from subsequent entries.
+</div>
+</span>
+</a>
+<pre>
+&lt;bibliography&gt;
+  &lt;layout&gt;
+    &lt;group class="csl-entry-heading"&gt;
+      &lt;names variable="author" font-weight="bold"&gt;
+        &lt;name/&gt;
+      &lt;/names&gt;
+    &lt;/group&gt;
+    &lt;group class="csl-left-label"&gt;
+      &lt;date variable="issued"&gt;
+        &lt;date-part name="year" font-weight="bold"/&gt;
+      &lt;/date&gt;
+    &lt;/group&gt;
+    &lt;group class="csl-item"&gt;
+      &lt;text variable="title"/&gt;
+    &lt;/group&gt;
+  &lt;/layout&gt;
+&lt;/bibliography&gt;
+</pre>
+</div>
+
+<h3>Bibliography output</h3>
+
+<div class="csl-bib-body">
+
+  <!-- BIB ENTRY: Doe 1999 -->
+  <div class="csl-entry">
+    <div class="csl-entry-heading" >
+      John Aloysius Doe
+    </div>
+    <div class="csl-left-label" >
+      1999
+    </div>
+    <div class="csl-item">
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+        Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa Aaaaa 
+    </div>
+  </div>
+
+  <!-- BIB ENTRY: Doe 2000 -->
+  <div class="csl-entry">
+    <!-- Author name suppressed -->
+    <div class="csl-left-label">
+      2000
+    </div>
+    <div class="csl-item">
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb 
+        Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb Bbbbb 
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999a -->
+  <div class="csl-entry">
+    <div class="csl-entry-heading">
+      Jane Henrietta Roe
+    </div>
+    <div class="csl-left-label">
+      1999a
+    </div>
+    <div class="csl-item">
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+        Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc Ccccc 
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 1999b -->
+  <div class="csl-entry">
+    <!-- Author name suppressed -->
+    <div class="csl-left-label">
+      1999b
+    </div>
+    <div class="csl-item">
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd 
+        Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd Ddddd 
+    </div>
+  </div>
+  
+  <!-- BIB ENTRY: Roe 2000 -->
+  <div class="csl-entry">
+    <!-- Author name suppressed -->
+    <div class="csl-left-label">
+      2000
+    </div>
+    <div class="csl-item">
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee 
+        Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee Eeeee 
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

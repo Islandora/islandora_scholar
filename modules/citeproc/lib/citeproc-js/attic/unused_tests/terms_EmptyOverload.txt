@@ -1,0 +1,50 @@
+>>===== MODE =====>>
+citation
+<<===== MODE =====<<
+
+
+>>===== SCHEMA =====>>
+0.9
+<<===== SCHEMA =====<<
+
+
+>>===== RESULT =====>>
+<<===== RESULT =====<<
+
+
+>>===== CSL =====>>
+<style xmlns="http://purl.org/net/xbiblio/csl"
+    class="in-text"
+    xml:lang="en"
+    version="1.0">
+  <info>
+    <id></id>
+    <title></title>
+    <updated>2009-08-10T04:49:00+09:00</updated>
+  </info>
+
+  <locale xml:lang="en">
+    <terms>
+      <term name="bogus"></term>
+    </terms>
+  </locale>
+  <citation>
+	<layout>
+      <text term="bogus"/>
+    </layout>
+  </citation>
+</style>
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[
+  {
+    "id":"ITEM-1",
+    "type": "book",
+    "author": [{"name":"Appleton, Victor"}],
+    "title": "Tom Swift and His Electric Runabout",
+    "issued": {"year":"1910"}
+  }
+]
+<<===== INPUT =====<<

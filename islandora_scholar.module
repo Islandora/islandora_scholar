@@ -1,0 +1,34 @@
+<?php
+
+function islandora_scholar_islandora_tabs($cms, $pid, $page) {
+	$tabset = array();
+
+	foreach ($cms as $cm) {
+		if ($cm->pid == 'ir:citationCollectionCModel' | $cm->pid == 'ir:authorityCollectionCModel') {
+			module_load_include('inc', 'fedora_repository', 'CollectionClass');
+			$cc = new CollectionClass($pid);
+			$tabset += $cc->showFieldSets($page);
+		}
+		elseif ($cm->pid == 'ir:citationCModel') {
+      module_load_include('inc', 'islandora_scholar', 'citation.tab');
+      $tabset += CitationView::get_tabs($pid);
+      module_load_include('inc', 'islandora_scholar', 'description.tab');
+      module_load_include('inc', 'islandora_scholar', 'upload.tab');
+      module_load_include('inc', 'islandora_scholar', 'supplemental_info.tab');
+		}
+	}
+
+	return $tabset;
+}
+
+function islandora_scholar_menu() {
+  return array(
+    'admin/settings/fedora_repository/scholar' => array(
+      'title' => 'Scholar',
+      'type' => MENU_LOCAL_TASK,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('islandora_scholar_admin_form'),
+      'file' => 'islandora_scholar.admin.inc',
+    ),
+  );
+}

@@ -1,0 +1,220 @@
+<?php
+
+/**
+ * @file
+ *
+ * Implements hooks and callbacks for this module.
+ */
+/**
+ * Constants Permission/Menu/Theme
+ */
+define('PERM_CSL_MANAGE', 'Manage CSL Citations');
+define('MENU_CSL_MANAGE', 'admin/content/csl');
+define('THEME_CSL_MANAGE_TABLE', 'csl_manage_table');
+
+/**
+ * Implements hook_menu().
+ */
+function csl_menu() {
+  $items = array();
+  $items[MENU_CSL_MANAGE] = array(
+    'title' => 'CSL Styles',
+    'description' => 'list/add/remove the installed CSL 1.0 Styles.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('csl_manage'),
+    'access arguments' => array(PERM_CSL_MANAGE),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_perm().
+ */
+function csl_perm() {
+  return array(PERM_CSL_MANAGE);
+}
+
+/**
+ * Implements hook_theme().
+ */
+function csl_theme() {
+  return array(
+    THEME_CSL_MANAGE_TABLE => array(
+      'arguments' => array('element' => NULL)
+    )
+  );
+}
+
+/**
+ * A form to list/add/remove the installed CSL 1.0 Styles
+ *
+ * @param array $form_state
+ */
+function csl_manage(array &$form_state) {
+  module_load_include('inc', 'csl', 'CSL');
+  $table = array(
+    '#header' => array(t('Style Name'), '', t('Delete')),
+    '#theme' => THEME_CSL_MANAGE_TABLE,
+    '#tree' => TRUE,
+    'rows' => array()
+  );
+  $styles = CSL::GetNames();
+  foreach ($styles as $style) {
+    $default_style = CSL::GetDefaultName();
+    $is_default = array(
+      '#value' => 'Is Default'
+    );
+    $set_default = array(
+      '#type' => 'submit',
+      '#value' => 'Set Default',
+      '#name' => 'row-' . count($table['rows']) . '-set-default',
+      '#style' => $style,
+      '#submit' => array('csl_manage_set_default_style_submit'),
+    );
+    $table['rows'][] = array(
+      'name' => array('#value' => $style),
+      'default' => ($default_style == $style) ? $is_default : $set_default,
+      'delete' => array(
+        '#type' => 'submit',
+        '#value' => 'Delete',
+        '#name' => 'row-' . count($table['rows']) . '-delete',
+        '#style' => $style,
+        '#submit' => array('csl_manage_delete_style_submit'),
+      )
+    );
+  }
+  $table['rows'][] = array(
+    '#tree' => FALSE,
+    'name' => array(
+      '#type' => 'textfield',
+      '#title' => 'Name',
+    ),
+    'file' => array(
+      '#type' => 'file',
+      '#title' => t('Upload A CSL Style'),
+    ),
+    'add' => array(
+      '#type' => 'submit',
+      '#value' => 'Add',
+      '#validate' => array('csl_manage_add_style_validate'),
+      '#submit' => array('csl_manage_add_style_submit'),
+    )
+  );
+  return array(
+    '#attributes' => array('enctype' => 'multipart/form-data'),
+    'table' => $table
+  );
+}
+
+/**
+ * Submit call back for deleting a CSL Style from the manage form.
+ *
+ * @param array $form
+ *   The drupal form.
+ * @param array $form_state
+ *   The drupal form state.
+ */
+function csl_manage_delete_style_submit(array $form, array &$form_state) {
+  module_load_include('inc', 'csl', 'CSL');
+  $style = $form_state['clicked_button']['#style'];
+  $style_t = array('%style' => $style);
+  if (count(CSL::GetNames()) == 1) {
+    drupal_set_message(t('Can\'t delete the last style: %style, there must always be at least one.', $style_t), 'error');
+  }
+  else if (CSL::Delete($style)) {
+    drupal_set_message(t('Successfully deleted style: %style', $style_t));
+  }
+  else {
+    drupal_set_message(t('Failed to deleted style: %style', $style_t), 'error');
+  }
+}
+
+/**
+ * Submit callback that sets the default style.
+ * 
+ * @param array $form
+ *   The drupal form.
+ * @param array $form_state 
+ *   The drupal form state.
+ */
+function csl_manage_set_default_style_submit(array $form, array &$form_state) {
+  module_load_include('inc', 'csl', 'CSL');
+  $style_name = $form_state['clicked_button']['#style'];
+  CSL::SetDefaultName($style_name);
+  drupal_set_message(t('Successfully changed default style: %style', array('%style' => $style_name)));
+}
+
+/**
+ * Validation hook for adding a CSL Style from the manage form.
+ *
+ * @param array $form
+ *   The drupal form.
+ * @param array $form_state
+ *   The drupal form state.
+ */
+function csl_manage_add_style_validate(array $form, array &$form_state) {
+  module_load_include('inc', 'csl', 'CSL');
+  $name = $form_state['values']['name'];
+  $file_was_uploaded = isset($_FILES['files']['error']['file']) && $_FILES['files']['error']['file'] === 0;
+  if (empty($name)) {
+    form_set_error('name', t('field is required.'));
+  }
+  elseif (CSL::Exists($name)) {
+    form_set_error('name', t('the style %name already exists.', array('%name' => $name)));
+  }
+  elseif (!$file_was_uploaded) {
+    form_set_error('file', t('a valid CSL 1.0 Style must be uploaded.'));
+  }
+  /* No longer requireing styles to be valid CSL.
+    else { // File was uploaded make sure it is valid.
+    $definition = new DOMDocument();
+    $definition->load($_FILES['files']['tmp_name']['file']);
+    if (!CSL::Valid($definition)) {
+    form_set_error('file', t('the uploaded file must be a valid CSL 1.0 Style. The provided file was not valid.'));
+    }
+    }
+   */
+}
+
+/**
+ * Submit call back for deleting a CSL Style from the manage form.
+ *
+ * @param array $form
+ *   The drupal form.
+ * @param array $form_state
+ *   The drupal form state.
+ */
+function csl_manage_add_style_submit(array $form, array &$form_state) {
+  module_load_include('inc', 'csl', 'CSL');
+  $style_name = $form_state['values']['name'];
+  $definition = new DOMDocument();
+  $definition->load($_FILES['files']['tmp_name']['file']);
+  CSL::Create($style_name, $definition);
+}
+
+/**
+ * Theme a form table for this module.
+ *
+ * @param array $element
+ *   The table form element.
+ *
+ * @return sting
+ *   HTML that renders a table.
+ */
+function theme_csl_manage_table(array $element) {
+  $rows = array();
+  foreach (element_children($element['rows']) as $child) {
+    $fields = array();
+    $setting = $element['rows'][$child];
+    foreach (element_children($setting) as $property) {
+      $fields[] = drupal_render($setting[$property]);
+    }
+    $rows[] = array(
+      'data' => $fields,
+      'class' => isset($setting['#attributes']['class']) ? $setting['#attributes']['class'] : NULL
+    );
+  }
+  $attributes = isset($element['#id']) ? array('id' => $element['#id']) : NULL;
+  return theme_table($element['#header'], $rows, $attributes);
+}

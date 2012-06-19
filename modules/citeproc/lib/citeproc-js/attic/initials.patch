@@ -1,0 +1,31 @@
+diff -r 425a49e6ae67 src/util_names.js
+--- a/src/util_names.js	Mon Oct 10 10:32:21 2011 +0000
++++ b/src/util_names.js	Tue Oct 11 23:31:40 2011 +0000
+@@ -160,12 +160,15 @@
+ 
+     var isAbbrev = [];
+     for (i = 0, ilen = namelist.length; i < ilen; i += 1) {
+-        if (namelist[i].length > 1 && namelist[i].slice(-1) === ".") {
++        var abbrevFlag = false;
++        if (namelist[i].length && namelist[i].slice(-1) === ".") {
+             namelist[i] = namelist[i].slice(0, -1);
+-            isAbbrev.push(true);
+-        } else {
+-            isAbbrev.push(false);
++            abbrevFlag = true;
+         }
++        if (!abbrevFlag && namelist[i].length === 1 && namelist[i].toUpperCase() === namelist[i]) {
++            abbrevFlag = true;
++        }
++        isAbbrev.push(abbrevFlag);
+     }
+     //   (3) If initialize="false" then:
+     //       (a) Do the thing below, but only pushing terminator; or else
+@@ -174,6 +177,7 @@
+     for (i = 0, ilen = namelist.length; i < ilen; i += 2) {
+         if (isAbbrev[i]) {
+             if (i < namelist.length - 2) {
++
+                 namelist[i + 1] = "";
+                 // If terminator does not end in a space,
+                 // and this is a ROMANESQUE,

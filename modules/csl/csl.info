@@ -1,0 +1,6 @@
+; $Id$
+name = CSL
+description = Allow for the storage/retrieval/validation of CSL 1.0 styles.
+package = Islandora Tools
+version = 6.x-$Format:%h$-dev
+core = 6.x

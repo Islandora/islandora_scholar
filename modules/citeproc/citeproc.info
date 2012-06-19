@@ -1,0 +1,7 @@
+name = Citeproc
+description = A PHP Library that leverages cite-proc-js and CSL 1.0 styes for generating citations.
+package = Islandora Tools
+dependencies[] = csl
+version = 6.1dev
+core = 6.x
+php = 5.2

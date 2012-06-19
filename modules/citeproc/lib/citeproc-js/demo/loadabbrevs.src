@@ -1,0 +1,46 @@
+var abbreviations = {
+	"default": {
+		"container-title":{
+			"Pacific Rim Law & Policy Journal":"Pac. Rim L. & Pol’y J.",
+			"日本教育工学会論文誌":"日教論誌",
+			"Journal of the Japan Educational Engineering Society":"J. Japan Educ. Engineering Soc.",
+			"Applied and Environmental Microbiology":"Applied and Environmental Microbiology"
+		},
+		"collection-title":{
+			"International Rescue Wildlife Series":"I.R. Wildlife Series"
+		},
+		"authority":{
+			"United Nations": "U.N."
+		},
+		"institution":{
+			"U.S. Bureau of the Census":"U.S. Bureau of the Census"
+		},
+		"title":{},
+		"classic":{},
+		"hereinafter":{},
+		"nickname":{},
+		"place":{}
+	},
+	"slightly_weird": {
+		"container-title":{
+			"Pacific Rim Law & Policy Journal":"PRL & PJ",
+			"日本教育工学会論文誌":"日教論",
+			"Journal of the Japan Educational Engineering Society":"J. Japan Educ. Eng. Soc.",
+			"Applied and Environmental Microbiology":"Appl'd. & Env'tal Microbio."
+		},
+		"collection-title":{
+			"International Rescue Wildlife Series":"I.R. Wildlife Series"
+		},
+		"authority":{
+			"United Nations": "U.N."
+		},
+		"institution":{
+			"U.S. Bureau of the Census":"U.S. Census Bureau"
+		},
+		"title":{},
+		"classic":{},
+		"hereinafter":{},
+		"nickname":{},
+		"place":{}
+	}
+};

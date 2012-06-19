@@ -1,0 +1,131 @@
+pre {
+  border:3px solid black;
+  color:black;
+  background:#eeeeee;
+  font-size:130%;
+  padding:1em;
+}
+
+.pre-container {
+  position: relative;
+}
+
+.comment {
+  background:#2e16ce;
+  color:white;
+  font-weight:bold;
+  padding:8px;
+  top: none;
+  right: none;
+}
+
+.revealer {
+  border:6px outset #059a00;
+  background: #46c242;
+  color: #79fe74;
+  font-weight: bold;
+  text-decoration: none;
+  padding:4px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 0;
+}
+
+.revealer:hover {
+  border-style: inset;
+  z-index:50;
+}
+
+.revealer span{ /*CSS for enlarged image*/
+  position: absolute;
+  visibility: hidden;
+  background: transparent;
+}
+
+.revealer span pre{ /*CSS for enlarged image*/
+border: 3px dashed green;
+color: black;
+font-size:105%;
+background-color: #eeee00;
+margin-left: 0px;
+text-indent: 0px;
+}
+
+.revealer:hover span{ /*CSS for enlarged image on hover*/
+visibility: visible;
+top: 0px;
+right: 0px; /*position where enlarged image should offset horizontally */
+}
+
+
+div.csl-bib-body {
+  background: #ffffff;
+}
+
+div.csl-entry {
+  margin-top:0.5em;
+  border:2px solid red;
+  position: relative;
+}
+
+div.actually-no-different-than-csl-entry {
+  margin-top:0.5em;
+  margin-left:2em;
+  text-indent:-2em;
+  border:2px solid red;
+  border-left-style:none;
+  position: relative;
+}
+
+div.csl-entry-heading:before {
+  content: "csl-entry-heading:";
+  font-weight:bold;
+  color: blue;
+}
+
+div.csl-entry-heading {
+  margin-top:0.5em;
+  margin-bottom:0.5em;
+  font-weight:bold;
+  padding:0.4em;
+  background:#ffff66;
+}
+
+div.csl-left-label:before {
+  content: "csl-left-label:";
+  font-weight:bold;
+  color: blue;
+}
+
+div.csl-left-label {
+  width:14em;
+  float:left;
+  text-indent:1em;
+  padding:0.4em 0px 0.4em 0em;
+  border:2px solid blue;
+}
+
+div.csl-item:before {
+  content:"csl-item:";
+  font-weight:bold;
+  color: blue;
+}
+
+div.csl-item {
+  margin-left:14em;
+  padding:0.4em 0.4em 0.4em 1em;
+  background:#eeeeff;
+}
+
+div.csl-indented-block:before {
+  content:"csl-indented-block";
+  font-weight:bold;
+  color: blue;
+}
+
+div.csl-indented-block {
+  margin: 0.2em 0px 0.5em 5em;
+  padding:0.4em;
+  background:#ffeeee;
+}

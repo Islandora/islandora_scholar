@@ -1,0 +1,7 @@
+; $Id$
+name = Bibutils
+description = Provides a PHP interface to the bibutils tools. Found here http://www.scripps.edu/~cdputnam/software/bibutils/
+package = Islandora Tools
+version = 6.x-$Format:%h$-dev
+core = 6.x
+php = 5.2

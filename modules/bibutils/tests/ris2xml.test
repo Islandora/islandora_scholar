@@ -1,0 +1,75 @@
+<?php
+
+// $Id$
+
+/**
+ * @file
+ * 
+ * Unit Tests.
+ */
+
+/**
+ * Unit Tests for the FormControl class.
+ */
+class Bibutils_RIS2XML_TestCase extends DrupalUnitTestCase {
+  /**
+   * The location of the data directory for the tests.
+   * 
+   * @var string
+   */
+  private $data;
+  /**
+   * Get Test info.
+   * 
+   * @return array
+   *   Properties that are displayed in the test selection form.
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'ris2xml Unit Tests.',
+      'description' => 'Unit tests for bibutils focusing on converting RIS to MODS.',
+      'group' => 'Bibutils',
+    );
+  }
+  
+  /**
+   * Performs any pre-requisite tasks that need to happen in order to run the tests.
+   */
+  public function setUp() {
+    parent::setUp('bibutils');
+    $this->data = drupal_get_path('module', 'bibutils') . '/tests/data/';
+  }
+  
+  /**
+   * Test converting a single RIS file to a MODS Document where all the records exists 
+   * as seperate elements within the modsCollection element.
+   */
+  public function testConvertingFileToSingleDocument() {
+    $filename = $this->data . 'RIS.txt';
+    $schema = $this->data . 'mods-3-1.xsd';
+    $document = bibutils_ris_file_to_mods_document($filename);
+    $this->assertTrue($document, 'Created single mods document.');
+    $valid = $document->schemaValidate($schema);
+    $this->assertTrue($valid, 'single mods document is valid.');
+  }
+  
+  /**
+   * Test converting a single RIS file to many MODS Document, where each record within 
+   * the modsCollection is its own document.
+   */
+  public function testConvertingFileToManyDocuments() {
+    $filename = $this->data . 'RIS.xml';
+    $schema = $this->data . 'mods-3-1.xsd';
+    $documents = bibutils_ris_file_to_mods_documents($filename);
+    $this->assertTrue(is_array($documents), 'Created multiple mods documents.');
+    $this->assertEqual(count($documents), 11, 'Created the correct number of mods documents.');
+    $valid = TRUE;
+    foreach ($documents as $document) {
+      if (!$document->schemaValidate($schema)) {
+        $valid = FALSE;
+        break;
+      }
+    }
+    $this->assertTrue($valid, 'All mods documents are valid.');
+  }
+}

@@ -1,0 +1,102 @@
+#
+# CSL free-text date parsing
+# Test configuration file
+#
+# Fields:
+#   year, month, day
+#   year_end, month_end, day_end
+#   circa
+#   season
+#
+# See http://gsl-nagoya-u.net/http/pub/citeproc-doc.html#dates
+# for details on valid field content.
+#
+
+# With days of the week
+--> year=2000,month=10,day=24
+Wed 24 Oct 2000
+平成12年10月24日
+
+
+# Uncertain dates
+--> year=19??,month=10
+19??-10
+
+# Literals
+--> literal=myauntsally 23
+myauntsally 23
+
+# More literals
+--> literal=[Dec 23\, 2009]
+\"[Dec 23, 2009]\"
+
+# Text dates
+--> month=8,day=31,year=2000
+Aug 31, 2000
+31 Aug 2000
+
+
+# Numeric dates (English locale)
+--> month=8,day=31,year=2000
+08-31-2000
+
+
+# Numeric dates (big-endian)
+--> month=8,day=31,year=2000
+2000-8-31
+
+
+# Seasons
+--> month=14,year=2000
+Sum 2000
+--> season="Trinity",year=2001
+Trinity 2001
+--> month=13,year=2000,month_end=14,year_end=2001
+Spring 2000 - Summer 2001
+
+# Circa
+--> circa=1,month=8,day=31,year=2000
+circa 08-31-2000
+circa 2000-31-08
+circa Aug 31, 2000
+Aug 31 2000 ?
+[31 Aug 2000?]
+
+
+# BC
+--> year=-200
+200BC
+200bc
+200 b.c.
+
+
+# AD
+--> year=250
+250AD
+250ad
+250 a.d.
+
+
+# Ranged year
+--> year=2000,year_end=2001
+2000-2001
+
+
+# Ranged month
+--> year=2000,month=8,year_end=2000,month_end=9
+Aug - Sep 2000
+
+# Ranged day
+--> year=2000,month=8,day=15,year_end=2000,month_end=8,day_end=20
+Aug 15-20 2000
+
+
+# Ranged month-year
+--> year=2000,month=8,year_end=2000,month_end=9
+Aug 2000-Sep 2000
+平成12年8月〜平成12年9月
+
+
+# Ranged day-month-year
+--> year=2000,month=8,day=15,year_end=2000,month_end=8,day_end=20
+Aug 15 2000 - Aug 20 2000

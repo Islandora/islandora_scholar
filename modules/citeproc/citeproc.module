@@ -1,0 +1,95 @@
+<?php
+
+/**
+ * @file
+ *
+ * Implements hooks and callbacks for this module.
+ */
+ 
+ //TODO: Should probably be made to use it's own table at some point, which can be cleared/enabled/disabled via hooks/config pages.
+define(CITEPROC_DO_CACHE, FALSE); //Use to disable/enable citation caching
+define(CITEPROC_CACHE_TABLE, 'cache');  
+define(CITEPROC_CACHE_PREFIX, 'citation');
+
+function citeproc_item_from_mods($mods, $cache_id = NULL) {
+  module_load_include('inc', 'citeproc', 'CiteProcJSItem');
+  module_load_include('php', 'citeproc', 'generators/converter');
+  $raw = convert_mods_to_citeproc_jsons($mods);
+
+  $item = new CiteProcJSItem();
+  $item->set($raw);
+  return $item;
+}
+
+function citeproc_citation_from_mods($mods, $cache_id = NULL) {
+  module_load_include('inc', 'citeproc', 'CiteProcJSCitation');
+  $item = citeproc_item_from_mods($mods, $cache_id);
+  $citation = new CiteProcJSCitation();
+  $citation->addItem($item);
+  return $citation;
+}
+
+function citeproc_bibliography_from_mods(CiteProcJSStyle $style, $mods, $cache_id = NULL) {
+  module_load_include('inc', 'citeproc', 'CiteProcJSBibliography');
+  $citation = citeproc_citation_from_mods($mods, $cache_id);
+  $bibliography = new CiteProcJSBibliography($style);
+  $bibliography->addCitation($citation);
+  return $bibliography;
+}
+
+function citeproc_bibliography_from_raw_array(CiteProcJSStyle $style, array $raw) {
+  module_load_include('inc', 'citeproc', 'CiteProcJSItem');
+  module_load_include('inc', 'citeproc', 'CiteProcJSCitation');
+  module_load_include('inc', 'citeproc', 'CiteProcJSBibliography');
+
+  $item = new CiteProcJSItem();
+  $item->set($raw);
+  $citation = new CiteProcJSCitation();
+  $citation->addItem($item);
+  $bibliography = new CiteProcJSBibliography($style);
+  $bibliography->addCitation($citation);
+
+  return $bibliography;
+}
+
+function citeproc_default_style() {
+  module_load_include('inc', 'csl', 'CSL');
+  module_load_include('inc', 'citeproc', 'CiteProcJSStyle');
+  $doc = CSL::GetDefault(TRUE);
+  if (!empty($doc)) {
+    return new CiteProcJSStyle($doc);
+  }
+  return FALSE;
+}
+
+function citeproc_style($style) {
+  module_load_include('inc', 'csl', 'CSL');
+  module_load_include('inc', 'citeproc', 'CiteProcJSStyle');
+  $doc = CSL::Get($style, TRUE);
+  if (!empty($doc)) {
+    return new CiteProcJSStyle($doc);
+  }
+  return FALSE;
+}
+
+/**
+ *  Was using uniqid(); however, it can be slower than cold molasses...
+ *  Possibly using /dev/random behind the scenes, which blocks for 'better'
+ *  randomness...  Anyway...  This seems to work.
+ * @return string ID to use in citeproc HTML IDs
+ */
+function citeproc_get_id() {
+  static $i = 0;
+  return t('citeproc_idnum_!id', array('!id' => $i++));
+}
+
+function citeproc_clear_cache(array &$form, &$form_state) {
+  $pid = $form_state['values']['pid'];
+  _citeproc_clear_cache($pid);
+}
+
+function _citeproc_clear_cache($pid) {
+  cache_clear_all(t('!prefix_!pid', array(
+    '!prefix' => CITEPROC_CACHE_PREFIX,
+    '!pid' => $pid)), CITEPROC_CACHE_TABLE);
+}

@@ -1,0 +1,272 @@
+/*
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights
+ * Reserved.
+ *
+ * The contents of this file are subject to the Common Public
+ * Attribution License Version 1.0 (the “License”); you may not use
+ * this file except in compliance with the License. You may obtain a
+ * copy of the License at:
+ *
+ * http://bitbucket.org/fbennett/citeproc-js/src/tip/LICENSE.
+ *
+ * The License is based on the Mozilla Public License Version 1.1 but
+ * Sections 14 and 15 have been added to cover use of software over a
+ * computer network and provide for limited attribution for the
+ * Original Developer. In addition, Exhibit A has been modified to be
+ * consistent with Exhibit B.
+ *
+ * Software distributed under the License is distributed on an “AS IS”
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+ * the License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * The Original Code is the citation formatting software known as
+ * "citeproc-js" (an implementation of the Citation Style Language
+ * [CSL]), including the original test fixtures and software located
+ * under the ./std subdirectory of the distribution archive.
+ *
+ * The Original Developer is not the Initial Developer and is
+ * __________. If left blank, the Original Developer is the Initial
+ * Developer.
+ *
+ * The Initial Developer of the Original Code is Frank G. Bennett,
+ * Jr. All portions of the code written by Frank G. Bennett, Jr. are
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights Reserved.
+ *
+ * Alternatively, the contents of this file may be used under the
+ * terms of the GNU Affero General Public License (the [AGPLv3]
+ * License), in which case the provisions of [AGPLv3] License are
+ * applicable instead of those above. If you wish to allow use of your
+ * version of this file only under the terms of the [AGPLv3] License
+ * and not to allow others to use your version of this file under the
+ * CPAL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the
+ * [AGPLv3] License. If you do not delete the provisions above, a
+ * recipient may use your version of this file under either the CPAL
+ * or the [AGPLv3] License.”
+ */
+
+>>===== MODE =====>>
+citation
+<<===== MODE =====<<
+
+
+Normalizes punctuation and grouping when multiple numbers are provided in input.
+
+>>===== RESULT =====>>
+1st edition --- ‘1’ --- ordinalized, numeric, singular
+2nd–3rd editions --- ‘2 - 3’ --- ordinalized, numeric, plural
+4th & 6th editions --- ‘4 &#38; 6’ --- ordinalized, numeric, plural
+7th, 8th & 9th editions --- ‘7, 8 &#38; 9’ --- ordinalized, numeric, plural
+10th, 12th & 14th editions --- ‘10, 12 &#38; 14’ --- ordinalized, numeric, plural
+15th, 17th, 19th, 20th, 21st editions --- ‘15, 17, 19, 20, 21’ --- ordinalized, numeric, plural
+16th, 28th, 30th, 31st, 32nd, 34th, 36th editions --- ‘16, 28, 30, 31, 32, 34, 36’ --- ordinalized, numeric, plural
+25th, 15th, 17th, 19th, 20th, 21st, 23rd, 24th editions --- ‘25, 15, 17, 19, 20, 21, 23, 24’ --- ordinalized, numeric, plural
+38th, 37th–40th editions --- ‘38, 37 - 40’ --- ordinalized, numeric, plural
+43rd–41st editions --- ‘43-41’ --- ordinalized, numeric, plural
+205th–2000th editions --- ‘205 - 2000’ --- ordinalized, numeric, plural
+1 vol + 1 CD --- ‘1 vol + 1 CD’ --- not ordinalized, non-numeric
+12nd edition --- ‘12nd’ --- Suffix left untouched, not ordinalized, numeric, singular
+12a–c edition --- ‘12a-c’ --- Suffix left untouched, not ordinalized, numeric, singular
+12th Yellow–tailed Wooly Monkey --- ‘12th Yellow-tailed Wooly Monkey’ --- not ordinalized, non-numeric
+T51 edition --- ‘T51’ --- not ordinalized, numeric, singular
+Edition 1 --- ‘Edition 1’ --- not ordinalized, non-numeric
+Editions 1–6th --- ‘Editions 1 - 6’ --- partially ordinalized, non-numeric (bad input, we don’t attempt rescue)
+42nd edition --- ‘“42 editionX”’ --- Quotes stripped, trailing label stripped, ordinalized, numeric, singular
+42nd–47th editions --- ‘“42 - 47 editionz”’ --- Quotes stripped, trailing label stripped, ordinalized, numeric, plural
+T51 edn. --- ‘T51 edn.’ --- Non-numeric (label must be spelled out in full)
+T51 & T53 editions --- ‘T51 &#38; T53’ --- not ordinalized, numeric, plural
+12:xx edition --- ‘12:xx’ --- not ordinalized, numeric, singular
+12 13 edition --- ‘12 13’ --- not ordinalized, numeric, singular
+12th folio --- ‘12th folio’ --- Suffix left untouched, not ordinalized, non-numeric
+<<===== RESULT =====<<
+
+>>===== CSL =====>>
+<style 
+      xmlns="http://purl.org/net/xbiblio/csl"
+      class="note"
+      version="1.0">
+  <info>
+    <id />
+    <title />
+    <updated>2009-08-10T04:49:00+09:00</updated>
+  </info>
+  <locale>
+    <terms>
+      <term name="open-quote">‘</term>
+      <term name="close-quote">’</term>
+      <term name="open-inner-quote">“</term>
+      <term name="close-inner-quote">”</term>
+    </terms>
+  </locale>
+  <citation>
+    <layout delimiter="&#x0A;">
+      <group delimiter=" ">
+        <number variable="edition" form="ordinal"/>
+        <choose>
+          <if is-numeric="edition">
+            <label variable="edition"/>
+          </if>
+	    </choose>
+        <text variable="edition" prefix="--- " quotes="true"/>
+        <text variable="title" prefix="--- "/>
+      </group>
+    </layout>
+  </citation>
+</style>
+<<===== CSL =====<<
+
+>>===== INPUT =====>>
+[
+	{
+		"id": "ITEM-1",
+		"title": "ordinalized, numeric, singular",
+		"edition" : "1",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-2",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "2 - 3",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-3",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "4 & 6",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-4",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "7, 8 & 9",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-5",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "10, 12 & 14",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-6",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "15, 17, 19, 20, 21",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-8",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "16, 28, 30, 31, 32, 34, 36",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-7",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "25, 15, 17, 19, 20, 21, 23, 24",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-9",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "38, 37 - 40",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-10",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "43-41",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-11",
+		"title": "ordinalized, numeric, plural",
+		"edition" : "205 - 2000",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-12",
+		"title": "not ordinalized, non-numeric",
+		"edition" : "1 vol + 1 CD",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-13",
+		"title": "Suffix left untouched, not ordinalized, numeric, singular",
+		"edition" : "12nd",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-14",
+		"title": "Suffix left untouched, not ordinalized, numeric, singular",
+		"edition" : "12a-c",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-15",
+		"title": "not ordinalized, non-numeric",
+		"edition" : "12th Yellow-tailed Wooly Monkey",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-16",
+		"title": "not ordinalized, numeric, singular",
+		"edition" : "T51",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-17",
+		"title": "not ordinalized, non-numeric",
+		"edition" : "Edition 1",
+		"type": "book"
+	},
+	{
+		"id": "ITEM-18",
+		"title": "partially ordinalized, non-numeric (bad input, we don't attempt rescue)",
+		"edition" : "Editions 1 - 6",
+		"type": "book"
+	},
+    {
+        "id": "item-19", 
+        "title": "Quotes stripped, trailing label stripped, ordinalized, numeric, singular", 
+        "type": "book", 
+        "edition": "\"42 editionX\""
+    },
+    {
+        "id": "item-20", 
+        "title": "Quotes stripped, trailing label stripped, ordinalized, numeric, plural", 
+        "type": "book", 
+        "edition": "\"42 - 47 editionz\""
+    },
+    {
+        "id": "item-21", 
+        "type": "book", 
+        "title": "Non-numeric (label must be spelled out in full)", 
+        "edition": "T51 edn."
+    },
+    {
+        "id": "item-22", 
+        "type": "book", 
+        "title": "not ordinalized, numeric, plural", 
+        "edition": "T51 & T53"
+    },
+    {
+        "id": "item-23", 
+        "type": "book", 
+        "title": "not ordinalized, numeric, singular", 
+        "edition": "12:xx"
+    },
+    {
+        "id": "item-24", 
+        "type": "book", 
+        "title": "not ordinalized, numeric, singular", 
+        "edition": "12 13"
+    },
+    {
+        "id": "item-25", 
+        "type": "book", 
+        "title": "Suffix left untouched, not ordinalized, non-numeric", 
+        "edition": "12th folio"
+    }
+]
+<<===== INPUT =====<<

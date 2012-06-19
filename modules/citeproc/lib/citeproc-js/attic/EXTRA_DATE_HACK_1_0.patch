@@ -1,0 +1,35 @@
+--- cite.js.orig	2009-03-20 21:36:53.000000000 +0900
++++ cite.js	2009-09-08 07:09:26.000000000 +0900
+@@ -2013,6 +2013,7 @@
+ 		"ISBN" : "ISBN",
+ 		"call-number":"callNumber",
+ 		"note":"extra",
++		"extra-date":"extraDate",
+ 		"number":"number",
+ 		"references":"history"
+ 	},
+@@ -2052,7 +2053,23 @@
+ 	}
+ 	
+ 	for each(var zoteroField in zoteroFields) {
+-		var value = this.zoteroItem.getField(zoteroField, false, true).toString();
++		if (zoteroField == "extraDate"){
++			var value = this.zoteroItem.getField("extra", false, true).toString();
++			var m = value.match(/^\[([0-9]+)\].*/);
++			if (m){
++				value = m[1];
++			} else {
++			    value = "";
++                        }
++		} else if (zoteroField == "extra") {
++			var value = this.zoteroItem.getField(zoteroField, false, true).toString();
++			var m = value.match(/^\[[0-9]+\]\s+(.*)/);
++			if (m){
++				value = m[1];
++			}
++		} else {
++			var value = this.zoteroItem.getField(zoteroField, false, true).toString();
++		}
+ 		if(value != "") {
+ 			// Strip enclosing quotes
+ 			if(value.match(Zotero.CSL._quotedRegexp)) {

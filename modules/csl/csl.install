@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * @file
+ *
+ * Installs the required database schema for storing associations between XML Forms and Content Models.
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function csl_install() {
+  drupal_install_schema('csl');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function csl_uninstall() {
+  drupal_uninstall_schema('csl');
+}
+
+/**
+ * Implementation of hook_enable().
+ */
+function csl_enable() {
+  module_load_include('inc', 'csl', 'CSL');
+  $data_path = drupal_get_path('module', 'csl') . '/data/';
+  $styles = array(
+    'Annotated (NLM style with abstract)' => 'annotated.csl',
+    'APA' => 'apa.csl',
+    'NIH' => 'nih.csl',
+    'Numbered (NLM)' => 'nlm.csl',
+  );
+  foreach ($styles as $style_name => $filename) {
+    if (!CSL::Exists($style_name)) {
+      $definition = new DOMDocument();
+      $definition->load($data_path . $filename);
+      CSL::Create($style_name, $definition);
+    }
+  }
+}
+
+/**
+ * Implementation of hook_schema().
+ *
+ * @return array
+ *   The schema definition.
+ */
+function csl_schema() {
+  $schema['csl'] = array(
+    'description' => t('This table is used to store CSL 1.0 styles.'),
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => t('The name of the CSL 1.0 style.'),
+        'type' => 'varchar',
+        'length' => 128,
+        'not null' => TRUE
+      ),
+      'style' => array(
+        'description' => t('The xml based style definition.'),
+        'type' => 'text',
+        'size' => 'medium',
+        'not null' => TRUE
+      ),
+    ),
+    'unique keys' => array('name' => array('name')),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

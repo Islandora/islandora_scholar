@@ -1,0 +1,4614 @@
+Summary of changes to citeproc-js since version 1.0.0 release.
+
+==========================
+Changes in version 1.0.250
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix delimiter bug affecting institutional names.
+  (Hat tip to Zac Howarth for reporting the fault)
+
+==========================
+Changes in version 1.0.249
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Open a new abbreviations segment if it is
+  missing when called.
+
+==========================
+Changes in version 1.0.248
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Clean up sort keys. Fixes some sort breakage.
+
+
+==========================
+Changes in version 1.0.247
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Provide for abbreviation of the publisher field.
+
+- Do not capitalize first-occurring term when it is
+  preceded by a prefix that does not end in terminal
+  punctuation.
+
+==========================
+Changes in version 1.0.246
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Large changes to multilingual language configuration
+  and rendering. A distinction is now drawn between
+  language roles (original, transliterated, and translated
+  forms of a field) and roles assigned to particular
+  field categories: persons, institutions, titles,
+  publishers and places. For each category, any of the 
+  original, transliterated and translated forms can be 
+  used as the primary entry, and any remaining forms can
+  be used in the trailing brace-enclosed supplement.
+
+  (If the explanation above sounds confusing, take a look
+  at the Preferences -> Languages panel in the MLZ client,
+  it should be immediately apparent how things work.)
+
+
+==========================
+Changes in version 1.0.245
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Extend delimiter oops to cover objects removed
+  from output queue during parallel cite processing.
+
+==========================
+Changes in version 1.0.244
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Preserve multi segment when cloning names.
+
+
+==========================
+Changes in version 1.0.243
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix suppression of editor (and other) name variables
+  rendered via cs:substitute.
+
+
+==========================
+Changes in version 1.0.242
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in strip-periods. Thanks to Liam McHugh-Russell
+  for reporting.
+
+==========================
+Changes in version 1.0.241
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Always honor the requested jurisdiction when returning
+  abbreviations.
+
+
+==========================
+Changes in version 1.0.240
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Introduce subsequent-parallel position attribute
+  value for conditions.
+
+
+==========================
+Changes in version 1.0.239
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Guarantee that loadAbbreviation returns a meaningful
+  jurisdiction key even if raw string for abbreviation is empty.
+
+
+==========================
+Changes in version 1.0.238
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Use a static function for getAbbreviation, supplying
+  styleID as an explicit parameter.
+
+
+==========================
+Changes in version 1.0.237
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in stop-last attribute to cs:institution
+
+- Allow match of parent jurisdiction when item jurisdiction
+  field contains additional subelements.
+
+- Fix bug in near-note evaluation
+
+- Implement reverse-order attribute on cs:institution, which
+  had been overlooked
+
+- Fix bug in "classic" abbreviation substitution
+
+- Add part-separator for use on cs:institution
+
+
+==========================
+Changes in version 1.0.236
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Tie "classic" abbreviations to new "classic" type 
+  of MLZ extended schema.
+
+- Introduce "{suppress}" token for suppressing person 
+  name output via an abbreviation list engine.
+
+- Allow value of zero (0) on use-first and use-last 
+  attributes to cs:institution, to suppress institutional 
+  affiliations.
+
+- Bugfixes for hereinafter support.
+
+- Make hereinafter abbreviation variable testable.
+
+
+==========================
+Changes in version 1.0.235
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Rename obscure "term_sibling" stack variable to slightly less
+  obscure "group_context".
+
+- Introduce new attributes subgroup-delimiter and 
+  subgroup-delimiter-precedes-last on cs:group element, and recognize
+  the and delimiter as well. The publisher and publisher-place
+  variables will now be read nad rendered in parallel only when
+  subgroup-delimiter has been set to a value.
+
+- Introduce new stop-last attribute on cs:institution, and loosen
+  default behavior of use-first to allow inclusion of the first element 
+  even if it is the only element. The stop-last attribute has the same
+  effect as use-last (i.e. it trumps use-first in the event of an overlap),
+  but renders nothing for the portion of the name that it covers.
+
+- Introduce oops attribute on cs:group. This is a very specialized
+  attribute for the specific situation where a name with content may
+  render as nil due to abbreviation logic. In this case, the oops string
+  value will be substituted for the group delimiter two levels above
+  the group on which the oops is set. While messy, this avoids the need
+  for (even messier) syntax that would be needed to check whether
+  a cs:names element will produce output under various combinations of
+  options, translation, transliteration and abbreviation transformations.
+
+- Remove instituition-use-first attribute.
+
+- Widespread refactoring of group-conditional logic, particular as
+  related to cs:names and cs:substitute. Our tests all pass.
+
+- Apply title abbreviations to "genre" and "title-short". The former
+  as just overlooked. The latter may seem a little odd, but including
+  this field for abbreviation purposes will help consistency.
+
+
+==========================
+Changes in version 1.0.234
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Assure that processor cannot crash when getAbbreviation
+  is undefined.
+
+==========================
+Changes in version 1.0.233
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Protect against attempts to abbreviate when getAbbreviation is undefined.
+
+- Avoid attempt to append an undefined to the output string in queue.js
+
+- Extend abbreviations mechanism with a jurisdiction segment.
+
+- Step through specific jurisdiction and the default segment when performing 
+  full-field matches, and return default from getAbbreviation() 
+  if the hit occurs there.
+
+==========================
+Changes in version 1.0.232
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Avoid crashing processor when (extended, off-CSL
+  institution-use-first test attribute is invoked before
+  any names have been rendered.
+
+- Come minor code cleanup.
+
+==========================
+Changes in version 1.0.231
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a bug in abbreviation segment assignments
+  that affected the publisher field.
+
+
+==========================
+Changes in version 1.0.230
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Separate abbreviation segment for transforms of entire 
+  institution string from that for institution parts.
+  
+
+==========================
+Changes in version 1.0.229
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a bug in registry updating that could trigger
+  a processor crash under some circumstances. Many thanks
+  to Zotero user anark for patient work on reproducing
+  the bug.
+
+
+==========================
+Changes in version 1.0.228
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a bug in initialize="false" behavior.
+
+- Fix bug in suppression behavior of cs:group.
+
+
+==========================
+Changes in version 1.0.227
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Clean up "tmp.area" and "build.area" flags, providing separate 
+  flags for area key (area), _sort extension (extension), and 
+  root area node name (root).
+
+- Fix breakage in bugfix for generation of sort keys via macros
+  containing cs:names.
+
+==========================
+Changes in version 1.0.226
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in generation of sort keys via macros containing
+  cs:names.
+
+- Small adjustments to parallel citation handling.
+
+
+==========================
+Changes in version 1.0.225
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Force a possible number to string before
+  performing a string match, in util_page.js.
+
+- Set static midVars array on instantiation of
+  parallel evaluation engine, rather than on
+  StartCitation().
+
+- Restore setAbbreviations() function to citeproc
+  object. (Will default to a noop unless the
+  abbreviations mechanism attached to sys
+  supplies a corresponding hook function.)
+
+- Prevent updateItems() from ever setting duplicate
+  items in the bibliography. Thanks to an anonymous
+  user who reported this possibility to the citeproc-js
+  bug tracker.
+
+==========================
+Changes in version 1.0.224
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+Many fixes and adjustments in this release, mostly in connection
+with work aimed at improved legal style support with the MLZ
+extended CSL schema.
+
+- Do not apply the hard-wired collapse delimiter in numeric styles.
+  (thanks to Sebastian Karcher for reporting this fault).
+
+- Note to self: Do not allow any parameter fed to slice() to be
+  undefined. Ever. It behaves differently on (some versions of)
+  Firefox and (some) other platforms.
+
+- Reverse order of institutional name subunits. We're now
+  little-endian.
+
+- When sniffing for CSL variables inserted via the "note" field hack,
+  use match() on string instead of exec() on compiled regexp. The
+  latter was failing on alternate runs of the processor, not sure why.
+
+- Adjust parallel cite analysis machinery to recognize
+  collection-title as alternative to container-title, and
+  collection-number as alternative to volume.
+
+- Implement an institution-use-first test. Painfully obscure, but
+  necessary.
+
+- Discriminate neutral citations during parallel cite analysis, as
+  cites that contain neither container-title nor collection-title.
+
+- In util_parallel.js, change condition on which to permit leading
+  dates to appear in subsequent cites. With this change, in OSCOLA,
+  dates will not be suppressed on a non-neutral cite without volume
+  number that follows a neutral cite. This seems to be correctly
+  targeted logic, safe for other contexts as well (including French
+  case and commentary clusters).
+
+- Implement form="short" on cs:institution, for refactoring of an
+  entire institution name list. Implement best-match top-level
+  short-forms in institution names.
+
+- Implement configurable skip-words list in locale.
+
+- Implement "context" test attribute, to allow macros to change
+  behavior depending on whether they execute in cs:citation or
+  cs:bibliography.
+
+- Code cleanup and slight increase in discipline for range
+  collapsing. Simple pure numeric ranges like 200-03 will work, and
+  ranges of mixed strings like n23 - n25 will work if the hyphen has
+  spaces on either side.
+
+- Hack in special handling for titles ("Lord", "Lady"). Titles and
+  special sort separator should eventually be placed under locale
+  control, but for the present this gives us something to build on.
+
+- Support text-case on cs:institution-part
+
+- Set term_predecessor at start of each entry rendered via
+  getBibliographyEntries(). Wakes up automagic capitalization of
+  initial letter in leading terms.
+
+- Recognize locator-revision as a segment on item, not Item when
+  evaluating conditionals.
+
+- Pass through isInstitution flag for the benefit of _parseNames. Not
+  clear why this didn't cause problems earlier.
+
+- Fix a silly bug affecting inherited name options
+
+- Use some more orthodox commands to detect the presence of XML
+  things in preprocessing phase (xmle4x.js).
+
+- Code cleanup: Move _splitInstitution and _trimInstitution from
+  util_names_divide.js to util_names_truncate.js, where they are now
+  actually used.
+
+==========================
+Changes in version 1.0.223
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Extend "Lord" hack (suppressing initialization as given
+  name) to cover "Lady" as well.
+
+- Apply initialize-with string to name suffix as well
+  as given name elements.
+
+- Wake up implicit initial term capitalization when 
+  suppress-author is used.
+
+- Fix bug in recenly added code permitting suppression of any 
+  type of initial creator.
+
+- Small refinement to rejoin numeric elements in cs:number
+  with en-dash.
+
+- Treat numbers with leading zeros as strings in cs:number.
+
+
+==========================
+Changes in version 1.0.222
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- With suppress-author, suppress the first creator of 
+  whatever type, and not only author per se.
+
+- Add a "nickname" segment to the abbreviation lists, for use
+  initially with personal_communication items only. The segment
+  accepts full rendered personal names.
+
+- Also at this symmetric milestone, some tidying up of the 
+  development_extensions options:
+
+  citeproc.development_extensions.clean_up_csl_flaws
+    The processor goes to great lengths to control for duplicate
+    punctuation and spacing. Set this option to false will
+    disable this extra code, resulting in a tiny performance
+    improvement, but at the cost of triggering formatting errors
+    in many styles.
+
+  citeproc.development_extensions.locator_date_and_revision
+    Renamed from "locator_date", since the option relates to
+    two variables parsed out of the locator string.
+
+  citeproc.development_extensions.locator_parsing_for_plurals
+    Renames from "locator_parsing" to better reflect what the
+    option does. If this is true, the mulitple-dates code
+    will be used to identify plural/singular entries, which
+    may yield slightly better results.
+
+  citeproc.development_extensions.season_name_is_numeric_true
+    This hack has been dropped, together with its control
+    option. The same result (triggering is-numeric true for
+    season names) can now be accomplished by appending the field
+    term name after the season name.
+
+  The full set of development_extension toggles can be found
+  in state.js.
+
+
+==========================
+Changes in version 1.0.221
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Some small refinements to multiple numbers handling.
+
+- Provide for numeric range mangling when rendering via cs:number.
+
+- Fix a delimiter bug lurking in some recent code.
+
+
+==========================
+Changes in version 1.0.220
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Adopt a less aggressive (and less risky) approach to multiple
+  numeric elements. Features of the new behavior:
+
+    o Numbers are no longer sorted;
+    o Ranges are no longer evaluated;
+    o Delimiters entered by the user are respected.
+
+  Apart from those changes, the new machinery delivers the same
+  benefits as the original enhancement: recognition and formatting
+  of multiple numbers, smart plural identification, rcleanup
+  of trailing labels in the input string, and reliable identification
+  of numeric content (which can usefully be affixed with a label) and
+  non-numeric content (which is likely meant to be presented
+  without a label).
+
+  (The new mechanism is safe to apply to the locator string,
+  if CSL extends in that direction.)
+
+
+==========================
+Changes in version 1.0.219
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- The internal date structure is now normalized immediately on
+  receipt of input. This change was needed for hereinafter support,
+  described below.
+
+- Fix a small bug that would have affected the "classic" short-form 
+  feature introduced in 1.0.214.
+
+- Recognize publisher abbreviations supplied via an abbreviations
+  list.
+
+- When suppress-author is set on a legal_case item, suppress the
+  title rather than the author. In context, this normally appropriate 
+  even if the item has an author.
+
+- In subsequent-author-substitute-rule options, rename "partial" to
+  "partial-each", and add a "partial-first" option.
+
+- Implement the "hereinafter" segment of the abbreviation list
+  structure. Key is formed from the first-mentioned author, the
+  title, the item type, the date, and the item jurisdiction. The
+  "hereinafter" variable will render only if the user supplies 
+  a value via the abbreviation list mechanism.
+
+- Provide an option to permit raw date parsing to be turned off.
+  As this is triggered by a special date input structure, there
+  will normally not be a reason to disable the behavior on purpose,
+  but just in case it can be turned off with:
+
+    citeproc.development_extensions.raw_date_parsing = false
+
+
+==========================
+Changes in version 1.0.218
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Add locator-revision variable, which consists of the trailing
+  string left over after parsing out locator-date (if any). Disabling
+  of this extension is controlled by the same locator_date toggle.
+
+
+========================================
+Changes in version 1.0.217 [API warning]
+========================================
+
+----------------------------------------------------------------
+API change with default citeproc.opt.development_extensions=true
+----------------------------------------------------------------
+
+- Fine-grained control over extended functionality. The following
+  settings are enabled by default in the processor. Each can
+  be turned off by setting the relevant value to false.   A brief 
+  description of each extension is given below.
+
+    citeproc.development_extensions.field_hack = true;
+    citeproc.development_extensions.locator_date = true;
+    citeproc.development_extensions.locator_parsing = true;
+    citeproc.development_extensions.season_name_is_numeric_true = true;
+
+  field_hack
+     This is the hack syntax recognized in the "note" field, as
+     "{:fieldname: value}".
+
+  locator_date:
+     This extension is documented in the citeproc-js CSL supplement.
+     http://gsl-nagoya-u.net/http/pub/citeproc-js-csl.html#locator-date-variable
+
+  locator_parsing:
+     This extension applies the numeric parsing described in the citeproc-js
+     supplement to locators. This affects plural detection, the is-numeric
+     condition, and (the the schema permits) allows the locator to be rendered
+     using cs:number. If this option is enabled, it is advisable to render
+     locators using cs:number.
+
+     This change allows the processor to distinguish between leaf numbers,
+     which might take the form "9-15" and ranges, which the processor will
+     recognize only if written as "9 - 15" (with spaces on either side of
+     the hyphen). Both forms will render in the same way, but the latter
+     will be recognized as plural, and the former as singular. 
+
+  season_name_is_numeric_true
+     When this extension is enabled, the English season names "Winter", "Spring",
+     "Summer", "Fall" and "Autum", when the occur by themselves in a numeric
+     field, will evalute as "true" with the is-numeric conditional.
+
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Change name of "updated-date" to "locator-date".
+
+
+==========================
+Changes in version 1.0.216
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Implement variable "updated-date", parsed out from the
+  user-supplied locator. Like the "note" field hack for
+  CSL 1.0 variables on available on an item type, the parsing-out
+  and insertion of this non-CSL 1.0 variable can be turned
+  off by setting:
+
+    citeproc.opt.development_extensions = false.
+
+  The extension is useful for citing looseleaf services
+  commonly used in law, the dates of which vary depending
+  on the page cited and the time at which the resource
+  was referenced. This permits a single item in Zotero to
+  represent the volume on the library shelf, the page date being
+  optionally supplied by the user when citing into a document.
+
+- Introduce a hack to permit English season names "Winter",
+  "Spring", "Summer", "Fall" and "Autumn" to test true in
+  the is-numeric conditional. This permits styles to supply
+  the standard label term to these strings (as in "Fall edn").
+  This is an acknowledged hack, and the behavior can be turned
+  off by the same setting shown above:
+
+    citeproc.opt.development_extensions = false.
+
+- Remove roman half-width spaces when parsing potential Japanese/Chinese
+  date strings. The same change has been applied to the standalone
+  date parsing module shipped with Multilingual Zotero.
+
+- Evaluate subsequent-author-substitute only under the cs:bibliography
+  node to save a few cycles.
+
+- Perform name transliteration and short-forming after truncating
+  namesets, to save a few cycles.
+
+- Add a "classic" segment to the object that holds abbreviation
+  lists. Keys on this object are populated by author + ", " + title
+  for untyped (plain "document") input objects only. This permits
+  full descriptive information for classic resources (i.e. established
+  sources with citation conventions that are independent of a specific
+  publisher) to be mapped to the commonly accepted abbreviation required
+  by an individual style.
+
+
+==========================
+Changes in version 1.0.215
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Implement fine-grained subsequent author substitution
+  (upcoming CSL 1.0.1 proposal)
+
+
+==========================
+Changes in version 1.0.214
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Coerce date-part elements received from calling
+  application to integer.
+
+
+==========================
+Changes in version 1.0.213
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix delimiter bug reported by user sinophil.
+
+
+==========================
+Changes in version 1.0.212
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Implement cs:generate element, for cross-references
+  to an item with modified details in the bibliography.
+
+- Implement leading-noise-words attribute, for reversal
+  or dropping of insignificant words at the start of a
+  title or other string.
+
+
+==========================
+Changes in version 1.0.211
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in delimiter-precedes-last="always", reported
+  by Sebastian Karcher.
+
+- Disambiguate on "primary-name" rules only if there is
+  a clash with another primary name.
+
+
+==========================
+Changes in version 1.0.210
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Small adjustment to name disambiguation when a "*-with-initials"
+  rule is used. Initials will not be added unless they contribute
+  something to disambiguation.
+
+
+==========================
+Changes in version 1.0.209
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Screen empty fields from persistent recording by getAbbreviation.
+
+- Initialized abbreviations lists from items added to the registry.
+
+- Recognize event-place as well as publisher-place for list-based
+  abbreviation, and hold abbreviations for both under a single
+  "place" type key.
+
+
+==========================
+Changes in version 1.0.208
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Properly escape CSL-supplied affix strings. Fixes problem with superscripted en-dashes
+  in some numeric styles, among other things.
+
+- Fix output queue bug that could cause delimiters to be swallowed (2401:c8960e2cd591).
+
+- Change to API for external abbreviations management, to allow
+  more efficient handling of very large lists. Optional sys.getAbbreviations()
+  function is now sys.getAbbreviation().
+
+- No not rely on quoted escapes, but strip enclosing quotes for the
+  present.
+
+- Adopt extraction conventions for cs:number described at
+  http://gsl-nagoya-u.net/http/pub/citeproc-js-csl.html#cs-number-cs-label-and-is-numeric
+
+
+==========================
+Changes in version 1.0.207
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Recognize quoted escapes on cs:number.
+
+
+==========================
+Changes in version 1.0.206
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Recognize fa_FA as the standard locale for
+  calls to plain fa.
+
+- Recognize suppress-min="0" as specific to a
+  cs:institution or cs:name node. (This attribute
+  is outside of standard CSL.)
+
+
+==========================
+Changes in version 1.0.205
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in xmldom.js affecting cs:names.
+
+
+==========================
+Changes in version 1.0.204
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in date extraction code used in sort key
+  generation, affecting systems relying on xmldom.js.
+
+
+==========================
+Changes in version 1.0.203
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in position evaluation, in which labels were
+  not taken into account in determining whether a cite
+  referred to exactly the same pinpoint location as its 
+  immediate predecessor.
+
+
+==========================
+Changes in version 1.0.202
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in reassignment and updating of year-suffix values.
+  Thanks to Zotero user brazuca for reporting the fault.
+
+
+==========================
+Changes in version 1.0.201
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix logic of date key generation from macros. Processor
+  formerly used the first-occurring date in the macro. With
+  the fix, conditional logic is recognized. The only constraints
+  are (1) that macros containing a date (somewhere) will generate
+  date keys only, with other nodes delivering an empty string; and
+  (2) that macros used for key generation should render exactly
+  one date node; rendering multiple nodes will result in a 
+  misformatted sort key.
+
+- Implement new boolean "initialize" attribute. When set to
+  false, full given names are normalized to use the initials
+  punctuation set by initialize-with. Not yet in official
+  CSL 1.0.
+
+
+==========================
+Changes in version 1.0.200
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- When attempting disambiguation, never include names that
+  fail to reduce the number of clashes.
+
+- Fix typo in xmldom.js. Thanks to Greg Law for identifying
+  the fault.
+
+- When sort order of citation-number is set to "descending",
+  reverse the order of citation numbers without reversing
+  the order of items.
+
+- Implement gender-sensitive rendering of non-numeric
+  terms, based on gender assignment to item type (beyond
+  CSL 1.0).
+
+- Implement jurisdiction conditional.
+
+
+==========================
+Changes in version 1.0.199
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix another bug in multilingual layouts, triggered by the
+  use of cs:number, strangely enough.
+
+
+==========================
+Changes in version 1.0.198
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in multiple (multilingual) layouts, affecting styles
+  that use multilingual citation layouts when a bibliography is
+  rendered. Bug spotted by Abbas Shahzadeh.
+
+
+==========================
+Changes in version 1.0.197
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Properly set and reset discretionary multilingual locale 
+  during output operations. This fixes a bug in multilingual 
+  bibliography generation identified by Maxim Nazarenko.
+
+
+==========================
+Changes in version 1.0.196
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Implement suppress-max attribute for cs:names
+  and fix bug in implicit conditional behavior within
+  cs:group when cs:names renders no output due
+  to suppress-min or suppress-max. (Note that neither
+  suppress-min nor suppress-max are valid in CSL 1.0).
+
+- Treat numerals as lowercase letters when evaluating
+  text-case="title".
+
+- Fix bug in editor-translator magical merging that
+  caused lone translators to disappear.
+
+
+==========================
+Changes in version 1.0.195
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Wake up strip-periods on month date parts.
+
+
+==========================
+Changes in version 1.0.194
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Render hyphen as en-dash in locator strings.
+
+
+==========================
+Changes in version 1.0.193
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in disambiguate="true" disambiguation, when used
+  together with disambiguate-add-names. Thanks to user
+  Zotero user bevweber for reporting the fault.
+
+
+==========================
+Changes in version 1.0.192
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Suppress only author, and only if it is the first-occurring
+  name, when suppress-author toggle is set. (The fix is slightly
+  more aggressive -- suppression will also occur if author is the
+  first of multiple variables set on the variable attribute of 
+  cs:names. This affects only a single style at present (din-1505-2.csl,
+  in which "author" and "composer" are used as a pair).
+
+
+==========================
+Changes in version 1.0.191
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in near-note position detection. Was true
+  when when distance was zero upon the first reference
+  to the source. Now returns false in this case.
+
+
+==========================
+Changes in version 1.0.190
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in strip-periods when set on cs:text macro calls or
+  cs:group elements. Thanks to Liam McHugh-Russell for identifying
+  the error.
+
+
+==========================
+Changes in version 1.0.189
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Treat short-form titles as a separate variable
+  when sniffing for parallel cites.
+
+- Remove "names" (encompassing any variable rendered
+  via cs:names) from the list of mid-cite variables.
+
+- Remove legacy code that attempts to work with
+  "names" when sniffing parallel cites.
+
+
+==========================
+Changes in version 1.0.188
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix breakage in second-field-align when macro containing date is 
+  used as sort key in cs:bibliography. Reported by Sebastian Karcher
+  (adamsmith).
+
+
+==========================
+Changes in version 1.0.187
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Provide a discriminator sequence hint on keys set during
+  author-grouped sorts, to prevent decay of the sequence during
+  final sort.
+
+
+==========================
+Changes in version 1.0.186
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Suppress only duplicate punctuation at end of citation
+  (do not suppress duplicate parens).
+
+
+==========================
+Changes in version 1.0.185
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix missing default delimiter and range delimiter
+  affecting styles that use collapse="year-suffix".
+
+
+==========================
+Changes in version 1.0.184
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Suppress inter-cite delimiter if subsequent prefix begins
+  with a comma.
+
+
+==========================
+Changes in version 1.0.183
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not suppress a semicolon delimiter when reconciling punctuation.
+
+
+==========================
+Changes in version 1.0.182
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- ownerDocument is a property, not a method.
+  Fixed in xmldom.js.
+
+- Suppress text-case="title" transform when
+  (off-CSL) language variable begins with a valid
+  language tag that is non-en, or when default-locale
+  is non-en and language variable is either not set,
+  or set to a non-en value.
+
+- Provide an option to remove behavior that is
+  not standard CSL from the processor for production
+  use.
+
+- Use en-dash for collapsed citation ranges.
+
+- Provide code for future configurability of both
+  page range and citation collapse range delimiter 
+  as a locale term.
+
+
+==========================
+Changes in version 1.0.181
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not insert space as a placeholder when applying
+  strip-periods. In the only known use case in which this
+  is significant (preserving space in abbreviated journal
+  titles), it results in an incorrectly formatted string.
+  The new behavior is simpler, both to code and to explain,
+  reflects the plain meaning of the attribute name, and
+  conforms to the CSL specification.
+
+- Correctly process top-level cs:names nodes (those without
+  a cs:substitute parent). This covers a recent CSL proposal,
+  which will allow the volume of name formatting code in many 
+  CSL styles to be significantly reduced.
+
+- Place suffix on cs:name-part nodes of name="family" outside
+  of a name suffix, when the name is rendered in "vanilla"
+  ordering (i.e. not in sort ordering). This brings the
+  processor into line with a recent proposal to allow affixes
+  on cs:name-part.
+
+- Fix a delimiter bug affecting styles that disambiguate by 
+  applying a year suffix, with collapsing, where year-suffix-delimiter
+  is not specified. No such styles exist as far as we know, but
+  it was a bug, and it's now fixed.
+
+
+==========================
+Changes in version 1.0.180
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Eliminate potential extraneous trailing space when applying
+  strip-periods.
+
+
+==========================
+Changes in version 1.0.179
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Honor givenname options set within macros when used as sort keys.
+
+
+==========================
+Changes in version 1.0.178
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Adopt a method for recognizing "sub verbo" term that does
+  not touch the input string shared with the calling application.
+
+
+==========================
+Changes in version 1.0.177
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Don't escape HTML superscript markup in output.
+
+- Fix bug in quoted escaping of numeric field content.
+
+
+==========================
+Changes in version 1.0.176
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Record the processor styleID in citeproc.opt.
+
+
+==========================
+Changes in version 1.0.175
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Convert Unicode superscript characters to marked-up
+  equivalents in RTF and HTML output. This permits the
+  use of these characters in locale term strings where
+  superscript is required, while producing output that
+  will be reliably rendered by target applications.
+
+
+==========================
+Changes in version 1.0.174
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Correctly suppress "normal" font forms as the
+  top-level font declaration of their class, as this
+  can have unexpected side effects depending on the 
+  style.
+
+- Prevent leakage of formatting parameters between
+  the cs:name-part elements of different cs:names
+  nodes within the same cite.
+
+
+==========================
+Changes in version 1.0.173
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Extend dropping-particle handling implemented in
+  changeset 9dd55c95979b to names rendered in sort
+  order.
+
+
+==========================
+Changes in version 1.0.172
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Properly render encoded rich text markup embedded in
+  ordinal suffix terms.
+
+
+==========================
+Changes in version 1.0.171
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Ignore name terms that are missing from the locale files
+  when generating labels in cs:names.
+
+- Log message with CSL.debug() rather than CSL.error()
+  when falling back from unknown locale.
+
+- Log message with CSL.debug() rather than CSL.error() when 
+  fixing up non-fatal but weird date values.
+
+- Step past comment nodes silently (this is a simple noop
+  for the processor, so save the chatter in the log files).
+
+
+==========================
+Changes in version 1.0.170
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not attempt to replace en-dash with hyphen on 
+  undefined value in CSL.Node.text.
+
+- Ignore decorations array on cs:institution nodes.
+
+***
+
+Both issues reported by Faolan.
+
+
+==========================
+Changes in version 1.0.169
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not attempt to apply affixes to name parts
+  that evaluate false. Fault reported by
+  Faolan Cheslack-Postava.
+
+
+==========================
+Changes in version 1.0.168
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Provide missing insertPublisherAndPlace() function
+  in xmldom.js. WebKit systems will now run again.
+
+- Attempt to execute publisherOutput only if it has 
+  been instantiated for use.
+
+
+==========================
+Changes in version 1.0.167
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Replace several largely incomprehensible functions used
+  to generate alphabetic suffixes with a short function
+  from Avram Lyon that is concise, readable, and does the 
+  same thing.
+
+- Implement paired rendering and "and"-wise joins of multiple 
+  publishers and publisher-places, where (a) rendered as the sole 
+  text elements within a group, (b) with no affixes on the two 
+  text elements, and (c) the data consist of semicolon-delimited 
+  lists of equal length, and (d) (at least) name-delimiter 
+  is supplied on the ancestor cs:citation or cs:bibliography 
+  node.  The "and" term used for the join, if any, is also that
+  specified on the ancestor node.
+
+
+==========================
+Changes in version 1.0.166
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Remove hasOwnProperty() condition wrapper
+  from key iteration loop used for the
+  match="none" condition evaluation. The target
+  variable might be an array, in which case
+  WebKit systems and Tracemonkey produce
+  differing results (WebKit filters the 
+  indices with this function, Firefox doesn't).
+
+- Recognize en-dash equally with hyphen when
+  evaluating page numbers for context pluralization.
+
+- Some minor code cleanup.
+
+
+==========================
+Changes in version 1.0.165
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Protect against undefined skey and ikey elements
+  when removing names from citeproc.registry.namereg.
+
+- Always use the shortest permitted form of names
+  when building item ambig keys.
+
+- Reset advance_mode toggle when initializing
+  disambiguation engine.
+
+- Avoid unnecessary reruns of the disambiguation
+  queue in disNames().
+
+- Fix bad conversion of string to object in registry
+  dodeletes() method. This code is probably never used
+  anyway, but if it does, it will work correctly now.
+
+- Remove unused debugging function from api_cite.js
+
+
+==========================
+Changes in version 1.0.164
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a subtle bug in the interaction of the names-based
+  and cite-based disambiguation engines, affecting styles
+  that rely on names-based disambiguation with givenname
+  expansion.
+
+
+==========================
+Changes in version 1.0.163
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Recognize dates when entered in cheater syntax
+  (via the note variable). Syntax is:
+  {:original-date: 2001-01-10} 
+
+
+==========================
+Changes in version 1.0.162
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Tell the truth when reporting label offsets to
+  the calling application.
+
+- Remove some unused code relating to names.
+
+- Further small adjustments to the handling of
+  name particles.
+
+
+==========================
+Changes in version 1.0.161
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix various small bugs in the parsing of name
+  particles and the application of formatting
+  and affixes to names.
+
+
+==========================
+Changes in version 1.0.160
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Make sorting work against the citation-label
+  virtual variable.
+
+
+==========================
+Changes in version 1.0.159
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Run processor in a try/catch to prevent
+  a crash during preview from blocking
+  reconstruction of the registry.
+
+- Eliminate nesting closure that was causing
+  a non-fatal tag mismatch.
+
+- Force all-uppercase terms to lowercase
+  (a hack that really should not be necessary,
+  and may not be required with recent fixes).
+
+
+==========================
+Changes in version 1.0.158
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reimplement citation-label to permit configuration
+  of the generated string. The algorithm can be controlled
+  by adjusting the "trigraph" string in citeproc.opt.trigraph.
+
+  The string consists of a series of specifiers delimited by ":",
+  which define the format for strings generated against a
+  nameset corresponding in length to the position of the
+  specifier (beginning with 1). Each specifier must begin
+  with "A", and must consist only of characters "A", "a", and "0".
+  where "A" indicates a name boundary, and "0" indicates a
+  digit in the "issued" year.
+
+
+==========================
+Changes in version 1.0.157
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- A more comprehensive fix for "sub verbo" -> "sub-verbo",
+  that will work with match="all" with both forms of the
+  term.
+
+
+==========================
+Changes in version 1.0.156
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bugs in evaluation of match="all".
+
+- Properly split and evaluate label names in
+  locator attribute on cs:if and cs:else-if.
+
+- Special handling of "sub verbo", to treat it as
+  a single token on the locator attribute.
+
+- Correctly encode guillemet character in find-and-replace 
+  operation.
+
+==========================
+Changes in version 1.0.155
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- When initialize-with is not set on a name, and
+  the short form is used, and disambiguate-add-givenname="true",
+  jump immediately to the full name form, without trying
+  to disambiguate by adding initials. This conforms to the
+  CSL 1.0 specification.
+
+
+==========================
+Changes in version 1.0.154
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not flag style as position sensitive (thereby
+  disabling grouped sorting mechanism) merely
+  due to the fact that et-al-subsequent-min or
+  et-al-subsequent-use-first are set; set this
+  flag ONLY when these values differ from their
+  plain counterparts.
+
+
+==========================
+Changes in version 1.0.153
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Massive overhaul of names formatting code,
+  to make it maintainable. Several things that
+  were broken and basically unfixable in the
+  old code now work properly.
+
+- Do not force lowercase on Celtic clan names.
+
+- Do not add a stray period to titles in
+  Chicago note styles, when quotes run up against
+  the cite join delimiter because of a missing
+  page number in a subsequent cite.
+
+- In in-text author-date styles that perform
+  collapsing (and in these styles only), group
+  citations by the author part of the string,
+  so that collapsing never fails due to the
+  vagaries of (say) date sorting. Addresses an
+  issue raised by Bruce D'Arcus.
+
+
+==========================
+Changes in version 1.0.152
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Correctly compose the forcing of itemIDs to string.
+
+
+==========================
+Changes in version 1.0.151
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Force all itemIDs to string on initial insert.
+  May avoid undefined citationID and pkey
+  errors.
+
+
+==========================
+Changes in version 1.0.150
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Some cleanup of core disambiguation code in disambig_cites.js. 
+  Greater clarity, possibly a slight time saving.
+
+- Normalize quote chars to avoid "sep is undefined" error on 
+  mismatched quote marks.
+
+- Fix bug in year-suffix assignment code.
+
+
+==========================
+Changes in version 1.0.149
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in flipflop nesting with RTF output.
+
+
+==========================
+Changes in version 1.0.148
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in the application of an explicit 
+  year-suffix collapse delimiter to an implicit 
+  year-suffix.
+
+- Eliminate a couple of redundant code blocks that 
+  would have triggered unnecessary disambiguation operations.
+
+- Provide a skeleton function for embedding bibliographic data
+  adjacent to rendered bibliography entries.
+
+
+==========================
+Changes in version 1.0.147
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Debugging trace to help track down the cause of
+  "sep is undefined" error, should it persist.
+
+- Hard-code a comma between cites with the same author
+  (hack to restore previous processor behavior, pending
+  changes to CSL to permit this delimiter to be controlled
+  explicitly)
+
+
+==========================
+Changes in version 1.0.146
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in isInstitution toggle introduced in last
+  set of changes.
+
+
+==========================
+Changes in version 1.0.145
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Require new isInstitution toggle with lone family name
+  element to force it to render as an institution.
+
+- Do not truncate multiple variables on a name node
+  to a single variable in an in-text style unless in 
+  citation area.
+
+- Move an inter-name-variable delimiter from after a preceding 
+  name label (wrong) to before the label (correct).
+
+- Convert all apostrophes in content strings, not only the
+  first one encountered in the string.
+
+- Do not merge identical editor and translator if the
+  combined term label is empty.
+
+
+==========================
+Changes in version 1.0.144
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Honor a fullname request in the bibliography,
+  regardless of what has happened with name
+  disambiguation settings in citations.
+
+- Fix bugs producing "sep is not defined" and 
+  "state.fun.decorate [params[0]][params[1]] is not a function"
+  errors.
+
+- Fix institution delimiter bug.
+
+- Adjust punctuation to satisfy French orthographic
+  rules.
+
+
+==========================
+Changes in version 1.0.143
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not apply text_escape when building strings
+  for purposes other than display. Fixes sort issues
+  on Scandinavian and other non-ascii character sets.
+
+- Fix potentially serious bug in registry handing of 
+  uncited items, that could result in incomplete 
+  registration of internal item data.
+
+
+==========================
+Changes in version 1.0.142
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Provide itemID to bibliography entry wrapper
+  function, for use in HTML link wrappers and the like.
+  Thanks to Phillip Lord at Newcastle University for
+  exploring possible paths for this in the processor
+  code.
+
+
+==========================
+Changes in version 1.0.141
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix typo that would produce a (well, now "the",
+  unfortunately) "sep is undefined" error.
+
+- Avoid lowercasing words within a name that
+  are in all caps, when no text-case transformation
+  is applied to the name.
+
+
+==========================
+Changes in version 1.0.140
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix some issues in the title case function.
+
+- Always treat the year-suffix variable as rendering 
+  output, for purposes of cs:group rendering suppression.
+
+- Among the date variables, include only the issued date 
+  when generating strings for disambiguation.
+
+- Properly fix the colon suppression (software) bug.
+
+- Do not add an and attribute to the implicit institution 
+  node if none exists on the companion name node.
+
+
+==========================
+Changes in version 1.0.139
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not suppress a colon following a period when
+  adjusting punctuation.
+
+
+==========================
+Changes in version 1.0.138
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Properly reset state.tmp.suppress_decorations
+  in getCitationCluster().
+
+- Avoid corruption of a leading apostrophe.
+
+
+==========================
+Changes in version 1.0.137
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Properly update the registry when items are added
+  via updateUncitedItems().
+
+
+==========================
+Changes in version 1.0.136
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not rely on localeCompare() if a collation is available.
+  Avoids erratic results from this function in Firefox Javascript
+  implementations.
+
+
+==========================
+Changes in version 1.0.135
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix undefined year-suffix-delimiter with implicit
+  year suffix.
+
+
+==========================
+Changes in version 1.0.134
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Raise output flag on page-first virtual
+  variable, so that it is not suppressed when
+  rendered as the sole content of a group,
+  or of a macro (with an implicit group wrapper).
+
+==========================
+Changes in version 1.0.133
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Quash ordinary variables rendered via cs:substitute.
+
+
+==========================
+Changes in version 1.0.132
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Wake up debug tracing in Zotero configuration of the processor.
+
+
+==========================
+Changes in version 1.0.131
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not escape mismatched quote marks.
+
+
+==========================
+Changes in version 1.0.130
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Map family name decorations to institutions
+  in xmle4x.js. Similar changes may be required
+  in xmldom.js.
+
+
+==========================
+Changes in version 1.0.129
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix minor spacing bug affecting ASA style.
+
+- Tighten conditions for the automatic insertion
+  of spaces between user-supplied affixes and
+  citations to which they apply.
+
+
+==========================
+Changes in version 1.0.128
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Broaden the list of skip-words used by the title-case
+  function. Fixes regression from 2.0.9.
+
+- Tighten conditions for identifying parallel citations
+  somewhat.
+
+- Provide some protection against a processor crash when
+  parallel citation machinery missteps.
+
+
+==========================
+Changes in version 1.0.127
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reflect extended name lists triggered by disambiguate-add-names
+  in bibliography as well as in citations.
+
+
+==========================
+Changes in version 1.0.126
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Bugfix for styles that failed to show year-suffix in the bibliography,
+  by slightly extending the conditions under which implicit year-suffix 
+  is applied.
+
+
+==========================
+Changes in version 1.0.125
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Include all institutional authors when rendering, with
+  correct joins.  For the present, the join to the last
+  institutional author is set always to the "long" form
+  of the "and" term, subject to feedback on proper behavior
+  and possible extensions to CSL.
+
+  Since I'm not sure of the correct treatment for institutional names
+  in author-date strings, we'll just open this up for the present, and
+  restrict names included again, if necessary, in light of user
+  feedback.
+
+
+==========================
+Changes in version 1.0.124
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Taint citations containing cites in which the number of names to be used
+  changes as the result of adding or editing another citation.
+
+- Provide translations for container-title and collection-title
+  as well as title.
+
+
+==========================
+Changes in version 1.0.123
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Deliver U+2019 rather than U+02bc for apostrophes.
+
+
+==========================
+Changes in version 1.0.122
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reset correctly after first citation rendering.
+
+
+==========================
+Changes in version 1.0.121
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Properly render a personal author that is succeeded by an institutional
+  author as the last entry in a nameset.
+
+
+==========================
+Changes in version 1.0.120
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not force characters to lower case when invoking
+  localeCompare().
+
+
+==========================
+Changes in version 1.0.119
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Introduce processor option to suppress the transliteration
+  of titles in bibliography and notes.
+
+
+==========================
+Changes in version 1.0.118
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Enable edition as a multilingual variable, and
+  force use of the global locale when rendering,
+  aligning multilingual behavior of this variable 
+  with publisher and publisher place.
+
+- Fix a stack error that occured when both citation
+  and bibliography were included in a style that
+  makes use of the context-sensitive locale switching
+  facility in citeproc-js.
+
+
+==========================
+Changes in version 1.0.117
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Escape the value of subsequent-author-substutute when
+  rendering bibliographies. This squashes the ??? bug
+  flat as a pancake.
+
+
+==========================
+Changes in version 1.0.116
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Combine editor and translator names only if the
+  editortranslator locale term is defined.
+
+
+==========================
+Changes in version 1.0.115
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Revise code for resstoring disambig_restore variable
+  after use, in response to reports of random inclusion
+  of extra names in citations, in styles that do not
+  even require disambiguation. This is not a guaranteed
+  fix; we will have to see what people discover in field
+  testing.
+
+
+==========================
+Changes in version 1.0.114
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reset disambig_restore variable after use. Prevents disambiguation 
+  parameters from leaking between references.
+
+- Fix insane parameters in a style used for testing, which were not previously
+  triggering a failure because of the bug listed above.
+
+
+==========================
+Changes in version 1.0.113
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Apply formatting set on family name parts to institutions as well.
+
+
+==========================
+Changes in version 1.0.112
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Avoid carrying year-suffix forward to a following 
+  reference when performing position-sensitive
+  citation updates.
+
+
+
+==========================
+Changes in version 1.0.111
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Avoid error when sorting items not yet added to the registry,
+  triggered in Zotero clients on attempt to enter multiple
+  citations in a style that applies sorting to citations.
+
+
+
+==========================
+Changes in version 1.0.110
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- With collapse="year", do not block the collapsing
+  of subsequent authors due to differences that are
+  masked by et al. truncation of the name list.
+
+
+==========================
+Changes in version 1.0.109
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Use numeric rather than named entities when producing
+  HTML, to avoid error if the output is processed as
+  XML in an environment in which named entities have
+  not been declared.
+
+
+==========================
+Changes in version 1.0.108
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Prevent et al. truncation of name lists that are
+  less than et-al-min (or et-al-subsequent-min, depending
+  on context), when they are accompanied by a clash
+  partner with fewer names.
+
+
+==========================
+Changes in version 1.0.107
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Quash year-suffix on all entries that successfully
+  disambiguate on the basis of names or text added
+  with disambiguate="true".
+
+
+==========================
+Changes in version 1.0.106
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a flaw in disambiguation logic that could
+  result in a processor hang, when a creator list
+  with fewer names that its predecessor required
+  additional names to accomplish disambiguation.
+  
+- Include the year-suffix as a sortable number
+  string in dates used as sort keys. Citations
+  that include a year-suffix will now sort correctly
+  within the citation.
+
+- Restore XML to defaults before creating E4X
+  objects.
+
+- Repair the processor demo page, which broke
+  after revision 1.0.95.
+
+
+==========================
+Changes in version 1.0.105
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Assure that all ids passed into an array or se
+  as a straight variable are stringified. Loosen
+  condition statements where appropriate to treat
+  numeric IDs of string and numeric type as
+  equivalent.
+
+
+==========================
+Changes in version 1.0.104
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Make restoreProcessorState() notice that the sequence
+  of citations has changed, and assign fresh citation
+  IDs to duplicate citations in the input.
+
+
+==========================
+Changes in version 1.0.103
+==========================
+
+-----------
+Enhancement
+-----------
+
+- Add a reference to item data in registry objects.
+
+- Provide a registry method getSortedRegistryObjects()
+  to return current bibliography data.
+
+- Document new registry method in processor manual.
+
+
+==========================
+Changes in version 1.0.102
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Protect against undefined name.multi.main when
+  checking headline names for a name tag.
+
+- Fix for undefined value bug. When rendering non-ranged cites collapsed 
+  with collapse="year-suffix", and the year suffix is implicit
+  (not being rendered through a cs:text node with 
+  variable="year-suffix"), add the necessary splice delimiter
+  details to the number object.
+
+
+==========================
+Changes in version 1.0.101
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Add sortkeys array to skeleton items received during 
+  restoreProcessorState() if it is undefined. Avoids
+  a processor crash on the first Zotero 2.1 connection 
+  to a Zotero 2.0.9 document. Fault reported by Hem
+  Sras.
+
+
+==========================
+Changes in version 1.0.100
+==========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Allow institutional names to collapse correctly in collapsing citations.
+
+- Add heuristic code to identify Vietnamese names,
+  and make it optional.
+
+
+=========================
+Changes in version 1.0.99
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix loop constraint variable misassignment that was 
+  a likely cause behind reported instability in word 
+  processor plugins.
+
+
+=========================
+Changes in version 1.0.98
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix failure to honor et-al-subsequent-min
+  when it is smaller than et-al-min (which
+  it ordinarily is).
+
+
+======================================
+Changes in version 1.0.97 [API change]
+======================================
+
+------------
+Enhancements
+------------
+
+- Replace the methods setLangTagsForCslNameTransliteration()
+  and setLangTagsForCslTitleTransliteration() with a single
+  method setLangTagsForCslTransliteration().
+
+- Change the multilingual parameters available through the
+  default-locale attribute of style files (parameters used
+  primarily for testing, not production) to reflect the
+  API change described above.
+
+- Add method setOriginalCreatorNameFormatOption() to the
+  control API. This allows the name ordering and initialization
+  conventions of transliterated names either to track those
+  of the original language, or to follow the conventions
+  of the target script.
+
+- Document new setOriginalCreatorNameFormatOption() method and 
+  the previously added method setOriginalCreatorNameFormsOption()
+  in the processor manual, and update the description of testing
+  parameters available via the default-locale attribute.
+
+
+=========================
+Changes in version 1.0.96
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix global variable assignment. Important for stability.
+
+
+=========================
+Changes in version 1.0.95
+=========================
+
+------------
+Enhancements
+------------
+
+- Render multilingual names atomically, and do not
+  modify the content of names objects during
+  processing. This permits implementation of alternative
+  name forms, needed to accomodate a new style rule
+  in scientific publishing, that permits author names
+  to be given in the original script alongside the
+  romanized form.
+
+- Implement the rendering of original name forms,
+  where an alternative form of the name is used for
+  the primary rendering.
+
+
+======================================
+Changes in version 1.0.94 [API change)
+======================================
+
+----------
+API change
+----------
+
+- The input format for multilingual data changes in
+  this version.  The previous format, intended only
+  for testing, relied on string parsing to identify
+  multilingual data embedded in a given field. While
+  this strategy worked for initial testing (its sole
+  intended purpose), it is cumbersome and potentially 
+  fragile.
+
+  The multilingual input data format recognized beginning 
+  with this version of citeproc-js separates multilingual 
+  content properly into separate elements, resulting 
+  in simpler design and more robust operation.
+
+  The change to the multilingual input format is not
+  backward compatible; in the unlikely event that any 
+  existing projects have relied upon the old format,
+  adjustments will be required to run this version
+  of the processor.
+
+
+=========================
+Changes in version 1.0.93
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Cast human-readable dates parser as a separate JS module,
+  and provide documentation in the processor manual.
+
+- Small change to multiple value handling in cs:number.
+
+
+=========================
+Changes in version 1.0.92
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix ordinal suffix assignment to values
+  11 - 19 (for English, at least).
+
+
+=========================
+Changes in version 1.0.91
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Set circa rather than fuzzy on uncertain date
+  objects in the internal human-readable dates parser.
+
+
+=========================
+Changes in version 1.0.90
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reimplement language conditions through
+  cs:layout rather than cs:choose.
+
+
+=========================
+Changes in version 1.0.89
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Allow multiple locales to be specified in a condition,
+  restrict fallback behavior to base (single two-character) 
+  locales, and use the first locale specified in
+  language attribute as the locale to be assigned to
+  children of the condition when the test is successful.
+
+- Properly honor locale for quotes and punctuation in
+  language condition statements.
+
+- Implement dynamic locale-sensitive delimiter and affixes
+  with language condition statements.
+
+- Fix minor bug in xmle4x.js XML parser affecting some
+  locale load operations.
+
+
+=========================
+Changes in version 1.0.88
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fine tuning of language condition logic, to use only
+  the base language name for matching, while applying
+  the full locale specified in the conditional.
+
+- Refinements to the recently introduced handling of 
+  brace-enclosed leading characters as initialized 
+  form of names.
+
+- Adjustments to print statement arbitration, suggested
+  by Carles Pina and Fergus Gallagher.
+
+
+=========================
+Changes in version 1.0.87
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Where et-al-min, et-al-subsequent-min or names-min are
+  set to some value larger than an arbitrary threshold of
+  50, truncate author lists that are longer than that value
+  (plus a buffer value of 2), to raise performance to a 
+  reasonable level with large namesets.
+
+
+=========================
+Changes in version 1.0.86
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Improve performance when handling very large
+  sets of names.
+
+(Thanks to Nick and Carles at Mendeley for reporting,
+and for exploring the source of the fault.)
+
+
+=========================
+Changes in version 1.0.85
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Pass full suite of double space suppression tests.
+
+- Language switching within a style works, for both
+  localized dates and terms.  (This functionality is
+  not yet recognized as valid CSL.)
+
+
+=========================
+Changes in version 1.0.84
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Preserve explicit double spaces in HTML output.
+
+(Released as 1.0.84-1)
+
+
+=========================
+Changes in version 1.0.83
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Use en-dash rather than hyphen in formatted page range
+  joins.
+
+
+=========================
+Changes in version 1.0.82
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fixes to cs:if and cs:else-if logic.  Was failing to set the
+  match attribute on singleton nodes, among other things.
+
+- Treat greek letters as part of the "romanesque" character set, 
+  for name formatting purposes.
+
+- If cs:number input has numbers separated by spaces, but also 
+  extraneous non-comma, non-ampersand, non-hyphen characters, 
+  then render as literal.
+
+
+=========================
+Changes in version 1.0.81
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Yet more fixes to locale selection behavior.
+  Use en-US if calling application requests an
+  unknown style.
+
+
+=========================
+Changes in version 1.0.80
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- More fixes to locale selection behavior.
+
+-----------
+Enhancement
+-----------
+
+- Provide a toggle to override the locale of a style
+  with the locale set on the processor at runtime.
+
+
+=========================
+Changes in version 1.0.79
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Correct fault in locale fallback behavior.  Had been ignoring
+  optional default argument set in the processor.
+
+
+=========================
+Changes in version 1.0.78
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Enable the proper parsing and rendering of
+  seasons in ranged dates, in the internal
+  dates parser.
+
+
+=========================
+Changes in version 1.0.77
+=========================
+
+-------
+Cleanup
+-------
+
+- Adjustments to RTF output formatting, by
+  Simon Kornblith.
+
+
+=========================
+Changes in version 1.0.76
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in locale processing, arising from the
+  previous release, that could trigger a processor
+  crash.
+
+
+=========================
+Changes in version 1.0.75
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not apply decorative formatting to name suffixes.
+
+- Fix breakage in ordinal suffix formatting for days
+  in a date.
+
+------------
+Enhancements
+------------
+
+- For an all-lowercase name suffix (such as an explicit "et al."),
+  exclude the suffix from the name for disambiguation purposes, and
+  include it in the strict short form of the name in the short form 
+  of a citation.
+
+- Add and recognize delimiter-precedes-et-al attribute, in
+  line with draft CSL proposal.
+
+- Implement grammatical gender sensitivity for ordinal
+  suffixes, in line with draft CSL proposal.
+
+
+=========================
+Changes in version 1.0.74
+=========================
+
+-----------
+Enhancement
+-----------
+
+- Recognize new Khmer locale for CSL provided by
+  Hem Sras.
+
+- When parsing number ranges in the input to cs:number,
+  abort parsing when spread of range is over an
+  arbitrary limit of 1000.
+
+- Support names-use-last attribute on cs:key.
+  (Anticipatory change to support upcoming change
+  to CSL schema and specification.)
+
+- Use unicode ellipsis character rather than
+  (nonexistent) locale term when splicing
+  author listings trucated with et-al-use-last.
+
+
+=========================
+Changes in version 1.0.73
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Limit the recognition of multiple numbers
+  to cases in which numbers are separated by
+  at least one space, to prevent accidental
+  reformatting of leaf numbers.
+
+
+=========================
+Changes in version 1.0.72
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Allow simple range, comma, and ampersand joins 
+  in the input to cs:number, to permit "1st-2nd", 
+  "xi-xv", etc.  When multiple numbers are given,
+  the following operations are performed:
+
+    (1) ranges are expanded and the numbers are 
+        converted to a list; 
+    (2) the resulting list is sorted; 
+    (3) duplicates are eliminated; 
+    (4) ranges are truncated; 
+    (5) numeric formatting is performed; and 
+    (6) appropriate punctuation is applied to 
+        the result.
+
+- Eliminate space following a trailing apostrophe on a 
+  dropping-particle, when immediately followed by family
+  in rendered output.
+
+- Recognize multiple parameters of position attribute of 
+  cs:if and cs:else-if, per CSL 1.0 schema.  For the fix,
+  eliminate cutted-and-pasteded code from node_if.js and 
+  node_elseif.js, and consolidate in attributes.js.
+
+
+=========================
+Changes in version 1.0.71
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Variables (including names) should be (and have been)
+  suppressed when rendered via the cs:substitute node
+  of cs:names.  Subsequent rendering of any name variable
+  after its first use within a given cite was being
+  suppressed unconditionally, however, and this behavior
+  differed from the Zotero CSL 0.8.1 processor.  This
+  patch restores the original behavior, allowing names
+  rendered outside of cs:substitute to be used repeatedly
+  within a cite.  (The only exception to this behavior
+  is a name rendered with et-al-min=1 and et-al-use-first=1,
+  which will be clipped from subsequent output.)
+
+- The processor was using the localized close-inner-quote
+  character for apostrophes.  This caused problems in
+  styles that use alternative quotation marks.  The
+  processor now uses a hard-coded apostrophe character
+  for apostrophes.
+
+- A bug in the normalization of names, for disambiguation
+  purposes, that contain punctuatioin or extraneous spaces
+  has been fixed.
+
+
+=========================
+Changes in version 1.0.70
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Adopt conventions from Chicago 16th ed. for commas that follow 
+  terminal punctuation in user content fields such as title.
+
+
+=========================
+Changes in version 1.0.69
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Limit suppression of a year that is identical to the
+  volume number only for cites in which volume and 
+  container-title are both rendered, and volume precedes 
+  container-title.  Suppression allows legal cites such as
+  The King v. Lockwood, 99 Eng. Rep. 379 (K.B. 1782) and
+  Hastings v. Perkins, 1930 P. 217 (Eng. C.A.) to be handled
+  with a single item type and without resorting to presentation
+  toggles in the input data.  Limiting suppression to cites
+  in which a rendered volume precedes a rendered container-title
+  prevents this behavior from corrupting other citation forms.
+
+- Suppress a leading prefix character that is nested at an 
+  arbitrary depth on the subsequent sibling hierarchy of the 
+  current output blob object, where it would result in duplicate
+  punctuation in the flattened output.
+
+- Fix over-aggressive suppression, on subsequent items, of variables 
+  that are called through cs:substitute (and are therefore suppressed
+  within the current item).
+
+- Define print statement conditionally, following suggestions from 
+  Carles Pina and Fergus Gallagher.
+
+
+=========================
+Changes in version 1.0.68
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Further refactoring of output queue mechanism, to
+  unify all quote-swapping and detection code for
+  duplicate terminal punctuation and spaces in a
+  single function.  No changes to behavior, unless
+  there is a hole in the test suite somewhere.
+
+- Fix an output nesting mismatch error triggered
+  by items with two institutional authors in sequence,
+  when rendered with a style that sorts on the
+  bibliography.
+
+- In the output queue mechanism, fix a bug in the 
+  migration of a leading terminal character in a
+  prefix to the preceding sibling suffix.
+
+
+=========================
+Changes in version 1.0.67
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reimplement duplicate terminal punctuation handling in new
+  adjustPunctuation() function.  Remove old functions used for this
+  purpose, which were excessively complex and fragile.  Some
+  operations in queue.js may now be redundant, since the new code does
+  a much better job of cleaning up the output queue in advance of
+  serialization.
+
+
+=========================
+Changes in version 1.0.66
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Adjustment the conditions for application
+  of year-suffix values.
+
+- Avoid redundant application of year-suffix
+  values during disambiguation.
+
+- Provide a default "institution" format blob on
+  the output queue, to avoid a processor
+  crash with lone institutional author
+  names.
+
+Thanks to Carles Pina for bug reports and
+testing.
+
+-------
+Cleanup
+-------
+
+- Add e4x declaration when loading e4x parsing
+  code in demo.html, to avoid error in the Chrome
+  browser. Thanks to Fergus Gallagher for this fix.
+
+
+(If these changes show some staying power, we can
+discuss later whether to name this release
+"Route 66" or "Norman Conquest".)
+
+
+=========================
+Changes in version 1.0.65
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not needlessly circumvent name disambiguation logic. Reverses 
+  a patch introduced in the 1.0.61 through 1.0.64 series of 
+  changes.
+
+- Apply the concise and correct fix for the undefined-in-name bug 
+  previously addressed by the 1.0.61 through 1.0.64 series of 
+  releases. Just replacing an undefined variable with an empty string 
+  does the trick.
+
+- Force an initialized name that lacks an explicit string 
+  value on initialize-with to full form, but only when using 
+  the by-cite disambiguation rule.
+
+- Permit update of year-suffix when it is added, in addition 
+  to when it exists and then changes.
+
+- Protect against an undefined value in updateItems(), which 
+  can apparently sometimes occur in the course of word processor 
+  plugin transactions.
+
+- Map page-first variable to page when snooping for a value. 
+  Prevents a lone page-first cs:text node within a cs:group 
+  from being suppressed for lack of output.
+
+- Repair recently amended appendCitationCluster() command to 
+  return a list of paired values, in accordance with the 
+  processor manual.
+
+- Extend restoreProcessorState() to work with an empty argument, 
+  for resetting the processor to a pristine state.  Use case 
+  suggested by Carles Pina.
+
+-------
+Cleanup
+-------
+
+- Align version tag with version in source in this release.
+
+- Refactor test fixture bundle for restoreProcessorState() function
+  to avoid setting globals, and add a fixture to test resetting to 
+  an empty state.
+
+
+=========================
+Changes in version 1.0.64
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Release tag to pick up the actual changes
+  claimed in 1.0.62 and 1.0.63, the checkins
+  of which were lost in the shuffle.
+
+
+=========================
+Changes in version 1.0.63
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix appendCitationCluster() to return
+  a simple string, and required by Zotero 
+  RTF Scan or any similar utility.
+
+
+=========================
+Changes in version 1.0.62
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Block needless initialization of names where
+  the full name is requested and initialization
+  is not.
+
+Thanks again to Carles Pina for reporting this
+fault.
+
+
+=========================
+Changes in version 1.0.61
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Block needless initialization of names where
+  form is long, no initialization is requested,
+  and last names are identical.
+
+Thanks to Carles Pina for this bug report.
+
+
+=========================
+Changes in version 1.0.60
+=========================
+
+-----------
+Enhancement
+-----------
+
+- Turn on the parsing of name prefixes and
+  suffixes by default.
+
+
+=========================
+Changes in version 1.0.59
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Extend punctuation swapping to cases
+  where quotes entered within a locator.
+
+- Implement context-sensitive pluralization
+  of labels.
+
+- Fix bug affecting givennames with more
+  than two words when rendered in full
+  form without initialization.
+
+- Fixes et al. behavior affecting some
+  mixed personal and institutional name
+  combinations.
+
+
+=========================
+Changes in version 1.0.58
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- In multilingual names handling,
+  eliminate fallback to default locale
+  language. (Running with this configuration
+  in an application proved to be confusing.)
+
+
+=========================
+Changes in version 1.0.57
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Correctly handle singleton conditional
+  nodes.  Affects cites to theses in the
+  Chicago styles.
+
+
+=========================
+Changes in version 1.0.56
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Provide for separate configuration of name
+  and title transliterations.
+
+
+=========================
+Changes in version 1.0.55
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug that triggered "registry[id] undefined"
+  error in some disambiguation operations.
+
+- Fix bug affecting voluntary suppression
+  of small caps in rich text parsing engine.
+
+-----------
+Enhancement
+-----------
+
+- Add methods for setting multilingual 
+  transliteration, translation, and sort 
+  parameters on configured processor.
+
+
+=========================
+Changes in version 1.0.54
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fixes misplacement of labels set before the
+  nameset to which they apply.
+
+=========================
+Changes in version 1.0.53
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a subtle bug that caused full author names to
+  be erroneously rendered in citations although the
+  style parameters did not permit them.
+
+
+=========================
+Changes in version 1.0.52
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reverse the RTF-related conservatism in the quashing
+  of duplicate spaces that was introduced in 1.0.51.
+
+- Add missing parens to suspect test condition (not
+  related to any known bug).
+
+----------
+API change
+----------
+
+- The processor quashes double spaces in the output.
+  RTF control words can be terminated with a space, but
+  this causes an immediately following space to be lost
+  from the output. To avoid this, the RTF output mode of 
+  the processor has been adjusted to terminate RTF control
+  words with {} rather than space. Applications that convert
+  processor output between other formats (such as HTML)
+  may need to be adjusted to accomodate this new behavior.
+
+
+=========================
+Changes in version 1.0.51
+=========================
+
+----------
+API change
+----------
+
+- Return error objects with details of cites or bibliography
+  entries that produce no rendered output.  See processor
+  manual for details.
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix string breakage affecting text-case="title".
+
+- Fix over-aggressive quashing of spaces, which affected
+  spacing following RTF entities.
+
+-------
+Cleanup
+-------
+
+- Update manual with description of supplementary field
+  facility.
+
+
+=========================
+Changes in version 1.0.50
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Apply output-mode-specific text_escape function to
+  affixes and delimiters.
+
+- Strip XML declaration from CSL and locale strings
+  received for parsing in the xmldom.js module.
+
+- Add paranoia fallback to handle comment nodes that
+  sneak past the XML parser.
+
+Thanks to Carles Pina for bug reports on the issues
+above.
+
+-------
+Cleanup
+-------
+
+- Update manual to indicate support for non-E4X platforms.
+
+
+=========================
+Changes in version 1.0.49
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix XML parsing code in xmldom.js to screen XML comments
+  from the processor.  Thanks to Carles Pina for reporting
+  this fault.
+
+- Tighten up conditions for suppression of the trailing year
+  where the volume number and the year have the same value.
+  Suppression will no longer occur when the rendered date
+  contains additional details (day, month).
+
+- Throw a more meaningful error when an invalid locale
+  is requested.  Thanks to Carles Pina.
+
+- Fix missing definition of quotes="false" in formats.js.
+  Thanks to Carles Pina.
+
+- Fix bug in handling of capitalized characters used in
+  citeproc-js hackaround for multi-character initials.
+
+-----------
+Enhancement
+-----------
+
+- Extend support for "parallel" legal citations to include
+  case and comment string citations used in French legal
+  writing.
+
+-------
+Cleanup
+-------
+
+- Adjust demo page to include a comment (to check that
+  comment nodes are no longer reaching the processor).
+  
+
+=========================
+Changes in version 1.0.48
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Further fixes to quashing of duplicate punctuation
+  and spaces.
+
+- Fix issues with bibliography slug.
+
+- Properly report orphan shortTitle and journalAbbriviation 
+  to group as producing output, when short form is called 
+  and main variable is nil.
+
+- Fix bug in short form title support.
+
+- Permit author to vary between parallel citations. Useful
+  for French case-and-commentary string cites.
+
+-----------
+Enhancement
+-----------
+
+- Provide for parsing experimental variables out of the
+  content of the note variable.  For use in advance
+  testing of styles that require changes to the variables
+  available in CSL, or supplied by the calling application.
+
+
+=========================
+Changes in version 1.0.47
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a duplicate space issue reported by Carles Pina.
+
+- General refactoring of code for identifying an quashing
+  duplicate punctuation and spaces.  The code should be
+  easier to control when further issues involving punctuation
+  arise down the road.
+
+-----------
+Enhancement
+-----------
+
+- Provide for replacement of the citation number in
+  numbered styles with a slug, so that strings in a
+  bibliography listing can be used in a template
+  without rerendering.
+
+-------
+Cleanup
+-------
+
+- Fix up stale links in processor manual.
+
+- Fix syntax error in test.py affecting Python 2.5 systems.
+
+- Add explanatory notes to demo.html page, in an effort
+  to clarify the way processor output can be styled
+  and formatted.
+
+
+=========================
+Changes in version 1.0.46
+=========================
+
+-----------
+Enhancement
+-----------
+
+- Add option to updateItems() and updateUncitedItems()
+  to suppress sorting of the bibliography.
+
+
+=========================
+Changes in version 1.0.45
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix duplicate terminal punctuation
+  affecting bibliography output.
+
+- Eliminate dereferencing assignments, for
+  compatibility with some JS implementations.
+
+- Suppress duplicate spaces affecting some
+  styles.
+
+-------
+Cleanup
+-------
+
+- Fix typo in demo page.
+
+=========================
+Changes in version 1.0.44
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Do not treat empty dates as rendering content for purposes of
+  implicit group conditional rendering, but do recognize literal 
+  date content in the same context."
+
+
+=========================
+Changes in version 1.0.43
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- In test.py, change the -E bundled code dump option to -Z,
+  and describe as a Zotero bundle option in script help messages.
+
+- Include an assignment of CSL.error to Zotero.debug in the Zotero
+  bundle, so that error messages and warnings from the processor will
+  pass through correctly, without crashing the processor.
+
+- Render literal passthrough strings on date objects only when
+  the year is included among the requested date elements.
+
+- Add temporary code to normalize the structure of some date 
+  input objects.
+
+  (... and so we bid a sad farewell to the Meaning of Life 
+  release.)
+ 
+
+=========================
+Changes in version 1.0.42
+=========================
+
+-----------
+Enhancement
+-----------
+
+- Provisional implementation of ellipsis truncation of 
+  creator listings as required by APA 6th, in anticipation 
+  of upcoming point release of CSL schema and specification.
+
+
+=========================
+Changes in version 1.0.41
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Reset processor's internal last_name_rendered variable,
+  to prevent previous runs of the processor from affecting
+  bibliography output.
+
+
+=========================
+Changes in version 1.0.40
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Avoid update to position data of other citations during
+  previewing.  On-the-fly updates of related citations upon
+  citation edit or insert were broken, but should now work 
+  correctly.
+
+
+=========================
+Changes in version 1.0.39
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix a tiny bug that could cause erroneous position values when
+  previewing under some circumstances, resulting in an incorrect
+  cite form in preview, and a different (but correct) cite form
+  in the document.
+
+
+=========================
+Changes in version 1.0.38
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix appendCitationCluster() to work with the API revision
+  made to processCitationCluster() in point release 1.0.28.
+
+-----------
+Enhancement
+-----------
+
+- When user provides a cite suffix that ends with a full stop,
+  suppress the normal inter-cite join.
+
+
+=========================
+Changes in version 1.0.37
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Quash duplicate terminal punctuation at the end of citations.
+  This can happen where an abbreviated term such as id. or
+  ibid. is rendered at the end of a citation in a note style,
+  in which the note is terminated with a period.
+
+- Eliminate implicit for loops in array constructs, which is
+  sadly not available in Chromium JS engine.
+
+
+=========================
+Changes in version 1.0.36
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Refresh citations in which names or year suffixes have
+  (potentially) changed.
+
+
+=========================
+Changes in version 1.0.35
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Simplify save/restore operations for previewing.
+
+- Tie in tainting code for disambig values registered via disambig_cites.js.  
+  Possibly over-aggressive about rerendering now, but it works.
+
+
+=========================
+Changes in version 1.0.34
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Include year suffix in clone of disambiguation
+  configuration.  Failure to include this parameter
+  appears to have been behind some intermittent
+  glitches in preview handling of year suffixed
+  citations.
+
+- Avoid processor crash when unregistered citation
+  objects are encountered in preview mode.  The crash
+  points occur during tainting, which is irrelevant
+  in preview mode, so no harm is done; but I'm not
+  really sure why this would ever happen.  Possibly
+  a concurrency issue?
+
+-------
+Cleanup
+-------
+
+- Eliminate unused keyname on cloned disambig objects.
+
+- Minor formatting cleanup in util_disambig.js.
+
+- Add a couple of paranoia operations to processCitationCluster().
+
+  * Issue a bogus warning citation in the event of a processor
+    crash.  This should come out for production.
+
+  * Slice citationsPre and citationsPost when they enter
+    the processor.  I've been exploring some instability
+    with large numbers of same-author/same-year cites in
+    Zotero, and thought that mallability of list input
+    might be part of the problem.  No idea whether these
+    lists can or do change length or content during processing,
+    but just in case.
+
+
+=========================
+Changes in version 1.0.33
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- In preview mode, avoid tampering with the registry data,
+  of items in the citation to be previewed that already
+  exist in the registry.  Fixes errors in subsequent
+  rendering of year suffixes.
+
+- Suppress redundant return value for current cite, when it is
+  tainted by an update by processCitationCluster().
+
+-------
+Cleanup
+-------
+
+- Add a further unit test for previewCitationCluster(), to
+  uncover year suffix bug.
+
+
+=========================
+Changes in version 1.0.32
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bugs in the handling of document-wide names disambiguation
+  that manifested when one or more items with identical names were
+  deleted from the registry.
+
+-------
+Cleanup
+-------
+
+- More thorough tests for previewCitationCluster().
+
+- Add some debugging trace chatter for cmd_cite.js.
+
+- Pointless increment to processor manual version number.
+
+
+=========================
+Changes in version 1.0.31
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix some state restore bugs in previewCitationCluster().
+
+-------
+Cleanup
+-------
+
+- Roll back previewCitationClusterStatic() command that
+  was introduced in the last release.  Discussion and more
+  careful thought showed that it is not safe and not
+  generally a good idea to make blind assumptions about
+  document state.
+
+- Extend the test fixtures for previewCitationCluster()
+  a bit.
+
+
+=========================
+Changes in version 1.0.30
+=========================
+
+-----------
+Enhancement
+-----------
+
+- Add new previewCitationClusterStatic() command, to
+  simplify the task of generating previews in the calling
+  application.  The command requires only a citation
+  object, and an output mode flag (typically "html").
+
+-------
+Cleanup
+-------
+
+- Document previewCitationClusterStatic() command in the
+  processor manual.
+
+
+=========================
+Changes in version 1.0.29
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Complete reimplementation of cite-level disambiguation.
+  The new code is more compact and maintainable, and
+  avoids thrashing behavior that afflicted the previous
+  code when a large number of cites required both
+  add-names and year-suffix disambiguation.
+
+- Suppress year suffix when fresh ambig keys are generated.
+
+-------
+Cleanup
+-------
+
+- Move disambiguation options from citeproc.citation.opt
+  to citeproc.opt.
+
+- Use named year_suffix element on disambiguation configuration
+  objects, rather than the anachronistic index value 2.
+
+- Set default value of false rather than number 0 on year_suffix
+  element.
+
+- Generate year suffix for any non-false value on year_suffix
+  element.
+
+
+======================================
+Changes in version 1.0.28 [API change]
+======================================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- This version introduces a significant change to the return
+  value of processCitationCluster().  It is now an array with
+  two elements, the first being a JS object that serves as a
+  data segment, and the second the list of two-element arrays
+  representing insertion indexes and strings for insertion
+  (as previously documented).  An API change of this scale
+  probably calls for some more visible sign in the version
+  numbering, but the original statement on versioning says
+  that the major and minor numbers will align with the CSL
+  schema, so we stay at level 1.0.
+
+- The data segment referred to above contains just one element
+  currently, "bibchange", which is true if processing the
+  citation results in any change affecting the bibliography.
+
+- This release also introduces one change and one addition to
+  style configuration flags.  The flag at citation.opt["citation-number-sort"]
+  has been moved to opt.citation_number_sort, for clarity and
+  consistency.  A new flag, open.sort_citations, is true if
+  citations are sorted by the style in any way.
+
+-------
+Cleanup
+-------
+
+- Document API change in the processor manual.
+
+- Document availability of opt.citation_number_sort and 
+  opt.sort_citations in the processor manual.
+
+
+
+=========================
+Changes in version 1.0.27
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix obvious memory leak and corruption bug affecting sortedItems 
+  elements, of citationItem content objects.
+  
+
+=========================
+Changes in version 1.0.26
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Implement new command restoreProcessorState(), for use in
+  ... restoring the processor state, when position variables
+  and citation sort keys are already known.
+
+-------
+Cleanup
+-------
+
+- Add entry for new restoreProcessorState() command to processor
+  manual.
+
+- A few tests of the restoreProcessorState() command.
+
+
+=========================
+Changes in version 1.0.25
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Provide new command, previewCitationCluster(), that returns
+  string for hypothetical citation at specified position,
+  without affecting processor state.
+
+- Fix bug that would have cause appendCitationCluster() to
+  run updateItems() unnecessarily.
+
+- Provide for forced generation of citationID, for use
+  in previewing.
+
+-------
+Cleanup
+-------
+
+- Provide more meaningful internal flags for processCitationCluster().
+
+- Add entry for new previewCitationCluster() command to processor
+  manual.
+
+- A few tests of the new previewCitationCluster() command.
+
+
+=========================
+Changes in version 1.0.24
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Cope with item IDs of numeric type, and roll back
+  one patch from 1.0.23 that becomes unnecessary as
+  a result.
+
+
+=========================
+Changes in version 1.0.23
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Cope with two disambiguation cases, involving add-names and
+  add-givenname, that succeeded in crashing the processor.
+
+
+=========================
+Changes in version 1.0.22
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Bypass sorting of citations that have a value for "unsorted" 
+  in citation.properties.
+
+-------
+Cleanup
+-------
+
+- Document "unsorted" toggle in processor manual.
+
+
+=========================
+Changes in version 1.0.21
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Tighten up "NUMERIC" update_mode to mean styles that render
+  citation-number in citations (renderings in the bibliography
+  are now ignored for purposes of setting this internal flag).
+
+- The numeric styles fix introduced at version 1.0.17 broke with
+  styles that sort the bibliography on anything other than
+  citation-number (i.e. document first-reference order).  With
+  this release, arbitrary sorts of the bibliography work with
+  numeric styles.
+
+- Position evaluation code is now invoked only in styles that make
+  use of position testing (to save a few cycles).
+
+- Numeric styles now perform targetted citation updates correctly.
+
+
+=========================
+Changes in version 1.0.20
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Retain all names added by disambiguate-add-givennames when year-suffix
+  is added to a cite.  While not strictly necessary for disambiguation,
+  the additional information is useful when scanning a bibliography for
+  the target entry.  In the previous implementation, Bennett was guilty
+  of thinking too much like a computer with a hash table, and too little
+  like a reader with a reference list in front of them.
+
+- Eliminate conditions that erroneously suppressed wrapper tags on
+  institutional names.
+
+
+
+=========================
+Changes in version 1.0.19
+=========================
+
+-------
+Cleanup
+-------
+
+- Set up AGPLv3 as an alternative license to CPAL.
+
+=========================
+Changes in version 1.0.18
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- RTF and plain text output specs, provided by Simon Kornblith of
+  the Zotero project, Center for History and New Media, George
+  Mason University.
+
+- Fix weakness in by-cite disambiguation where (I think) maxing out
+  disambiguation parameters results in successful disambiguation of
+  all but one of the cites in a pool.  Relevant discussion on
+  `xbiblio list @ SourceForge`__.
+
+__ http://sourceforge.net/mailarchive/forum.php?thread_name=AANLkTimtM7wsRL9dhcb4xUICFdj2VIom_Y2t_1wvG1RQ%40mail.gmail.com&forum_name=xbiblio-devel
+
+
+
+-------
+Cleanup
+-------
+
+- Added -E option to ./test.py, to dump processor code with embedded E4X
+  support, as used in Zotero.
+
+- Renamed -b option in ./test.py to -B, for consistency with new -E option.
+
+- Simplify regexp used to identify numbers in numeric variables.  Now
+  more conservative, but this is probably right.  No effect on tests.
+
+=========================
+Changes in version 1.0.17
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- For styles that sort cites on citation-number, postpone the
+  cite sort operation, to allow the registry entry and accompanying
+  sequence number to appear in the registry before the sort is
+  attempted.
+
+=========================
+Changes in version 1.0.16
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix error raised by bad var in warning message.
+
+-------------------------------------
+Adjustments to extended functionality
+-------------------------------------
+
+- Treat names that have a family element without a given element
+  as institutional names, with related adjustments to test fixtures.
+
+-------
+Cleanup
+-------
+
+- Drop test fixture description from processor manual.  This is
+  now to be maintained in the manual of the CSL Test Suite.
+
+=========================
+Changes in version 1.0.15
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Eliminate implicit rendering of "no date" term by cs:date.
+
+
+=========================
+Changes in version 1.0.14
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Remove conditional statement that caused leakage of long-form names into subsequent 
+  cites in the MHRA style.
+
+- Fix error in test fixture example contained in the processor manual.
+
+-------
+Cleanup
+-------
+
+- Add ambig key to one block of debugging info in disambig_cites.js
+
+- Set path to styles to point into manually updated external standard tests bundle.
+
+- Remove styles used by standard tests from this archive.
+
+
+=========================
+Changes in version 1.0.13
+=========================
+
+-------
+Cleanup
+-------
+
+- Drop standard test fixture data from citeproc-js source repository.
+
+- Adjust test runner test.py to accomodate the directory structure of
+  the standalone copy of the test fixtures.
+
+- Add note on the need to add the test fixtures manually to the README.txt 
+  file and the processor manual.
+
+
+=========================
+Changes in version 1.0.12
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix bug in optional date parser code affecting ranged
+  Japanese dates.
+
+-------
+Cleanup
+-------
+
+- Separate local and standard test fixtures, and make necessary
+  adjustments to test framework.
+
+- Drop test subdirectories "bundled" and "run" from mercurial.
+
+
+=========================
+Changes in version 1.0.11
+=========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Processor now opens a key entry in the abbreviation lists for any 
+  field value for which abbreviation is requested, but unavailable.
+  This should provide enough to get a circle-of-goodness thing
+  going to start crowdsourcing style-specific abbreviation lists.
+
+
+=========================
+Changes in version 1.0.10
+=========================
+
+-------
+Cleanup
+-------
+
+- Checking in bundled code for the last change, upping version
+  in processor code.
+
+
+========================
+Changes in version 1.0.9
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Cause processor to report its own version as processor_version,
+  and the supported CSL version as csl_version.
+
+
+========================
+Changes in version 1.0.8
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix code incompatible with IE6 in util_dateparser.js.
+
+- Fix error in the code for generating year-suffix strings
+  (fixes bug affecting very high values unlikely to be encountered
+  in actual operation).
+
+-------
+Cleanup
+-------
+
+- Various small fixes in the tests/citeproc_js processor
+  tests directory to get tests working with current version
+  of code.
+
+- Make syntax and formatting adjustments to recent code as
+  recommended by jslint.
+
+- Fix invalid CSL in one test.
+
+- Drop some extraneous files from the archive.
+
+
+========================
+Changes in version 1.0.7
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Place name suffix after the given name is name-as-sort-order
+  rendering, separated by a comma, as required by CMS.
+
+- Provide for quote-escaping of name field parsing, when the
+  citeproc-js specific parse-names toggle is used to invoke
+  name field pre-parsing.
+
+-------
+Cleanup
+-------
+
+- Tests of citeproc-js name parsing extension, with CMS-correct
+  handling of name suffixes.
+
+- Fix placement of name suffix in several tests.
+
+- Move parseName() function from build.js to util_names.js.  
+
+- Test for quote-escaped particles in the family name with name field
+  parsing.
+
+- Update to manual to cover the citeproc-js parsing conventions for
+  name particles and suffixes.
+
+
+========================
+Changes in version 1.0.6
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Drop suffix from short form of names.
+
+- Use implicit context-sensitive joins (space or comma + space)
+  when the cs:et-al element is used in a name (i.e. align behavior
+  of this element with behavior of the implicit "et al." term, as
+  required by the amended CSL specification).
+
+- Permit use of "initials" with non-byzantine names, when style requires
+  initialization of a name.  Will allow truncation of Japanese given
+  names to the first character, as required by some book publisher
+  styles in Japan, and possibly in other Asian-script domains.
+
+-------
+Cleanup
+-------
+
+- Move a test specific to citeproc-js to citeprocjs group.
+
+- Adjust tests to require implicit application of comma + space prefix
+  to et al. term, when cs:et-al is used.
+
+- Simplify handling of "et-al" and "with" joins, eliminating a couple
+  of nesting levels.  Preliminary infrastructure for discriminate
+  handling of "et-al" and "and" terms with institutional names.
+
+
+========================
+Changes in version 1.0.5
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Give name suffixes the same formatting as the family
+  name-part.
+
+
+========================
+Changes in version 1.0.4
+========================
+
+-----------
+Enhancement
+-----------
+
+- Fix articulars preceded by a comma (as Bennett's own name)
+  to render correctly in bibliographies, as "Bennett, Frank G., Jr.".
+
+---------------------------
+Minor interface adjustments
+---------------------------
+
+- Change the "comma_suffix" key used to indicate that a name suffix
+  should be preceded by a comma to "comma-suffix", for consistency.
+
+
+-------
+Cleanup
+-------
+
+- Fix manual to reflect minor interface adjustments made in 1.0.1 and 
+  1.0.4 releases, and to mention the "hereinafter" section of the
+  abbreviations object, previously overlooked.
+
+
+========================
+Changes in version 1.0.3
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Use comma + space for delimiter before implicit et al. term, when
+  preceded by more than one personal name.  Brings processor behav ior
+  into line with current Zotero processor and common style
+  requirements.  Context sensitivity is not available with explicit et
+  al. term; tha t issue to be addressed in CSL 1.1.
+
+
+========================
+Changes in version 1.0.2
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Fix errors in the placement of non-dropping particles.
+
+- Fix placement of particles in short-form names.
+
+-------
+Cleanup
+-------
+
+- Fix invalid CSL in test fixtures.
+
+
+========================
+Changes in version 1.0.1
+========================
+
+------------------------------------
+Mishandled or unimplemented features
+------------------------------------
+
+- Return maxoffset and the value of second-field-align itself in the
+  header of the return value from makeBibliography() when
+  second-field-align is used.
+
+- Correctly set the value of entry-spacing and line-spacing, providing
+  for a default value of 1 for both attributes, and permitting them
+  to be set to 0.
+
+- Set position to subsequent rather than ibid on cites for which one
+  or more notes stand between the current citation and the preceding
+  partner.
+
+- Implement and test the baseline value for vertical-align.
+
+- Recognize first-reference-note-number as a variable attribute value
+  on cs:if and cs:else-if.  Wake up locator attribute on cs:if and
+  cs:else-if.
+
+- Fix uppercasing of terms when rendered at first position, and
+  prevent uppercasing otherwise.
+
+- Use a space rather than space + comma as the delimiter preceding
+  an implicit et-al term.
+
+- Return entry_ids in the header returned by makeBibliography().  The
+  entry_ids value is a list, in turn containing one list per entry
+  (the nested list being necessary to provide for parallel citations
+  picked up in the bibliography).
+
+- Support for uncited items, via new updateUncitedItems() command.
+
+-----------
+Fine tuning
+-----------
+
+- Suppress issued year if it matches the volume number exactly.  This
+  effect is needed for UK case cites.  It's an exception, so other
+  content must take priority; the change comes out if it causes
+  problems elsewhere.
+
+- Fixes in node_names.js to make institutional names handling available in note styles.
+
+- In what I think is a harmless divergence from the specification,
+  return true for is-numeric for non-numeric variables that end in a
+  number.  Some styles require adjustment of joins, such as the
+  insertion of a comma, in this case.
+
+- Taint items for a change in sequence number only if citation-number
+  is used in the citation.
+
+---------------------------------
+Fixes to parallels detection code
+---------------------------------
+
+- Fix array overrun bug in parallel detection code.
+
+- When the trailing year is quashed in a cite in initial position
+  within a set, quash it also in the final partner.  Needed to
+  handle public domain citations.
+
+- Provide looser constraint on minimum variable content for parallels
+  detection.  Provide for adding a constraint on item type.
+
+- Eliminate am_master flag, and instead rely on the position of the
+  rendered item under analysis within the cite set.  This works after
+  eliminating and extraneous cite set list push operation that was
+  causing it to fail.
+
+-----------------
+Internal bugfixes
+-----------------
+
+- Suppress registration of names that do not include a family name.
+
+- Provide for the possibility that subsequent citation forms will not
+  include any names, and therefore not produce disambiguation data in
+  the registry.
+
+- Avoid rendering of citation numbers when evaluating subsequent cites
+  for disambiguation purposes, in node_text.js
+
+- Fix a subtle bug in the rollback of added names, in
+  disambig_cites.js.
+
+- Companion changes in node_names.js and cmd_cite.js, to restore
+  parameters based on subsequent-form disambiguation to the registry,
+  after rendering a first-position cite.
+
+- Fix bug caused by incomplete cs:choose node set as a helper for
+  cs:substitute.
+
+- Rename citationIdByItemId to citationsByItemId, and adjust code to
+  set this list with pointers instead of IDs.  Leverage availability
+  of citation pointers to get near-note conditional working.
+
+---------------------------
+Minor interface adjustments
+---------------------------
+
+- Extend abbreviations structure with addition sections
+  "title", "publisher", and "publisher-place".  Change names of
+  abbreviation sections "journal" and "series" to "container-title"
+  and "collection-title" respectively, for consistency and clarity.
+
+
+-------
+Cleanup
+-------
+
+- Delete tests which, if they had been correctly written, would have
+  been invalid CSL.
+
+- Fix tests involving et-al-subsequent-min and
+  et-al-subsequent-use-first that were either incorrectly written or
+  required a wrong result.
+
+- Align abbreviation list keys with field names in tests.
+
+- Cleanup and reorganization of code related to multi-lingual handling
+  and abbreviations.
+
+- Adjust near-note tests to use a simple boolean value on the cite
+  supplement element of the item, rather than a note distance.
+
+- Adjust tests to reflect correct lowercasing of ibid term when not at
+  first position.
+
+- Change tests to use a space rather than comma+space before et al.

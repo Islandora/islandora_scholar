@@ -1,0 +1,158 @@
+/*
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights
+ * Reserved.
+ *
+ * The contents of this file are subject to the Common Public
+ * Attribution License Version 1.0 (the “License”); you may not use
+ * this file except in compliance with the License. You may obtain a
+ * copy of the License at:
+ *
+ * http://bitbucket.org/fbennett/citeproc-js/src/tip/LICENSE.
+ *
+ * The License is based on the Mozilla Public License Version 1.1 but
+ * Sections 14 and 15 have been added to cover use of software over a
+ * computer network and provide for limited attribution for the
+ * Original Developer. In addition, Exhibit A has been modified to be
+ * consistent with Exhibit B.
+ *
+ * Software distributed under the License is distributed on an “AS IS”
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+ * the License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * The Original Code is the citation formatting software known as
+ * "citeproc-js" (an implementation of the Citation Style Language
+ * [CSL]), including the original test fixtures and software located
+ * under the ./std subdirectory of the distribution archive.
+ *
+ * The Original Developer is not the Initial Developer and is
+ * __________. If left blank, the Original Developer is the Initial
+ * Developer.
+ *
+ * The Initial Developer of the Original Code is Frank G. Bennett,
+ * Jr. All portions of the code written by Frank G. Bennett, Jr. are
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights Reserved.
+ *
+ * Alternatively, the contents of this file may be used under the
+ * terms of the GNU Affero General Public License (the [AGPLv3]
+ * License), in which case the provisions of [AGPLv3] License are
+ * applicable instead of those above. If you wish to allow use of your
+ * version of this file only under the terms of the [AGPLv3] License
+ * and not to allow others to use your version of this file under the
+ * CPAL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the
+ * [AGPLv3] License. If you do not delete the provisions above, a
+ * recipient may use your version of this file under either the CPAL
+ * or the [AGPLv3] License.”
+ */
+
+>>===== MODE =====>>
+citation
+<<===== MODE =====<<
+
+
+
+>>===== RESULT =====>>
+<i>Jones v. Smith (The Archimedes)</i>, [1990] 15 AC 111
+<<===== RESULT =====<<
+
+
+>>===== CSL =====>>
+<style 
+      xmlns="http://purl.org/net/xbiblio/csl"
+      class="note"
+      version="1.1mlz1"
+      demote-non-dropping-particle="display-and-sort">
+  <info>
+    <id />
+    <title />
+    <updated>2009-08-10T04:49:00+09:00</updated>
+  </info>
+  <macro name="oscola-note-case">
+    <group delimiter=", ">
+      <group delimiter=" " font-style="italic">
+        <text variable="title"/>
+        <text variable="title-short" prefix="(" suffix=")"/>
+      </group>
+      <group delimiter=" ">
+        <date variable="issued" form="numeric" date-parts="year" prefix="[" suffix="]"/>
+        <text variable="volume"/>
+        <text variable="container-title"/>
+        <text variable="page-first"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="oscola-bib-case">
+    <choose>
+      <if variable="title-short" match="any">
+        <text macro="oscola-bib-case-crossref"/>
+      </if>
+      <else>
+        <text macro="oscola-bib-case-plain"/>
+      </else>
+    </choose>
+  </macro>
+  <macro name="oscola-bib-case-plain">
+    <group delimiter=", ">
+      <text variable="title" font-style="italic"/>
+      <group delimiter=" ">
+        <date variable="issued" form="numeric" date-parts="year" prefix="[" suffix="]"/>
+        <text variable="volume"/>
+        <text variable="container-title"/>
+        <text variable="page-first"/>
+      </group>
+    </group>
+  </macro>
+  <macro name="oscola-bib-case-crossref">
+    <group delimiter=" ">
+      <text variable="title-short" leading-noise-words="demote" suffix="."/>
+      <text value="See" font-style="italic"/>
+      <text macro="oscola-bib-case-plain"/>
+    </group>
+  </macro>
+  <macro name="sortkey">
+    <choose>
+      <if variable="title-short">
+        <text variable="title-short" leading-noise-words="demote"/>
+      </if>
+      <else>
+        <text variable="title"/>
+      </else>
+    </choose>
+  </macro>
+  <citation>
+    <layout>
+      <text macro="oscola-note-case"/>
+    </layout>
+  </citation>
+  <bibliography>
+    <sort>
+     <key macro="sortkey"/>
+    </sort>
+    <layout>
+      <generate type-map="legal_case legal_case" trigger-fields="title-short"/>
+      <text macro="oscola-bib-case"/>
+    </layout>
+  </bibliography>
+</style>
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[
+    {
+        "title": "Jones v. Smith",
+        "issued": {
+            "date-parts": [
+               [1990]
+            ]
+        },
+        "volume": 15,
+        "container-title": "AC",
+        "page": "111-999",
+        "title-short": "The Archimedes",
+        "id": "ITEM-1", 
+        "type": "legal_case"
+    }
+]
+<<===== INPUT =====<<
