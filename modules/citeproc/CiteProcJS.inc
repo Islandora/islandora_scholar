@@ -89,9 +89,10 @@ class CiteProcJS {
   public static function addResources() {
     static $loaded = FALSE;
     if ($loaded === FALSE) {
+      global $base_url;
       $module_path = drupal_get_path('module', 'citeproc');
       // Required for a javascript error, note the type of the script.
-      drupal_set_html_head("<script type='text/javascript; e4x=1' src='/$module_path/lib/citeproc-js/xmle4x.js'></script>");
+      drupal_set_html_head("<script type='text/javascript; e4x=1' src='$base_url/$module_path/lib/citeproc-js/xmle4x.js'></script>");
       drupal_add_js($module_path . '/lib/citeproc-js/xmldom.js');
       drupal_add_js($module_path . '/lib/citeproc-js/citeproc.js');
       drupal_add_js($module_path . '/js/loadsys.js');

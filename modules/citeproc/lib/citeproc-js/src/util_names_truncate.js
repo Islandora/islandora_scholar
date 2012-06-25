@@ -172,30 +172,6 @@ CSL.NameOutput.prototype.truncatePersonalNameLists = function () {
             // this.institutions[v][i] = this._splitInstitution(this.institutions[v][i], v, i);
         }
     }
-/*
-
-    // Finally, apply any registered institution name abbreviations to the
-    // (possibly transliterated) name form.
-    for (v in this.institutions) {
-        for (i = 0, ilen = this.institutions[v].length; i < ilen; i += 1) {
-            // XXX Hack alert. Entries managed by an Abbreviations plugin
-            // can break the parsing here, so we need to be sure the lengths
-            // of the splits match.
-            var long_form = this.institutions[v][i]["long"];
-            var short_form = long_form.slice();
-            if (this.state.sys.getAbbreviation) {
-                var jurisdiction = this.Item.jurisdiction;
-                for (var j = 0, jlen = long_form.length; j < jlen; j += 1) {
-                    var jurisdiction = this.state.transform.loadAbbreviation(jurisdiction, "institution-part", long_form[j]);
-                    if (this.state.transform.abbrevs[jurisdiction]["institution-part"][long_form[j]]) {
-                        short_form[j] = this.state.transform.abbrevs[jurisdiction]["institution-part"][long_form[j]];
-                    }
-                }
-            }
-            this.institutions[v][i]["short"] = short_form;
-        }
-    }
-*/
 };
 
 CSL.NameOutput.prototype._truncateNameList = function (container, variable, index) {

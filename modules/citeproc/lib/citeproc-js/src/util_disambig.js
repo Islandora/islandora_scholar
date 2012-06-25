@@ -48,24 +48,34 @@
 
 /*global CSL: true */
 
-
-CSL.compareAmbigConfig = function(a, b) {
+CSL.ambigConfigDiff = function(a, b) {
     var ret, pos, len, ppos, llen;
     // return of true means the ambig configs differ
     if (a.names.length !== b.names.length) {
+        //print("   (1)");
         return 1;
     } else {
         for (pos = 0, len = a.names.length; pos < len; pos += 1) {
             if (a.names[pos] !== b.names[pos]) {
+        //print("   (2) "+a.names[pos]+" "+b.names[pos]);
                 return 1;
             } else {
-                for (ppos = 0, llen = a.names[pos]; ppos < llen; ppos += 1) {
+                for (ppos = 0, llen = a.givens[pos]; ppos < llen; ppos += 1) {
                     if (a.givens[pos][ppos] !== b.givens[pos][ppos]) {
+        //print("   (3): "+a.givens[pos][ppos]+" "+b.givens[pos][ppos]+" "+pos+"/"+ppos+" "+b.givens[pos]);
                         return 1;
                     }
                 }
             }
         }
+    }
+    if (a.disambiguate != b.disambiguate) {
+        //print("   (4) "+a.disambiguate+" "+b.disambiguate);
+        return 1;
+    }
+    if (a.year_suffix !== b.year_suffix) {
+        //print("   (5) "+a.year_suffix+" "+b.year_suffix);
+        return 1;
     }
     return 0;
 };
@@ -82,12 +92,6 @@ CSL.cloneAmbigConfig = function (config, oldconfig, tainters) {
         // Fixes update bug affecting plugins, without impacting
         // efficiency with update of large numbers of year-suffixed
         // items.
-        if (oldconfig && (!oldconfig.names[i] || oldconfig.names[i] !== param)) {
-            for (j = 0, jlen = tainters.length; j < jlen; j += 1) {
-                this.tmp.taintedItemIDs[tainters[j].id] = true;
-            }
-            oldconfig = false;
-        }
         ret.names[i] = param;
     }
     for (i  = 0, ilen = config.givens.length; i < ilen; i += 1) {
@@ -95,12 +99,6 @@ CSL.cloneAmbigConfig = function (config, oldconfig, tainters) {
         for (j = 0, jlen = config.givens[i].length; j < jlen; j += 1) {
             // condition at line 312 of disambiguate.js protects against negative
             // values of j
-            if (oldconfig && oldconfig.givens[i][j] !== config.givens[i][j]) {
-                for (k = 0, klen = tainters.length; k < klen; k += 1) {
-                    this.tmp.taintedItemIDs[tainters[k].id] = true;
-                }
-                oldconfig = false;
-            }
             param.push(config.givens[i][j]);
         }
         ret.givens.push(param);

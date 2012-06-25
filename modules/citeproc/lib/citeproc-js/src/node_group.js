@@ -63,8 +63,14 @@ CSL.Node.group = {
                 if (state.tmp.group_context.mystack.length) {
                     state.output.current.value().parent = state.tmp.group_context.value()[4];
                 }
-                // fieldcontentflag
-                state.tmp.group_context.push([false, false, false, false, state.output.current.value()], CSL.LITERAL);
+
+
+                // fieldcontextflag
+                var label_form = state.tmp.group_context.value()[5];
+                if (!label_form && this.strings.label_form_override) {
+                    label_form = this.strings.label_form_override;
+                }
+                state.tmp.group_context.push([false, false, false, false, state.output.current.value(), label_form, this.strings.set_parallel_condition], CSL.LITERAL);
 
                 // Oops is triggered in two situations:
                 //   (1) Where rendering of content fails; and
@@ -133,7 +139,7 @@ CSL.Node.group = {
             // quashnonfields
             func = function (state, Item) {
                 var flag = state.tmp.group_context.pop();
-                
+
                 state.output.endTag();
                 //
                 // 0 marks an intention to render a term or value
@@ -148,6 +154,17 @@ CSL.Node.group = {
                 }
                 if (flag[2] || (flag[0] && !flag[1])) {
                     state.tmp.group_context.value()[2] = true;
+                    var blobs = state.output.current.value().blobs;
+                    var pos = state.output.current.value().blobs.length - 1;
+                    if (!state.tmp.just_looking && "undefined" !== typeof flag[6]) {
+                        var parallel_condition_object = {
+                            blobs: blobs,
+                            conditions: flag[6],
+                            id: Item.id,
+                            pos: pos
+                        };
+                        state.parallel.parallel_conditional_blobs_list.push(parallel_condition_object);
+                    }
                 } else {
                     if (state.output.current.value().blobs) {
                         state.output.current.value().blobs.pop();

@@ -187,7 +187,8 @@ CSL.Node["date-part"] = {
                             // to a string, run minimial-two, and output the trailing
                             // year right here. No impact on other functionality.
                             
-                            if (state.opt["page-range-format"] === "minimal-two"
+                            if (state.opt["year-range-format"]
+                                && state.opt["year-range-format"] !== "expanded"
                                 && !state.tmp.date_object.day
                                 && !state.tmp.date_object.month
                                 && !state.tmp.date_object.season
@@ -196,8 +197,8 @@ CSL.Node["date-part"] = {
                                 
                                 // second argument adjusts collapse as required for years
                                 // See OSCOLA section 1.3.2
-                                value_end = state.fun.page_mangler(value + "-" + value_end, true);
-                                var range_delimiter = state.getTerm("range-delimiter");
+                                value_end = state.fun.year_mangler(value + "-" + value_end, true);
+                                var range_delimiter = state.getTerm("year-range-delimiter");
                                 value_end = value_end.slice(value_end.indexOf(range_delimiter) + 1);
                             }
                             state.dateput.append(value_end, this);
@@ -208,11 +209,8 @@ CSL.Node["date-part"] = {
                         state.output.append(value, this);
                         curr = state.output.current.value();
                         curr.blobs[(curr.blobs.length - 1)].strings.suffix = "";
-                        state.output.append(this.strings["range-delimiter"], "empty");
+                        state.output.append(state.getTerm("year-range-delimiter"), "empty");
                         dcurr = state.dateput.current.value();
-                        // if (dcurr.length){
-                        // print("prefix: "+dcurr[0].blobs[0].strings.prefix);
-                        // }
                         curr.blobs = curr.blobs.concat(dcurr);
                         state.dateput.string(state, state.dateput.queue);
                         state.tmp.date_collapse_at = [];
@@ -284,13 +282,13 @@ CSL.Node["date-part"] = {
                 if (state.registry.registry[Item.id] && state.registry.registry[Item.id].disambig.year_suffix !== false && !state.tmp.has_done_year_suffix) {
                     state.tmp.has_done_year_suffix = true;
                     num = parseInt(state.registry.registry[Item.id].disambig.year_suffix, 10);
-                    number = new CSL.NumericBlob(num, this);
+                    number = new CSL.NumericBlob(num, this, Item.id);
                     this.successor_prefix = state[state.build.area].opt.layout_delimiter;
                     this.splice_prefix = state[state.build.area].opt.layout_delimiter;
                     formatter = new CSL.Util.Suffixator(CSL.SUFFIX_CHARS);
                     number.setFormatter(formatter);
                     if (state[state.tmp.area].opt.collapse === "year-suffix-ranged") {
-                        number.range_prefix = state.getTerm("range-delimiter");
+                        number.range_prefix = state.getTerm("citation-range-delimiter");
                     }
                     if (state[state.tmp.area].opt["year-suffix-delimiter"]) {
                         number.successor_prefix = state[state.tmp.area].opt["year-suffix-delimiter"];
@@ -304,9 +302,6 @@ CSL.Node["date-part"] = {
 
         };
         this.execs.push(func);
-        if ("undefined" === typeof this.strings["range-delimiter"]) {
-            this.strings["range-delimiter"] = "\u2013";
-        }
         target.push(this);
     }
 };

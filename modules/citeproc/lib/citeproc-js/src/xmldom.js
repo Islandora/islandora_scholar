@@ -50,10 +50,10 @@
  * Functions for parsing an XML object using E4X.
  */
 
-var ActiveXObject;
-var XMLHttpRequest;
-var DOMParser;
-var CSL_IS_IE;
+// Don't clobber an existing value if this has already been declared.
+if ("undefined" === typeof CSL_IS_IE) {
+    var CSL_IS_IE;
+};
 
 var CSL_CHROME = function () {
     if ("undefined" == typeof DOMParser || CSL_IS_IE) {
@@ -325,12 +325,16 @@ CSL_CHROME.prototype.deleteAttribute = function (myxml,attr) {
 }
 
 CSL_CHROME.prototype.setAttribute = function (myxml,attr,val) {
-    var attribute;
     if (!myxml.ownerDocument) {
         myxml = myxml.firstChild;
     }
-    attribute = myxml.ownerDocument.createAttribute(attr);
-    myxml.setAttribute(attr, val);
+    // "unknown" to satisfy IE8, which crashes when setAttribute
+    // is checked directly as a property, and report its type as
+    // "unknown".
+    // Many thanks to Phil Lord for tracing the cause of the fault.
+    if (["function", "unknown"].indexOf(typeof myxml.setAttribute) > -1) {
+        myxml.setAttribute(attr, val);
+    }
     return false;
 }
 
@@ -376,21 +380,35 @@ CSL_CHROME.prototype.insertChildNodeAfter = function (parent,node,pos,datexml) {
     myxml = this.importNode(node.ownerDocument, datexml);
     parent.replaceChild(myxml, node);
      return parent;
- };
+};
 
 CSL_CHROME.prototype.insertPublisherAndPlace = function(myxml) {
     var group = myxml.getElementsByTagName("group");
     for (var i = 0, ilen = group.length; i < ilen; i += 1) {
         var node = group.item(i);
-        if (node.childNodes.length === 2) {
+        var skippers = [];
+        for (var j = 0, jlen = node.childNodes.length; j < jlen; j += 1) {
+            if (node.childNodes.item(j).nodeType !== 1) {
+                skippers.push(j);
+            }
+        }
+        if (node.childNodes.length - skippers.length === 2) {
             var twovars = [];
             for (var j = 0, jlen = 2; j < jlen; j += 1) {
-                var child = node.childNodes.item(j);
-                if (child.childNodes.length === 0) {
+                if (skippers.indexOf(j) > -1) {
+                    continue;
+                }
+                var child = node.childNodes.item(j);                    
+                var subskippers = [];
+                for (var k = 0, klen = child.childNodes.length; k < klen; k += 1) {
+                    if (child.childNodes.item(k).nodeType !== 1) {
+                        subskippers.push(k);
+                    }
+                }
+                if (child.childNodes.length - subskippers.length === 0) {
                     twovars.push(child.getAttribute('variable'));
                     if (child.getAttribute('suffix')
                         || child.getAttribute('prefix')) {
-                        
                         twovars = [];
                         break;
                     }
@@ -402,7 +420,6 @@ CSL_CHROME.prototype.insertPublisherAndPlace = function(myxml) {
         }
     }
 };
-
 
 CSL_CHROME.prototype.addMissingNameNodes = function(myxml) {
     var nameslist = myxml.getElementsByTagName("names");
@@ -470,3 +487,4 @@ CSL_CHROME.prototype.flagDateMacros = function(myxml) {
         }
     }
 };
+

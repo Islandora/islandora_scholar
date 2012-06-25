@@ -84,7 +84,10 @@ CSL.Parallel = function (state) {
     this.sets = new CSL.Stack([]);
     this.try_cite = true;
     this.use_parallels = true;
-    this.midVars = ["section", "volume", "container-title", "collection-number", "issue", "page", "page-first", "locator"];
+
+    this.midVars = ["section", "volume", "container-title", "collection-number", "issue", "page", "page-first", "number"];
+    this.ignoreVarsOther = ["first-reference-note-number", "locator", "label"];
+    this.ignoreVarsOrders = ["first-reference-note-number"];
 };
 
 CSL.Parallel.prototype.isMid = function (variable) {
@@ -94,6 +97,7 @@ CSL.Parallel.prototype.isMid = function (variable) {
 };
 
 CSL.Parallel.prototype.StartCitation = function (sortedItems, out) {
+    this.parallel_conditional_blobs_list = [];
     if (this.use_parallels) {
         this.sortedItems = sortedItems;
         this.sortedItemsPos = -1;
@@ -119,6 +123,11 @@ CSL.Parallel.prototype.StartCitation = function (sortedItems, out) {
  */
 CSL.Parallel.prototype.StartCite = function (Item, item, prevItemID) {
     var position, len, pos, x, curr, master, last_id, prev_locator, curr_locator, is_master, parallel;
+    if (["treaty"].indexOf(Item.type) > -1) {
+        this.ignoreVars = this.ignoreVarsOrders;
+    } else {
+        this.ignoreVars = this.ignoreVarsOther;
+    }
     if (this.use_parallels) {
         //print("StartCite: "+Item.id);
         if (this.sets.value().length && this.sets.value()[0].itemId == Item.id) {
@@ -143,7 +152,14 @@ CSL.Parallel.prototype.StartCite = function (Item, item, prevItemID) {
                 break;
             }
         }
-        if (!has_required_var || CSL.PARALLEL_TYPES.indexOf(Item.type) === -1) {
+        var title_ok = true;
+        var last_cite = this.sets.value().slice(-1)[0];
+        if (last_cite && (last_cite.Item.title || Item.title)) {
+            if (last_cite.Item.title !== Item.title) {
+                title_ok = false;
+            }
+        }
+        if (!title_ok || !has_required_var || CSL.PARALLEL_TYPES.indexOf(Item.type) === -1) {
             // ZZZ set true for testing initially, but setting this true
             // always seems to be safe, at least judging from current tests.
             this.try_cite = true;
@@ -208,6 +224,14 @@ CSL.Parallel.prototype.StartCite = function (Item, item, prevItemID) {
  */
 CSL.Parallel.prototype.StartVariable = function (variable) {
     if (this.use_parallels && (this.try_cite || this.force_collapse)) {
+        if (variable === "names") {
+            this.variable = variable + ":" + this.target;
+        } else {
+            this.variable = variable;
+        }
+        if (this.ignoreVars.indexOf(variable) > -1) {
+            return;
+        }
         if (variable === "container-title" && this.sets.value().length === 0) {
             this.master_was_neutral_cite = false;
         }
@@ -227,12 +251,6 @@ CSL.Parallel.prototype.StartVariable = function (variable) {
             this.try_cite = true;
             //print("   IN SERIES FALSE (3)");
             this.in_series = false;
-        }
-
-        if (variable === "names") {
-            this.variable = variable + ":" + this.target;
-        } else {
-            this.variable = variable;
         }
 
         //print("area=" + this.state.tmp.area + ", variable=" + variable+", target="+this.target);
@@ -257,6 +275,9 @@ CSL.Parallel.prototype.StartVariable = function (variable) {
  * after parallels detection is complete.
  */
 CSL.Parallel.prototype.AppendBlobPointer = function (blob) {
+    if (this.ignoreVars.indexOf(this.variable) > -1) {
+        return;
+    }
     if (this.use_parallels && this.variable && (this.try_cite || this.force_collapse) && blob && blob.blobs) {
         this.data.blobs.push([blob, blob.blobs.length]);
     }
@@ -267,10 +288,13 @@ CSL.Parallel.prototype.AppendBlobPointer = function (blob) {
  * in the variables tracking object.
  */
 CSL.Parallel.prototype.AppendToVariable = function (str, varname) {
+    if (this.ignoreVars.indexOf(this.variable) > -1) {
+        return;
+    }
     if (this.use_parallels && (this.try_cite || this.force_collapse)) {
             // ZZZZZ
         if (this.target !== "back" || true) {
-            //print("  setting: "+str);
+            //zcite.debug("  setting: "+str);
             this.data.value += "::" + str;
         } else {
             var prev = this.sets.value()[(this.sets.value().length - 1)];
@@ -294,13 +318,16 @@ CSL.Parallel.prototype.AppendToVariable = function (str, varname) {
  * item can't necessarily be discarded; it might be the first
  * member of an upcoming sequence ???]
  */
-CSL.Parallel.prototype.CloseVariable = function (hello) {
+CSL.Parallel.prototype.CloseVariable = function () {
+    if (this.ignoreVars.indexOf(this.variable) > -1) {
+        return;
+    }
     if (this.use_parallels && (this.try_cite || this.force_collapse)) {
         this.cite[this.variable] = this.data;
         if (this.sets.value().length > 0) {
             var prev = this.sets.value()[(this.sets.value().length - 1)];
             // ZZZ
-            if (this.target === "front" && this.variable === "issued") {
+            if (this.target === "front" && this.variable === "original-date") {
                 // REMAINING PROBLEM: this works for English-style cites, but not
                 // for the French. Only difference is date-parts (year versus year-month-day).
                 // See code at the bottom of CloseCite() for the other half of this workaround.
@@ -315,11 +342,14 @@ CSL.Parallel.prototype.CloseVariable = function (hello) {
                     // evaluation takes place later, at close of cite.
                     //this.try_cite = true;
                     // Ignore differences in issued
-                    if ("issued" !== this.variable) {
+                    if ("original-date" !== this.variable) {
                         this.in_series = false;
                     }
                 }
             } else if (this.target === "mid") {
+                // How to set label and locator for suppression only if
+                // BOTH match? First, push what ya got by pushing both
+                // in below ... ? No, that didn't work.
                 if (CSL.PARALLEL_COLLAPSING_MID_VARSET.indexOf(this.variable) > -1) {
                     if (prev[this.variable]) {
                         if (prev[this.variable].value === this.data.value) {
@@ -333,7 +363,8 @@ CSL.Parallel.prototype.CloseVariable = function (hello) {
                 }
             } else if (this.target === "back") {
                 if (prev[this.variable]) {
-                    if (this.data.value !== prev[this.variable].value && this.sets.value().slice(-1)[0].back_forceme.indexOf(this.variable) === -1) {
+                    if (this.data.value !== prev[this.variable].value 
+                        && this.sets.value().slice(-1)[0].back_forceme.indexOf(this.variable) === -1) {
                         //print(this.variable);
                         //print(this.sets.value().slice(-1)[0].back_forceme);
                         // evaluation takes place later, at close of cite.
@@ -394,22 +425,22 @@ CSL.Parallel.prototype.CloseCite = function () {
         }
         //**print("[pushing cite]");
         if (this.sets.value().length === 0) {
-            has_issued = false;
+            has_date = false;
             for (pos = 0, len = this.cite.back.length; pos < len; pos += 1) {
                 x = this.cite.back[pos];
                 //**print("  ->issued="+this.cite.issued);
                 //for (var x in this.cite.issued) {
                 //    print("..."+x);
                 //}
-                if (x === "issued" && this.cite.issued && this.cite.issued.value) {
+                if (x === "original-date" && this.cite["original-date"] && this.cite["original-date"].value) {
                     //print("HAS ISSUED");
-                    has_issued = true;
+                    has_date = true;
                     break;
                 }
             }
-            if (!has_issued) {
+            if (!has_date) {
                 //print("  setting issued in back_forceme variable culling list");
-                this.cite.back_forceme.push("issued");
+                this.cite.back_forceme.push("original-date");
             }
         } else {
             //print("  renewing");
@@ -418,14 +449,14 @@ CSL.Parallel.prototype.CloseCite = function () {
             // that jumps to "mid" on "issued" only if the preceding cite was a neutral
             // one.
             //print("front: "+this.cite.front+", mid: "+this.cite.mid+", back: "+this.cite.back+", id: "+this.cite.itemId);
-            var idx = this.cite.front.indexOf("issued");
+            var idx = this.cite.front.indexOf("original-date");
             if (idx === -1 || this.master_was_neutral_cite) {
                 this.cite.back_forceme = this.sets.value().slice(-1)[0].back_forceme;
             }
             if (idx > -1) {
                 // If previous cite rendered the year, go ahead and collapse. Otherwise, don't.
                 var prev = this.sets.value()[this.sets.value().length - 1];
-                if (!prev.issued) {
+                if (!prev["original-date"]) {
                     this.cite.front = this.cite.front.slice(0, idx).concat(this.cite.front.slice(idx + 1));
                 }
             }
@@ -450,8 +481,12 @@ CSL.Parallel.prototype.ComposeSet = function (next_output_in_progress) {
     if (this.use_parallels) {
         // a bit loose here: zero-length sets relate to one cite,
         // apparently.
+        var lengthCheck = this.sets.value().length;
+        // Do stuff for false here
         if (this.sets.value().length === 1) {
             if (!this.in_series) {
+                // Um ... probably shouldn't just throw this away. What if
+                // two collapsed parallel citations appear in sequence? Hmm?
                 this.sets.value().pop();
                 this.delim_counter += 1;
             }
@@ -501,6 +536,11 @@ CSL.Parallel.prototype.ComposeSet = function (next_output_in_progress) {
             this.sets.push([]);
             //this.in_series = false;
 
+        }
+        if (lengthCheck < 2) {
+            this.purgeGroupsIfParallel(false);
+        } else {
+            this.purgeGroupsIfParallel(true);
         }
         this.in_series = true;
         //print(this.sets.mystack.slice(-2,-1)[0].slice(-1)[0].back_forceme);
@@ -560,6 +600,7 @@ CSL.Parallel.prototype.purgeVariableBlobs = function (cite, varnames) {
                 for (ppos = llen; ppos > -1; ppos += -1) {
                     b = cite[varname].blobs[ppos];
                     b[0].blobs = b[0].blobs.slice(0, b[1]).concat(b[0].blobs.slice((b[1] + 1)));
+                    this.state.tmp.has_purged_parallel = true;
                     if (b[0] && b[0].strings && "string" == typeof b[0].strings.oops
                         && b[0].parent && b[0].parent) {
 
@@ -571,3 +612,34 @@ CSL.Parallel.prototype.purgeVariableBlobs = function (cite, varnames) {
     }
 };
 
+
+CSL.Parallel.prototype.purgeGroupsIfParallel = function (original_condition) {
+    for (var i = this.parallel_conditional_blobs_list.length - 1; i > -1; i += -1) {
+        var obj = this.parallel_conditional_blobs_list[i];
+        // Tricky double-negatives here.
+        var purgeme = true;
+        for (var j = 0, jlen = obj.conditions.length; j < jlen; j += 1) {
+            if (!(!obj.conditions[j] === !!original_condition
+                || ("master" === obj.conditions[j]
+                    && !this.state.registry.registry[obj.id].master)
+                || ("servant" === obj.conditions[j]
+                    && !this.state.registry.registry[obj.id].parallel))) {
+                var purgeme = false;
+                break;
+            }
+        }
+        if (purgeme) {
+            var buffer = [];
+            while (obj.blobs.length > obj.pos) {
+                buffer.push(obj.blobs.pop());
+            }
+            if (buffer.length) {
+                buffer.pop();
+            }
+            while (buffer.length) {
+                obj.blobs.push(buffer.pop());
+            }
+        }
+        this.parallel_conditional_blobs_list.pop();
+    }
+}

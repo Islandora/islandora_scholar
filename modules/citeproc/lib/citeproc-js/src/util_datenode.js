@@ -49,8 +49,12 @@
 /*global CSL: true */
 
 CSL.Util.fixDateNode = function (parent, pos, node) {
-    var form, variable, datexml, subnode, partname, attr, val, prefix, suffix, children, key, subchildren, kkey, display;
+    var form, variable, datexml, subnode, partname, attr, val, prefix, suffix, children, key, subchildren, kkey, display, cslid;
     
+    // Raise date flag, used to control inclusion of year-suffix key in sorts
+    // This may be a little reckless: not sure what happens on no-date conditions
+    this.state.build.date_key = true;
+
     form = this.sys.xml.getAttributeValue(node, "form");
     var lingo = this.sys.xml.getAttributeValue(node, "lingo");
 
@@ -64,6 +68,7 @@ CSL.Util.fixDateNode = function (parent, pos, node) {
     prefix = this.sys.xml.getAttributeValue(node, "prefix");
     suffix = this.sys.xml.getAttributeValue(node, "suffix");
     display = this.sys.xml.getAttributeValue(node, "display");
+    cslid = this.sys.xml.getAttributeValue(node, "cslid");
     
     //
     // Xml: Copy a node
@@ -72,6 +77,7 @@ CSL.Util.fixDateNode = function (parent, pos, node) {
     this.sys.xml.setAttribute(datexml, 'lingo', this.state.opt.lang);
     this.sys.xml.setAttribute(datexml, 'form', form);
     this.sys.xml.setAttribute(datexml, 'date-parts', dateparts);
+    this.sys.xml.setAttribute(datexml, "cslid", cslid);
     //
     // Xml: Set attribute
     //
@@ -143,8 +149,7 @@ CSL.Util.fixDateNode = function (parent, pos, node) {
         // Xml: Find one node by attribute and delete
         //
         this.sys.xml.deleteNodeByNameAttribute(datexml, 'day');
-
-
+        
     } else if ("year-month" === this.sys.xml.getAttributeValue(node, "date-parts")) {
         //
         // Xml: Find one node by attribute and delete

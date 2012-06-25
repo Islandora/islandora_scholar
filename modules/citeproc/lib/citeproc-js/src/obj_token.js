@@ -87,7 +87,7 @@ CSL.Token = function (name, tokentype) {
      * parameters are registered is fixed by the constant
      * {@link CSL.FORMAT_KEY_SEQUENCE}.
      */
-    this.decorations = false;
+    this.decorations = [];
     this.variables = [];
     /**
      * Element functions.

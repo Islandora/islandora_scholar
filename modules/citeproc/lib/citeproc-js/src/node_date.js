@@ -117,20 +117,6 @@ CSL.Node.date = {
                             }
                         }
                         dp = dpx.slice();
-                        // Suppress the year if we're not sorting, and
-                        // it's the same as the volume, and we would render
-                        // only the year, with not month or day.
-                        // Needed for English-style case cites.  Here's hoping it
-                        // doesn't have side effects.
-                        if (!state.tmp.extension && ("" + Item.volume) === "" + state.tmp.date_object.year && this.dateparts.length === 1 && this.dateparts[0] === "year") {
-                            for (key in state.tmp.date_object) {
-                                if (state.tmp.date_object.hasOwnProperty(key)) {
-                                    if (key.slice(0, 4) === "year" && state.tmp.citeblob.can_suppress_identical_year) {
-                                        delete state.tmp.date_object[key];
-                                    }
-                                }
-                            }
-                        }
                         //
                         // (2) Reverse the list and step through in
                         // reverse order, popping each item if the
@@ -178,6 +164,32 @@ CSL.Node.date = {
             // newoutput
             func = function (state, Item) {
                 state.output.startTag("date", this);
+                if (this.variables[0] === "original-date"
+                    && Item.type === "legal_case"
+                    && !state.tmp.extension
+                    && "" + Item["collection-number"] === "" + state.tmp.date_object.year
+                    && this.dateparts.length === 1
+                    && this.dateparts[0] === "year") {
+
+                    // Set up to (maybe) suppress the year if we're not sorting, and
+                    // it's the same as the collection-number, and we would render
+                    // only the year, with not month or day, and this is a legal_case item.
+                    // We save a pointer to the blob parent and its position here. The
+                    // blob will be popped from output if at the end of processing for
+                    // this cite we find that we have rendered the collection-number
+                    // variable also.
+                    for (var key in state.tmp.date_object) {
+                        if (state.tmp.date_object.hasOwnProperty(key)) {
+                            if (key.slice(0, 4) === "year") {
+
+                                state.tmp.original_date = {};
+                                var lst = state.output.current.mystack.slice(-2)[0].blobs;
+                                state.tmp.original_date.list = lst;
+                                state.tmp.original_date.pos = lst.length - 1;
+                            }
+                        }
+                    }
+                }
             };
             this.execs.push(func);
         }

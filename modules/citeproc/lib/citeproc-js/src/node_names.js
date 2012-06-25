@@ -73,6 +73,7 @@ CSL.Node.names = {
         if (this.tokentype === CSL.START) {
 
             state.build.names_flag = true;
+            state.build.names_level += 1;
 
             // init can substitute
             // init names
@@ -90,8 +91,11 @@ CSL.Node.names = {
             for (var i = 0, ilen = 3; i < ilen; i += 1) {
                 var key = ["family", "given", "et-al"][i];
                 this[key] = state.build[key];
-                state.build[key] = undefined;
+                if (state.build.names_level === 1) {
+                    state.build[key] = undefined;
+                }
             }
+            state.build.names_level += -1;
 
             // Labels, if any
             this.label = state.build.name_label;

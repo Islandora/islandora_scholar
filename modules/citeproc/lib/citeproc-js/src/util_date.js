@@ -101,13 +101,6 @@ CSL.dateAsSortKey = function (state, Item, isMacro) {
             state.output.append(CSL.Util.Dates[e]["numeric-leading-zeros"](state, value), macroFlag);
         }
     }
-    if (state.registry.registry[Item.id] && state.registry.registry[Item.id].disambig.year_suffix) {
-        num = state.registry.registry[Item.id].disambig.year_suffix.toString();
-        num = CSL.Util.padding(num);
-    } else {
-        num = CSL.Util.padding("0");
-    }
-    state.output.append("S"+num, macroFlag);
 };
 
 CSL.Engine.prototype.dateParseArray = function (date_obj) {

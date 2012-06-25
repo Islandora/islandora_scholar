@@ -57,12 +57,12 @@ CSL.NameOutput.prototype.disambigNames = function () {
         var v = this.variables[i];
         if (this.freeters[v].length) {
             this._runDisambigNames(this.freeters[v], pos);
-            this.state.tmp.disambig_settings.givens.push([]);
+            //this.state.tmp.disambig_settings.givens.push([]);
             pos += 1;
         }
         // We're skipping institutions, so another +1
         if (this.institutions[v].length) {
-            this.state.tmp.disambig_settings.givens.push([]);
+            //this.state.tmp.disambig_settings.givens.push([]);
             pos += 1;
         }
         for (var j = 0, jlen = this.persons[v].length; j < jlen; j += 1) {
@@ -81,22 +81,31 @@ CSL.NameOutput.prototype._runDisambigNames = function (lst, pos) {
         //
         // register the name in the global names disambiguation
         // registry
+        if (!lst[i].given && !lst[i].family) {
+            continue;
+        }
+
+        myinitials = this.name.strings["initialize-with"];
         this.state.registry.namereg.addname("" + this.Item.id, lst[i], i);
         chk = this.state.tmp.disambig_settings.givens[pos];
         if ("undefined" === typeof chk) {
-            this.state.tmp.disambig_settings.givens.push([]);
+            // Holes can appear in the list, probably due to institutional
+            // names that this doesn't touch. Maybe. This fills them up.
+            for (var j = 0, jlen = pos + 1; j < jlen; j += 1) {
+                if (!this.state.tmp.disambig_settings.givens[j]) {
+                    this.state.tmp.disambig_settings.givens[j] = [];
+                }
+            }
         }
         chk = this.state.tmp.disambig_settings.givens[pos][i];
         if ("undefined" === typeof chk) {
             myform = this.name.strings.form;
-            myinitials = this.name.strings["initialize-with"];
             param = this.state.registry.namereg.evalname("" + this.Item.id, lst[i], i, 0, myform, myinitials);
             this.state.tmp.disambig_settings.givens[pos].push(param);
         }
         //
         // set the display mode default for givennames if required
         myform = this.name.strings.form;
-        myinitials = this.name.strings["initialize-with"];
         paramx = this.state.registry.namereg.evalname("" + this.Item.id, lst[i], i, 0, myform, myinitials);
         if (this.state.tmp.disambig_request) {
             //
@@ -130,6 +139,13 @@ CSL.NameOutput.prototype._runDisambigNames = function (lst, pos) {
         }
         if (!this.state.tmp.sort_key_flag) {
             this.state.tmp.disambig_settings.givens[pos][i] = param;
+            if ("string" === typeof myinitials
+                && ("undefined" === typeof this.name.strings["initialize"]
+                    || true === this.name.strings["initialize"])) {
+
+                this.state.tmp.disambig_settings.use_initials = true;
+            }
         }
     }
+    //this.state.registry.registry[this.Item.id].disambig.givens = this.state.tmp.disambig_settings.givens.slice();
 };

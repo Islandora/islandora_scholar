@@ -50,7 +50,7 @@
 
 CSL.Engine = function (sys, style, lang, forceLang) {
     var attrs, langspec, localexml, locale;
-    this.processor_version = "1.0.250";
+    this.processor_version = CSL.PROCESSOR_VERSION;
     this.csl_version = "1.0";
     this.sys = sys;
     this.sys.xml = new CSL.System.Xml.Parsing();
@@ -60,6 +60,7 @@ CSL.Engine = function (sys, style, lang, forceLang) {
     if (CSL.getAbbreviation) {
         this.sys.getAbbreviation = CSL.getAbbreviation;
     }
+    this.sys.AbbreviationSegments = CSL.AbbreviationSegments;
     this.parallel = new CSL.Parallel(this);
     //this.parallel.use_parallels = true;
 
@@ -92,10 +93,27 @@ CSL.Engine = function (sys, style, lang, forceLang) {
     this.dateput = new CSL.Output.Queue(this);
 
     this.cslXml = this.sys.xml.makeXml(style);
+    if (this.opt.development_extensions.csl_reverse_lookup_support) {
+        this.build.cslNodeId = 0;
+        this.setCslNodeIds = function(myxml, nodename) {
+            var children = this.sys.xml.children(myxml);
+            this.sys.xml.setAttribute(myxml, 'cslid', this.build.cslNodeId);
+            this.opt.nodenames.push(nodename);
+            this.build.cslNodeId += 1;
+            for (var i = 0, ilen = this.sys.xml.numberofnodes(children); i < ilen; i += 1) {
+                nodename = this.sys.xml.nodename(children[i]);
+                if (nodename) {
+                    this.setCslNodeIds(children[i], nodename);
+                }
+            }
+        };
+        this.setCslNodeIds(this.cslXml, "style");
+    }
     this.sys.xml.addMissingNameNodes(this.cslXml);
     this.sys.xml.addInstitutionNodes(this.cslXml);
     this.sys.xml.insertPublisherAndPlace(this.cslXml);
     this.sys.xml.flagDateMacros(this.cslXml);
+
     //
     // Note for posterity: tried manipulating the XML here to insert
     // a list of the upcoming date-part names.  The object is apparently
@@ -164,7 +182,6 @@ CSL.Engine = function (sys, style, lang, forceLang) {
     this.opt.xclass = sys.xml.getAttributeValue(this.cslXml, "class");
     this.opt.styleID = this.sys.xml.getStyleId(this.cslXml);
 
-
     // We seem to have two language specs flying around:
     //   this.opt["default-locale"], and this.opt.lang
     // Keeping them aligned for safety's sake, pending
@@ -199,6 +216,7 @@ CSL.Engine = function (sys, style, lang, forceLang) {
     this.registry = new CSL.Registry(this);
 
     this.buildTokenLists("citation");
+
     this.buildTokenLists("bibliography");
     this.configureTokenLists();
 
@@ -229,7 +247,8 @@ CSL.Engine = function (sys, style, lang, forceLang) {
     //
     // set up page mangler
     //
-    this.fun.page_mangler = CSL.Util.PageRangeMangler.getFunction(this);
+    this.fun.page_mangler = CSL.Util.PageRangeMangler.getFunction(this, "page");
+    this.fun.year_mangler = CSL.Util.PageRangeMangler.getFunction(this, "year");
 
     this.setOutputFormat("html");
 };
@@ -270,6 +289,8 @@ CSL.Engine.prototype.setStyleAttributes = function () {
         }
     }
 };
+
+
 
 CSL.buildStyle  = function (navi) {
     if (navi.getkids()) {
@@ -377,10 +398,12 @@ CSL.Engine.prototype.getTerm = function (term, form, plural, gender, mode) {
         ret = "\u2013";
     }
     // XXXXX Not so good: can be neither strict nor tolerant
-    if (typeof ret === "undefined" && mode === CSL.STRICT) {
-        throw "Error in getTerm: term \"" + term + "\" does not exist.";
-    } else if (mode === CSL.TOLERANT) {
-        ret = false;
+    if (typeof ret === "undefined") {
+        if (mode === CSL.STRICT) {
+            throw "Error in getTerm: term \"" + term + "\" does not exist.";
+        } else if (mode === CSL.TOLERANT) {
+            ret = "";
+        }
     }
     if (ret) {
         this.tmp.cite_renders_content = true;
@@ -498,25 +521,6 @@ CSL.Engine.prototype.configureTokenLists = function () {
                 CSL.Node[token.name].configure.call(token, this, ppos);
             }
         }
-        //var offset = "";
-        //var lnum = 0;
-        //if (area === "citation" && true) {
-        //    ret.reverse();
-        //    for (ppos = 0, llen = ret.length; ppos < llen; ppos += 1) {
-        //        lnum = (ppos);
-        //        while ((""+lnum).length < 3) {
-        //            lnum = " " + lnum;
-        //        }
-                //if (ret[ppos].tokentype === CSL.START) {
-                //    offset += "  ";
-                //} else if (ret[ppos].tokentype === CSL.END) {
-                //    offset = offset.slice(0,-2);
-                //    print(lnum+offset+"</"+ret[ppos].name+">");
-                //} else {
-                //    print(lnum+offset+"<"+ret[ppos].name+"/>");
-                //}
-        //    }
-        //}
     }
     this.version = CSL.version;
     return this.state;
@@ -550,27 +554,45 @@ CSL.Engine.prototype.retrieveItem = function (id) {
     }
     // Mandatory data rescue
     // LEX HACK
-    if (Item.type === "bill" && Item.number && !Item.volume && Item.page) {
-        Item.volume = Item.number;
-        Item.number = undefined;
+    //if (Item.type === "bill" && Item.number && !Item.volume && Item.page) {
+    //    Item.volume = Item.number;
+    //    Item.number = undefined;
+    //}
+    if (Item.page) {
+        Item["page-first"] = Item.page;
+        var num = "" + Item.page;
+        m = num.split(/\s*(?:&|,|-)\s*/);
+        if (m[0].slice(-1) !== "\\") {
+            Item["page-first"] = m[0];
+        }
     }
-    // Optional development extension
+    // Optional development extensions
     if (this.opt.development_extensions.field_hack && Item.note) {
         //Zotero.debug("XXX   (1): "+Item.note);
         m = Item.note.match(CSL.NOTE_FIELDS_REGEXP);
         if (m) {
             //Zotero.debug("XXX   (2)");
+            var names = {};
             for (pos = 0, len = m.length; pos < len; pos += 1) {
                 mm = m[pos].match(CSL.NOTE_FIELD_REGEXP);
-                if (!Item[mm[1]] || true) {
-                    //Zotero.debug("XXX   (3)");
-                    if (CSL.DATE_VARIABLES.indexOf(mm[1]) > -1) {
-                        Item[mm[1]] = {raw:mm[2]};
-                    } else {
-                        //Zotero.debug("XXX   (4)");
-                        Item[mm[1]] = mm[2].replace(/^\s+/, "").replace(/\s+$/, "");
+                //Zotero.debug("XXX   (3)");
+                if (!Item[mm[1]] && CSL.DATE_VARIABLES.indexOf(mm[1]) > -1) {
+                    Item[mm[1]] = {raw:mm[2]};
+                } else if (!Item[mm[1]] && CSL.NAME_VARIABLES.indexOf(mm[1]) > -1) {
+                    if (!Item[mm[1]]) {
+                        Item[mm[1]] = [];
                     }
+                    var lst = mm[2].split(/\s*\|\|\s*/);
+                    if (lst.length === 1) {
+                        Item[mm[1]].push({family:lst[0],isInstitution:true});
+                    } else if (lst.length === 2) {
+                        Item[mm[1]].push({family:lst[0],given:lst[1]});
+                    }
+                } else if (!Item[mm[1]] || mm[1] === "type") {
+                    //Zotero.debug("XXX   (4)");
+                    Item[mm[1]] = mm[2].replace(/^\s+/, "").replace(/\s+$/, "");
                 }
+                Item.note.replace(CSL.NOTE_FIELD_REGEXP, "");
             }
         }
     }
@@ -587,11 +609,35 @@ CSL.Engine.prototype.retrieveItem = function (id) {
             Item[CSL.DATE_VARIABLES[i]] = this.dateParseArray(dateobj);
         }
     }
+    if (this.opt.development_extensions.static_statute_locator) {
+        if (Item.type && ["bill","gazette","legislation","treaty"].indexOf(Item.type) > -1) {
+            
+            var varname;
+            var elements = ["type", "title", "jurisdiction", "genre", "volume", "container-title"];
+            var legislation_id = [];
+            for (i = 0, ilen = elements.length; i < ilen; i += 1) {
+                varname = elements[i];
+				if (Item[varname]) {
+					legislation_id.push(Item[varname]);
+				}
+			}
+            elements = ["original-date", "issued"];
+			for (i = 0, elements.length; i < ilen; i += 1) {
+                varname = elements[i];
+				if (Item[varname] && Item[varname].year) {
+					var value = Item[varname].year;
+					legislation_id.push(value);
+					break;
+				}
+			}
+			Item.legislation_id = legislation_id.join("::");
+        }
+    }
     return Item;
 };
 
 CSL.Engine.prototype.setOpt = function (token, name, value) {
-    if (token.name === "style") {
+    if (token.name === "style" || token.name === "cslstyle") {
         this.opt[name] = value;
     } else if (["citation", "bibliography"].indexOf(token.name) > -1) {
         this[token.name].opt[name] = value;

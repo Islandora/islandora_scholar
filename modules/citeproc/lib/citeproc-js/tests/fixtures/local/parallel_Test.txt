@@ -1,0 +1,213 @@
+/*
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights
+ * Reserved.
+ *
+ * The contents of this file are subject to the Common Public
+ * Attribution License Version 1.0 (the “License”); you may not use
+ * this file except in compliance with the License. You may obtain a
+ * copy of the License at:
+ *
+ * http://bitbucket.org/fbennett/citeproc-js/src/tip/LICENSE.
+ *
+ * The License is based on the Mozilla Public License Version 1.1 but
+ * Sections 14 and 15 have been added to cover use of software over a
+ * computer network and provide for limited attribution for the
+ * Original Developer. In addition, Exhibit A has been modified to be
+ * consistent with Exhibit B.
+ *
+ * Software distributed under the License is distributed on an “AS IS”
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+ * the License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * The Original Code is the citation formatting software known as
+ * "citeproc-js" (an implementation of the Citation Style Language
+ * [CSL]), including the original test fixtures and software located
+ * under the ./std subdirectory of the distribution archive.
+ *
+ * The Original Developer is not the Initial Developer and is
+ * __________. If left blank, the Original Developer is the Initial
+ * Developer.
+ *
+ * The Initial Developer of the Original Code is Frank G. Bennett,
+ * Jr. All portions of the code written by Frank G. Bennett, Jr. are
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights Reserved.
+ *
+ * Alternatively, the contents of this file may be used under the
+ * terms of the GNU Affero General Public License (the [AGPLv3]
+ * License), in which case the provisions of [AGPLv3] License are
+ * applicable instead of those above. If you wish to allow use of your
+ * version of this file only under the terms of the [AGPLv3] License
+ * and not to allow others to use your version of this file under the
+ * CPAL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the
+ * [AGPLv3] License. If you do not delete the provisions above, a
+ * recipient may use your version of this file under either the CPAL
+ * or the [AGPLv3] License.”
+ */
+
+>>== MODE ==>>
+citation
+<<== MODE ==<<
+
+>>===== CITATIONS =====>>
+[
+  [
+    {
+      "citationID": "CITATION-1",
+      "citationItems": [
+        {
+          "id": "ITEM-1"
+        },
+        {
+          "id": "ITEM-2"
+        }
+      ],
+      "properties": {
+        "noteIndex": 1
+      }
+    },
+    [],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-2",
+      "citationItems": [
+        {
+          "id": "ITEM-3"
+        }
+      ],
+      "properties": {
+        "noteIndex": 2
+      }
+    },
+    [["CITATION-1",1]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-3",
+      "citationItems": [
+        {
+          "id": "ITEM-1"
+        },
+        {
+          "id": "ITEM-2"
+        }
+      ],
+      "properties": {
+        "noteIndex": 3
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2]],
+    []
+  ]
+]
+<<===== CITATIONS =====<<
+
+
+The is-parallel condition on a group is safe to set for any output
+block, including elements needed for the detection of parallels.
+It is not cast as a normal conditional exactly because of the need
+to make it robust in this way -- conditions must be evaluated before
+rendering content, while groups create a wrapper in the output
+queue, determination of the fate of which can be deferred.
+
+
+>>== RESULT ==>>
+..[0] My Title [PARALLEL] Brusky Reports, [PARALLEL] Lopside Reporter 2d (1997)
+..[1] My Other Title Goodbye Rag (1997)
+>>[2] My Title [PARALLEL] Brusky Reports, [PARALLEL] Lopside Reporter 2d (1997)
+<<== RESULT ==<<
+
+>>===== CSL =====>>
+<style 
+      xmlns="http://purl.org/net/xbiblio/csl"
+      class="note"
+      version="1.0">
+  <info>
+    <id />
+    <title />
+    <updated>2009-08-10T04:49:00+09:00</updated>
+  </info>
+  <locale>
+    <terms>
+      <term form="short" name="Chapter">ch.</term>
+      <term form="short" name="Section">sec.</term>
+      <term form="short" name="chapter">ch.</term>
+      <term form="symbol" name="chapter">ch.</term>
+      <term form="symbol" name="page"></term>
+    </terms>
+  </locale>
+  <macro name="locator">
+    <group delimiter=" ">
+      <choose>
+        <if locator="page" match="none">
+          <label form="symbol" variable="locator"/>
+        </if>
+      </choose>
+      <number label-form="symbol" variable="locator"/>
+    </group>
+  </macro>
+  <macro name="citation">
+      <group delimiter=" ">
+        <text variable="title"/>
+        <group is-parallel="true">
+           <text value="[PARALLEL]"/>
+        </group>
+        <text variable="container-title"/>
+        <date variable="original-date" form="text" date-parts="year" prefix="(" suffix=")"/>
+      </group>
+  </macro>
+  <citation>
+    <layout delimiter=", ">
+      <choose>
+        <if position="subsequent">
+          <text macro="citation"/>
+        </if>
+        <else>
+          <text macro="citation"/>
+        </else>
+      </choose>
+    </layout>
+  </citation>
+</style>
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[
+    {
+        "type": "gazette",
+        "id": "ITEM-1",
+        "title": "My Title",
+        "section": "sec. 223",
+        "jurisdiction": "us",
+        "original-date": {
+          "date-parts":[[1997]]
+        },
+        "container-title": "Brusky Reports"
+    },
+    {
+        "type": "gazette",
+        "id": "ITEM-2",
+        "title": "My Title",
+        "section": "sec. 1223",
+        "jurisdiction": "us",
+        "original-date": {
+          "date-parts":[[1997]]
+        },
+        "container-title": "Lopside Reporter 2d"
+    },
+    {
+        "type": "article-journal",
+        "id": "ITEM-3",
+        "title": "My Other Title",
+        "original-date": {
+          "date-parts":[[1997]]
+        },
+        "container-title": "Goodbye Rag"
+    }
+]
+<<===== INPUT =====<<

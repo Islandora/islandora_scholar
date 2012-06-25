@@ -215,6 +215,13 @@ CSL.Output.Queue.prototype.openLevel = function (token, ephemeral) {
     //SNIP-END
         blob = new CSL.Blob(undefined, this.formats.value()[token], token);
     }
+    // OKAY! Replace affix parens here.
+    if (this.nestedBraces) {
+        blob.strings.prefix = blob.strings.prefix.replace(this.nestedBraces[0][0], this.nestedBraces[0][1]);
+        blob.strings.prefix = blob.strings.prefix.replace(this.nestedBraces[1][0], this.nestedBraces[1][1]);
+        blob.strings.suffix = blob.strings.suffix.replace(this.nestedBraces[0][0], this.nestedBraces[0][1]);
+        blob.strings.suffix = blob.strings.suffix.replace(this.nestedBraces[1][0], this.nestedBraces[1][1]);
+    }
     curr = this.current.value();
     curr.push(blob);
     this.current.push(blob);
@@ -241,7 +248,7 @@ CSL.Output.Queue.prototype.closeLevel = function (name) {
 // that the blob it pushes has text content,
 // and the current pointer is not moved after the push.
 
-CSL.Output.Queue.prototype.append = function (str, tokname, notSerious) {
+CSL.Output.Queue.prototype.append = function (str, tokname, notSerious, ignorePredecessor, noStripPeriods) {
     var token, blob, curr;
     var useblob = true;
     // XXXXX Nasty workaround, but still an improvement
@@ -305,9 +312,18 @@ CSL.Output.Queue.prototype.append = function (str, tokname, notSerious) {
         str = str.replace(/\s+'/g, "  \'").replace(/^'/g, " \'");
 
         // signal whether we end with terminal punctuation?
-        this.state.tmp.term_predecessor = true;
+        if (!ignorePredecessor) {
+            this.state.tmp.term_predecessor = true;
+        }
     }
     blob = new CSL.Blob(str, token);
+    // OKAY! Replace affix parens here.
+    if (this.nestedBraces) {
+        blob.strings.prefix = blob.strings.prefix.replace(this.nestedBraces[0][0], this.nestedBraces[0][1]);
+        blob.strings.prefix = blob.strings.prefix.replace(this.nestedBraces[1][0], this.nestedBraces[1][1]);
+        blob.strings.suffix = blob.strings.suffix.replace(this.nestedBraces[0][0], this.nestedBraces[0][1]);
+        blob.strings.suffix = blob.strings.suffix.replace(this.nestedBraces[1][0], this.nestedBraces[1][1]);
+    }
     curr = this.current.value();
     if ("undefined" === typeof curr && this.current.mystack.length === 0) {
         // XXXX An operation like this is missing somewhere, this should NOT be necessary.
@@ -316,10 +332,9 @@ CSL.Output.Queue.prototype.append = function (str, tokname, notSerious) {
         curr = this.current.value();
     }
     if ("string" === typeof blob.blobs) {
-        if (this.state.tmp.strip_periods) {
-            blob.blobs = blob.blobs.replace(/\./g, "");
+        if (!ignorePredecessor) {
+            this.state.tmp.term_predecessor = true;
         }
-        this.state.tmp.term_predecessor = true;
     }
     //
     // Caution: The parallel detection machinery will blow up if tracking
@@ -341,6 +356,9 @@ CSL.Output.Queue.prototype.append = function (str, tokname, notSerious) {
             //
             blob.blobs = CSL.Output.Formatters[blob.strings["text-case"]](this.state, str);
         }
+        if (this.state.tmp.strip_periods && !noStripPeriods) {
+            blob.blobs = blob.blobs.replace(/\.([^a-z]|$)/g, "$1");
+        }
         //
         // XXX: Beware superfluous code in your code.  str in this
         // case is not the source of the final rendered string.
@@ -360,7 +378,7 @@ CSL.Output.Queue.prototype.append = function (str, tokname, notSerious) {
 CSL.Output.Queue.prototype.string = function (state, myblobs, blob) {
     var i, ilen, j, jlen, b;
     //var blobs, ret, blob_delimiter, i, params, blobjr, last_str, last_char, b, use_suffix, qres, addtoret, span_split, j, res, blobs_start, blobs_end, key, pos, len, ppos, llen, ttype, ltype, terminal, leading, delimiters, use_prefix, txt_esc;
-    var txt_esc = CSL.getSafeEscape(this.state.opt.mode, this.state.tmp.area);
+    var txt_esc = CSL.getSafeEscape(this.state);
     var blobs = myblobs.slice();
     var ret = [];
     
@@ -398,16 +416,19 @@ CSL.Output.Queue.prototype.string = function (state, myblobs, blob) {
             } else if (blobjr.blobs) {
                 // (skips empty strings)
                 //b = txt_esc(blobjr.blobs);
-                b = blobjr.blobs;
+                b = txt_esc(blobjr.blobs);
                 var blen = b.length;
 
                 if (!state.tmp.suppress_decorations) {
                     for (j = 0, jlen = blobjr.decorations.length; j < jlen; j += 1) {
                         params = blobjr.decorations[j];
+                        if (params[0] === "@showid") {
+                            continue;
+                        }
                         if (state.normalDecorIsOrphan(blobjr, params)) {
                             continue;
                         }
-                        b = state.fun.decorate[params[0]][params[1]](state, b);
+                        b = state.fun.decorate[params[0]][params[1]](state, b, params[2]);
                     }
                 }
                 //
@@ -416,7 +437,16 @@ CSL.Output.Queue.prototype.string = function (state, myblobs, blob) {
                 // to produce no output if they are found to be
                 // empty.
                 if (b && b.length) {
-                    b = txt_esc(blobjr.strings.prefix) + b + txt_esc(blobjr.strings.suffix);
+                    b = txt_esc(blobjr.strings.prefix, state.tmp.nestedBraces) + b + txt_esc(blobjr.strings.suffix, state.tmp.nestedBraces);
+                    if (state.opt.development_extensions.csl_reverse_lookup_support && !state.tmp.suppress_decorations) {
+                        for (j = 0, jlen = blobjr.decorations.length; j < jlen; j += 1) {
+                            params = blobjr.decorations[j];
+
+                            if (params[0] === "@showid") {
+                                b = state.fun.decorate[params[0]][params[1]](state, b, params[2]);
+                            }
+                        }
+                    }
                     ret.push(b);
                     if (state.tmp.count_offset_characters) {
                         state.tmp.offset_characters += (blen + blobjr.strings.suffix.length + blobjr.strings.prefix.length);
@@ -444,7 +474,7 @@ CSL.Output.Queue.prototype.string = function (state, myblobs, blob) {
         }
         if (blobjr.strings.first_blob) {
             // The Item.id of the entry being rendered.
-            state.registry.registry[state.tmp.count_offset_characters].offset = state.tmp.offset_characters;
+            state.registry.registry[blobjr.strings.first_blob].offset = state.tmp.offset_characters;
             state.tmp.count_offset_characters = false;
         }
     }
@@ -508,13 +538,13 @@ CSL.Output.Queue.prototype.string = function (state, myblobs, blob) {
         if (!state.tmp.suppress_decorations) {
             for (i = 0, ilen = blob.decorations.length; i < ilen; i += 1) {
                 params = blob.decorations[i];
-                if (["@bibliography", "@display"].indexOf(params[0]) > -1) {
+                if (["@bibliography", "@display", "@showid"].indexOf(params[0]) > -1) {
                     continue;
                 }
                 if (state.normalDecorIsOrphan(blobjr, params)) {
                     continue;
                 }
-                blobs_start = state.fun.decorate[params[0]][params[1]](state, blobs_start);
+                blobs_start = state.fun.decorate[params[0]][params[1]](state, blobs_start, params[2]);
             }
         }
         //
@@ -524,7 +554,7 @@ CSL.Output.Queue.prototype.string = function (state, myblobs, blob) {
         use_suffix = blob.strings.suffix;
         if (b && b.length) {
             use_prefix = blob.strings.prefix;
-            b = txt_esc(use_prefix) + b + txt_esc(use_suffix);
+            b = txt_esc(use_prefix, state.tmp.nestedBraces) + b + txt_esc(use_suffix, state.tmp.nestedBraces);
             if (state.tmp.count_offset_characters) {
                 state.tmp.offset_characters += (use_prefix.length + use_suffix.length);
             }
@@ -533,10 +563,10 @@ CSL.Output.Queue.prototype.string = function (state, myblobs, blob) {
         if (!state.tmp.suppress_decorations) {
             for (i = 0, ilen = blob.decorations.length; i < ilen; i += 1) {
                 params = blob.decorations[i];
-                if (["@bibliography", "@display"].indexOf(params[0]) === -1) {
+                if (["@bibliography", "@display", "@showid"].indexOf(params[0]) === -1) {
                     continue;
                 }
-                blobs_start = state.fun.decorate[params[0]][params[1]].call(blob, state, blobs_start);
+                blobs_start = state.fun.decorate[params[0]][params[1]].call(blob, state, blobs_start, params[2]);
             }
         }
     }
@@ -585,7 +615,7 @@ CSL.Output.Queue.prototype.clearlevel = function () {
 
 CSL.Output.Queue.prototype.renderBlobs = function (blobs, delim, has_more) {
     var state, ret, ret_last_char, use_delim, i, blob, pos, len, ppos, llen, pppos, lllen, res, str, params, txt_esc;
-    txt_esc = CSL.getSafeEscape(this.state.opt.mode, this.state.tmp.area);
+    txt_esc = CSL.getSafeEscape(this.state);
     if (!delim) {
         delim = "";
     }
@@ -641,6 +671,11 @@ CSL.Output.Queue.prototype.renderBlobs = function (blobs, delim, has_more) {
             if (blob.strings["text-case"]) {
                 str = CSL.Output.Formatters[blob.strings["text-case"]](this.state, str);
             }
+            // jshint picked up that noStripPeriods is undefined
+            //if (str && this.state.tmp.strip_periods && !noStripPeriods) {
+            if (str && this.state.tmp.strip_periods) {
+                str = str.replace(/\.([^a-z]|$)/g, "$1");
+            }
             if (!state.tmp.suppress_decorations) {
                 llen = blob.decorations.length;
                 for (ppos = 0; ppos < llen; ppos += 1) {
@@ -648,7 +683,7 @@ CSL.Output.Queue.prototype.renderBlobs = function (blobs, delim, has_more) {
                     if (state.normalDecorIsOrphan(blob, params)) {
                         continue;
                     }
-                    str = state.fun.decorate[params[0]][params[1]](state, str);
+                    str = state.fun.decorate[params[0]][params[1]](state, str, params[2]);
                 }
             }
             str = blob.strings.prefix + str + blob.strings.suffix;

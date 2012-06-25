@@ -52,7 +52,7 @@ bibliography
 
 >>===== RESULT =====>>
 <div class="csl-bib-body">
-  <div class="csl-entry"> @article{AAAA08, title={The ATLAS Experiment at the CERN Large Hadron Collider}, volume={3}, url={http://stacks.iop.org/1748-0221/3/i=08/a=S08003?key=crossref.b2ac868e8992413771c34191a8138368}, DOI={10.1088/1748-0221/3/08/S08003}, abstractNote={The ATLAS detector as installed in its experimental cavern at point 1 at CERN is described in this paper. A brief overview of the expected performance of the detector when the Large Hadron Collider begins operation is also presented.}, number={08}, journal={Journal Of Instrumentation}, author={The ATLAS Collaboration and Aad, G and Abat, E and Abdallah, J and Abdelalim, A A and Abdesselam, A and Abdinov, O and Abi, B A and Abolins, M and Abramowicz, H and others}, year={2008}, pages={S08003-S08003}}</div>
+  <div class="csl-entry"> @article{AAAA08, title={The ATLAS Experiment at the CERN Large Hadron Collider}, volume={3}, url={http://stacks.iop.org/1748-0221/3/i=08/a=S08003?key=crossref.b2ac868e8992413771c34191a8138368}, DOI={10.1088/1748-0221/3/08/S08003}, abstractNote={The ATLAS detector as installed in its experimental cavern at point 1 at CERN is described in this paper. A brief overview of the expected performance of the detector when the Large Hadron Collider begins operation is also presented.}, number={08}, journal={Journal Of Instrumentation}, author={The ATLAS Collaboration and Aad, G and Abat, E and Abdallah, J and Abdelalim, A A and Abdesselam, A and Abdinov, O and Abi, B A and Abolins, M and Abramowicz, H and others}, year={2008}, pages={S08003–S08003}}</div>
 </div>
 <<===== RESULT =====<<
 

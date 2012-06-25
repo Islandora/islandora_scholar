@@ -100,7 +100,7 @@ CSL.Node.text = {
                     }
                     //this.strings.is_rangeable = true;
                     if ("citation-number" === state[state.tmp.area].opt.collapse) {
-                        this.range_prefix = state.getTerm("range-delimiter");
+                        this.range_prefix = state.getTerm("citation-range-delimiter");
                     }
                     this.successor_prefix = state[state.build.area].opt.layout_delimiter;
                     this.splice_prefix = state[state.build.area].opt.layout_delimiter;
@@ -109,7 +109,11 @@ CSL.Node.text = {
                         if (!state.tmp.just_looking) {
                             if (item && item["author-only"]) {
                                 state.tmp.element_trace.replace("do-not-suppress-me");
-                                term = CSL.Output.Formatters["capitalize-first"](state, state.getTerm("reference", "long", "singular"));
+                                var reference_term = state.getTerm("reference", "long", "singular");
+                                if ("undefined" === typeof reference_term) {
+                                    reference_term = "reference";
+                                }
+                                term = CSL.Output.Formatters["capitalize-first"](state, reference_term);
                                 state.output.append(term + " ");
                                 state.tmp.last_element_trace = true;
                             }
@@ -123,7 +127,7 @@ CSL.Node.text = {
                             if (state.opt.citation_number_slug) {
                                 state.output.append(state.opt.citation_number_slug, this);
                             } else {
-                                number = new CSL.NumericBlob(num, this);
+                                number = new CSL.NumericBlob(num, this, Item.id);
                                 state.output.append(number, "literal");
                             }
                         }
@@ -135,7 +139,7 @@ CSL.Node.text = {
 
                     if (state[state.tmp.area].opt.collapse === "year-suffix-ranged") {
                         //this.range_prefix = "-";
-                        this.range_prefix = state.getTerm("range-delimiter");
+                        this.range_prefix = state.getTerm("citation-range-delimiter");
                     }
                     this.successor_prefix = state[state.build.area].opt.layout_delimiter;
                     if (state[state.tmp.area].opt["year-suffix-delimiter"]) {
@@ -145,7 +149,7 @@ CSL.Node.text = {
                         if (state.registry.registry[Item.id] && state.registry.registry[Item.id].disambig.year_suffix !== false && !state.tmp.just_looking) {
                             //state.output.append(state.registry.registry[Item.id].disambig[2],this);
                             num = parseInt(state.registry.registry[Item.id].disambig.year_suffix, 10);
-                            number = new CSL.NumericBlob(num, this);
+                            number = new CSL.NumericBlob(num, this, Item.id);
                             formatter = new CSL.Util.Suffixator(CSL.SUFFIX_CHARS);
                             number.setFormatter(formatter);
                             state.output.append(number, "literal");
@@ -177,12 +181,14 @@ CSL.Node.text = {
                         if (!label) {
                             label = state.getCitationLabel(Item);
                         }
-                        suffix = "";
-                        if (state.registry.registry[Item.id] && state.registry.registry[Item.id].disambig.year_suffix !== false) {
-                            num = parseInt(state.registry.registry[Item.id].disambig.year_suffix, 10);
-                            suffix = state.fun.suffixator.format(num);
+                        if (!state.tmp.just_looking) {
+                            suffix = "";
+                            if (state.registry.registry[Item.id] && state.registry.registry[Item.id].disambig.year_suffix !== false) {
+                                num = parseInt(state.registry.registry[Item.id].disambig.year_suffix, 10);
+                                suffix = state.fun.suffixator.format(num);
+                            }
+                            label += suffix;
                         }
-                        label += suffix;
                         state.output.append(label, this);
                     };
                     this.execs.push(func);
@@ -213,16 +219,7 @@ CSL.Node.text = {
                             myterm = CSL.Output.Formatters["capitalize-first"](state, term);
                             //CSL.debug("Capitalize");
                         } else {
-                            if (item && item.prefix) {
-                                var prefix = item.prefix.replace(/\s+$/, "");
-                                if (CSL.TERMINAL_PUNCTUATION.slice(0,-1).indexOf(prefix.slice(-1)) > -1) {
-                                    myterm = CSL.Output.Formatters["capitalize-first"](state, term);
-                                } else {
-                                    myterm = term;
-                                }
-                            } else {
-                                myterm = term;
-                            }
+                            myterm = term;
                         }
                         
                         // XXXXX Cut-and-paste code in multiple locations. This code block should be
@@ -245,7 +242,7 @@ CSL.Node.text = {
                     state.build.form = false;
                     state.build.plural = false;
                 } else if (this.variables_real.length) {
-                    func = function (state, Item) {
+                    func = function (state, Item, item) {
                         var parallel_variable = this.variables[0];
                         if (parallel_variable === "title" && form === "short") {
                             parallel_variable = "shortTitle";
@@ -262,44 +259,44 @@ CSL.Node.text = {
                         // multi-fields
                         // Initialize transform factory according to whether
                         // abbreviation is desired.
+                        var abbrevfam = this.variables[0];
+                        var abbrfall = false;
+                        var altvar = false;
+                        var transfall = false;
                         if (form === "short") {
-                            state.transform.init(this, this.variables_real[0], this.variables_real[0]);
                             if (this.variables_real[0] === "container-title") {
-                                state.transform.setAlternativeVariableName("journalAbbreviation");
+                                altvar = "journalAbbreviation";
                             } else if (this.variables_real[0] === "title") {
-                                state.transform.setAlternativeVariableName("shortTitle");
+                                altvar = "shortTitle";
                             }
                         } else {
-                            state.transform.init(this, this.variables_real[0]);
+                            abbrevfam = false;
                         }
                         if (state.build.extension) {
                             // multi-fields for sorting get a sort transform,
                             // (abbreviated if the short form was selected)
-                            state.transform.init(this, this.variables_real[0], this.variables_real[0]);
-                            state.transform.setTransformFallback(true);
-                            func = state.transform.getOutputFunction(this.variables);
+                            transfall = true;
                         } else {
-                            state.transform.setTransformFallback(true);
-                            state.transform.setAbbreviationFallback(true);
-                            func = state.transform.getOutputFunction(this.variables);
+                            transfall = true;
+                            abbrfall = true;
 						}
-                        if (this.variables_real[0] === "container-title") {
-                            var xfunc = function (state, Item, item) {
-                                if (Item['container-title'] && state.tmp.citeblob.has_volume) {
-                                    state.tmp.citeblob.can_suppress_identical_year = true;
-                                }
-                            };
-                            this.execs.push(xfunc);
-                        }
+                        func = state.transform.getOutputFunction(this.variables, abbrevfam, abbrfall, altvar, transfall);
                     } else {
                         // ordinary fields
                         if (CSL.CITE_FIELDS.indexOf(this.variables_real[0]) > -1) {
                             // per-cite fields are read from item, rather than Item
                             func = function (state, Item, item) {
                                 if (item && item[this.variables[0]]) {
-                                    var locator = "" + item[this.variables[0]];
-                                    locator = locator.replace(/--*/g,"\u2013");
-                                    state.output.append(locator, this);
+                                    // Code copied to page variable as well; both
+                                    // become cs:number in MLZ extended schema
+                                    var value = "" + item[this.variables[0]];
+                                    value = value.replace(/([^\\])--*/g,"$1"+state.getTerm("page-range-delimiter"));
+                                    value = value.replace(/\\-/g,"-");
+                                    // true is for non-suppression of periods
+                                    state.output.append(value, this, false, false, true);
+                                    if (this.variables[0] === "locator-revision") { 
+                                        state.tmp.done_vars.push("locator-revision");
+                                    }
                                 }
                             };
                         } else if (this.variables_real[0] === "page-first") {
@@ -307,14 +304,10 @@ CSL.Node.text = {
                             // of the front slice of page.
                             func = function (state, Item) {
                                 var idx, value;
-                                value = state.getVariable(Item, "page", form);
+                                value = state.getVariable(Item, "page-first", form);
                                 if (value) {
-                                    value = value.replace("\u2013", "-", "g");
-                                    idx = value.indexOf("-");
-                                    if (idx > -1) {
-                                        value = value.slice(0, idx);
-                                    }
-                                    state.output.append(value, this);
+                                    value = value.replace("\\", "");
+                                    state.output.append(value, this, false, false, true);
                                 }
                             };
                         } else  if (this.variables_real[0] === "page") {
@@ -323,8 +316,12 @@ CSL.Node.text = {
                             func = function (state, Item) {
                                 var value = state.getVariable(Item, "page", form);
                                 if (value) {
+                                    value = ""+value;
+                                    value = value.replace(/([^\\])--*/g,"$1"+state.getTerm("page-range-delimiter"));
+                                    value = value.replace(/\\-/g,"-");
                                     value = state.fun.page_mangler(value);
-                                    state.output.append(value, this);
+                                    // true is for non-suppression of periods
+                                    state.output.append(value, this, false, false, true);
                                 }
                             };
                         } else if (this.variables_real[0] === "volume") {
@@ -332,20 +329,49 @@ CSL.Node.text = {
                                 if (this.variables[0]) {
                                     var value = state.getVariable(Item, this.variables[0], form);
                                     if (value) {
-                                        // Only allow the suppression of a year identical
-                                        // to the volume number if the container-title
-                                        // is rendered after the volume number.
-                                        state.tmp.citeblob.has_volume = true;
                                         state.output.append(value, this);
                                     }
                                 }
                             };
                         } else if (this.variables_real[0] === "hereinafter") {
                             func = function (state, Item) {
-                                var hereinafter_key = state.transform.getHereinafter(Item);
-                                var value = state.transform.abbrevs["default"].hereinafter[hereinafter_key];
+                                var hereinafter_info = state.transform.getHereinafter(Item);
+                                if (state.transform.abbrevs[hereinafter_info[0]]) {
+                                    var value = state.transform.abbrevs[hereinafter_info[0]].hereinafter[hereinafter_info[1]];
+                                    if (value) {
+                                        state.tmp.group_context.value()[2] = true;
+                                        state.output.append(value, this);
+                                    }
+                                }
+                            };
+                        } else if (["URL", "DOI"].indexOf(this.variables_real[0]) > -1) {
+                            func = function (state, Item) {
+                                var value;
+                                if (this.variables[0]) {
+                                    value = state.getVariable(Item, this.variables[0], form);
+                                    if (value) {
+                                        // true is for non-suppression of periods
+                                        if (state.opt.development_extensions.wrap_url_and_doi) {
+                                            if (!this.decorations.length || this.decorations[0][0] !== "@" + this.variables[0]) {
+                                                this.decorations = [["@" + this.variables[0], "true"]].concat(this.decorations);
+                                            }
+                                        } else {
+                                            if (this.decorations.length && this.decorations[0][0] === "@" + this.variables[0]) {
+                                                this.decorations = this.decorations.slice(1);
+                                            }
+                                        }
+                                        state.output.append(value, this, false, false, true);
+                                    }
+                                }
+                            };
+                        } else if (this.variables_real[0] === "section") {
+                            // Sections for statutes are special. This is an uncommon
+                            // variable, so we save the cost of the runtime check
+                            // unless it's being used.
+                            func = function (state, Item) {
+                                var value;
+                                value = state.getVariable(Item, this.variables[0], form);
                                 if (value) {
-                                    state.tmp.group_context.value()[2] = true;
                                     state.output.append(value, this);
                                 }
                             };
@@ -356,6 +382,8 @@ CSL.Node.text = {
                                 if (this.variables[0]) {
                                     value = state.getVariable(Item, this.variables[0], form);
                                     if (value) {
+                                        value = "" + value;
+                                        value = value.replace("\\", "", "g");
                                         state.output.append(value, this);
                                     }
                                 }

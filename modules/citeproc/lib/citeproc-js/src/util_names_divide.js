@@ -102,7 +102,10 @@ CSL.NameOutput.prototype._getFreeters = function (v, values) {
     this.freeters[v] = [];
     for (var i = values.length - 1; i > -1; i += -1) {
         if (this.isPerson(values[i])) {
-            this.freeters[v].push(values.pop());
+            var value = this._checkNickname(values.pop());
+            if (value) {
+                this.freeters[v].push(value);
+            }
         } else {
             break;
         }
@@ -121,7 +124,10 @@ CSL.NameOutput.prototype._getPersonsAndInstitutions = function (v, values) {
     var first = true;
     for (var i = values.length - 1; i > -1; i += -1) {
         if (this.isPerson(values[i])) {
-            persons.push(values[i]);
+            var value = this._checkNickname(values[i]);
+            if (value) {
+                persons.push(value);
+            }
         } else {
             has_affiliates = true;
             this.institutions[v].push(values[i]);
@@ -145,4 +151,24 @@ CSL.NameOutput.prototype._clearValues = function (values) {
     for (var i = values.length - 1; i > -1; i += -1) {
         values.pop();
     }
+};
+
+CSL.NameOutput.prototype._checkNickname = function (name) {
+    if (["interview", "personal_communication"].indexOf(this.Item.type) > -1) {
+        var author = "";
+        author = CSL.Util.Names.getRawName(name);
+        if (author && this.state.sys.getAbbreviation && !(this.item && this.item["suppress-author"])) {
+            this.state.transform.loadAbbreviation("default", "nickname", author);
+            // XXX Why does this have to happen here?
+            var myLocalName = this.state.transform.abbrevs["default"].nickname[author];
+            if (myLocalName) {
+                if (myLocalName === "{suppress}") {
+                    name = false;
+                } else {
+                    name = {family:myLocalName,given:''};
+                }
+            }
+        }
+    }
+    return name;
 };

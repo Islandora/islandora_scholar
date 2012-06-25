@@ -115,11 +115,11 @@ CSL.Util.Ordinalizer.prototype.format = function (num, gender) {
     str = num.toString();
     if ((num / 10) % 10 === 1 || (num > 10 && num < 20)) {
         str += this.suffixes[gender][3];
-    } else if (num % 10 === 1) {
+    } else if (num % 10 === 1 && num % 100 !== 11) {
         str += this.suffixes[gender][0];
-    } else if (num % 10 === 2) {
+    } else if (num % 10 === 2 && num % 100 !== 12) {
         str += this.suffixes[gender][1];
-    } else if (num % 10 === 3) {
+    } else if (num % 10 === 3 && num % 100 !== 13) {
         str += this.suffixes[gender][2];
     } else {
         str += this.suffixes[gender][3];
@@ -180,9 +180,28 @@ CSL.Util.Suffixator.prototype.format = function (N) {
 };
 
 
-CSL.Engine.prototype.processNumber = function (node, ItemObject, variable) {
+CSL.Engine.prototype.processNumber = function (node, ItemObject, variable, type) {
     var num, m, i, ilen, j, jlen;
     var debug = false;
+    // XXX short-circuit if object exists: if numeric, set styling, no other action
+    if (this.tmp.shadow_numbers[variable]) {
+        if (this.tmp.shadow_numbers[variable].numeric) {
+            for (var i = 0, ilen = this.tmp.shadow_numbers[variable].values.length; i < ilen; i += 2) {
+                this.tmp.shadow_numbers[variable].values[i][2] = node;
+            }
+        }
+        return;
+    }
+    // This carries value, pluralization and numeric info for use in other contexts.
+    // This function does not render.
+    this.tmp.shadow_numbers[variable] = {};
+    this.tmp.shadow_numbers[variable].values = [];
+    this.tmp.shadow_numbers[variable].plural = 0;
+    this.tmp.shadow_numbers[variable].numeric = false;
+    this.tmp.shadow_numbers[variable].label = false;
+    if (!ItemObject) {
+        return;
+    }
     num = ItemObject[variable];
     //SNIP-START
     if (debug) {
@@ -190,35 +209,24 @@ CSL.Engine.prototype.processNumber = function (node, ItemObject, variable) {
     }
     //SNIP-END
 
-    // This carries value, pluralization and numeric info for use in other contexts.
-    // This function does not render.
-    this.tmp.shadow_numbers[variable] = {};
-    this.tmp.shadow_numbers[variable].values = [];
-    this.tmp.shadow_numbers[variable].plural = 0;
-    this.tmp.shadow_numbers[variable].numeric = false;
     if ("undefined" !== typeof num) {
         if ("number" === typeof num) {
             num = "" + num;
         }
+        this.tmp.shadow_numbers[variable].label = variable;
         // Strip off enclosing quotes, if any. Parsing logic
         // does not depend on them, but we'll strip them if found.
         if (num.slice(0, 1) === '"' && num.slice(-1) === '"') {
             num = num.slice(1, -1);
         }
-       
-        // Fix up hyphens early
-        num = num.replace(/\s*\-\s*/, "\u2013", "g");
- 
-        if (this.variable === "page-first") {
-            m = num.split(/\s*(?:&|,|-)\s*/);
-            if (m) {
-                num = m[0];
-                if (num.match(/[0-9]/)) {
-                    this.tmp.shadow_numbers[variable].numeric = true;
-                }
-            }
+
+        // Any & character in the string should force plural.
+        // This covers cases like "23 & seq". Cases like "23 et seq"
+        // will be caught out; that's for later, if need arises.
+        if (num.indexOf("&") > -1 || num.indexOf("--") > -1) {
+            this.tmp.shadow_numbers[variable].plural = 1;
         }
-        
+
         // XXX: The attempt at syntactic parsing was crazy.
 
         // Sequential number blobs should be reserved for year-suffix
@@ -229,17 +237,46 @@ CSL.Engine.prototype.processNumber = function (node, ItemObject, variable) {
         // Ordinals can be applied to pure numeric elements,
         // but that's as far as our fancy processing
         // should go.
-        
+
         // So.
         
+        // ... for locator on bill and legislation, we evaluate only
+        // the first element of a split. The lone element will not be
+        // used for rendering, (that is handled inside node_number
+        // directly), but only for is-numeric evaluation.
+
+        if ("locator" === variable
+            && ["bill","gazette","legislation","treaty"].indexOf(type) > -1) {
+            num = num.split(CSL.STATUTE_SUBDIV_PLAIN_REGEX)[0];
+        }
+
+        var rangeType = "page";
+        if (["bill","gazette","legislation","legal_case","treaty"].indexOf(type) > -1
+            && variable === "collection-number") {
+
+            rangeType = "year";
+        }
+
+        // Works with code in node_number.js
+        if (["page", "page-first"].indexOf(variable) > -1) {
+            var m = num.split(" ")[0].match(CSL.STATUTE_SUBDIV_GROUPED_REGEX);
+            if (m){
+                this.tmp.shadow_numbers[variable].label = CSL.STATUTE_SUBDIV_STRINGS[m[0]];
+                var mm = num.match(/[^ ]+\s+(.*)/);
+                if (mm) {
+                    num = mm[1];
+                }
+            }
+        }
+
         // (1) Split the string on ", ", "\s*[\-\u2013]\s*" and "&".
         // (2) Set the elements one by one, setting pure numbers
         //     as numeric blobs, and everything else as text,
         //     applying "this" for styling to both, with "empty"
         //     styling on the punctuation elements.
         
-        var lst = num.split(/(?:,\s+|\s*[\-\u2013]\s*|\s*&\s*)/);
-        var m = num.match(/(,\s+|\s*[\-\u2013]\s*|\s*&\s*)/g);
+        var lst = num.split(/(?:,\s+|\s*\\*[\-\u2013]+\s*|\s*&\s*)/);
+        var m = num.match(/(,\s+|\s*\\*[\-\u2013]+\s*|\s*&\s*)/g);
         var elements = [];
         for (var i = 0, ilen = lst.length - 1; i < ilen; i += 1) {
             elements.push(lst[i]);
@@ -254,7 +291,40 @@ CSL.Engine.prototype.processNumber = function (node, ItemObject, variable) {
                 // Rack up as numeric output if pure numeric, otherwise as text.
                 if (elements[i]) {
                     if (elements[i].match(/[0-9]/)) {
-                        count = count + 1;
+                        if (elements[i - 1] && elements[i - 1].match(/^\s*\\*[\-\u2013]+\s*$/)) {
+                            var middle = this.tmp.shadow_numbers[variable].values.slice(-1);
+                            if (middle[0][1].indexOf("\\") == -1) {
+                                if (elements[i - 2] && ("" + elements[i - 2]).match(/[a-zA-Z]*[0-9]+$/)
+                                    && elements[i].match(/^[a-zA-Z]*[0-9]+/)) {
+
+                                    // Removed from condition to allow manually collapsed
+                                    // number ranges to be recognized as plural. Leaf number
+                                    // delimiter of hyphen (-) can be specified with \\-
+                                    // in the input.
+                                    // && parseInt(elements[i - 2]) < parseInt(elements[i].replace(/[^0-9].*/,""))
+
+                                    
+                                    var start = this.tmp.shadow_numbers[variable].values.slice(-2);
+                                    middle[0][1] = this.getTerm(rangeType + "-range-delimiter");
+                                    if (this.opt[rangeType + "-range-format"] ) {
+                                        // This is a hack. The page mangler strings were originally
+                                        // used directly.
+                                        var newstr = this.fun[rangeType + "_mangler"](start[0][1] +"-"+elements[i]);
+                                        newstr = newstr.split(this.getTerm(rangeType + "-range-delimiter"));
+                                        elements[i] = newstr[1];
+                                    }
+                                    
+                                    count = count + 1;
+                                }
+                                if (middle[0][1].indexOf("--") > -1) {
+                                    middle[0][1] = middle[0][1].replace(/--*/, "\u2013");
+                                }
+                            } else {
+                                middle[0][1] = middle[0][1].replace(/\\/, "", "g");
+                            }
+                        } else {
+                            count = count + 1;
+                        }
                     }
                     var subelements = elements[i].split(/\s+/);
                     for (var j = 0, jlen = subelements.length; j < jlen; j += 1) {
@@ -299,14 +369,20 @@ CSL.Engine.prototype.processNumber = function (node, ItemObject, variable) {
                     this.tmp.shadow_numbers[variable].values.push(["Blob", elements[i], undefined]);
                 }
             }
-        }
+                    };
         if (num.indexOf(" ") === -1 && num.match(/[0-9]/)) {
             this.tmp.shadow_numbers[variable].numeric = true;
         } else {
              this.tmp.shadow_numbers[variable].numeric = numeric;
-       }
+        }
         if (count > 1) {
             this.tmp.shadow_numbers[variable].plural = 1;
+        }
+        // Force plural/singular if requested (see util_static_locator.js)
+        if (ItemObject.force_pluralism === 1) {
+            this.tmp.shadow_numbers[variable].plural = 1;
+        } else if (ItemObject.force_pluralism === 0) {
+            this.tmp.shadow_numbers[variable].plural = 0;
         }
     }
 };

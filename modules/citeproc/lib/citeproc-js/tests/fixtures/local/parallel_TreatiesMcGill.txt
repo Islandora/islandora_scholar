@@ -91,7 +91,7 @@ mcgill-guide-v7.csl
     "title": "Convention on the Elimination of All Forms of Discrimination against Women",
     "container-title": "UNTS",
     "page": "13",
-    "number": "1",
+    "volume": "1",
     "references": "Entered into force 03 September 1981, ratification by Canada 10 Dec 1981",
     "shortTitle": "CEDAW",
     "issued": {
@@ -113,7 +113,7 @@ mcgill-guide-v7.csl
     "title": "Convention on the Elimination of All Forms of Discrimination against Women",
     "container-title": "Canadian TS",
     "page": "2222",
-    "number": "1111",
+    "volume": "1111",
     "references": "Entered into force 03 September 1981, ratification by Canada 10 Dec 1981",
     "shortTitle": "CEDAW",
     "issued": {

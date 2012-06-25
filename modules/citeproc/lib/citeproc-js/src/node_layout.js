@@ -60,6 +60,9 @@ CSL.Node.layout = {
             // initalize done vars
             func = function (state, Item) {
                 state.tmp.done_vars = [];
+                if (!state.tmp.just_looking && state.registry.registry[Item.id].parallel) {
+                    state.tmp.done_vars.push("first-reference-note-number");
+                }
                 //CSL.debug(" === init rendered_name === ");
                 state.tmp.rendered_name = false;
                 state.tmp.name_node = {};
@@ -81,9 +84,6 @@ CSL.Node.layout = {
             // declare thyself [once only???  This is getting messed up again]
             func = function (state, Item) {
                 state.output.openLevel("empty");
-                // Pointer to top-level blob for each cite is tracked, to
-                // allow per-cite values to be set for can_suppress_identical_year.
-                state.tmp.citeblob = state.output.queue[state.output.queue.length - 1];
             };
             this.execs.push(func);
             target.push(this);
@@ -94,10 +94,23 @@ CSL.Node.layout = {
                     var sp;
                     if (item && item.prefix) {
                         sp = "";
-                        if (item.prefix.match(CSL.ENDSWITH_ROMANESQUE_REGEXP)) {
+                        // We need the raw string, without decorations
+                        // of any kind. Markup scheme is known, though, so
+                        // markup can be safely stripped at string level.
+                        var prefix = item.prefix.replace(/<[^>]+>/g, "").replace(/\s+$/, "").replace(/^\s+/, "");
+                        if (prefix.match(CSL.ENDSWITH_ROMANESQUE_REGEXP)) {
                             sp = " ";
                         }
-                        state.output.append((item.prefix + sp), this);
+                        var ignorePredecessor = false;
+                        if (CSL.TERMINAL_PUNCTUATION.slice(0,-1).indexOf(prefix.slice(-1)) > -1
+                            && prefix[0] != prefix[0].toLowerCase()) {
+                            state.tmp.term_predecessor = false;
+                            ignorePredecessor = true;
+                        }
+                        // Protect against double spaces, which would trigger an extra,
+                        // explicit, non-breaking space.
+                        prefix = (item.prefix + sp).replace(/\s+/g, " ");
+                        state.output.append(prefix, this, false, ignorePredecessor);
                     }
                 };
                 prefix_token.execs.push(func);

@@ -221,6 +221,7 @@ CSL.Registry.prototype.init = function (myitems, uncited_flag) {
 	//     the list. Avoids the issue reported here:
 	//         https://bitbucket.org/fbennett/citeproc-js/issue/132/differences-in-behaviour-from
 	var tmphash = {};
+	myitems.reverse();
 	for (i = myitems.length - 1; i > -1; i += -1) {
 		if (tmphash[myitems[i]]) {
 			myitems = myitems.slice(0, i).concat(myitems.slice(i + 1));
@@ -228,6 +229,7 @@ CSL.Registry.prototype.init = function (myitems, uncited_flag) {
 			tmphash[myitems[i]] = true;
 		}
 	}
+	myitems.reverse();
     //
     //  1. Receive list as function argument, store as hash and as list.
     //
@@ -258,6 +260,7 @@ CSL.Registry.prototype.init = function (myitems, uncited_flag) {
     //
     this.refreshes = {};
     this.touched = {};
+    this.ambigsTouched = {};
 };
 
 CSL.Registry.prototype.dodeletes = function (myhash) {
@@ -270,7 +273,7 @@ CSL.Registry.prototype.dodeletes = function (myhash) {
     //  3. Delete loop.
     //
     for (key in this.registry) {
-        if (this.registry.hasOwnProperty(key) && !myhash[key]) {
+        if (!myhash[key]) {
             // skip items explicitly marked as uncited
             if (this.registry[key].uncited) {
                 continue;
@@ -286,9 +289,7 @@ CSL.Registry.prototype.dodeletes = function (myhash) {
             //      in the registry.
             //
             for (kkey in otheritems) {
-                if (otheritems.hasOwnProperty(kkey)) {
-                    this.refreshes[kkey] = true;
-                }
+                this.refreshes[kkey] = true;
             }
             //
             //  3c. Delete all items to be deleted from their disambig pools.
@@ -359,51 +360,6 @@ CSL.Registry.prototype.doinserts = function (mylist) {
                     }
                 }
             }
-
-            // If getAbbreviation is available, run it over any
-            // relevant fields.
-            if (this.state.sys.getAbbreviation) {
-                for (var field in this.state.transform.abbrevs["default"]) {
-                    
-                    switch (field) {
-                    case "place":
-                        if (Item["publisher-place"]) {
-                            this.state.transform.loadAbbreviation(Item.jurisdiction, "place", Item["publisher-place"]);
-                        } else if (Item["event-place"]) {
-                            this.state.transform.loadAbbreviation(Item.jurisdiction, "place", Item["event-place"]);
-                        }
-                        break;
-                        
-                    case "institution-part":
-                        for (var creatorVar in CSL.CREATORS) {
-                            for (var creatorList in Item[creatorVar]) {
-                                for (j = 0, jlen = creatorList.length; j < jlen; j += 1) {
-                                    if (creatorList[j].isInstitution) {
-                                        var subOrganizations = creatorList[j].literal;
-                                        if (!subOrganizations) {
-                                            subOrganizations = creatorList[j].family;
-                                        }
-                                        if (subOrganizations) {
-                                            subOrganizations = subOrganizations.split(/\s*|\s*/);
-                                            for (k = 0, klen = subOrganizations.length; k < klen; k += 1) {
-                                                this.state.transform.loadAbbreviation(Item.jurisdiction, "institution-part", subOrganizations[k]);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            break;
-
-                        default:
-                            if (Item[field]) {
-                                this.state.transform.loadAbbreviation(Item.jurisdiction, field, Item[field]);
-                            }
-                            break;
-
-                        }
-                    }
-            }
             //
             //  4b. Generate ambig key.
             //
@@ -413,11 +369,14 @@ CSL.Registry.prototype.doinserts = function (mylist) {
             //      (implicit in getAmbiguousCite).
             //
             akey = CSL.getAmbiguousCite.call(this.state, Item);
+            this.ambigsTouched[akey] = true;
             //
             //  4d. Record ambig pool key on akey list (used for updating further
             //      down the chain).
             //
-            this.akeys[akey] = true;
+            if (!Item.legislation_id) {
+                this.akeys[akey] = true;
+            }
             //
             //  4e. Create registry token.
             //
@@ -522,36 +481,24 @@ CSL.Registry.prototype.dorefreshes = function () {
     // (4) Register the item ID in this.touched
     //
     for (key in this.refreshes) {
-        if (this.refreshes.hasOwnProperty(key)) {
-            regtoken = this.registry[key];
-            delete this.registry[key];
-            if (!regtoken) {
-                continue;
-            }
-            regtoken.disambig = undefined;
-            regtoken.sortkeys = undefined;
-            regtoken.ambig = undefined;
-
-            Item = this.state.retrieveItem(key);
-            //old_akey = akey;
-            //akey = CSL.getAmbiguousCite.call(this.state, Item);
-            //if (this.state.tmp.taintedItemIDs && this.state.opt.update_mode !== CSL.NUMERIC && old_akey !== akey) {
-            //    print("Does this happen? If so: "+old_akey+" :: "+akey);
-            //    this.state.tmp.taintedItemIDs[key] = true;
-            //}
-            var akey = regtoken.ambig;
-            if ("undefined" === typeof akey) {
-                akey = CSL.getAmbiguousCite.call(this.state, Item);
-                this.state.tmp.taintedItemIDs[key] = true;
-            }
-            this.registry[key] = regtoken;
-
-            abase = CSL.getAmbigConfig.call(this.state);
-            this.registerAmbigToken(akey, key, abase);
-
-            this.akeys[akey] = true;
-            this.touched[key] = true;
+        regtoken = this.registry[key];
+        if (!regtoken) {
+            continue;
         }
+        regtoken.sortkeys = undefined;
+        Item = this.state.retrieveItem(key);
+        var akey = regtoken.ambig;
+        if ("undefined" === typeof akey) {
+            akey = CSL.getAmbiguousCite.call(this.state, Item);
+        }
+		this.state.tmp.taintedItemIDs[key] = true;
+        abase = CSL.getAmbigConfig.call(this.state);
+        this.registerAmbigToken(akey, key, abase);
+        this.ambigsTouched[akey] = true;
+        if (!Item.legislation_id) {
+            this.akeys[akey] = true;
+        }
+        this.touched[key] = true;
     }
 
 };
@@ -576,16 +523,15 @@ CSL.Registry.prototype.setdisambigs = function () {
     //
     //  8.  Set disambiguation parameters on each inserted item token.
     //
-    for (akey in this.akeys) {
-        if (this.akeys.hasOwnProperty(akey)) {
-            //
-            // Disambiguation is fully encapsulated.
-            // Disambiguator will run only if there are multiple
-            // items, and at least one disambiguation mode is
-            // in effect.
-            this.state.disambiguate.run(akey);
-        }
+    for (akey in this.ambigsTouched) {
+        //
+        // Disambiguation is fully encapsulated.
+        // Disambiguator will run only if there are multiple
+        // items, and at least one disambiguation mode is
+        // in effect.
+        this.state.disambiguate.run(akey);
     }
+	this.ambigsTouched = {};
     this.akeys = {};
 };
 
@@ -608,13 +554,11 @@ CSL.Registry.prototype.renumber = function () {
         item.seq = (pos + 1);
         // update_mode is set to CSL.NUMERIC if citation-number is rendered
         // in citations.
-        if (this.state.tmp.taintedItemIDs && item.seq != this.oldseq[item.id]) {
-            if (this.state.opt.update_mode === CSL.NUMERIC) {
-                this.state.tmp.taintedItemIDs[item.id] = true;
-            }
-            if (this.state.opt.bib_mode === CSL.NUMERIC) {
-                this.return_data.bibchange = true;
-            }
+        if (this.state.opt.update_mode === CSL.NUMERIC && item.seq != this.oldseq[item.id]) {
+            this.state.tmp.taintedItemIDs[item.id] = true;
+        }
+        if (this.state.opt.bib_mode === CSL.NUMERIC && item.seq != this.oldseq[item.id]) {
+            this.return_data.bibchange = true;
         }
     }
     if (this.state.opt.citation_number_sort_direction === CSL.DESCENDING
@@ -628,12 +572,12 @@ CSL.Registry.prototype.setsortkeys = function () {
     //
     // 17. Set sort keys on each item token.
     //
-    for (key in this.touched) {
-        if (this.touched.hasOwnProperty(key)) {
-            this.registry[key].sortkeys = CSL.getSortKeys.call(this.state, this.state.retrieveItem(key), "bibliography_sort");
-            //CSL.debug("touched: "+item+" ... "+this.registry[item].sortkeys);
-        }
-    }
+	for (var i = 0, ilen = this.mylist.length; i < ilen; i += 1) {
+		var key = this.mylist[i];
+		if (this.touched[key] || this.state.tmp.taintedItemIDs[key]) {
+			this.registry[key].sortkeys = CSL.getSortKeys.call(this.state, this.state.retrieveItem(key), "bibliography_sort");
+		}
+	}
 };
 
 CSL.Registry.prototype.sorttokens = function () {

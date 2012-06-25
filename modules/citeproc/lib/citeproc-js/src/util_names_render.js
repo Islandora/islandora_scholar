@@ -323,6 +323,27 @@ CSL.NameOutput.prototype._renderPersonalNames = function (values, pos) {
     return ret;
 };
 
+CSL.NameOutput.prototype._isRomanesque = function (name) {
+    // 0 = entirely non-romanesque
+    // 1 = mixed content
+    // 2 = pure romanesque
+    var ret = 2;
+    if (!name.family.replace('"', '', 'g').match(CSL.ROMANESQUE_REGEXP)) {
+        ret = 0;
+    }
+    if (!ret && name.given && name.given.match(CSL.STARTSWITH_ROMANESQUE_REGEXP)) {
+        ret = 1;
+    }
+    if (ret && name.multi && name.multi.main) {
+        var top_locale = name.multi.main.slice(0, 2);
+        if (["ja", "zh"].indexOf(top_locale) > -1) {
+            ret = 1;
+        }
+    }
+    //print("name: "+name.given+", multi: "+name.multi+", ret: "+ret);
+    return ret;
+};
+
 CSL.NameOutput.prototype._renderOnePersonalName = function (value, pos, i) {
     var name = value;
     var dropping_particle = this._droppingParticle(name, pos);
@@ -345,12 +366,12 @@ CSL.NameOutput.prototype._renderOnePersonalName = function (value, pos, i) {
     } else {
         suffix_sep = " ";
     }
-    var romanesque = name.family.match(CSL.ROMANESQUE_REGEXP);
+    var romanesque = this._isRomanesque(name);
     var blob, merged, first, second;
-    if (!romanesque) {
+    if (romanesque === 0) {
         // XXX handle affixes for given and family
         blob = this._join([non_dropping_particle, family, given], "");
-    } else if (name["static-ordering"]) { // entry likes sort order
+    } else if (romanesque === 1 || name["static-ordering"]) { // entry likes sort order
         blob = this._join([non_dropping_particle, family, given], " ");
     } else if (this.state.tmp.sort_key_flag) {
         // ok with no affixes here
@@ -643,7 +664,6 @@ CSL.NameOutput.prototype._parseName = function (name) {
     }
 };
 
-
 /*
  * Return a single name object
   */
@@ -694,6 +714,9 @@ CSL.NameOutput.prototype.getName = function (name, slotLocaleset, fallback, stop
                     foundTag = true;
                     name = name.multi._key[langTag];
                     transliterated = true;
+                    //
+                    // This generally needs help.
+                    //
                     if (!this.state.opt['locale-use-original-name-format'] && false) {
                         // We may reintroduce this option later, but for now, pretend
                         // it's always turned on.
@@ -742,7 +765,7 @@ CSL.NameOutput.prototype.getName = function (name, slotLocaleset, fallback, stop
         transliterated:transliterated,
         block_initialize:block_initialize,
         literal:name.literal,
-        isInstitution:name.isInstitution,
+        isInstitution:name.isInstitution
     };
     if (static_ordering_freshcheck &&
         !this.getStaticOrder(name, true)) {
@@ -780,7 +803,7 @@ CSL.NameOutput.prototype.fixupInstitution = function (name, varname, listpos) {
     if (this.state.sys.getAbbreviation) {
         var jurisdiction = this.Item.jurisdiction;
         for (var j = 0, jlen = long_form.length; j < jlen; j += 1) {
-            var jurisdiction = this.state.transform.loadAbbreviation(jurisdiction, "institution-part", long_form[j]);
+            jurisdiction = this.state.transform.loadAbbreviation(jurisdiction, "institution-part", long_form[j]);
             if (this.state.transform.abbrevs[jurisdiction]["institution-part"][long_form[j]]) {
                 short_form[j] = this.state.transform.abbrevs[jurisdiction]["institution-part"][long_form[j]];
             }
@@ -795,7 +818,7 @@ CSL.NameOutput.prototype.getStaticOrder = function (name, refresh) {
     var static_ordering_val = false;
     if (!refresh && name["static-ordering"]) {
         static_ordering_val = true;
-    } else if (!(name.family.replace('"', '', 'g') + name.given).match(CSL.ROMANESQUE_REGEXP)) {
+    } else if (this._isRomanesque(name) === 0) {
         static_ordering_val = true;
     } else if (name.multi && name.multi.main && name.multi.main.slice(0,2) == 'vn') {
         static_ordering_val = true;
@@ -820,13 +843,29 @@ CSL.NameOutput.prototype._splitInstitution = function (value, v, i) {
         // that will be picked up by normal element selection and
         // short-forming.
         var jurisdiction = this.Item.jurisdiction;
-        for (var j = splitInstitution.length; j > 1; j += -1) {
+        for (var j = splitInstitution.length; j > 0; j += -1) {
             var str = splitInstitution.slice(0, j).join("|");
-            var jurisdiction = this.state.transform.loadAbbreviation(jurisdiction, "institution-entire", str);
+            jurisdiction = this.state.transform.loadAbbreviation(jurisdiction, "institution-entire", str);
             if (this.state.transform.abbrevs[jurisdiction]["institution-entire"][str]) {
                 var splitLst = this.state.transform.abbrevs[jurisdiction]["institution-entire"][str];
-                var splitLst = splitLst.replace(/\s*\|\s*/g, "|");
-                var splitLst = splitLst.split("|");
+
+                splitLst = this.state.transform.quashCheck(splitLst);
+
+                // If the abbreviation has date cut-offs, find the most recent
+                // abbreviation within scope.
+                var splitSplitLst = splitLst.split(/>>[0-9]{4}>>/);
+                var m = splitLst.match(/>>([0-9]{4})>>/);
+                splitLst = splitSplitLst.pop();
+                if (splitSplitLst.length > 0 && this.Item.issued && this.Item.issued.year) {
+                    for (var k=m.length - 1; k > 0; k += -1) {
+                        if (parseInt(this.Item.issued.year, 10) >= parseInt(m[k], 10)) {
+                            break;
+                        }
+                        splitLst = splitSplitLst.pop();
+                    }
+                }
+                splitLst = splitLst.replace(/\s*\|\s*/g, "|");
+                splitLst = splitLst.split("|");
                 splitInstitution = splitLst.concat(splitInstitution.slice(j));
             }
         }

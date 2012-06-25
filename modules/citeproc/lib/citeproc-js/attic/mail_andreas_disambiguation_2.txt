@@ -1,0 +1,150 @@
+                                                                                                                                                                                                                                                               
+Delivered-To: biercenator@gmail.com
+Received: by 10.14.119.203 with SMTP id n51cs54498eeh;
+        Mon, 31 Oct 2011 04:21:29 -0700 (PDT)
+Received: by 10.42.137.6 with SMTP id w6mr22626705ict.5.1320060087685;
+        Mon, 31 Oct 2011 04:21:27 -0700 (PDT)
+Return-Path: <xbiblio-devel-bounces@lists.sourceforge.net>
+Received: from lists.sourceforge.net (lists.sourceforge.net. [216.34.181.88])
+        by mx.google.com with ESMTPS id bo3si6095512icb.139.2011.10.31.04.21.27
+        (version=TLSv1/SSLv3 cipher=OTHER);
+        Mon, 31 Oct 2011 04:21:27 -0700 (PDT)
+Received-SPF: pass (google.com: domain of xbiblio-devel-bounces@lists.sourceforge.net designates 216.34.181.88 as permitted sender) client-ip=216.34.181.88;
+Authentication-Results: mx.google.com; spf=pass (google.com: domain of xbiblio-devel-bounces@lists.sourceforge.net designates 216.34.181.88 as permitted sender) smtp.mail=xbiblio-devel-bounces@lists.sourceforge.net
+Received: from localhost ([127.0.0.1] helo=sfs-ml-3.v29.ch3.sourceforge.com)
+	by sfs-ml-3.v29.ch3.sourceforge.com with esmtp (Exim 4.76)
+	(envelope-from <xbiblio-devel-bounces@lists.sourceforge.net>)
+	id 1RKpvf-0007Nr-OV; Mon, 31 Oct 2011 11:21:23 +0000
+Received: from sog-mx-1.v43.ch3.sourceforge.com ([172.29.43.191]
+	helo=mx.sourceforge.net)
+	by sfs-ml-3.v29.ch3.sourceforge.com with esmtp (Exim 4.76)
+	(envelope-from <andrea.rossato@unitn.it>) id 1RKpve-0007Nm-Bi
+	for xbiblio-devel@lists.sourceforge.net; Mon, 31 Oct 2011 11:21:22 +0000
+X-ACL-Warn: 
+Received: from host118-2-static.225-95-b.business.telecomitalia.it
+	([95.225.2.118] helo=gorgias.mine.nu)
+	by sog-mx-1.v43.ch3.sourceforge.com with esmtps (TLSv1:AES256-SHA:256)
+	(Exim 4.76) id 1RKpvb-0005Xs-SK
+	for xbiblio-devel@lists.sourceforge.net; Mon, 31 Oct 2011 11:21:22 +0000
+Received: from eeepc.nowhere.net (localhost [127.0.0.1])
+	by gorgias.mine.nu (8.14.3/8.14.3) with ESMTP id p9VBLCnW015595
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=OK)
+	for <xbiblio-devel@lists.sourceforge.net>;
+	Mon, 31 Oct 2011 12:21:13 +0100
+Received: from eeepc.nowhere.net (localhost [127.0.0.1])
+	by eeepc.nowhere.net (8.14.4/8.14.4) with ESMTP id p9VBLCIK006314
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-SHA bits=256 verify=NO)
+	for <xbiblio-devel@lists.sourceforge.net>;
+	Mon, 31 Oct 2011 12:21:12 +0100
+Received: (from andrea@localhost)
+	by eeepc.nowhere.net (8.14.4/8.14.4/Submit) id p9VBLBjf006308;
+	Mon, 31 Oct 2011 12:21:11 +0100
+X-Authentication-Warning: eeepc.nowhere.net: andrea set sender to
+	andrea.rossato@unitn.it using -f
+From: andrea rossato <andrea.rossato@unitn.it>
+To: development discussion for xbiblio <xbiblio-devel@lists.sourceforge.net>
+References: <CAJgpGgDgAY34j96eaFkwE_HAb8PEwsEnVaf3tTVPFfoJLcDoDA@mail.gmail.com>
+	<87aa8hgaxm.fsf@eeepc.nowhere.net>
+	<CAJgpGgBUdVWvzRbHvLwfOQU3ThJo+QN-uzK8TmDUtTfWKKr8oQ@mail.gmail.com>
+Date: Mon, 31 Oct 2011 12:21:10 +0100
+In-Reply-To: <CAJgpGgBUdVWvzRbHvLwfOQU3ThJo+QN-uzK8TmDUtTfWKKr8oQ@mail.gmail.com>
+	(Frank Bennett's message of "Mon, 31 Oct 2011 03:10:49 +0000")
+Message-ID: <87wrble7a1.fsf@eeepc.nowhere.net>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/23.3 (gnu/linux)
+MIME-Version: 1.0
+X-Greylist: Sender succeeded STARTTLS authentication, not delayed by
+	milter-greylist-4.2.7 (gorgias.mine.nu [0.0.0.0]);
+	Mon, 31 Oct 2011 12:21:13 +0100 (CET)
+X-Spam-Score: 0.3 (/)
+X-Spam-Report: Spam Filtering performed by mx.sourceforge.net.
+	See http://spamassassin.org/tag/ for more details.
+	0.3 AWL AWL: From: address is in the auto white-list
+X-Headers-End: 1RKpvb-0005Xs-SK
+Subject: Re: [xbiblio-devel] Disambiguation: changes to test fixtures
+X-BeenThere: xbiblio-devel@lists.sourceforge.net
+X-Mailman-Version: 2.1.9
+Precedence: list
+Reply-To: development discussion for xbiblio
+	<xbiblio-devel@lists.sourceforge.net>
+List-Id: development discussion for xbiblio
+	<xbiblio-devel.lists.sourceforge.net>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/xbiblio-devel>, 
+	<mailto:xbiblio-devel-request@lists.sourceforge.net?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=xbiblio-devel>
+List-Post: <mailto:xbiblio-devel@lists.sourceforge.net>
+List-Help: <mailto:xbiblio-devel-request@lists.sourceforge.net?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/xbiblio-devel>, 
+	<mailto:xbiblio-devel-request@lists.sourceforge.net?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Errors-To: xbiblio-devel-bounces@lists.sourceforge.net
+
+Frank Bennett <biercenator@gmail.com> writes:
+> Andrea,
+>
+> Thanks for looking carefully.
+>
+> One issue is very clear. In the
+> disambiguate_ByCiteRetainNamesOnFailureIfYearSuffixNotAvailable test,
+> by-cite disambiguation should cycle through name expansions after
+> adding names to see if anything helps. The processor currently only
+> attempts one "step" of name expansion with this disambiguation rule,
+> which is why disambiguation doesn't occur on the second full name in
+> that pairing. It's a known limitation at the moment, which may be a
+> hangover from days before the disambiguation code was cleaned up and
+> made easier to comprehend and control. I'll look into improving on
+> that when time permits. I agree that it should be possible -- and if
+> you have a running implementation with better behavior, the spec can
+> certainly be amended to that effect.
+
+If I understand correctly you agree that expanding rendered names with
+initials and, if needed, given-names should be done before adding new
+names. This is the way I'm interpreting the spec and this is also the
+way citeproc-hs is coded to do.
+
+Another way to intend disambiguation is first to try to add names one by
+one, then to try with names plus initials one by one, and then to try
+with names plus given-names one by one. This is the way citeproc-js
+seems to work. But this is not the way I interpret the spec. So the spec
+should be amended only if we think this second disambiguation algorithm
+is to be preferred.
+
+> One the last point raised (concerning
+> disambiguate_ByCiteDisambiguateCondition), applying the disambiguation
+> condition after year-suffix is applied would have the same effect as
+> disabling it altogether, since year-suffix always succeeds. I think
+> the current behavior there is probably correct, although there must be
+> very few styles that apply those rules.
+
+Actually year-suffix always succeeds because you add a suffix even when
+there is no year. See:
+
+   date_YearSuffixWithNoDate
+   date_YearSuffixImplicitWithNoDate
+
+which produce:
+
+    (John Doe n.d.-a [Accessed: June 01, 1965]; John Doe n.d.-b [Accessed: June 01, 2065])
+
+I must confess that I do not like this solution very much. Actually I
+think that the last disambiguation step (evaluating the style with the
+disambiguate condition set to true) was intended exactly to deal with
+cases where there is not a year to add a suffix to.
+
+On the other hand I understand there may be use cases I'm not aware of
+(which means nothing, BTW) that dictate for such a behavior. If this is
+true the spec should be amended so that the fifth step becomes the
+fourth and the year-suffix is also to be applied to the "no date" term
+when it is used. Still, what happens when it is not used?
+
+Andrea
+
+------------------------------------------------------------------------------
+Get your Android app more play: Bring it to the BlackBerry PlayBook 
+in minutes. BlackBerry App World&#153; now supports Android&#153; Apps 
+for the BlackBerry&reg; PlayBook&#153;. Discover just how easy and simple 
+it is! http://p.sf.net/sfu/android-dev2dev
+_______________________________________________
+xbiblio-devel mailing list
+xbiblio-devel@lists.sourceforge.net
+https://lists.sourceforge.net/lists/listinfo/xbiblio-devel

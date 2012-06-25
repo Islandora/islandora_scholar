@@ -46,6 +46,11 @@
  * or the [AGPLv3] License.”
  */
 
+Allow use of an explicit year-suffix variable with citation-label.
+
+Test true for dates where date is in literal format delivered
+by Zotero (a plain string? a raw segment?).
+
 As the raw input format now seems to cover every reasonable
 requirement for generating citations (in the Gregorian calendar, at
 least), some further testing would get us ready to prove up, from
@@ -59,3 +64,4 @@ arrives.  Particular targets are:
 
 Otherwise, just awaiting further bug reports, and the finalization of
 the EDTF specification.
+

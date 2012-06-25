@@ -79,50 +79,181 @@ CSL.Node.number = {
         //
         // push number or text
         func = function (state, Item, item) {
+            var i, ilen, newlst, lst;
+            // NOTE: this works because this is the ONLY function in this node.
+            // If further functions are added, they need to start with the same
+            // abort condition.
+            if (this.variables.length === 0) {
+                return;
+            }
             var varname, num, number, m, j, jlen;
             varname = this.variables[0];
             state.parallel.StartVariable(this.variables[0]);
-            state.parallel.AppendToVariable(Item[this.variables[0]]);
-
-            if (varname === "page-range" || varname === "page-first") {
-                varname = "page";
-            }
-            var node = this;
-            if (!state.tmp.shadow_numbers[varname] 
-                || (state.tmp.shadow_numbers[varname].values.length 
-                    && state.tmp.shadow_numbers[varname].values[0][2] === false)) {
-                if (varname === "locator") {
-                    state.processNumber(node, item, varname);
-                } else {
-                    state.processNumber(node, Item, varname);
-                }
-            }
-            var values = state.tmp.shadow_numbers[varname].values;
-            var blob;
-            // If prefix and suffix are nil, run through the page mangler,
-            // if any. Otherwise, apply styling.
-            if (state.opt["page-range-format"] 
-                && !this.strings.prefix && !this.strings.suffix
-                && !this.strings.form) {
-                var newstr = ""
-                for (var i = 0, ilen = values.length; i < ilen; i += 1) {
-                    newstr += values[i][1];
-                }
-                newstr = state.fun.page_mangler(newstr);
-                state.output.append(newstr, this);
+            if (this.variables[0] === "locator") {
+                state.parallel.AppendToVariable(Item.section);
             } else {
-                state.output.openLevel("empty");
-                for (var i = 0, ilen = values.length; i < ilen; i += 1) {
-                    var blob = new CSL[values[i][0]](values[i][1], values[i][2]);
-                    if (i > 0) {
-                        blob.strings.prefix = blob.strings.prefix.replace(/^\s*/, "");
-                    }
-                    if (i < values.length - 1) {
-                        blob.strings.suffix = blob.strings.suffix.replace(/\s*$/, "");
-                    }
-                    state.output.append(blob, "literal");
+                state.parallel.AppendToVariable(Item[this.variables[0]]);
+            }
+
+            var rex = new RegExp("(?:&|, | and |" + state.getTerm("page-range-delimiter") + ")");
+
+            if (varname === 'collection-number' && Item.type === 'legal_case') {
+                state.tmp.renders_collection_number = true;
+            }
+            
+            // Only allow the suppression of a year identical
+            // to collection-number if the container-title
+            // is rendered after collection-number.
+            var value = Item[this.variables[0]];
+                       
+            var form = "long";
+            if (this.strings.label_form_override) {
+                form = this.strings.label_form_override;
+            }
+
+            if (this.text_case_normal) {
+                if (value) {
+                    value = value.replace("\\", "");
+                    state.output.append(value, this);
                 }
-                state.output.closeLevel("empty");
+            } else if (varname === "locator"
+                       && item.locator) {
+                
+                // For bill or legislation items that have a label-form
+                // attribute set on the cs:number node rendering the locator,
+                // the form and pluralism of locator terms are controlled
+                // separately from those of the initial label. Form is
+                // straightforward: the label uses the value set on
+                // the cs:label node that renders it, and the embedded
+                // labels use the value of label-form set on the cs:number
+                // node. Both default to "long".
+                //
+                // Pluralism is more complicated. For embedded labels,
+                // pluralism is evaluated using a simple heuristic that
+                // can be found below (it just looks for comma, ampersand etc).
+                // The item.label rendered independently via cs:label
+                // defaults to singular. It is always singular if embedded
+                // labels exist that (when expanded to their valid CSL
+                // value) do not match the value of item.label. Otherwise,
+                // if one or more matching embedded labels exist, the
+                // cs:label is set to plural.
+                //
+                // The code that does all this is divided between this module,
+                // util_static_locator.js, and util_label.js. It's not easy
+                // to follow, but seems to do the job. Let's home for good
+                // luck out there in the wild.
+                
+                // Do replacements here
+                item.locator = item.locator.replace(/([^\\])\s*-\s*/, "$1" + state.getTerm("page-range-delimiter"));
+                // (actually, if numeric parsing is happening as it ought to, this won't be necessary)
+                // or ... maybe note. We need to account for a missing page-range-format attribute.
+
+                m = item.locator.match(CSL.STATUTE_SUBDIV_GROUPED_REGEX);
+                if (m) {
+                    lst = item.locator.split(CSL.STATUTE_SUBDIV_PLAIN_REGEX);
+                    for (i = 0, ilen = lst.length; i < ilen; i += 1) {
+                        lst[i] = state.fun.page_mangler(lst[i]);
+                    }
+                    newlst = [lst[0]];
+                    
+                    // Get form
+                    if (!this.strings.label_form_override && state.tmp.group_context.value()[5]) {
+                        form = state.tmp.group_context.value()[5];
+                    }
+                    for (i = 1, ilen = lst.length; i < ilen; i += 1) {
+                        // For leading label: it is always singular if we are specifying subdivisions
+                        // Rough guess at pluralism
+                        var subplural = 0;
+                        
+                        if (lst[i].match(rex)) {
+                            subplural = 1;
+                        }
+                        var term = CSL.STATUTE_SUBDIV_STRINGS[m[i - 1].replace(/^\s*/,"")];
+                        var myform = form;
+                        if (item.section_label_count > i && item.section_form_override) {
+                            myform = item.section_form_override;
+                        }
+                        newlst.push(state.getTerm(term, myform, subplural));
+                        newlst.push(lst[i].replace(/^\s*/,""));
+                    }
+                    value = newlst.join(" ");
+                    value = value.replace(/\\/, "", "g");
+                    state.output.append(value, this);
+                } else {
+                    value = state.fun.page_mangler(item.locator);
+                    value = value.replace(/\\/, "", "g");
+                    state.output.append(value, this);
+                }
+            } else {
+                var node = this;
+                if (!state.tmp.shadow_numbers[varname] 
+                    || (state.tmp.shadow_numbers[varname].values.length 
+                        && state.tmp.shadow_numbers[varname].values[0][2] === false)) {
+                    if (varname === "locator") {
+                        state.processNumber(node, item, varname, Item.type);
+                    } else {
+                        state.processNumber(node, Item, varname, Item.type);
+                    }
+                }
+                var values = state.tmp.shadow_numbers[varname].values;
+                var blob;
+                // If prefix and suffix are nil, run through the page mangler,
+                // if any. Otherwise, apply styling.
+                var newstr = "";
+                var rangeType = "page";
+                if (["bill","gazette","legislation","legal_case","treaty"].indexOf(Item.type) > -1
+                    && varname === "collection-number") {
+
+                    rangeType = "year";
+                }
+                if (((varname === "number" 
+                      && ["bill","gazette","legislation","treaty"].indexOf(Item.type) > -1)
+                     || state.opt[rangeType + "-range-format"]) 
+                    && !this.strings.prefix && !this.strings.suffix
+                    && !this.strings.form) {
+                    for (i = 0, ilen = values.length; i < ilen; i += 1) {
+                        newstr += values[i][1];
+                    }
+                }
+                if (newstr && !newstr.match(/^[\-.\u20130-9]+$/)) {
+                    if (varname === "number" 
+                        && ["bill","gazette","legislation","treaty"].indexOf(Item.type) > -1) {
+                        
+                        var firstword = newstr.split(/\s/)[0];
+                        if (firstword) {
+                            newlst = [];
+                            m = newstr.match(CSL.STATUTE_SUBDIV_GROUPED_REGEX);
+                            if (m) {
+                                lst = newstr.split(CSL.STATUTE_SUBDIV_PLAIN_REGEX);
+                                for (i = 1, ilen = lst.length; i < ilen; i += 1) {
+                                    newlst.push(state.getTerm(CSL.STATUTE_SUBDIV_STRINGS[m[i - 1].replace(/^\s+/, "")], this.strings.label_form_override));
+                                    newlst.push(lst[i].replace(/^\s+/, ""));
+                                }
+                                newstr = newlst.join(" ");
+                            }
+                        }
+                    }
+                    state.output.append(newstr, this);
+                } else {
+                    if (values.length) {
+                        state.output.openLevel("empty");
+                        for (i = 0, ilen = values.length; i < ilen; i += 1) {
+                            blob = new CSL[values[i][0]](values[i][1], values[i][2], Item.id);
+                            if (i > 0) {
+                                blob.strings.prefix = blob.strings.prefix.replace(/^\s*/, "");
+                            }
+                            if (i < values.length - 1) {
+                                blob.strings.suffix = blob.strings.suffix.replace(/\s*$/, "");
+                            }
+                            state.output.append(blob, "literal", false, false, true);
+                        }
+                        state.output.closeLevel("empty");
+                    }
+                }
+            }
+            if (varname === "locator") {
+                // Only render the locator variable once in a cite.
+                state.tmp.done_vars.push("locator");
             }
             state.parallel.CloseVariable("number");
         };

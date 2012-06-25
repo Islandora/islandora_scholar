@@ -297,7 +297,7 @@ One. Two. [parental suffix–prefix–over–the–hill]
         "id": "ITEM-5", 
         "title": "One", 
         "note": "Two",
-        "type": "bill"
+        "type": "book"
     },
     {
         "id": "ITEM-6", 

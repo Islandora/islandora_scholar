@@ -64,6 +64,7 @@ CSL.Util.FlipFlopper = function (state) {
         ["<sup>", "</sup>", "superscript", "@vertical-align", ["sup", "sup","baseline"], true],
         ["<sub>", "</sub>", "subscript", "@vertical-align", ["sub", "sub","baseline"], true],
         ["<sc>", "</sc>", "smallcaps", "@font-variant", ["small-caps", "small-caps","normal"], true],
+        ["<span style=\"font-variant:small-caps;\">", "</span>", "smallcaps", "@font-variant", ["small-caps", "normal","normal"], true],
         ["<span class=\"nocase\">", "</span>", "passthrough", "@passthrough", ["true", "true","true"], true],
         ["<span class=\"nodecor\">", "</span>", "passthrough", "@passthrough", ["true", "true","true"], true],
         ['"',  '"',  "quotes",  "@quotes",  ["true",  "inner","true"],  "'"],
@@ -157,10 +158,9 @@ CSL.Util.FlipFlopper = function (state) {
 };
 
 CSL.Util.FlipFlopper.prototype.init = function (str, blob) {
-    this.txt_esc = CSL.getSafeEscape(this.state.opt.mode, this.state.tmp.area);
+    this.txt_esc = CSL.getSafeEscape(this.state);
     // CSL.debug("(flipflopper received blob decorations): "+blob.decorations);
     // CSL.debug("(blob alldecor): "+blob.alldecor);
-    str = this._normalizeString(str);
     if (!blob) {
         this.strs = this.getSplitStrings(str);
         this.blob = new CSL.Blob();
@@ -174,9 +174,24 @@ CSL.Util.FlipFlopper.prototype.init = function (str, blob) {
 };
 
 CSL.Util.FlipFlopper.prototype._normalizeString = function (str) {
-    for (var i = 0, ilen = 2; i < ilen; i += 1) {
-        str = str.replace(this.quotechars[i + 2], this.quotechars[0]);
-        str = str.replace(this.quotechars[i + 4], this.quotechars[1]);
+    var i, ilen;
+    if (str.indexOf(this.quotechars[0]) > -1) {
+        for (i = 0, ilen = 2; i < ilen; i += 1) {
+            if (this.quotechars[i + 2]) {
+                str = str.replace(this.quotechars[i + 2], this.quotechars[0]);
+            }
+        }
+    }
+    if (str.indexOf(this.quotechars[1]) > -1) {
+        for (i = 0, ilen = 2; i < ilen; i += 1) {
+            if (this.quotechars[i + 4]) {
+                if (i === 0) {
+                    str = str.replace(this.quotechars[i + 4], " " + this.quotechars[1]);
+                } else {
+                    str = str.replace(this.quotechars[i + 4], this.quotechars[1]);
+                }
+            }
+        }
     }
     return str;
 };
@@ -192,6 +207,7 @@ CSL.Util.FlipFlopper.prototype.getSplitStrings = function (str) {
     //
     // Do the split.
     //
+    str = this._normalizeString(str);
     mx = str.match(this.allTagsRexMatch);
     strs = str.split(this.allTagsRexSplit);
     myret = [strs[0]];
@@ -307,7 +323,10 @@ CSL.Util.FlipFlopper.prototype.getSplitStrings = function (str) {
     len = strs.length;
     for (pos = 0; pos < len; pos += 2) {
         strs[pos] = strs[pos].replace("'", "\u2019", "g");
-        strs[pos] = this.txt_esc(strs[pos]);
+        // Erroneous. Flipflop is run during queue append.
+        // Escaping should be limited to output operations.
+        // Anomaly spotted by Rintze Zelle, 2012-04-20
+        //strs[pos] = this.txt_esc(strs[pos]);
     }
     // XXXZ FIXME (done): swap punctuation for locators
     return strs;

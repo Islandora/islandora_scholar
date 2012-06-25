@@ -111,6 +111,7 @@ CSL.Util.Names.initializeWith = function (state, name, terminator, normalizeOnly
 
     // (1) Split the string
     namelist = namelist.replace(/\s*\-\s*/g, "-").replace(/\s+/g, " ");
+    namelist = namelist.replace(/-([a-z])/g, "\u2013$1");
     // Workaround for Internet Explorer
     //namelist = namelist.split(/(\-|\s+)/);
     // Workaround for Internet Explorer
@@ -150,6 +151,7 @@ CSL.Util.Names.initializeWith = function (state, name, terminator, normalizeOnly
     } else {
         ret = CSL.Util.Names.doInitialize(state, lst, terminator);
     }
+    ret = ret.replace(/\u2013([a-z])/g, "-$1");
     return ret;
 };
 
@@ -265,6 +267,17 @@ CSL.Util.Names.stripRight = function (str) {
         }
     }
     return str.slice(0, end);
+};
+
+CSL.Util.Names.getRawName = function (name) {
+    var ret = [];
+    if (name.given) {
+        ret.push(name.given);
+    }
+    if (name.family) {
+        ret.push(name.family);
+    }
+    return ret.join(" ");
 };
 
 // deleted CSL.Util.Names.initNameSlices()

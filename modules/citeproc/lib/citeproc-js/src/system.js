@@ -49,10 +49,9 @@
 /*global CSL: true */
 
 var XML_PARSING;
-var CSL_E4X;
-var CSL_CHROME;
-var DOMParser;
-if ("undefined" !== typeof CSL_E4X) {
+if ("undefined" !== typeof CSL_IS_NODEJS) {
+    XML_PARSING = CSL_NODEJS;
+} else if ("undefined" !== typeof CSL_E4X) {
     XML_PARSING = CSL_E4X;
 } else {
     XML_PARSING = CSL_CHROME;

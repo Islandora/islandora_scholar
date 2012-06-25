@@ -85,12 +85,24 @@ CSL.Engine.Opt = function () {
     this.citation_number_slug = false;
     this.max_number_of_names = 0;
     this.trigraph = "Aaaa00:AaAa00:AaAA00:AAAA00";
+    this.english_locale_escapes = [];
     this.development_extensions = {};
     this.development_extensions.field_hack = true;
     this.development_extensions.locator_date_and_revision = true;
     this.development_extensions.locator_parsing_for_plurals = true;
+    this.development_extensions.locator_label_parse = true;
     this.development_extensions.raw_date_parsing = true;
     this.development_extensions.clean_up_csl_flaws = true;
+    this.development_extensions.flip_parentheses_to_braces = true;
+    this.development_extensions.jurisdiction_subfield = true;
+    this.development_extensions.static_statute_locator = false;
+    this.development_extensions.csl_reverse_lookup_support = false;
+    this.development_extensions.clobber_locator_if_no_statute_section = false;
+    this.development_extensions.wrap_url_and_doi = false;
+    this.development_extensions.allow_force_lowercase = false;
+
+    this.nodenames = [];
+
     this.gender = {};
 	this['cite-lang-prefs'] = {
 		persons:['orig'],
@@ -98,7 +110,7 @@ CSL.Engine.Opt = function () {
 		titles:['orig','translat'],
 		publishers:['orig'],
 		places:['orig']
-	}
+	};
 };
 
 
@@ -188,8 +200,8 @@ CSL.Engine.Tmp = function () {
     this.years_used = [];
     this.names_used = [];
 
-    this.taintedItemIDs = false;
-    this.taintedCitationIDs = false;
+    this.taintedItemIDs = {};
+    this.taintedCitationIDs = {};
     //
     // scratch stack containing initialize-with strings or null values
     this.initialize_with = new CSL.Stack();
@@ -331,6 +343,7 @@ CSL.Engine.Build = function () {
     // group end tag decrements by 1.  conditional wrappers are
     // only applied if value is exactly 1.
     this.substitute_level = new CSL.Stack(0, CSL.LITERAL);
+    this.names_level = 0;
     this.render_nesting_level = 0;
     this.render_seen = false;
 };

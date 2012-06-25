@@ -1,0 +1,363 @@
+/*
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights
+ * Reserved.
+ *
+ * The contents of this file are subject to the Common Public
+ * Attribution License Version 1.0 (the “License”); you may not use
+ * this file except in compliance with the License. You may obtain a
+ * copy of the License at:
+ *
+ * http://bitbucket.org/fbennett/citeproc-js/src/tip/LICENSE.
+ *
+ * The License is based on the Mozilla Public License Version 1.1 but
+ * Sections 14 and 15 have been added to cover use of software over a
+ * computer network and provide for limited attribution for the
+ * Original Developer. In addition, Exhibit A has been modified to be
+ * consistent with Exhibit B.
+ *
+ * Software distributed under the License is distributed on an “AS IS”
+ * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
+ * the License for the specific language governing rights and limitations
+ * under the License.
+ *
+ * The Original Code is the citation formatting software known as
+ * "citeproc-js" (an implementation of the Citation Style Language
+ * [CSL]), including the original test fixtures and software located
+ * under the ./std subdirectory of the distribution archive.
+ *
+ * The Original Developer is not the Initial Developer and is
+ * __________. If left blank, the Original Developer is the Initial
+ * Developer.
+ *
+ * The Initial Developer of the Original Code is Frank G. Bennett,
+ * Jr. All portions of the code written by Frank G. Bennett, Jr. are
+ * Copyright (c) 2009, 2010 and 2011 Frank G. Bennett, Jr. All Rights Reserved.
+ *
+ * Alternatively, the contents of this file may be used under the
+ * terms of the GNU Affero General Public License (the [AGPLv3]
+ * License), in which case the provisions of [AGPLv3] License are
+ * applicable instead of those above. If you wish to allow use of your
+ * version of this file only under the terms of the [AGPLv3] License
+ * and not to allow others to use your version of this file under the
+ * CPAL, indicate your decision by deleting the provisions above and
+ * replace them with the notice and other provisions required by the
+ * [AGPLv3] License. If you do not delete the provisions above, a
+ * recipient may use your version of this file under either the CPAL
+ * or the [AGPLv3] License.”
+ */
+
+>>===== MODE =====>>
+citation
+<<===== MODE =====<<
+
+
+By default, the locator on legislation items is ignored, and the
+section variable on the main item (with embedded locator[s], as in
+this example) is used instead. In calling applications, this requires
+individual legislative provisions (and sub-provisions) to be handled
+(or at least delivered) atomically, but the processor will adjust
+position logic in accordance with this assumption, as shown.
+
+This is appropriate because meaningful notes and other
+research-related metadata on legislation targets individual elements
+of the content, with very few exceptions.
+
+If the toggle this.development_extensions.atomic_statutes is set to
+false, the locator will be used in the normal way.
+
+Hybrid behavior (optional use of the locator if present) would add
+complexity to the position logic (which is already plenty complicated
+as it stands), with additional cause for confusion in the organization
+of resources on the side of the calling application. So it's a choice
+of one style or the other, and the default behavior is strongly
+recommended.
+
+
+>>===== RESULT =====>>
+..[0] National Environmental Policy Act of 1969 § 102, 42 USC § 4322 (2006)
+..[1] ibid § 4330
+..[2] ibid
+..[3] Some book or other
+..[4] 42 USC § 4322 ¶ 6 (2006)
+..[5] Some book or other
+..[6] 42 USC § 4330(4) (2006)
+..[7] Some book or other
+..[8] 42 USC §§ 4322 &#38; 4335 (2006)
+..[9] Some book or other
+>>[10] 42 USC §§ 4322, 4360 (2006)
+<<===== RESULT =====<<
+
+
+>>===== CITATIONS =====>>
+[
+  [
+    {
+      "citationID": "CITATION-1",
+      "citationItems": [
+        {
+          "id": "ITEM-1"
+        }
+      ],
+      "properties": {
+        "noteIndex": 1
+      }
+    },
+    [],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-2",
+      "citationItems": [
+        {
+          "id": "ITEM-2"
+        }
+      ],
+      "properties": {
+        "noteIndex": 2
+      }
+    },
+    [["CITATION-1",1]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-3",
+      "citationItems": [
+        {
+          "id": "ITEM-2"
+        }
+      ],
+      "properties": {
+        "noteIndex": 3
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-4",
+      "citationItems": [
+        {
+          "id": "ITEM-3"
+        }
+      ],
+      "properties": {
+        "noteIndex": 4
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-5",
+      "citationItems": [
+        {
+          "id": "ITEM-1",
+          "label": "paragraph",
+          "locator": "6"
+        }
+      ],
+      "properties": {
+        "noteIndex": 5
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3],["CITATION-4",4]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-6",
+      "citationItems": [
+        {
+          "id": "ITEM-3"
+        }
+      ],
+      "properties": {
+        "noteIndex": 6
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3],["CITATION-4",4],["CITATION-5",5]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-7",
+      "citationItems": [
+        {
+          "id": "ITEM-2",
+          "locator": "(4)"
+        }
+      ],
+      "properties": {
+        "noteIndex": 7
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3],["CITATION-4",4],["CITATION-5",5],["CITATION-6",6]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-8",
+      "citationItems": [
+        {
+          "id": "ITEM-3"
+        }
+      ],
+      "properties": {
+        "noteIndex": 8
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3],["CITATION-4",4],["CITATION-5",5],["CITATION-6",6],["CITATION-7",7]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-9",
+      "citationItems": [
+        {
+          "id": "ITEM-1",
+          "locator": "& sec. 4335"
+        }
+      ],
+      "properties": {
+        "noteIndex": 9
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3],["CITATION-4",4],["CITATION-5",5],["CITATION-6",6],["CITATION-7",7],["CITATION-8",8]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-10",
+      "citationItems": [
+        {
+          "id": "ITEM-3"
+        }
+      ],
+      "properties": {
+        "noteIndex": 10
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3],["CITATION-4",4],["CITATION-5",5],["CITATION-6",6],["CITATION-7",7],["CITATION-8",8],["CITATION-9",9]],
+    []
+  ],
+  [
+    {
+      "citationID": "CITATION-11",
+      "citationItems": [
+        {
+          "id": "ITEM-1",
+          "locator": ", sec. 4360"
+        }
+      ],
+      "properties": {
+        "noteIndex": 11
+      }
+    },
+    [["CITATION-1",1],["CITATION-2",2],["CITATION-3",3],["CITATION-4",4],["CITATION-5",5],["CITATION-6",6],["CITATION-7",7],["CITATION-8",8],["CITATION-9",9],["CITATION-10",10]],
+    []
+  ]
+]
+<<===== CITATIONS =====<<
+
+
+>>===== CSL =====>>
+<style 
+      xmlns="http://purl.org/net/xbiblio/csl"
+      class="note"
+      version="1.0">
+  <info>
+    <id />
+    <title />
+    <updated>2009-08-10T04:49:00+09:00</updated>
+  </info>
+  <citation near-note-distance="6">
+    <layout delimiter="; ">
+      <choose>
+        <if type="book">
+          <text variable="title"/>
+        </if>
+        <else-if position="ibid-with-locator">
+          <group delimiter=" ">
+            <text value="ibid"/>
+            <group delimiter=" ">
+              <label form="symbol" variable="locator"/>
+              <number label-form="symbol" variable="locator"/>
+            </group>
+          </group>
+        </else-if>
+        <else-if position="ibid">
+          <text value="ibid"/>
+        </else-if>
+        <else-if position="near-note">
+          <group delimiter=" ">
+            <number variable="volume"/>
+            <text variable="container-title"/>
+            <group delimiter=" ">
+              <label form="symbol" variable="locator"/>
+              <number label-form="symbol" variable="locator"/>
+            </group>
+            <date variable="issued" date-parts="year" form="text" prefix="(" suffix=")"/>
+          </group>
+        </else-if>
+        <else>
+          <group delimiter=", ">
+            <text variable="title"/>
+            <group delimiter=" ">
+              <number variable="volume"/>
+              <text variable="container-title"/>
+              <group delimiter=" ">
+                <label form="symbol" variable="locator"/>
+                <number label-form="symbol" variable="locator"/>
+              </group>
+              <date variable="issued" date-parts="year" form="text" prefix="(" suffix=")"/>
+            </group>
+          </group>
+        </else>
+      </choose>
+    </layout>
+  </citation>
+</style>
+<<===== CSL =====<<
+
+
+>>===== INPUT =====>>
+[
+    {
+        "title": "National Environmental Policy Act of 1969 § 102",
+        "container-title": "USC",
+        "volume": "42",
+        "section": "sec. 4322",
+        "issued": {
+           "date-parts": [
+             [2006]
+           ]
+        },
+        "note": "{:jurisdiction:us}",
+        "id": "ITEM-1", 
+        "type": "legislation"
+    }, 
+    {
+        "title": "National Environmental Policy Act of 1969 § 102",
+        "container-title": "USC",
+        "volume": "42",
+        "section": "sec. 4330",
+        "issued": {
+           "date-parts": [
+             [2006]
+           ]
+        },
+        "note": "{:jurisdiction:us}",
+        "id": "ITEM-2", 
+        "type": "legislation"
+    },
+    {
+        "title": "Some book or other",
+        "id": "ITEM-3", 
+        "type": "book"
+    }
+]
+<<===== INPUT =====<<

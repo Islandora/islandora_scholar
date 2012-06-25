@@ -153,6 +153,15 @@ CSL.Output.Formats.prototype.html = {
     },
     "@display/indent": function (state, str) {
         return "<div class=\"csl-indent\">" + str + "</div>\n  ";
+    },
+    "@showid/true": function (state, str, cslid) {
+        return "<span class=\"" + state.opt.nodenames[cslid] + "\" cslid=\"" + cslid + "\">" + str + "</span>";
+    },
+    "@URL/true": function (state, str) {
+        return "<a href=\"" + str + "\">" + str + "</a>";
+    },
+    "@DOI/true": function (state, str) {
+        return "<a href=\"http://dx.doi.org/" + str + "\">" + str + "</a>";
     }
 };
 
@@ -170,6 +179,9 @@ CSL.Output.Formats.prototype.text = {
     // need not be idempotent.
     //
     "text_escape": function (text) {
+        if (!text) {
+            text = "";
+        }
         return text;
     },
     "bibstart": "",
@@ -223,6 +235,12 @@ CSL.Output.Formats.prototype.text = {
     },
     "@display/indent": function (state, str) {
         return "\n    "+str;
+    },
+    "@url/true": function (state, str) {
+        return str;
+    },
+    "@doi/true": function (state, str) {
+        return str;
     }
 };
 
@@ -240,6 +258,9 @@ CSL.Output.Formats.prototype.rtf = {
     // need not be idempotent.
     //
     "text_escape": function (text) {
+        if (!text) {
+            text = "";
+        }
         return text
         .replace(/([\\{}])/g, "\\$1", "g")
         .replace(CSL.SUPERSCRIPTS_REGEXP,
@@ -293,6 +314,12 @@ CSL.Output.Formats.prototype.rtf = {
     },
     "@display/indent": function (state, str) {
         return "\n\\tab "+str;
+    },
+    "@url/true": function (state, str) {
+        return str;
+    },
+    "@doi/true": function (state, str) {
+        return str;
     }
 };
 

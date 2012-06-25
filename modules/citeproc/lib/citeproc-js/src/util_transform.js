@@ -104,20 +104,7 @@ CSL.Transform = function (state) {
 
     // Abbreviation families
     this.abbrevs = {};
-    this.abbrevs["default"] = new CSL.AbbreviationSegments();
-
-    // Initialization method
-    function init(mytoken, myfieldname, myabbrev_family) {
-        token = mytoken;
-        fieldname = myfieldname;
-        abbrev_family = myabbrev_family;
-        opt = {
-            abbreviation_fallback: false,
-            alternative_varname: false,
-            transform_fallback: false
-        };
-    }
-    this.init = init;
+    this.abbrevs["default"] = new state.sys.AbbreviationSegments();
 
     // Internal function
     function abbreviate(state, Item, altvar, basevalue, myabbrev_family, use_field) {
@@ -127,7 +114,7 @@ CSL.Transform = function (state) {
             return basevalue;
         }
 
-        if (["publisher-place", "event-place"].indexOf(myabbrev_family) > -1) {
+        if (["publisher-place", "event-place", "jurisdiction"].indexOf(myabbrev_family) > -1) {
             myabbrev_family = "place";
         }
 
@@ -135,7 +122,7 @@ CSL.Transform = function (state) {
             myabbrev_family = "institution-part";
         }
 
-        if (["genre"].indexOf(myabbrev_family) > -1) {
+        if (["genre", "event", "medium"].indexOf(myabbrev_family) > -1) {
             myabbrev_family = "title";
         }
 
@@ -206,24 +193,6 @@ CSL.Transform = function (state) {
         return ret;
     }
 
-    //
-    function setAbbreviationFallback(b) {
-        opt.abbreviation_fallback = b;
-    }
-    this.setAbbreviationFallback = setAbbreviationFallback;
-
-    //
-    function setAlternativeVariableName(s) {
-        opt.alternative_varname = s;
-    }
-    this.setAlternativeVariableName = setAlternativeVariableName;
-
-    //
-    function setTransformFallback(b) {
-        opt.transform_fallback = b;
-    }
-    this.setTransformFallback = setTransformFallback;
-
     // Setter for abbreviation lists
     // This initializes a single abbreviation based on known
     // data.
@@ -233,6 +202,9 @@ CSL.Transform = function (state) {
             jurisdiction = "default";
         }
         if (!orig) {
+            if (!this.abbrevs[jurisdiction]) {
+                this.abbrevs[jurisdiction] = new state.sys.AbbreviationSegments();
+            }
             return jurisdiction;
         }
         // The getAbbreviation() function should check the
@@ -243,12 +215,36 @@ CSL.Transform = function (state) {
         //
         // See testrunner_stdrhino.js for an example.
         if (state.sys.getAbbreviation) {
-            if (!this.abbrevs[jurisdiction]) {
-                this.abbrevs[jurisdiction] = new CSL.AbbreviationSegments();
+            // Build a list of trial keys, and step through them.
+            // When a match is hit, open an entry under the requested
+            // jurisdiction.
+            // Build the list of candidate keys.
+            var tryList = ['default'];
+            if (jurisdiction !== 'default') {
+                var workLst = jurisdiction.split(/\s*;\s*/);
+                for (var i=0, ilen=workLst.length; i < ilen; i += 1) {
+                    tryList.push(workLst.slice(0,i+1).join(';'));
+                }
             }
-            if (!this.abbrevs[jurisdiction][category][orig]) {
-                // jurisdiction could change to "default"
-                state.sys.getAbbreviation(state.opt.styleID, this.abbrevs, jurisdiction, category, orig);
+            // Step through them, from most to least specific.
+            for (var i=tryList.length - 1; i > -1; i += -1) {
+                // Protect against a missing jurisdiction list in memory.
+                if (!this.abbrevs[tryList[i]]) {
+                    this.abbrevs[tryList[i]] = new state.sys.AbbreviationSegments();
+                }
+                // Refresh from DB if no entry is found in memory.
+                if (!this.abbrevs[tryList[i]][category][orig]) {
+                    state.sys.getAbbreviation(state.opt.styleID, this.abbrevs, tryList[i], category, orig);
+                }
+                // Did we find something?
+                if (this.abbrevs[tryList[i]][category][orig]) {
+                    // If we found a match, but in a less-specific list, add the entry to the most
+                    // specific list before breaking.
+                    if (i < tryList.length) {
+                        this.abbrevs[jurisdiction][category][orig] = this.abbrevs[tryList[i]][category][orig];
+                    }
+                    break;
+                }
             }
         }
         return jurisdiction;
@@ -282,31 +278,15 @@ CSL.Transform = function (state) {
     }
 
     // Return function appropriate to selected options
-    function getOutputFunction(variables) {
+    function getOutputFunction(variables, myabbrev_family, abbreviation_fallback, alternative_varname, transform_fallback) {
 		// var mytoken;
-        var myabbrev_family, myfieldname, abbreviation_fallback, alternative_varname, transform_locale, transform_fallback, getTextSubfield;
-
-        // Freeze mandatory values
-        //mytoken = CSL.Util.cloneToken(token); // the token isn't needed, is it?
-
-		// the Abbreviation Family set by init(), if any.
-        myabbrev_family = abbrev_family;
-
-		// The fieldname set by init().
-        myfieldname = fieldname;
-
-        // Freeze option values
-		// These are also from init(), adjusted by configuration helper functions.
-        abbreviation_fallback = opt.abbreviation_fallback;
-        alternative_varname = opt.alternative_varname;
-        transform_fallback = opt.transform_fallback;
 
         // Set the primary_locale and secondary_locale lists appropriately.
 		// No instance helper function for this; everything can be derived
 		// from processor settings and rendering context.
 
 		var localesets;
-        var langPrefs = CSL.LangPrefsMap[myfieldname];
+        var langPrefs = CSL.LangPrefsMap[variables[0]];
         if (!langPrefs) {
             localesets = false;
         } else {
@@ -315,7 +295,7 @@ CSL.Transform = function (state) {
 
         return function (state, Item, item, usedOrig) {
             var primary, secondary, tertiary, primary_tok, group_tok, key;
-            if (!variables[0]) {
+            if (!variables[0] || (!Item[variables[0]] && !Item[alternative_varname])) {
                 return null;
             }
             
@@ -341,8 +321,7 @@ CSL.Transform = function (state) {
 			if ((state.tmp.area !== "bibliography"
 				 && !(state.tmp.area === "citation"
 					  && state.opt.xclass === "note"
-					  && item && !item.position))
-				|| myabbrev_family) {
+					  && item && !item.position))) {
                 
 				slot.secondary = false;
 				slot.tertiary = false;
@@ -361,7 +340,7 @@ CSL.Transform = function (state) {
             }
 
 			// True is for transform fallback
-            var res = getTextSubField(Item, myfieldname, slot.primary, true);
+            var res = getTextSubField(Item, variables[0], slot.primary, true);
             primary = res.name;
 
             if (publisherCheck(this, Item, primary, myabbrev_family)) {
@@ -372,19 +351,25 @@ CSL.Transform = function (state) {
 			secondary = false;
 			tertiary = false;
 			if (slot.secondary) {
-				res = getTextSubField(Item, myfieldname, slot.secondary, false, res.usedOrig);
+				res = getTextSubField(Item, variables[0], slot.secondary, false, res.usedOrig);
                 secondary = res.name;
 			}
 			if (slot.tertiary) {
-				res = getTextSubField(Item, myfieldname, slot.tertiary, false, res.usedOrig);
+				res = getTextSubField(Item, variables[0], slot.tertiary, false, res.usedOrig);
                 tertiary = res.name;
 			}
-            
+        
             // Abbreviate if requested and if poss.
 			// (We don't yet control for the possibility that full translations may not
 			// be provided on the alternative variable.)
             if (myabbrev_family) {
                 primary = abbreviate(state, Item, alternative_varname, primary, myabbrev_family, true);
+
+                if (primary) {
+                    // Suppress subsequent use of another variable if requested by
+                    // hack syntax in this abbreviation short form.
+                    primary = quashCheck(primary);
+                }
                 secondary = abbreviate(state, Item, false, secondary, myabbrev_family, true);
                 tertiary = abbreviate(state, Item, false, tertiary, myabbrev_family, true);
             }
@@ -461,11 +446,15 @@ CSL.Transform = function (state) {
         if (Item.type) {
             hereinafter_metadata.push("type:" + Item.type);
         }
-        if (Item.issued) {
+        var date_segment = Item.issued
+        if (["bill","gazette","legislation","legal_case","treaty"].indexOf(Item.type) > -1) {
+            date_segment = Item["original-date"];
+        }
+        if (date_segment) {
             var date = [];
             for (var j = 0, jlen = CSL.DATE_PARTS.length; j < jlen; j += 1) {
-                if (Item.issued[CSL.DATE_PARTS[j]]) {
-                    var element =  Item.issued[CSL.DATE_PARTS[j]];
+                if (date_segment[CSL.DATE_PARTS[j]]) {
+                    var element =  date_segment[CSL.DATE_PARTS[j]];
                     while (element.length < 2) {
                         element = "0" + element;
                     }
@@ -477,17 +466,33 @@ CSL.Transform = function (state) {
                 hereinafter_metadata.push("date:" + date);
             }
         }
+        var jurisdiction = "default";
         if (Item.jurisdiction) {
-            hereinafter_metadata.push("jurisdiction:" + Item.jurisdiction);
+            jurisdiction = Item.jurisdiction;
         }
         hereinafter_metadata = hereinafter_metadata.join(", ");
         if (hereinafter_metadata) {
             hereinafter_metadata = " [" + hereinafter_metadata + "]";
         }
         var hereinafter_key = hereinafter_author_title.join(", ") + hereinafter_metadata;
-        return hereinafter_key;
+        return [jurisdiction, hereinafter_key];
     }
     this.getHereinafter = getHereinafter;
+
+    function quashCheck(value) {
+        var m = value.match(/^!([-,_a-z]+)<<</);
+        if (m) {
+            var fields = m[1].split(",");
+            value = value.slice(m[0].length);
+            for (var i = 0, ilen = fields.length; i < ilen; i += 1) {
+                if (state.tmp.done_vars.indexOf(fields[i]) === -1) {
+                    state.tmp.done_vars.push(fields[i]);
+                }
+            }
+        }
+        return value;
+    }
+    this.quashCheck = quashCheck;
 };
 
 

@@ -64,6 +64,8 @@ CSL.Node.institution = {
                 this.and_term = state.getTerm("and", "long", 0);
             } else if ("symbol" === this.strings.and) {
                 this.and_term = "&";
+            } else if ("none" === this.strings.and) {
+                this.and_term = this.strings.delimiter;
             }
             if ("undefined" === typeof this.and_term && state.build.and_term) {
                 this.and_term = state.getTerm("and", "long", 0);
@@ -90,7 +92,7 @@ CSL.Node.institution = {
                 }
             }
             
-            func = function (state, Item) {
+            var func = function (state, Item) {
                 this.and = {};
                 if ("undefined" !== typeof this.and_term) {
                     state.output.append(this.and_term, "empty", true);

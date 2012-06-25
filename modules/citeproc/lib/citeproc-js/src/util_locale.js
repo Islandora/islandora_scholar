@@ -57,8 +57,8 @@ CSL.localeResolve = function (langstr) {
     langlst = langstr.split(/[\-_]/);
     ret.base = CSL.LANG_BASES[langlst[0]];
     if ("undefined" === typeof ret.base) {
-        CSL.debug("Warning: unknown locale "+langstr+", setting to en-US");
-        return {base:"en-US", best:"en-US", bare:"en"};
+        CSL.debug("Warning: unknown locale "+langstr+", setting fallback to en-US");
+        return {base:"en-US", best:langstr, bare:"en"};
     }
     if (langlst.length === 1 || langlst[1] === "x") {
         ret.best = ret.base.replace("_", "-");
@@ -100,6 +100,19 @@ CSL.Engine.prototype.localeConfigure = function (langspec) {
         this.localeSet(this.cslXml, langspec.base, langspec.best);
     }
     this.localeSet(this.cslXml, langspec.best, langspec.best);
+    if ("undefined" === typeof this.locale[langspec.best].terms["page-range-delimiter"]) {
+        if (["fr", "pt"].indexOf(langspec.best.slice(0, 2).toLowerCase()) > -1) {
+            this.locale[langspec.best].terms["page-range-delimiter"] = "-";
+        } else {
+            this.locale[langspec.best].terms["page-range-delimiter"] = "\u2013";
+        }
+    }
+    if ("undefined" === typeof this.locale[langspec.best].terms["year-range-delimiter"]) {
+        this.locale[langspec.best].terms["year-range-delimiter"] = "\u2013";
+    }
+    if ("undefined" === typeof this.locale[langspec.best].terms["citation-range-delimiter"]) {
+        this.locale[langspec.best].terms["citation-range-delimiter"] = "\u2013";
+    }
 };
     
 //
@@ -225,16 +238,16 @@ CSL.Engine.prototype.localeSet = function (myxml, lang_in, lang_out) {
     // sub-segments
     for (termname in this.locale[lang_out].terms) {
         if (this.locale[lang_out].terms.hasOwnProperty(termname)) {
-        for (i = 0, ilen = 2; i < ilen; i += 1) {
-            genderform = CSL.GENDERS[i];
-            if (this.locale[lang_out].terms[termname][genderform]) {
-                for (form in this.locale[lang_out].terms[termname]) {
-                    if (!this.locale[lang_out].terms[termname][genderform][form]) {
-                        this.locale[lang_out].terms[termname][genderform][form] = this.locale[lang_out].terms[termname][form];
+            for (i = 0, ilen = 2; i < ilen; i += 1) {
+                genderform = CSL.GENDERS[i];
+                if (this.locale[lang_out].terms[termname][genderform]) {
+                    for (form in this.locale[lang_out].terms[termname]) {
+                        if (!this.locale[lang_out].terms[termname][genderform][form]) {
+                            this.locale[lang_out].terms[termname][genderform][form] = this.locale[lang_out].terms[termname][form];
+                        }
                     }
                 }
             }
-        }
         }
     }
     //

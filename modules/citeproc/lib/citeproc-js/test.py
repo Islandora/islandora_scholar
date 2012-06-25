@@ -95,7 +95,7 @@ class ApplyLicense:
     def process_file(self,p,file):
         filepath = os.path.join(p, file)
         if not filepath.endswith(".js") and not filepath.endswith(".txt") and not filepath.endswith(".json") and not filepath.endswith("README.txt"): return
-        text = fixEndings(open(filepath).read())
+        text = fixEndings(open(filepath, "rb").read())
         oldtext = text
         m = re.match(self.rex,text)
         if m:
@@ -103,7 +103,7 @@ class ApplyLicense:
         else:
             text = "%s%s" % (self.license, text)
         if text.strip() != oldtext.strip():
-            open(filepath,"w+").write(text)
+            open(filepath,"w+b").write(text)
 
 class Bundle:
     
@@ -115,11 +115,11 @@ class Bundle:
         self.mode = mode
         f = ["load"]
         if mode == "zotero":
-            f.extend(["print_zotero", "xmle4x"])
+            f.extend(["print_zotero", "xmldom"])
         else:
             f.extend(["print"])
         f.extend(["sort","queue","util_disambig"])
-        f.extend(["util_nodes","util_dateparser","build","util_processor","api_control"])
+        f.extend(["util_nodes","util_dateparser","build","util_static_locator","util_processor","api_control"])
         f.extend(["state","util_integration","api_update","util_citationlabel"])
         f.extend(["api_bibliography","api_cite","node_bibliography","node_choose"])
         f.extend(["util_locale"])
@@ -163,20 +163,20 @@ class Bundle:
         file = ""
         for f in self.files:
             filename = os.path.join( "src", "%s.js"%f)
-            ifh = open(filename)
+            ifh = open(filename, "rb")
             file += self.cleanFile(ifh.read())
-        open(self.citeproc,"w+").write(file)
+        open(self.citeproc,"w+b").write(file)
         if self.mode == "zotero":
             print "Wrote bundle code with e4x support and Zotero error handling to ./citeproc_zotero.js "
         if self.mode == None:
-            open(os.path.join("demo", self.citeproc),"w+").write(file)
+            open(os.path.join("demo", self.citeproc),"w+b").write(file)
 
             for f in ["xmle4x", "xmldom"]:
                 filename = os.path.join( "src", "%s.js" % f)
-                ifh = open(filename)
+                ifh = open(filename, "rb")
                 file = self.cleanFile(ifh.read())
-                open("%s.js" % f, "w+").write(file)
-                open(os.path.join("demo", "%s.js" % f), "w+").write(file)
+                open("%s.js" % f, "w+b").write(file)
+                open(os.path.join("demo", "%s.js" % f), "w+b").write(file)
 
 class Params:
     def __init__(self,opt,args,category,force=None):
@@ -238,6 +238,9 @@ class Params:
                     filenames = os.listdir(os.path.join(path,"humans"))
                     filenames.sort()
                     for filename in filenames:
+                        # citeproc-js can only reconcile one level of flip-floppery
+                        #if filename == "decorations_NestedQuotesInnerReverse.txt":
+                        #    continue
                         if not filename.endswith(".txt"): continue
                         if args:
                             if not filename.startswith("%s_" % self.args[0]): continue
@@ -293,9 +296,9 @@ class Params:
                     if self.opt.verbose:
                         sys.stdout.write("!")
                     if self.opt.teststyles:
-                        ofh = open( os.path.join(path("styletests"), "%s.js" % group), "w+" )
+                        ofh = open( os.path.join(path("styletests"), "%s.js" % group), "w+b" )
                     else:
-                        ofh = open( os.path.join(path("bundled"), "%s.js" % group), "w+" )
+                        ofh = open( os.path.join(path("bundled"), "%s.js" % group), "w+b" )
                     group_text = '''dojo.provide("%s.%s");
 doh.register("%s.%s", [
 ''' % (self.category,group,self.category,group)
@@ -313,7 +316,7 @@ doh.register("%s.%s", [
 
     def buildRunner(self):
         has_files = False
-        ofh = open( os.path.join(path("runners"), "run.js"), "w+")
+        ofh = open( os.path.join(path("runners"), "run.js"), "w+b")
         header = 'dojo.require("doh.runner");\n'
         ofh.write(header)
         if self.opt.processor:
@@ -383,7 +386,7 @@ doh.register("%s.%s", [
     def validateSource(self):
         skip_to_pos = 0
         if os.path.exists(self.pickle):
-            upfh = open(self.pickle)
+            upfh = open(self.pickle, "rb")
             unpickler = Unpickler(upfh)
             old_opt,old_pos = unpickler.load()
             if self.opt == old_opt:
@@ -431,7 +434,7 @@ command: /home/bennett/src/jslibs/Linux_32_opt/jshost -u
 [rhino]
 command: java -client -jar ./rhino/js-1.7R2.jar -opt 8
 '''
-            ofh = open(os.path.join(path("config"), "test.cnf"), "w+" )
+            ofh = open(os.path.join(path("config"), "test.cnf"), "w+b" )
             ofh.write(test_template)
             ofh.close()
 
@@ -460,8 +463,8 @@ command: java -client -jar ./rhino/js-1.7R2.jar -opt 8
                 filepath = os.path.join(path("run"), "humans", filename)
                 if os.path.exists(filepath):
                     print "WARNING: duplicate fixture name \"%s\"" % filename
-                ofh = open(filepath, "w+")
-                ofh.write(open(os.path.join(sourcedir, filename)).read())
+                ofh = open(filepath, "w+b")
+                ofh.write(open(os.path.join(sourcedir, filename), "rb").read())
                 ofh.close()
 
 class CslTest:
@@ -473,12 +476,12 @@ class CslTest:
         self.hp = os.path.sep.join(hpath)
 	self.CREATORS = ["author","editor","translator","recipient","interviewer"]
         self.CREATORS += ["composer","original-author","container-author","collection-editor"]
-        self.RE_ELEMENT = '(?sm)^(.*>>=.*%s[^\n]+)(.*)(\n<<=.*%s.*)'
+        self.RE_ELEMENT = '(?sm)^(.*>>=.*%s[^\n]+)\n(.*)(\n<<=.*%s.*)'
         self.RE_FILENAME = '^[-a-z]+_[a-zA-Z0-9]+\.txt$'
         self.script = os.path.split(sys.argv[0])[1]
         self.pickle = ".".join((os.path.splitext( self.script )[0], "pkl"))
         self.data = {}
-        self.raw = fixEndings(open(os.path.sep.join(hpath)).read())
+        self.raw = fixEndings(open(os.path.sep.join(hpath), "rb").read())
 
     def parse(self):
         ## print "kkk: %s" % (self.testname,)
@@ -492,8 +495,8 @@ class CslTest:
                     stylepath = os.path.join(stylesdir, self.data['csl'])
                 else:
                     stylepath = os.path.join(os.path.join(path("styles")), self.data['csl'])
-                self.data['csl'] = fixEndings(open(stylepath).read())
-        self.extract("RESULT",required=True,is_json=False)
+                self.data['csl'] = fixEndings(open(stylepath, "rb").read())
+        self.extract("RESULT",required=True,is_json=False,rstrip=True)
         self.extract("INPUT",required=True,is_json=True)
         self.extract("CITATION-ITEMS",required=False,is_json=True)
         self.extract("CITATIONS",required=False,is_json=True)
@@ -536,7 +539,7 @@ class CslTest:
             m = re.match(self.RE_ELEMENT % ("ABBREVIATIONS", "ABBREVIATIONS"),self.raw)
             newraw = m.group(1) + "\n" + abbreviations_str + m.group(3)
         if self.raw != newraw:
-            open(self.hp,"w+").write(newraw)
+            open(self.hp,"w+b").write(newraw)
 
     def fix_dates(self):
         for pos in range(0, len(self.data["input"]),1):
@@ -565,7 +568,7 @@ class CslTest:
                         self.data["input"][pos][k]["date-parts"] = newdate
 
     def dump(self, mpath):
-        json.dump(self.data, open(mpath,"w+"), indent=4, sort_keys=True, ensure_ascii=False )
+        json.dump(self.data, open(mpath,"w+b"), indent=4, sort_keys=True, ensure_ascii=False )
 
     def validate(self):
         if self.opt.verbose:
@@ -618,7 +621,7 @@ class CslTest:
                 cslline = cslline.rstrip()
                 print "%3d  %s" % (linepos,cslline)
                 linepos += 1
-            pfh = open( self.pickle,"w+")
+            pfh = open( self.pickle,"w+b")
             pickler = Pickler( pfh )
 
             pickler.dump( (opt, self.pos) )

@@ -87,6 +87,51 @@ if (!Array.indexOf) {
 
 var CSL = {
 
+    PROCESSOR_VERSION: "1.0.347",
+
+    STATUTE_SUBDIV_GROUPED_REGEX: /((?:^| )(?:art|ch|Ch|subch|p|pp|para|subpara|pt|r|sec|subsec|Sec|sch|tit)\.)/g,
+    STATUTE_SUBDIV_PLAIN_REGEX: /(?:(?:^| )(?:art|ch|Ch|subch|p|pp|para|subpara|pt|r|sec|subsec|Sec|sch|tit)\.)/,
+    STATUTE_SUBDIV_STRINGS: {
+        "art.": "article",
+        "ch.": "chapter",
+        "Ch.": "Chapter",
+        "subch.": "subchapter",
+        "p.": "page",
+        "pp.": "page",
+        "para.": "paragraph",
+        "subpara.": "subparagraph",
+        "pt.": "part",
+        "r.": "rule",
+        "sec.": "section",
+        "subsec.": "subsection",
+        "Sec.": "Section",
+        "sch.": "schedule",
+        "tit.": "title"
+    },
+    STATUTE_SUBDIV_STRINGS_REVERSE: {
+        "article": "art.",
+        "chapter": "ch.",
+        "Chapter": "Ch.",
+        "subchapter": "subch.",
+        "page": "p.",
+        "paragraph": "para.",
+        "subparagraph": "subpara.",
+        "part": "pt.",
+        "rule": "r.",
+        "section": "sec.",
+        "subsection": "subsec.",
+        "Section": "Sec.",
+        "schedule": "sch.",
+        "title": "tit."
+    },
+
+    NestedBraces: [
+        ["(", "["],
+        [")", "]"]
+    ],
+    checkNestedBraceOpen: new RegExp(".*\\("),
+    checkNestedBraceClose: new RegExp(".*\\)"),
+
     LangPrefsMap: {
         "title":"titles",
         "title-short":"titles",
@@ -98,19 +143,19 @@ var CSL = {
         "event-place": "places"
     },
 
-
+    
 
     AbbreviationSegments: function () {
         this["container-title"] = {};
         this["collection-title"] = {};
         this["institution-entire"] = {};
         this["institution-part"] = {};
-        this["nickname"] = {};
-        this["number"] = {};
-        this["title"] = {};
-        this["place"] = {};
-        this["hereinafter"] = {};
-        this["classic"] = {};
+        this.nickname = {};
+        this.number = {};
+        this.title = {};
+        this.place = {};
+        this.hereinafter = {};
+        this.classic = {};
         this["container-phrase"] = {};
         this["title-phrase"] = {};
     },
@@ -150,9 +195,8 @@ var CSL = {
 
     POSITION_FIRST: 0,
     POSITION_SUBSEQUENT: 1,
-    POSITION_SUBSEQUENT_PARALLEL: 2,
-    POSITION_IBID: 3,
-    POSITION_IBID_WITH_LOCATOR: 4,
+    POSITION_IBID: 2,
+    POSITION_IBID_WITH_LOCATOR: 3,
 
     MARK_TRAILING_NAMES: true,
 
@@ -160,7 +204,7 @@ var CSL = {
 
     AREAS: ["citation", "citation_sort", "bibliography", "bibliography_sort"],
 
-    MULTI_FIELDS: ["publisher", "publisher-place", "event-place", "title", "container-title", "collection-title", "authority","edition","genre","title-short"],
+    MULTI_FIELDS: ["event", "publisher", "publisher-place", "event-place", "title", "container-title", "collection-title", "authority","edition","genre","title-short","medium","jurisdiction"],
 
     CITE_FIELDS: ["first-reference-note-number", "locator", "locator-revision"],
 
@@ -168,7 +212,6 @@ var CSL = {
 
     SWAPPING_PUNCTUATION: [".", "!", "?", ":",","],
     TERMINAL_PUNCTUATION: [":", ".", ";", "!", "?", " "],
-    SPLICE_PUNCTUATION: [".", "!", "?", ":", ";", ","],
 
     // update modes
     NONE: 0,
@@ -217,7 +260,7 @@ var CSL = {
     ],
 
     PARALLEL_MATCH_VARS: ["container-title"],
-    PARALLEL_TYPES: ["legal_case",  "legislation", "bill"],
+    PARALLEL_TYPES: ["bill","gazette","legislation","legal_case","treaty"],
     PARALLEL_COLLAPSING_MID_VARSET: ["volume", "issue", "container-title", "section", "collection-number"],
 
     LOOSE: 0,
@@ -235,19 +278,22 @@ var CSL = {
     // capital letter, and any subsequent capital letters.  Have to compare
     // locale caps version with existing version, character by character.
     // hard stuff, but if it breaks, that's what to do.
-    NAME_INITIAL_REGEXP: /^([A-Z\u0080-\u017f\u0400-\u042f])([a-zA-Z\u0080-\u017f\u0400-\u052f]*|)/,
-    ROMANESQUE_REGEXP: /[a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe]/,
-    ROMANESQUE_NOT_REGEXP: /[^a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe]/g,
-    STARTSWITH_ROMANESQUE_REGEXP: /^[&a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe]/,
-    ENDSWITH_ROMANESQUE_REGEXP: /[.;:&a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe]$/,
-    ALL_ROMANESQUE_REGEXP: /^[a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe]+$/,
+    // \u0600-\u06ff is Arabic/Persian
+    // \u200c-\u200e and \u202a-\u202e are special spaces and left-right 
+    // control characters
+    NAME_INITIAL_REGEXP: /^([A-Z\u0080-\u017f\u0400-\u042f\u0600-\u06ff])([a-zA-Z\u0080-\u017f\u0400-\u052f\u0600-\u06ff]*|)/,
+    ROMANESQUE_REGEXP: /[a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe\u0600-\u06ff\u200c\u200d\u200e\u202a-\u202e]/,
+    ROMANESQUE_NOT_REGEXP: /[^a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe\u0600-\u06ff\u200c\u200d\u200e\u202a-\u202e]/g,
+    STARTSWITH_ROMANESQUE_REGEXP: /^[&a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe\u0600-\u06ff\u200c\u200d\u200e\u202a-\u202e]/,
+    ENDSWITH_ROMANESQUE_REGEXP: /[.;:&a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe\u0600-\u06ff\u200c\u200d\u200e\u202a-\u202e]$/,
+    ALL_ROMANESQUE_REGEXP: /^[a-zA-Z\u0080-\u017f\u0400-\u052f\u0386-\u03fb\u1f00-\u1ffe\u0600-\u06ff\u200c\u200d\u200e\u202a-\u202e]+$/,
 
     VIETNAMESE_SPECIALS: /[\u00c0-\u00c3\u00c8-\u00ca\u00cc\u00cd\u00d2-\u00d5\u00d9\u00da\u00dd\u00e0-\u00e3\u00e8-\u00ea\u00ec\u00ed\u00f2-\u00f5\u00f9\u00fa\u00fd\u0101\u0103\u0110\u0111\u0128\u0129\u0168\u0169\u01a0\u01a1\u01af\u01b0\u1ea0-\u1ef9]/,
 
     VIETNAMESE_NAMES: /^(?:(?:[.AaBbCcDdEeGgHhIiKkLlMmNnOoPpQqRrSsTtUuVvXxYy \u00c0-\u00c3\u00c8-\u00ca\u00cc\u00cd\u00d2-\u00d5\u00d9\u00da\u00dd\u00e0-\u00e3\u00e8-\u00ea\u00ec\u00ed\u00f2-\u00f5\u00f9\u00fa\u00fd\u0101\u0103\u0110\u0111\u0128\u0129\u0168\u0169\u01a0\u01a1\u01af\u01b0\u1ea0-\u1ef9]{2,6})(\s+|$))+$/,
 
-    NOTE_FIELDS_REGEXP: /\{:[\-a-z]+:[^\}]+\}/g,
-    NOTE_FIELD_REGEXP: /\{:([\-a-z]+):\s*([^\}]+)\}/,
+    NOTE_FIELDS_REGEXP: /\{:[\-_a-z]+:[^\}]+\}/g,
+    NOTE_FIELD_REGEXP: /\{:([\-_a-z]+):\s*([^\}]+)\}/,
 
     DISPLAY_CLASSES: ["block", "left-margin", "right-inline", "indent"],
 
@@ -259,6 +305,7 @@ var CSL = {
         "collection-editor",
         "composer",
         "container-author",
+        "director",
         "editorial-director",
         "interviewer",
         "original-author",
@@ -380,7 +427,9 @@ var CSL = {
         en: "en_US",
         es: "es_ES",
         et: "et_EE",
-        fa: "fa_FA",
+        eu: "eu",
+        fa: "fa_IR",
+        fi: "fi_FI",
         fr: "fr_FR",
         he: "he_IL",
         hu: "hu_HU",
@@ -392,6 +441,7 @@ var CSL = {
         mn: "mn_MN",
         nb: "nb_NO",
         nl: "nl_NL",
+        nn: "nn-NO",
         pl: "pl_PL",
         pt: "pt_PT",
         ro: "ro_RO",
@@ -514,6 +564,35 @@ var CSL = {
         "\u06E6": "\u064A"
     },
 
+    LOCATOR_LABELS_REGEXP: new RegExp("^((art|ch|Ch|subch|col|fig|l|n|no|op|p|pp|para|subpara|pt|r|sec|subsec|Sec|sv|sch|tit|vrs|vol)\\.)\\s+(.*)"),
+
+    LOCATOR_LABELS_MAP: {
+        "art": "article",
+        "ch": "chapter",
+        "Ch": "Chapter",
+        "subch": "subchapter",
+        "col": "column",
+        "fig": "figure",
+        "l": "line",
+        "n": "note",
+        "no": "issue",
+        "op": "opus",
+        "p": "page",
+        "pp": "page",
+        "para": "paragraph",
+        "subpara": "subparagraph",
+        "pt": "part",
+        "r": "rule",
+		"sec": "section",
+		"subsec": "subsection",
+        "Sec": "Section",
+		"sv": "sub-verbo",
+        "sch": "schedule",
+        "tit": "title",
+        "vrs": "verse",
+        "vol": "volume"
+    },
+
     SUPERSCRIPTS_REGEXP: new RegExp("[\u00AA\u00B2\u00B3\u00B9\u00BA\u02B0\u02B1\u02B2\u02B3\u02B4\u02B5\u02B6\u02B7\u02B8\u02E0\u02E1\u02E2\u02E3\u02E4\u1D2C\u1D2D\u1D2E\u1D30\u1D31\u1D32\u1D33\u1D34\u1D35\u1D36\u1D37\u1D38\u1D39\u1D3A\u1D3C\u1D3D\u1D3E\u1D3F\u1D40\u1D41\u1D42\u1D43\u1D44\u1D45\u1D46\u1D47\u1D48\u1D49\u1D4A\u1D4B\u1D4C\u1D4D\u1D4F\u1D50\u1D51\u1D52\u1D53\u1D54\u1D55\u1D56\u1D57\u1D58\u1D59\u1D5A\u1D5B\u1D5C\u1D5D\u1D5E\u1D5F\u1D60\u1D61\u2070\u2071\u2074\u2075\u2076\u2077\u2078\u2079\u207A\u207B\u207C\u207D\u207E\u207F\u2120\u2122\u3192\u3193\u3194\u3195\u3196\u3197\u3198\u3199\u319A\u319B\u319C\u319D\u319E\u319F\u02C0\u02C1\u06E5\u06E6]", "g"),
 
     locale: {},
@@ -521,6 +600,13 @@ var CSL = {
     locale_dates: {}
 
 };
+
+// For citeproc-node
+if (typeof require !== "undefined" && typeof module !== 'undefined' && "exports" in module) {
+    var CSL_IS_NODEJS = true;
+    var CSL_NODEJS = require("./csl_nodejs_jsdom").CSL_NODEJS_JSDOM;
+    exports.CSL = CSL;
+}
 
 CSL.TERMINAL_PUNCTUATION_REGEXP = new RegExp("^([" + CSL.TERMINAL_PUNCTUATION.slice(0, -1).join("") + "])(.*)");
 CSL.CLOSURES = new RegExp(".*[\\]\\)]");
@@ -559,6 +645,7 @@ if (!CSL.DateParser) {
 // jslint OK
 if (!CSL.Engine) {
     load("./src/build.js");
+    load("./src/util_static_locator.js");
 }
 // jslint OK
 if (!CSL.Mode) {

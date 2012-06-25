@@ -58,7 +58,7 @@ bibliography
 
     <div class="csl-block">Bennett, Frank G., Jr.</div>
 
-    <div class="csl-left-margin">2009</div><div class="csl-right-inline">Getting Property Right: “Informal” Mortgages in the Japanese Courts. <i>Pacific Rim Law &#38; Policy Journal</i> 18 (August): 463-509.</div>
+    <div class="csl-left-margin">2009</div><div class="csl-right-inline">Getting Property Right: “Informal” Mortgages in the Japanese Courts. <i>Pacific Rim Law &#38; Policy Journal</i> 18 (August): 463–509.</div>
   </div>
   <div class="csl-entry">
 
@@ -88,7 +88,7 @@ bibliography
 
     <div class="csl-block">Zelle, Rintze M.</div>
 
-    <div class="csl-left-margin">2010</div><div class="csl-right-inline">Key Process Conditions for Production of C<sub>4</sub> Dicarboxylic Acids in Bioreactor Batch Cultures of an Engineered <i>Saccharomyces cerevisiae</i> Strain. <i>Applied and Environmental Microbiology</i> 76, no. 3 (February): 744-750. (co-authorship: Erik de Hulster, Wendy Kloezen, Jack T. Pronk, and Antonius J.A. van Maris)</div>
+    <div class="csl-left-margin">2010</div><div class="csl-right-inline">Key Process Conditions for Production of C<sub>4</sub> Dicarboxylic Acids in Bioreactor Batch Cultures of an Engineered <i>Saccharomyces cerevisiae</i> Strain. <i>Applied and Environmental Microbiology</i> 76, no. 3 (February): 744–750. (co-authorship: Erik de Hulster, Wendy Kloezen, Jack T. Pronk, and Antonius J.A. van Maris)</div>
   </div>
 </div>
 <<===== RESULT =====<<

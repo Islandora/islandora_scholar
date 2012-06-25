@@ -56,9 +56,9 @@
  */
 CSL.Output.Formatters = {};
 
-CSL.getSafeEscape = function(outputModeOpt, outputArea) {
-    if (["bibliography", "citation"].indexOf(outputArea) > -1) {
-        return CSL.Output.Formats[outputModeOpt].text_escape;
+CSL.getSafeEscape = function(state) {
+    if (["bibliography", "citation"].indexOf(state.tmp.area) > -1) {
+        return CSL.Output.Formats[state.opt.mode].text_escape;
     } else {
         return function (txt) { return txt; };
     }
@@ -126,20 +126,22 @@ CSL.Output.Formatters.sentence = function (state, string) {
 
 /**
  * Force the first letter of each space-delimited
- * word in the string to uppercase, and force remaining
- * letters to lowercase.  Single characters are forced
+ * word in the string to uppercase, and leave the remainder
+ * of the string untouched.  Single characters are forced
  * to uppercase.
  */
 CSL.Output.Formatters["capitalize-all"] = function (state, string) {
-    var str, strings, len, pos;
-    str = CSL.Output.Formatters.doppelString(string, CSL.TAG_ESCAPE);
-    strings = str.string.split(" ");
-    len = strings.length;
-    for (pos = 0; pos < len; pos += 1) {
-        if (strings[pos].length > 1) {
-            strings[pos] = strings[pos].slice(0, 1).toUpperCase() + strings[pos].substr(1).toLowerCase();
-        } else if (strings[pos].length === 1) {
-            strings[pos] = strings[pos].toUpperCase();
+    var str = CSL.Output.Formatters.doppelString(string, CSL.TAG_ESCAPE);
+    var strings = str.string.split(" ");
+    for (var i = 0, ilen = strings.length; i < ilen; i += 1) {
+        if (strings[i].length > 1) {
+			if (state.opt.development_extensions.allow_force_lowercase) {
+				strings[i] = strings[i].slice(0, 1).toUpperCase() + strings[i].substr(1).toLowerCase();
+			} else {
+				strings[i] = strings[i].slice(0, 1).toUpperCase() + strings[i].substr(1);
+			}
+        } else if (strings[i].length === 1) {
+            strings[i] = strings[i].toUpperCase();
         }
     }
     str.string = strings.join(" ");
@@ -184,7 +186,7 @@ CSL.Output.Formatters.title = function (state, string) {
             // Full string is not all-uppercase, or string is one word of three characters or less
             if (!isAllUpperCase || (words.length === 1 && words[pos].length < 4)) {
                 // This word is all-uppercase
-                if (words[pos] === upperCaseVariant) {
+                if (words[pos] !== lowerCaseVariant) {
                     totallyskip = true;
                 }
             }
@@ -211,12 +213,18 @@ CSL.Output.Formatters.title = function (state, string) {
                 // Skip if word is all-uppercase, and the full string is in mixed-case
                 if (!totallyskip) {
                     // If word is a stop-word, neither first nor last, and does not follow a colon,
-                    // force to lowercase
+                    // leave untouched
                     // Otherwise capitalize first character
                     if (skip && notfirst && notlast && !aftercolon) {
-                        words[pos] = lowerCaseVariant;
+						if (state.opt.development_extensions.allow_force_lowercase) {
+							words[pos] = lowerCaseVariant;
+						}
                     } else {
-                        words[pos] = upperCaseVariant.slice(0, 1) + lowerCaseVariant.substr(1);
+						if (state.opt.development_extensions.allow_force_lowercase) {
+							words[pos] = upperCaseVariant.slice(0, 1) + lowerCaseVariant.substr(1);
+						} else {
+							words[pos] = upperCaseVariant.slice(0, 1) + words[pos].substr(1);
+						}
                     }
                 }
             }

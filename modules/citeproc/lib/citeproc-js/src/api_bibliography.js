@@ -80,16 +80,23 @@ CSL.Engine.prototype.makeBibliography = function (bibsection) {
         }
     }
     //SNIP-END
+
+    // For paged returns
     ret = CSL.getBibliographyEntries.call(this, bibsection);
     entry_ids = ret[0];
     entry_strings = ret[1];
+
+    // For paged returns
+    var done = ret[2];
+
     params = {
         "maxoffset": 0,
         "entryspacing": this.bibliography.opt["entry-spacing"],
         "linespacing": this.bibliography.opt["line-spacing"],
         "second-field-align": false,
         "entry_ids": entry_ids,
-        "bibliography_errors": this.tmp.bibliography_errors.slice()
+        "bibliography_errors": this.tmp.bibliography_errors.slice(),
+        "done": done
     };
     if (this.bibliography.opt["second-field-align"]) {
         params["second-field-align"] = this.bibliography.opt["second-field-align"];
@@ -116,7 +123,7 @@ CSL.Engine.prototype.makeBibliography = function (bibsection) {
  * Compose individual cites into a single string.
  */
 CSL.getBibliographyEntries = function (bibsection) {
-    var ret, input, include, anymatch, allmatch, bib_entry, res, len, pos, item, llen, ppos, spec, lllen, pppos, bib_layout, topblobs, all_item_ids, entry_item_ids, debug, collapse_parallel, i, ilen, siblings, skips, sortedItems, eyetem, chr, entry_item_data;
+    var ret, input, include, anymatch, allmatch, bib_entry, res, len, pos, item, llen, ppos, spec, lllen, pppos, bib_layout, topblobs, all_item_ids, entry_item_ids, debug, collapse_parallel, i, ilen, siblings, skips, sortedItems, eyetem, chr, entry_item_data, j, jlen, newIDs, originalIDs;
     ret = [];
     entry_item_data = [];
     this.tmp.area = "bibliography";
@@ -137,42 +144,50 @@ CSL.getBibliographyEntries = function (bibsection) {
     // on demand during bundle processing when the bibliography
     // is generated (i.e. here).
 
-    var originalIDs = this.registry.getSortedIds();
-    var newIDs = [];
-    this.registry.generate.items = {};
+    // For paged returns: disable generated entries and
+    // do not fetch full items as a batch (input variable
+    // consists of ids only in this case)
+    if (bibsection && bibsection.page_start && bibsection.page_length) {
+        input = this.registry.getSortedIds();        
+    } else {
+        originalIDs = this.registry.getSortedIds();
+        newIDs = [];
+        this.registry.generate.items = {};
 
-    // generate has two forks: origIDs and genIDs
-    for (var id  in this.registry.generate.origIDs) {
-        // get the bundle
-        var rule = this.registry.generate.origIDs[id];
-        // clone the attached item. clone is shallow, just the top-level keys.
-        item = this.retrieveItem(id);
-        var clonedItem = {};
-        for (var key in item) {
-            clonedItem[key] = item[key];
-        }
-        // remap the item type
-        clonedItem.type = rule.to;
-        // remove "required" field(s)
-        for (i = 0, ilen = rule.triggers.length; i < ilen; i += 1) {
-            if (clonedItem[rule.triggers[i]]) {
-                delete clonedItem[rule.triggers[i]];
+        // generate has two forks: origIDs and genIDs
+        for (var id  in this.registry.generate.origIDs) {
+            // get the bundle
+            var rule = this.registry.generate.origIDs[id];
+            // clone the attached item. clone is shallow, just the top-level keys.
+            item = this.retrieveItem(id);
+            var clonedItem = {};
+            for (var key in item) {
+                clonedItem[key] = item[key];
             }
+            // remap the item type
+            clonedItem.type = rule.to;
+            // remove "required" field(s)
+            for (i = 0, ilen = rule.triggers.length; i < ilen; i += 1) {
+                if (clonedItem[rule.triggers[i]]) {
+                    delete clonedItem[rule.triggers[i]];
+                }
+            }
+            // amend itemID (to the form set on genIDs fork)
+            var newID = clonedItem.id + ":gen";
+            clonedItem.id = newID;
+            // add to generated items, will be picked up by retrieve function
+            this.registry.generate.items[clonedItem.id] = clonedItem;
+            // add new ID to list
+            newIDs.push(newID);
         }
-        // amend itemID (to the form set on genIDs fork)
-        var newID = clonedItem.id + ":gen";
-        clonedItem.id = newID;
-        // add to generated items, will be picked up by retrieve function
-        this.registry.generate.items[clonedItem.id] = clonedItem;
-        // add new ID to list
-        newIDs.push(newID);
-    }
-    if (newIDs.length) {
-        this.updateItems(originalIDs.concat(newIDs));
-    }
-    // retrieveItems will pick up the generated items
-    input = this.retrieveItems(this.registry.getSortedIds());
+        if (newIDs.length) {
+            this.updateItems(originalIDs.concat(newIDs));
+        }
 
+        // retrieveItems will pick up the generated items
+        input = this.retrieveItems(this.registry.getSortedIds());
+    }
+    
     this.tmp.disambig_override = true;
     function eval_string(a, b) {
         if (a === b) {
@@ -203,12 +218,39 @@ CSL.getBibliographyEntries = function (bibsection) {
     }
 
     skips = {};
-    all_item_ids = [];
-    len = input.length;
-    for (pos = 0; pos < len; pos += 1) {
-        item = input[pos];
-        if (skips[item.id]) {
-            continue;
+
+    // For paged returns
+    var page_item_count;
+    if (bibsection && bibsection.page_start && bibsection.page_length) {
+        page_item_count = 0;
+        if (bibsection.page_start !== true) {
+            for (i = 0, ilen = input.length; i < ilen; i += 1) {
+                skips[input[i]] = true;
+                if (bibsection.page_start == input[i]) {
+                    break;
+                }
+            }
+        }
+    }
+
+    var processed_item_ids = [];
+
+    for (i = 0, ilen = input.length; i < ilen; i += 1) {
+        
+        // For paged returns
+        if (bibsection && bibsection.page_start && bibsection.page_length) {
+            if (skips[input[i]]) {
+                continue;
+            }
+            item = this.retrieveItem(input[i]);
+            if (page_item_count === bibsection.page_length) {
+                break;
+            }
+        } else {
+            item = input[i];
+            if (skips[item.id]) {
+                continue;
+            }
         }
         if (bibsection) {
             include = true;
@@ -217,9 +259,8 @@ CSL.getBibliographyEntries = function (bibsection) {
                 // Opt-in: these are OR-ed.
                 //
                 include = false;
-                llen = bibsection.include.length;
-                for (ppos = 0; ppos < llen; ppos += 1) {
-                    spec = bibsection.include[ppos];
+                for (j = 0, jlen = bibsection.include.length; j < jlen; j += 1) {
+                    spec = bibsection.include[j];
                     if (eval_spec(spec.value, item[spec.field])) {
                         include = true;
                         break;
@@ -230,9 +271,8 @@ CSL.getBibliographyEntries = function (bibsection) {
                 // Opt-out: these are also OR-ed.
                 //
                 anymatch = false;
-                llen = bibsection.exclude.length;
-                for (ppos = 0; ppos < llen; ppos += 1) {
-                    spec = bibsection.exclude[ppos];
+                for (j = 0, jlen = bibsection.exclude.length; j < jlen; j += 1) {
+                    spec = bibsection.exclude[j];
                     if (eval_spec(spec.value, item[spec.field])) {
                         anymatch = true;
                         break;
@@ -247,9 +287,8 @@ CSL.getBibliographyEntries = function (bibsection) {
                 //
                 include = false;
                 allmatch = true;
-                llen = bibsection.select.length;
-                for (ppos = 0; ppos < llen; ppos += 1) {
-                    spec = bibsection.select[ppos];
+                for (j = 0, jlen = bibsection.select.length; j < jlen; j += 1) {
+                    spec = bibsection.select[j];
                     if (!eval_spec(spec.value, item[spec.field])) {
                         allmatch = false;
                     }
@@ -263,9 +302,8 @@ CSL.getBibliographyEntries = function (bibsection) {
                 // Stop criteria: These are AND-ed.
                 //
                 allmatch = true;
-                llen = bibsection.quash.length;
-                for (ppos = 0; ppos < llen; ppos += 1) {
-                    spec = bibsection.quash[ppos];
+                for (j = 0, jlen = bibsection.quash.length; j < jlen; j += 1) {
+                    spec = bibsection.quash[j];
                     if (!eval_spec(spec.value, item[spec.field])) {
                         allmatch = false;
                     }
@@ -295,7 +333,9 @@ CSL.getBibliographyEntries = function (bibsection) {
 
         sortedItems = [[{id: "" + item.id}, item]];
         entry_item_ids = [];
-        if (this.registry.registry[item.id].master) {
+        if (this.registry.registry[item.id].master 
+            && !(bibsection && bibsection.page_start && bibsection.page_length)) {
+
             collapse_parallel = true;
             this.parallel.StartCitation(sortedItems);
             this.output.queue[0].strings.delimiter = ", ";
@@ -303,17 +343,21 @@ CSL.getBibliographyEntries = function (bibsection) {
             entry_item_ids.push("" + CSL.getCite.call(this, item));
             skips[item.id] = true;
             siblings = this.registry.registry[item.id].siblings;
-            for (ppos = 0, llen = siblings.length; ppos < llen; ppos += 1) {
-                i = this.registry.registry[item.id].siblings[ppos];
-                eyetem = this.retrieveItem(i);
+            for (j = 0, jlen = siblings.length; j < jlen; j += 1) {
+                var k = this.registry.registry[item.id].siblings[j];
+                eyetem = this.retrieveItem(k);
                 entry_item_ids.push("" + CSL.getCite.call(this, eyetem));
                 skips[eyetem.id] = true;
             }
             this.parallel.ComposeSet();
             this.parallel.PruneOutputQueue();
         } else if (!this.registry.registry[item.id].siblings) {
+            this.parallel.StartCitation(sortedItems);
             this.tmp.term_predecessor = false;
             entry_item_ids.push("" + CSL.getCite.call(this, item));
+            if (bibsection && bibsection.page_start && bibsection.page_length) {
+                page_item_count += 1;
+            }
             //skips[item.id] = true;
         }
         // For RDF support
@@ -321,7 +365,7 @@ CSL.getBibliographyEntries = function (bibsection) {
 
         this.tmp.bibliography_pos += 1;
 
-        all_item_ids.push(entry_item_ids);
+        processed_item_ids.push(entry_item_ids);
         //
         // XXX: loop to render parallels goes here
         // XXX: just have to mark them somehow ...
@@ -344,15 +388,14 @@ CSL.getBibliographyEntries = function (bibsection) {
             } else {
                 topblobs = this.output.queue[0].blobs[0].blobs;
             }
-            llen = topblobs.length - 1;
-            for (ppos = llen; ppos > -1; ppos += -1) {
-                if (topblobs[ppos].blobs && topblobs[ppos].blobs.length !== 0) {
+            for (j  = topblobs.length - 1; j > -1; j += -1) {
+                if (topblobs[j].blobs && topblobs[j].blobs.length !== 0) {
                     // Fix up duplicate terminal punctuation, reported by Carles Pina 2010-07-15
                     chr = this.bibliography.opt.layout_suffix.slice(0, 1);
-                    if (chr && topblobs[ppos].strings.suffix.slice(-1) === chr) {
-                        topblobs[ppos].strings.suffix = topblobs[ppos].strings.suffix.slice(0, -1);
+                    if (chr && topblobs[j].strings.suffix.slice(-1) === chr) {
+                        topblobs[j].strings.suffix = topblobs[j].strings.suffix.slice(0, -1);
                     }
-                    topblobs[ppos].strings.suffix += this.bibliography.opt.layout_suffix;
+                    topblobs[j].strings.suffix += this.bibliography.opt.layout_suffix;
                     break;
                 }
             }
@@ -368,10 +411,21 @@ CSL.getBibliographyEntries = function (bibsection) {
     }
 
     // reset list if spoofed entries were included
-    if (newIDs.length) {
-        this.updateItems(originalIDs);
+    var done = false;
+    if (bibsection && bibsection.page_start && bibsection.page_length) {
+        var last_expected_id = input.slice(-1)[0];
+        var last_seen_id = processed_item_ids.slice(-1)[0];
+        if (!last_expected_id || !last_seen_id || last_expected_id == last_seen_id) {
+            done = true;
+        }
+    } else {
+        if (newIDs.length) {
+            this.updateItems(originalIDs);
+        }
     }
 
     this.tmp.disambig_override = false;
-    return [all_item_ids, ret];
+
+    // XXX done
+    return [processed_item_ids, ret, done];
 };

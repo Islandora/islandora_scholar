@@ -56,26 +56,26 @@ Normalizes punctuation and grouping when multiple numbers are provided in input.
 >>===== RESULT =====>>
 [1] edition --- ‘1’ --- numeric, singular
 [2]–[3] editions --- ‘2 - 3’ --- numeric, plural
-[4] & [6] editions --- ‘4 &#38; 6’ --- numeric, plural
-[7], [8] & [9] editions --- ‘7, 8 &#38; 9’ --- numeric, plural
-[10], [12] & [14] editions --- ‘10, 12 &#38; 14’ --- numeric, plural
+[4] &#38; [6] editions --- ‘4 &#38; 6’ --- numeric, plural
+[7], [8] &#38; [9] editions --- ‘7, 8 &#38; 9’ --- numeric, plural
+[10], [12] &#38; [14] editions --- ‘10, 12 &#38; 14’ --- numeric, plural
 [15], [17], [19], [20], [21] editions --- ‘15, 17, 19, 20, 21’ --- numeric, plural
 [16], [28], [30], [31], [32], [34], [36] editions --- ‘16, 28, 30, 31, 32, 34, 36’ --- numeric, plural
 [25], [15], [17], [19], [20], [21], [23], [24] editions --- ‘25, 15, 17, 19, 20, 21, 23, 24’ --- numeric, plural
 [38], [37]–[40] editions --- ‘38, 37 - 40’ --- numeric, plural
-[43]–[41] editions --- ‘43-41’ --- numeric, plural
+[43]–[41] editions --- ‘43-41’ --- parsed for affixes, numeric (I think), plural
 [205]–[2000] editions --- ‘205 - 2000’ --- numeric, plural
 1 vol + 1 CD --- ‘1 vol + 1 CD’ --- non-numeric
 [12nd] edition --- ‘12nd’ --- numeric, singular
-[12a]–[c] edition --- ‘12a-c’ --- numeric, singular
-12th Yellow–tailed Wooly Monkey --- ‘12th Yellow-tailed Wooly Monkey’ --- non-numeric
+[12a]-[c] edition --- ‘12a-c’ --- numeric, singular
+12th Yellow-tailed Wooly Monkey --- ‘12th Yellow-tailed Wooly Monkey’ --- non-numeric
 [T51] edition --- ‘T51’ --- numeric, singular
 Edition 1 --- ‘Edition 1’ --- non-numeric
 Editions 1–6 --- ‘Editions 1 - 6’ --- non-numeric
 [42] edition --- ‘“42 editionX”’ --- Enclosing quotes stripped, trailing label stripped, numeric, singular
 [42]–[47] editions --- ‘“42 - 47 editionz”’ --- Enclosing quotes stripped, trailing label stripped, numeric, plural
 T51 edn. --- ‘T51 edn.’ --- Non-numeric (label must be spelled out in full)
-[T51] & [T53] editions --- ‘T51 &#38; T53’ --- Numeric, plural
+[T51] &#38; [T53] editions --- ‘T51 &#38; T53’ --- Numeric, plural
 [12:xx] edition --- ‘12:xx’ --- Numeric, singular
 [12 13] edition --- ‘12 13’ --- Numeric, singular
 12th folio --- ‘12th folio’ --- Unexpected label untouched, non-numeric
@@ -177,7 +177,7 @@ T51 edn. --- ‘T51 edn.’ --- Non-numeric (label must be spelled out in full)
 	},
 	{
 		"id": "ITEM-10",
-		"title": "numeric, plural",
+		"title": "parsed for affixes, numeric (I think), plural",
 		"edition" : "43-41",
 		"type": "book"
 	},

@@ -88,7 +88,7 @@ One. Two. [parental suffix–prefix–uphill]
   <citation>
     <layout delimiter="&#x0A;">
       <choose>
-        <if type="bill">
+        <if type="book">
           <text macro="parental-suffix-prefix-uphill"/>
         </if>
       </choose>
@@ -107,7 +107,7 @@ One. Two. [parental suffix–prefix–uphill]
         "id": "ITEM-5", 
         "title": "One", 
         "note": "Two",
-        "type": "bill"
+        "type": "book"
     }
 ]
 <<===== INPUT =====<<

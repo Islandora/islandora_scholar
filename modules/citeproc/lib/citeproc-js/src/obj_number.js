@@ -60,7 +60,10 @@
  * @namespace Range object and friends.
  */
 
-CSL.NumericBlob = function (num, mother_token) {
+CSL.NumericBlob = function (num, mother_token, id) {
+    // item id is used to assure that prefix delimiter is invoked only
+    // when joining blobs across items
+    this.id = id;
     this.alldecor = [];
     this.num = num;
     this.blobs = num.toString();
@@ -107,7 +110,9 @@ CSL.Output.DefaultFormatter.prototype.format = function (num) {
 };
 
 CSL.NumericBlob.prototype.checkNext = function (next) {
-    if (! next || !next.num || this.type !== next.type || next.num !== (this.num + 1)) {
+    if (next && this.id == next.id) {
+        this.status = CSL.START;
+    } else if (! next || !next.num || this.type !== next.type || next.num !== (this.num + 1)) {
         if (this.status === CSL.SUCCESSOR_OF_SUCCESSOR) {
             this.status = CSL.END;
         }

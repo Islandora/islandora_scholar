@@ -53,7 +53,7 @@ citation
 
 
 >>===== RESULT =====>>
-numbers = 1–3; numbers = 4 & 5; number = 10
+numbers = 1–3; numbers = 4 &#38; 5; number = 10
 <<===== RESULT =====<<
 
 

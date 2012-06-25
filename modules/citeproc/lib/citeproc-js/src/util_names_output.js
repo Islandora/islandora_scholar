@@ -59,6 +59,7 @@ CSL.NameOutput = function(state, Item, item, variables) {
     this.Item = Item;
     this.item = item;
     this.nameset_base = 0;
+    this.etal_spec = [];
     this._first_creator_variable = false;
     this._please_chop = false;
 };
@@ -93,7 +94,7 @@ CSL.NameOutput.prototype.init = function (names) {
     }
 
     // Set to true if something happens
-    this.state.tmp.group_context.value()[2] = false;
+    //this.state.tmp.group_context.value()[2] = false;
 };
 
 
@@ -131,10 +132,10 @@ CSL.NameOutput.prototype.outputNames = function () {
     var variables = this.variables;
 
     if (this.institution.and) {
-        if (!this.institution.and.single.blobs && !this.institution.and.single.blobs.length) {
+        if (!this.institution.and.single.blobs || !this.institution.and.single.blobs.length) {
             this.institution.and.single.blobs = this.name.and.single.blobs;
         }
-        if (!this.institution.and.single.blobs && !this.institution.and.multiple.blobs.length) {
+        if (!this.institution.and.multiple.blobs || !this.institution.and.multiple.blobs.length) {
             this.institution.and.multiple.blobs = this.name.and.multiple.blobs;
         }
     }
@@ -186,17 +187,27 @@ CSL.NameOutput.prototype.outputNames = function () {
     }
     //SNIP-END
     // util_names_truncate.js
+
     this.truncatePersonalNameLists();
     //SNIP-START
     if (this.debug) {
         print("(5)");
     }
     //SNIP-END
+
+    //SNIP-START
+    if (this.debug) {
+        print("(6)");
+    }
+    //SNIP-END
+    // util_names_disambig.js
+    this.disambigNames();
+
     // util_names_constraints.js
     this.constrainNames();
     //SNIP-START
     if (this.debug) {
-        print("(6)");
+        print("(7)");
     }
     //SNIP-END
     // form="count"
@@ -213,13 +224,6 @@ CSL.NameOutput.prototype.outputNames = function () {
         return;
     }
 
-    //SNIP-START
-    if (this.debug) {
-        print("(7)");
-    }
-    //SNIP-END
-    // util_names_disambig.js
-    this.disambigNames();
     //SNIP-START
     if (this.debug) {
         print("(8)");
@@ -348,15 +352,23 @@ CSL.NameOutput.prototype.outputNames = function () {
     //
     // If found, then (1) suppress title rendering, (2) replace the node
     // with the abbreviation output [and (3) do not run this._collapseAuthor() ?]
-    var oldSuppressDecorations = this.state.tmp.suppress_decorations;
-    this.state.tmp.suppress_decorations = true;
-    var lastBlob = this.state.tmp.name_node.top.blobs.pop();
-    var name_node_string = this.state.output.string(this.state, lastBlob.blobs, false);
-    this.state.tmp.name_node.top.blobs.push(lastBlob);
-    if (name_node_string) {
-        this.state.tmp.name_node.string = name_node_string;
+    if (variables[0] !== "authority") {
+        // Just grab the string values in the name
+        var name_node_string = [];
+        var nameobjs = this.Item[variables[0]];
+        if (nameobjs) {
+            for (var i = 0, ilen = nameobjs.length; i < ilen; i += 1) {
+                substring = CSL.Util.Names.getRawName(nameobjs[i]);
+                if (substring) {
+                    name_node_string.push(substring);
+                }
+            }
+        }
+        name_node_string = name_node_string.join(", ");
+        if (name_node_string) {
+            this.state.tmp.name_node.string = name_node_string;
+        }
     }
-    this.state.tmp.suppress_decorations = oldSuppressDecorations;
     // for hereinafter support
     if (this.state.tmp.name_node.string && !this.state.tmp.first_name_string) {
         this.state.tmp.first_name_string = this.state.tmp.name_node.string;
@@ -382,24 +394,6 @@ CSL.NameOutput.prototype.outputNames = function () {
         }
     }
 
-    if (this.Item.type === "personal_communication" || this.Item.type === "interview") {
-        var author = "";
-        author = this.state.tmp.name_node.string;
-        if (author && this.state.sys.getAbbreviation && !(this.item && this.item["suppress-author"])) {
-            this.state.transform.loadAbbreviation("default", "nickname", author);
-            var myLocalName = this.state.transform.abbrevs["default"].nickname[author];
-            if (myLocalName) {
-                if (myLocalName === "{suppress}") {
-                    this.state.tmp.name_node.top.blobs.pop();
-                    this.state.tmp.group_context.value()[2] = false;
-                } else {
-                    this.state.output.append(myLocalName, "empty", true)
-                    blob = this.state.output.pop();
-                    this.state.tmp.name_node.top.blobs = [blob];
-                }
-            }
-        }
-    }
     // Let's try something clever here.
     this._collapseAuthor();
 
@@ -463,7 +457,7 @@ CSL.NameOutput.prototype._buildLabel = function (term, plural, position) {
     var ret = false;
     var node = this.label[position];
     if (node) {
-        ret = CSL.castLabel(this.state, node, term, plural);
+        ret = CSL.castLabel(this.state, node, term, plural, CSL.TOLERANT);
     }
     return ret;
 };
