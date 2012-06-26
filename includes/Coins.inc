@@ -290,10 +290,10 @@ class Coins {
 }
 
 function islandora_scholar_details($item) {
-  if (array_key_exists('MODS', $item->get_datastreams_list_as_array())) {
+  if (array_key_exists('MODS', $item->datastreams)) {
     $coins = new Coins($item->pid);
     extract($coins->render_view());
-    return theme('table', $headers, $rows);
+    return '<h3>' . t('MODS Metadata') . '</h3>' . theme('table', $headers, $rows);
   }
 }
 
