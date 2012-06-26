@@ -45,7 +45,7 @@ class CitationView {
    *   A tabset (to be merged with existing tabs).
    */
   public static function get_tabs($pid) {
-    return array(
+    $tab_set = array(
       'overview' => array(
         '#title' => t('Overview'),
         '#type' => 'tabpage',
@@ -55,100 +55,39 @@ class CitationView {
           '#type' => 'item',
           '#value' => self::get_citation($pid),
         ),
+
+      ),
+    );
+
+    $viewer = self::get_viewer($pid);
+    if (!empty($viewer)) {
+      $tab_set['overview'] += array(
         'document' => array(
           '#title' => t('Document'),
           '#type' => 'item',
-          'viewer' => self::get_viewer($pid),
-          'add_remove' => self::add_remove_form($pid),
+          'viewer' => $viewer,
         ),
-      ),
-    );
+      );
+    }
+
+    return $tab_set;
   }
 
   protected static function get_viewer($pid) {
     module_load_include('inc', 'fedora_repository', 'api/fedora_item');
     $item = new Fedora_Item($pid);
-    $to_return = array('#value' => '');
+    $to_return = array();
 
     $viewers = module_invoke_all('islandora_scholar_viewer', $item);
     drupal_alter('islandora_scholar_viewer', $viewers, $item);
     uasort($viewers, 'element_sort');
 
-    while(($viewer = array_shift($viewers)) && empty($to_return['#value'])) {
-      $to_return = array(
-        '#value' => call_user_func_array($viewer['#callback'], $viewer['#callback arguments']));
+    while(($viewer = array_shift($viewers)) && empty($to_return)) {
+      $to_return = call_user_func_array($viewer['#callback'], $viewer['#callback arguments']);
     }
 
     return $to_return;
   }
-
-  protected static function add_remove_form($pid) {
-    module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-    $item = new Fedora_Item($pid);
-    if(user_access('ingest new fedora objects' || $is_owner)) {
-      $has_pdf = array_key_exists('PDF', $item->datastreams);
-      return array(
-        '#title' => ($has_pdf ?
-          t('Modify Current Document'):
-          t('Add Document')),
-        '#value' => ($has_pdf ?
-          drupal_get_form('islandora_scholar_modify_form', $pid):
-          drupal_get_form('islandora_scholar_upload_form', $pid)),
-      );
-    }
-    else {
-      return array();
-    }
-  }
-}
-
-function islandora_scholar_modify_form($form_state, $pid) {
-  return array(
-    'pid' => array( //Store the PID.
-      '#type' => 'value',
-      '#value' => $pid,
-    ),
-    'download' => array(
-      '#type' => 'item',
-      '#title' => t('Download'),
-      '#value' => l(t('PDF'), "fedora/repository/object_download/$pid/PDF"),
-    ),
-    'delete_document' => array(
-      '#type' => 'submit',
-      '#value' => t('Delete Document/PDF'),
-    ),
-  );
-}
-
-function islandora_scholar_modify_form_submit($form, $form_state) {
-  //TODO:  Remove the PDF (and derivatives) if the button is clicked.
-  dpm('Nothing doing...  Implement the deletion.');
-}
-
-function islandora_scholar_upload_form($form_state, $pid) {
-  return array(
-    array(
-      '#type' => 'fieldset',
-      '#title' => t('Upload Document'),
-      'pid' => array(
-        '#type' => 'value',
-        '#value' => $pid,
-      ),
-      'file' => array(
-        '#type' => 'file', //Might want to make this use an AJAX uploader? (upload_element?)
-        '#title' => 'PDF file',
-      ),
-      'submit' => array(
-        '#type' => 'submit',
-        '#value' => t('Upload'),
-      ),
-    ),
-  );
-}
-
-function islandora_scholar_upload_form_submit($form, $form_state) {
-  //TODO:  Add the PDF (and derivatives?) on submission.
-  dpm('Nothing doing...  Implement the addition.');
 }
 
 function islandora_scholar_islandora_scholar_viewer($item) {
@@ -223,5 +162,16 @@ function islandora_scholar_google_pdf_viewer($pid) {
     'frameborder' => '0',
   );
 
-  return '<iframe ' . drupal_attributes($iframe_attrs) . '></iframe>';
+  return array(
+    'viewer' => array(
+      '#value' => '<iframe ' . drupal_attributes($iframe_attrs) . '></iframe>',
+      '#weight' => 0,
+    ),
+    'download' => array(
+      '#type' => 'item',
+      '#title' => t('Download'),
+      '#value' => l(t('PDF'), "fedora/repository/object_download/$pid/PDF"),
+      '#weight' => 1,
+    ),
+  );
 }
