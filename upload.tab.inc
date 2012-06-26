@@ -148,7 +148,7 @@ function islandora_scholar_upload_form_submit(&$form, &$form_state) {
   $status = $item->add_datastream_from_file($file->filepath, $dsid, 'PDF datastream', 'application/pdf');
 
   //Add datastream should return the DSID added on success...
-  if ($status == $dsid) {
+  if ($status !== NULL && $status->datastreamID == $dsid) {
     $form_state['redirect'] = array("fedora/repository/$pid", NULL, 'overview');
   }
   else {
