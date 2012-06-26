@@ -293,7 +293,11 @@ function islandora_scholar_details($item) {
   if (array_key_exists('MODS', $item->datastreams)) {
     $coins = new Coins($item->pid);
     extract($coins->render_view());
-    return '<h3>' . t('MODS Metadata') . '</h3>' . theme('table', $headers, $rows);
+    return array(
+      '#type' => 'item',
+      '#title' => t('MODS Metadata'),
+      '#value' => theme('table', $headers, $rows),
+    );
   }
 }
 
