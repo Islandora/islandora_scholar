@@ -212,8 +212,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
     }
     $version_element->appendChild($mods_doc->createTextNode($version));
 
-    dsm($mods_doc->saveXML(), 'MODS to save');
-    //$item->modify_datastream($mods_doc->saveXML(), 'MODS', 'MODS datastream', 'text/xml');
+    $item->modify_datastream($mods_doc->saveXML(), 'MODS', 'MODS datastream', 'text/xml');
   }
   else {
     drupal_set_message(t('No MODS in object @pid...  Refusing to add usage and ' .
