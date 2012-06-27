@@ -26,6 +26,23 @@ class UploadView {
 }
 
 function islandora_scholar_modify_form($form_state, $pid) {
+  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+  $item = new Fedora_Item($pid);
+  $mods_str = trim($item->get_datastream_dissemination('MODS'));
+  $mods_doc = DOMDocument::loadXML($mods_str);
+  $mods_xpath = new DOMXPath($mods_doc);
+  $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
+  $usage = t('No usage statement');
+  $mods_usages = $mods_xpath->query('//m:mods/m:accessCondition[@type="use and reproduction"]');
+  if ($mods_usages->length > 0) {
+    $usage = $mods_usages->item(0)->textContent;
+  }
+  $version = t('No version statement');
+  $mods_version = $mods_xpath->query('//m:mods/m:physicalDescription[@authority="local"]');
+  if ($mods_versions->length > 0) {
+    $version = $mods_versions->item(0)->textContent;
+  }
+
   return array(
     'pid' => array( //Store the PID.
       '#type' => 'value',
@@ -34,6 +51,16 @@ function islandora_scholar_modify_form($form_state, $pid) {
     'dsid' => array(
       '#type' => 'value',
       '#value' => 'PDF',
+    ),
+    'usage' => array(
+      '#type' => 'item',
+      '#title' => t('Usage'),
+      '#value' => $usage,
+    ),
+    'version' => array(
+      '#type' => 'item',
+      '#title' => t('Publication version'),
+      '#value' => $version,
     ),
     'delete_document' => array(
       '#type' => 'submit',
