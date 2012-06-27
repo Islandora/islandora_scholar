@@ -38,7 +38,7 @@ function islandora_scholar_modify_form($form_state, $pid) {
     $usage = $mods_usages->item(0)->textContent;
   }
   $version = t('No version statement');
-  $mods_version = $mods_xpath->query('//m:mods/m:physicalDescription[@authority="local"]');
+  $mods_versions = $mods_xpath->query('//m:mods/m:physicalDescription[@authority="local"]');
   if ($mods_versions->length > 0) {
     $version = $mods_versions->item(0)->textContent;
   }
