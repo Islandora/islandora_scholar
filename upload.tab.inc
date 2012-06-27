@@ -159,6 +159,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
     $mods_xpath->registerNamespace('m', $mods_ns);
     $mods_doc =& $mods_xpath->document;  //DOMXPath creates a copy...  let's use it instead.
 
+    $mods_element = NULL;
     $mods_elements = $mods_xpath->query('//m:mods');
     if (count($mods_elements) > 0) {
       $mods_element = $mods_elements->item(0);
@@ -174,7 +175,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
     }
 
     $usage_element = NULL;
-    $usage_elements = $mods_xpath->query('//m:mods/m:accessCondition[@type="use and reproduction"]');
+    $usage_elements = $mods_xpath->query('m:accessCondition[@type="use and reproduction"]', $mods_element);
     if (count($usage_elements) > 0) {
       //Found at least one...  Grab the first?
       $usage_element = $usage_elements->item(0);
@@ -193,7 +194,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
     $usage_element->appendChild($mods_doc->createTextNode($usage));
 
     $version_element = NULL;
-    $version_elements = $mods_xpath->query('//m:mods/m:physicalDescription[@authority="local"]');
+    $version_elements = $mods_xpath->query('m:physicalDescription[@authority="local"]', $mods_element);
     if (count($version_elements) > 0) {
       //Found at least one...  Grab the first?
       $version_element = $version_elements->item(0);
