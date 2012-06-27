@@ -173,6 +173,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
       return FALSE;
     }
 
+    $usage_element = NULL;
     $usage_elements = $mods_xpath->query('//m:mods/m:accessCondition[@type="use and reproduction"]');
     if (count($usage_elements) > 0) {
       //Found at least one...  Grab the first?
@@ -191,6 +192,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
     }
     $usage_element->appendChild($mods_doc->createTextNode($usage));
 
+    $version_element = NULL;
     $version_elements = $mods_xpath->query('//m:mods/m:physicalDescription[@authority="local"]');
     if (count($version_elements) > 0) {
       //Found at least one...  Grab the first?
