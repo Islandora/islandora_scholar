@@ -84,7 +84,7 @@ function islandora_scholar_upload_form($form_state, $pid) {
         ),
         '#required' => TRUE,
       ),
-      'use' => array(
+      'usage' => array(
         '#type' => 'radios',
         '#title' => t('Use Permission'),
         '#options' => array(
@@ -176,7 +176,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
 
     $usage_element = NULL;
     $usage_elements = $mods_xpath->query('m:accessCondition[@type="use and reproduction"]', $mods_element);
-    if (count($usage_elements) > 0) {
+    if ($usage_elements->length > 0) {
       //Found at least one...  Grab the first?
       $usage_element = $usage_elements->item(0);
     }
@@ -195,7 +195,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
 
     $version_element = NULL;
     $version_elements = $mods_xpath->query('m:physicalDescription[@authority="local"]', $mods_element);
-    if (count($version_elements) > 0) {
+    if ($version_elements->length > 0) {
       //Found at least one...  Grab the first?
       $version_element = $version_elements->item(0);
     }
