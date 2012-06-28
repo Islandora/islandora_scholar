@@ -50,16 +50,18 @@ function citation_exporter_form_islandora_bibliography_form_alter(&$form, &$form
     //XXX: refresh dealio may break stuff...
     drupal_set_html_head('<meta http-equiv="refresh" content="1.0;' . url(MENU_CITATION_EXPORTER_EXPORT) . '"/>');
   }
-  $form['fieldset']['format']['#options'] = array_merge_recursive($form['fieldset']['format']['#options'], array(
-    t('Bibliography') => array(
-      'PDF' => 'PDF',
-      'RTF' => 'RTF',
-    ),
-    t('Export Data') => array(
-      'RIS' => 'RIS',
-    )
-  ));
-  $form['fieldset']['export']['#submit'][] = 'citation_exporter_islandora_bibliography_export';
+  if (array_key_exists('fieldset', $form)) {
+    $form['fieldset']['format']['#options'] = array_merge_recursive($form['fieldset']['format']['#options'], array(
+      t('Bibliography') => array(
+        'PDF' => 'PDF',
+        'RTF' => 'RTF',
+      ),
+      t('Export Data') => array(
+        'RIS' => 'RIS',
+      )
+    ));
+    $form['fieldset']['export']['#submit'][] = 'citation_exporter_islandora_bibliography_export';
+  }
 }
 
 function citation_exporter_islandora_bibliography_export(&$form, &$form_state) {
