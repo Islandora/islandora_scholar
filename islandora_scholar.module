@@ -1,5 +1,28 @@
 <?php
 
+define('THEME_SCHOLAR_SEARCH_ITEM', 'islandora_scholar_search_item');
+define('THEME_SCHOLAR_SEARCH_ITEM_ALT', 'islandora_scholar_search_alt_item');
+define('THEME_SCHOLAR_SEARCH_TABLE', 'islandora_scholar_search_results_table');
+
+function islandora_scholar_theme() {
+  return array(
+    THEME_SCHOLAR_SEARCH_ITEM => array(
+      'template' => 'templates/SearchItem',
+      'file' => 'includes/SolrResults.inc',
+      'arguments' => array('pid' => NULL, 'style' => NULL)
+    ),
+    THEME_SCHOLAR_SEARCH_ITEM_ALT => array(
+      'template' => 'templates/SearchItem',
+      'file' => 'includes/SolrResults.inc',
+      'arguments' => array('solr_doc' => NULL, 'style' => NULL)
+    ),
+    THEME_SCHOLAR_SEARCH_TABLE => array(
+      'file' => 'includes/SolrResults.inc',
+      'arguments' => array('element' => array()),
+    ),
+  );
+}
+
 /**
  * Implementation of hook_islandora_tabs().
  */
@@ -54,5 +77,19 @@ function islandora_scholar_islandora_object_details_display() {
       'function' => 'islandora_scholar_details',
       'description' => t('Some MODS metadata extracted into a table.'),
     ),
+  );
+}
+
+function islandora_scholar_islandora_solr_primary_display() {
+  return array(
+    'islandora_scholar' => array(
+      'name' => t('Citations'),
+      'module' => 'islandora_scholar',
+      'file' => 'includes/SolrResults.inc',
+      'class' => "IslandoraSolrResultsCitation",
+      'function' => "displayResults",
+      'description' => t("Results are CSL-rendered citations. '.
+        '(Requires MODS streams in objects)"),
+    )
   );
 }

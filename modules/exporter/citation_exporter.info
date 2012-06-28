@@ -1,0 +1,8 @@
+; $Id$
+name = Citation Exporter
+description = Exports a collection of citations to either an RIS/RTF/PDF file.
+package = Islandora Tools
+dependencies[] = citeproc
+dependencies[] = bibutils
+version = 6.x-$Format:%h$-dev
+core = 6.x

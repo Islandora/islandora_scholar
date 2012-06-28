@@ -1,0 +1,8 @@
+; $Id$
+name = Islandora Bibliography
+description = Allows users can build and export bibliographies.
+package = Islandora Tools
+dependencies[] = citeproc
+dependencies[] = fedora_repository
+version = 6.x-$Format:%h$-dev
+core = 6.x

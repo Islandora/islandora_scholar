@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ *
+ */
+
+/**
+ * Implementation of hook_install().
+ */
+function islandora_bibliography_install() {
+  drupal_install_schema('islandora_bibliography');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function islandora_bibliography_uninstall() {
+  drupal_uninstall_schema('islandora_bibliography');
+}
+
+/**
+ * Implementation of hook_schema().
+ *
+ * @return array
+ *   The drupal schema definition.
+ */
+function islandora_bibliography_schema() {
+  $schema['islandora_bibliography'] = array(
+    'description' => t('This table is used to store the pid and uid of the objects a Druapl user has selected.'),
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => t('UID of the Drupal user.'),
+        'type' => 'int',
+        'not null' => TRUE,
+      ),
+      'pid' => array(
+        'description' => t('PID of the Fedora object'),
+        'type' => 'varchar',
+        'length' => 64,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}

@@ -1,0 +1,123 @@
+<?php
+
+/**
+ * @file
+ *
+ * Implements hooks and callbacks for this module.
+ */
+/**
+ * Constants Permission/Menu/Theme
+ */
+define('MENU_BIBLIOGRAPHY_HOME', 'bibliography');
+define('MENU_BIBLIOGRAPHY_CITATION', 'bibliography/citation');
+define('THEME_BIBLIOGRAPHY_FORM_TABLE', 'islandora_bibliography_form_table');
+
+/**
+ * The menu entries for this module.
+ *
+ * @return $menu_entries
+ *   An arrray of the items to be added to the drupal menu
+ */
+function islandora_bibliography_menu() {
+  $items = array();
+  $items[MENU_BIBLIOGRAPHY_HOME] = array(
+    'title' => t('My Bibliography'),
+    'description' => 'Here you can remove or export citations from your bibliography.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_bibliography_form'),
+    'access arguments' => array('access content'),
+    'file' => 'BibliographyForm.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items[MENU_BIBLIOGRAPHY_CITATION] = array(
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_bibliography_citation_form'),
+    'access arguments' => array('access content'),
+    'file' => 'CitationForm.inc',
+    'type' => MENU_CALLBACK,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function islandora_bibliography_theme() {
+  return array(
+    THEME_BIBLIOGRAPHY_FORM_TABLE => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'BibliographyForm.inc',
+    )
+  );
+}
+
+function islandora_bibliography_form_islandora_scholar_search_results_form_alter(&$form, &$form_state) {
+  if (empty($form['controls']['save'])) {
+    $form['controls']['save'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Save to Bibliography'),
+      '#prefix' => '<div class="save-to-bibliography">',
+      '#suffix' => '</div>',
+      'save all' => array(
+        '#type' => 'submit',
+        '#save' => 'all',
+        '#value' => t('Save All Results'),
+        '#submit' => array('islandora_bibliography_save_scholar_results_to_bibliography')
+      ),
+      'save selected' => array(
+        '#type' => 'submit',
+        '#save' => 'selected',
+        '#value' => t('Save Selected'),
+        '#submit' => array('islandora_bibliography_save_scholar_results_to_bibliography'),
+      ),
+      'goto biblio' => array(
+        '#type' => 'submit',
+        '#value' => t('Go to saved Bibliography'),
+        '#submit' => array('islandora_bibliography_goto')
+      )
+    );
+
+    if (!array_key_exists('selections', $form['table']['rows'][0])) {
+      array_unshift($form['table']['#header'], theme('table_select_header_cell'));
+      foreach (element_children($form['table']['rows']) as $child) {
+        //Odd-looking array merge dealio to make the checkboxes be at the left side...
+        $pid = $form['table']['rows'][$child]['#pid'];
+        $form['table']['rows'][$child] = array_merge(array(
+          "selections" => array(
+            '#type' => 'checkbox',
+            '#return_value' => $pid,
+        )), $form['table']['rows'][$child]);
+      }
+    }
+  }
+}
+
+function islandora_bibliography_save_scholar_results_to_bibliography(&$form, &$form_state) {
+  module_load_include('inc', 'islandora_bibliography', 'Bibliography');
+  $action = $form_state['clicked_button']['#save'];
+  $pids = array();
+  if ($action == 'all') {
+    $pids = _islandora_scholar_search_get_all_pids_from_query($form_state);
+  }
+  else {
+    foreach($form_state['values']['table']['rows'] as $row) {
+      if ($row['selections'] !== 0) {
+        $pids[] = $row['selections'];
+      }
+    }
+  }
+  $count = Bibliography::AddCitations($pids);
+  $form_state['storage'] = NULL;
+
+  if ($count > 0) {
+    drupal_set_message(format_plural($count, 'Added 1 citation', 'Added @count citations'));
+  }
+  $existed = count($pids) - $count;
+  if ($existed > 0) {
+    drupal_set_message(format_plural($existed, '1 citation already present', '@count citations already present'));
+  }
+}
+
+function islandora_bibliography_goto() {
+  drupal_goto(MENU_BIBLIOGRAPHY_HOME);
+}
