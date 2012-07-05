@@ -48,6 +48,9 @@ abstract class IslandoraScholarBatchImporter {
   protected $context;
 
   /**
+   * Constructor.
+   *
+   * Just store the passed in parameters in members.
    *
    * @param $file
    *   May be a  bit of a misnomer...  We don't really make any assumptions
@@ -66,10 +69,12 @@ abstract class IslandoraScholarBatchImporter {
    *
    * ... probably checking values.  Might almost be thought of as validation?
    *
+   * @abstract
    * @param $form_state
    *   An array containing the form state.
-   * @return boolean
-   *   Whether or not we have all the info to start the batch.
+   * @return
+   *   A boolean indicating whether or not we have all the info to start the
+   *   batch is available.
    */
   abstract public static function ready_for_batch(&$form_state);
 
@@ -79,6 +84,8 @@ abstract class IslandoraScholarBatchImporter {
    * @param $form_state
    *   An array containing the form state (very likely resulting from the
    *   submission of the form returned from self::get_form
+   * @return
+   *   Whatever (serializable) data will be passed to self::$item_class->get_one()
    */
   abstract public static function get_batch_info(&$form_state);
 
@@ -137,7 +144,7 @@ abstract class IslandoraScholarBatchImporter {
       && (
         $this->context['sandbox']['progress'] < $this->context['sandbox']['max']
       )) {
-      $item = $item_class::get_one($this->file, $this->parent_pid);
+      $item = $item_class::get_one($this->file);
 
       $result = NULL;
       if ($item) {
@@ -151,7 +158,7 @@ abstract class IslandoraScholarBatchImporter {
         }
         $pid = array_shift($this->context['results']['pid_cache']);
 
-        $result = $item->write_to_fedora($pid);
+        $result = $item->write_to_fedora($pid, $this->parent_pid);
 
         if ($result === NULL) {
           //We failed...
@@ -209,7 +216,7 @@ abstract class IslandoraScholarImportObject {
    *
    * Return NULL if there's none to get.
    */
-  public static abstract function get_one(&$source, $parent_pid);
+  public static abstract function get_one(&$source);
 
   /**
    * Private constructor.
@@ -220,7 +227,7 @@ abstract class IslandoraScholarImportObject {
    * Need to extract the title in here somewhere...
    * @param $source
    */
-  protected abstract function __construct($source, $parent_pid);
+  protected abstract function __construct($source);
 
   /**
    * Create some MODS representing us.
@@ -254,7 +261,7 @@ abstract class IslandoraScholarImportObject {
   /**
    * Write this item to Fedora.
    */
-  public function write_to_fedora($pid = NULL) {
+  public function write_to_fedora($pid = NULL, $parent_pid = NULL) {
     global $user;
     module_load_include('inc', 'fedora_item', 'api/fedora_item');
     static $pid_cache = array();
@@ -277,7 +284,7 @@ abstract class IslandoraScholarImportObject {
           }
           else {
             $item->add_relationship('hasModel', 'ir:citationCModel', FEDORA_MODEL_URI);
-            $item->add_relationship('isMemberOfCollection', $this->parent_pid);
+            $item->add_relationship('isMemberOfCollection', $parent_pid);
           }
         }
         else {

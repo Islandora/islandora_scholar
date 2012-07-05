@@ -2,6 +2,10 @@
 
 module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
 
+/**
+ * RIS citation importer.
+ * @author adam
+ */
 class RISImporter extends IslandoraScholarBatchImporter {
   protected $item_class = 'RISImportObject';
 
@@ -56,8 +60,14 @@ class RISImporter extends IslandoraScholarBatchImporter {
   }
 }
 
+/**
+ * RIS import object.
+ *
+ * Actually does the heavy-lifting during the import.
+ * @author adam
+ */
 class RISImportObject extends IslandoraScholarImportObject {
-  public static function get_one(&$file, $parent_pid) {
+  public static function get_one(&$file) {
     $record = '';
 
     /**
@@ -98,9 +108,7 @@ class RISImportObject extends IslandoraScholarImportObject {
 
   protected $mods;
 
-  protected function __construct($source, $parent_pid) {
-    $this->parent_pid = $parent_pid;
-
+  protected function __construct($source) {
     $ris_file = file_create_filename('temp.ris', file_directory_path());
     file_put_contents($ris_file, $source);
     $mods_file = file_create_filename('temp_mods.xml', file_directory_path());
