@@ -1,0 +1,238 @@
+<?php
+
+/**
+ * Implementation of hook_islandora_tabs().
+ */
+function islandora_scholar_importer_islandora_tabs($models, $pid, $page) {
+  $options = module_invoke_all('islandora_scholar_importer');
+
+  $tabset = array();
+
+  if (count($options) > 0) {
+    $citation_collection = FALSE;
+
+    $citation_collection = ($pid == 'ir:citationCollection');
+    if (!$citation_collection) {
+      $match_models = array('ir:citationCollectionCModel');
+      foreach ($models as $model) {
+        if (in_array($model->pid, $match_models)) {
+          $citation_collection = TRUE;
+          break;
+        }
+      }
+    }
+
+    if ($citation_collection) {
+      $tabset += array(
+        'islandora_scholar_import' => array(
+          '#type' => 'tabpage',
+          '#title' => t('Import'),
+          '#tab_name' => 'scholar-import',
+          '#content' => drupal_get_form('islandora_scholar_importer_form', $pid, $options),
+        ),
+      );
+    }
+  }
+
+  return $tabset;
+}
+
+/**
+ * Multi-step form builder.
+ *
+ * Initially, allows the user to select an importer; when a selection has been
+ * made, get the form from the "batch class".
+ *
+ * @param $form_state
+ *   A reference to the array containing the form state.
+ * @param $parent_pid
+ *   A string containing the Fedora collection PID into which we will import
+ *   citations.
+ * @param $options
+ *   An array of importer info, of the form:
+ *   array(
+ *     'machine-name' => array(
+ *       'type' => ...,
+ *       'module' => ...,
+ *       'file' => ...,
+ *       'title' => t(...),
+ *       'class' => ...,
+ *     ),
+ *   )
+ *   The first three (type, module and file) correspond to the parameters for
+ *   module_load_include.  Title is used as the label, and the class is on
+ *   which extends IslandoraScholarBatchImporter
+ *   (defined in islandora_scholar_importer.inc; just implementing the abstract
+ *   methods and using your custom "item class" should suffice)
+ * @return array
+ *   An array describing the form structure.
+ */
+function islandora_scholar_importer_form(&$form_state, $parent_pid = NULL, $options = NULL) {
+  if (isset($form_state['storage']['importer'])) {
+    //Importers need something like:
+    //
+    // The first three correspond the the parameters to module_load_include,
+    //   and the class is one which extends IslandoraScholarBatchImporter
+    //   (which is defined in islandora_scholar_importer.inc)
+    extract($form_state['storage']['importer']);
+    module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
+    module_load_include($type, $module, $file);
+    if (is_subclass_of($class, 'IslandoraScholarBatchImporter')) {
+      return $class::get_form($form_state);
+    }
+    else {
+      drupal_set_message(t('The %title importer does not correctly subclass' .
+        ' IslandoraScholarBatchImporter...  Inform the particular importer module\'s ' .
+        'maintainer!', array('%title' => $title)), 'error');
+      unset($form_state['storage']['options'][$form_state['storage']['importer_name']]);
+      unset($form_state['storage']['importer']);
+    }
+  }
+
+  if (!isset($form_state['storage']['importer'])) {
+    if (!isset($form_state['storage']['options']) && $options !== NULL) {
+      $form_state['storage']['options'] = $options;
+    }
+    if (count($options) > 0) {
+      $ops = array();
+      foreach (array_keys($options) as $op) {
+        $ops[$op] = $options[$op]['title'];
+      }
+
+      if (!isset($form_state['storage']['parent_pid'])) {
+        $form_state['storage']['parent_pid'] = $parent_pid;
+      }
+
+      return array(
+        'importer' => array(
+          '#type' => 'select',
+          '#title' => t('Importer'),
+          '#description' => t('Select which importer to use.'),
+          '#options' => $ops,
+        ),
+        'submit' => array(
+          '#type' => 'submit',
+          '#value' => t('Submit'),
+        ),
+        '#action' => url("fedora/repository/$parent_pid", array(
+          'fragment' => 'scholar-import',
+        )),
+      );
+    }
+    else {
+      drupal_set_message(t('There are no valid importer plugins enabled.'), 'error');
+      return array();
+    }
+  }
+}
+
+/**
+ * Default batch form submit handler.
+ *
+ * If we do not have an importer (we're selecting one), save the selection into
+ * storage.
+ * If we do (and are of course not being overridden by the form from an
+ * individual importer plugin), we ask the batch class if we have what they need,
+ * (providing them with the form state to check) and if so, ask for them to
+ * package up what they need into a serializable format to pass along in a
+ * batch operation and finally kick off the batch process.
+ *
+ * @param $form
+ *   An array containing the form structure.
+ * @param $form_state
+ *   An array containing the form state.
+ */
+function islandora_scholar_importer_form_submit(&$form, &$form_state) {
+  if (isset($form_state['storage']['importer'])) {
+    extract($form_state['storage']['importer']);
+    module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
+    module_load_include($type, $module, $file);
+    if (is_subclass_of($class, 'IslandoraScholarBatchImporter') && $class::ready_for_batch($form_state)) {
+      $batch = array(
+        'title' => t('Islandora Scholar Batch Import'),
+        'operations' => array(),
+        'finished' => 'islandora_scholar_importer_batch_finished',
+      );
+
+      $batch['operations'][] = array(
+        'islandora_scholar_importer_run_batch', array(
+          $form_state['storage']['importer'],
+          $class::get_batch_info($form_state),
+          $form_state['storage']['parent_pid'],
+        )
+      );
+
+      //Storage contents break the final redirect, so get rid of 'em.
+      unset($form_state['storage']);
+
+      //XXX: Allow modules to alter...  Don't know if this is really a good idea or not.
+      drupal_alter('islandora_scholar_importer_batch', $batch);
+
+      //Set and start the batch.
+      batch_set($batch);
+      batch_process();
+    }
+  }
+  else {
+    $importer_name = $form_state['values']['importer'];
+    $form_state['storage']['importer_name'] = $importer_name;
+    $form_state['storage']['importer'] = $form_state['storage']['options'][$importer_name];
+
+    if (!isset($form_state['storage']['parent_pid'])) {
+      $form_state['storage']['parent_pid'] = $form_state['values']['parent_pid'];
+    }
+  }
+}
+
+/**
+ * Callback actually used as the batch operation.
+ *
+ * XXX:  This function shouldn't really be necessary, but is due to Drupal.
+ *   If "is_callable" was used (in _batch_process, I believe?), we could pass
+ *   along a (serializable) instantition of the importer class and the name
+ *   of the method to call on it...  Instead, we need to pass the name of
+ *   a function due to the use of "function_exists".
+ * @param $class_info
+ *   The associative array defining where to find the importer class.
+ * @param $import_info
+ *   The data with which to instantiate the importer class.
+ * @param $parent_pid
+ *   A string containing a Fedora collection PID, into which objects should
+ *   imported.
+ * @param $context
+ *   An array containing the Drupal batch context.
+ */
+function islandora_scholar_importer_run_batch($class_info, $import_info, $parent_pid, &$context) {
+  extract($class_info);
+  module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
+  module_load_include($type, $module, $file);
+  if (is_subclass_of($class, 'IslandoraScholarBatchImporter')) {
+    $instance = new $class($import_info, $parent_pid, $context);
+    $instance->run_batch();
+  }
+}
+
+/**
+ * Batch finished callback.
+ *
+ * Dumps all results on success, informs of failed operations on failure.
+ * (via drupal_set_message).
+ *
+ * @param $success
+ *   A boolean indicating success
+ * @param $results
+ *   An array of results (from the $context['results']
+ * @param $ops
+ *   An array of failed operations.
+ */
+function islandora_scholar_importer_batch_finished($success, $results, $ops) {
+  if ($success) {
+    unset($results['pid_cache']);
+    foreach ($results as $result) {
+      drupal_set_message($result, 'info');
+    }
+  }
+  else {
+    drupal_set_message("Failed operations: " . print_r($ops, TRUE), 'error');
+  }
+}
