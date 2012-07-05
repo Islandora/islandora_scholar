@@ -133,17 +133,19 @@ abstract class IslandoraScholarBatchImporter {
     //Assume we'll have enough time if less than 1/3 of the execution time has passed.
     //  If it's zero, we should have an infinite amount of time (running the batch
     //  from drush?)
-    $met = intval(ini_get('max_execution_time')) * 1000;
+    $max_exec_time = intval(ini_get('max_execution_time')) * 1000;
     while ((
-      $met > 0
+      $max_exec_time === 0
         ||
-      timer_read($this->timer_name) < ($met / 3)
+      ($max_exec_time > 0 && timer_read($this->timer_name) < ($max_exec_time / 3))
         || (
       $this->context['sandbox']['progress'] - $initial_progress == 0
       ))
       && (
         $this->context['sandbox']['progress'] < $this->context['sandbox']['max']
       )) {
+
+      //Extract an item from the source info.
       $item = $item_class::get_one($this->file);
 
       $result = NULL;
@@ -161,6 +163,7 @@ abstract class IslandoraScholarBatchImporter {
         $result = $item->write_to_fedora($pid, $this->parent_pid);
 
         if ($result === NULL) {
+          // Writing to fedora didn't work.
           //We failed...
           $this->context['results'][] = t('Failed to import title %title at item number %num.', array(
             '%title' => $item->get_title(),
@@ -168,9 +171,10 @@ abstract class IslandoraScholarBatchImporter {
         }
       }
       else {
+        //$item::get_one didn't return anything...
         $this->context['results'][] = t('Failed to extract information for import item number %num.', array(
           '%num' => $this->context['sandbox']['progress'],
-          ));
+        ));
       }
 
       $this->context['sandbox']['progress']++;
