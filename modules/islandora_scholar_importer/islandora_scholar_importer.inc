@@ -2,7 +2,9 @@
 
 /**
  * Importer interface for the heavy-lifting.
+ *
  * @file
+ * @author adam@discoverygarden.ca
  */
 
 /**
@@ -10,6 +12,8 @@
  *
  * Implement the abstract functions (and those in the Import Object/item class)
  * and it should be able to work.
+ *
+ * @author adam@discoverygarden.ca
  */
 abstract class IslandoraScholarBatchImporter {
   /**
@@ -132,7 +136,8 @@ abstract class IslandoraScholarBatchImporter {
 
     //Assume we'll have enough time if less than 1/3 of the execution time has passed.
     //  If it's zero, we should have an infinite amount of time (running the batch
-    //  from drush?)
+    //  from drush?)...  Also, force us to try at least once, to avoid getting stuck
+    //  in the batch loop forever.
     $max_exec_time = intval(ini_get('max_execution_time')) * 1000;
     while ((
       $max_exec_time === 0
@@ -195,28 +200,30 @@ abstract class IslandoraScholarBatchImporter {
   }
 }
 
+/**
+ * A base object (MODS + DC) which can write itself out to Fedora.
+ *
+ * Might be a good idea to make use of static caching (using static variable)
+ * within getter methods.
+ *
+ * @author adam@discoverygarden.ca
+ */
 abstract class IslandoraScholarImportObject {
   public $pid_namespace = 'ir';
   public $pid_cache_size = 2;
 
-  protected $title = 'No title';
-
   /**
-   * Get the title.
-   *
-   * @return string
-   *   A string containing the title (eventually used as a label).
+   * Used to store the source data in the default implementation.
+   * @var unknown_type
    */
-  public function get_title() {
-    return $title;
-  }
+  protected $source;
 
   /**
    * Get an item from the source
    *
-   * Get one item from the source, and write the results back less
-   * the one you're getting.  Return an instantiation of this class
-   * representing the one extracted from the source.
+   * Extract one item from the source (modifying the source such that in no
+   * longer contains the one being extracted).  Return an instantiation of
+   * this class representing the one extracted from the source.
    *
    * Return NULL if there's none to get.
    */
@@ -228,23 +235,38 @@ abstract class IslandoraScholarImportObject {
    * Instantiations should be obtained via the "get_one" static method, which
    * should know how to extract and feed what is needed to the constructor.
    *
-   * Need to extract the title in here somewhere...
+   * Default implementation just saves the source.
+   *
    * @param $source
    */
-  protected abstract function __construct($source);
+  protected function __construct($source) {
+    $this->source = $source;
+  }
+
+  /**
+   * Get the title.
+   *
+   * @return string
+   *   A string containing the title (eventually used as a label).
+   */
+  public abstract function get_title();
 
   /**
    * Create some MODS representing us.
    *
    * Don't really care how it is obtained, as long as it's a string containing
-   * MODS XML.
+   * MODS XML.  Statically caching your result may be a good idea, to avoid
+   * regenerating it.
    *
-   * @return string
+   * @return
+   *   A string containing MODS XML.
    */
   protected abstract function get_mods();
 
   /**
    * Create some DC representing us.
+   *
+   * Default implementation transforms MODS.
    *
    * @return string
    *   A string containing DC XML.
@@ -276,28 +298,43 @@ abstract class IslandoraScholarImportObject {
       $pid = array_shift($pid_cache);
     }
 
-    $success = $item = Fedora_Item::ingest_new_item($pid, 'A', $this->title);
-    if ($success) {
-      $success = $item->add_datastream_from_string($this->get_mods(), 'MODS', 'MODS Record', 'text/xml', 'X');
-      if ($success) {
-        $dc = $this->get_dc();
-        if ($dc) {
-          $item->modify_datastream($this->get_dc(), 'DC', 'DC Record', 'text/xml');
-          if (!$success) {
-            drupal_set_message(t('Failed to upload DC to @pid in Fedora.', array('@pid' => $pid)));
-          }
-          else {
-            $item->add_relationship('hasModel', 'ir:citationCModel', FEDORA_MODEL_URI);
-            $item->add_relationship('isMemberOfCollection', $parent_pid);
-          }
-        }
-        else {
-          drupal_set_message(t('Failed to produce DC for @pid.', array('@pid' => $pid)));
+    $ingested = $item = Fedora_Item::ingest_new_item($pid, 'A', $this->get_title());
+    if ($ingested) {
+      //Ingest the MODS.
+      $obtained_mods = $this->get_mods();
+      if ($obtained_mods) {
+        $added_mods = $item->add_datastream_from_string($obtained_mods, 'MODS', 'MODS Record', 'text/xml', 'X');
+        if (!$added_mods) {
+          drupal_set_message(t('Failed to upload MODS to @pid in Fedora.', array('@pid' => $pid)), 'error');
         }
       }
       else {
-        drupal_set_message(t('Failed to upload MODS to @pid in Fedora.', array('@pid' => $pid)), 'error');
+        drupal_set_message(t('Failed to produce MODS for @pid.', array('@pid' => $pid)));
       }
+
+      //Ingest the DC second (
+      $obtained_dc = $this->get_dc();
+      if ($obtained_dc) {
+        $added_dc = $item->modify_datastream($obtained_dc, 'DC', 'DC Record', 'text/xml');
+        if (!$added_dc) {
+          drupal_set_message(t('Failed to upload DC to @pid in Fedora.', array('@pid' => $pid)));
+        }
+      }
+      else {
+        drupal_set_message(t('Failed to produce DC for @pid.', array('@pid' => $pid)));
+      }
+
+      //XXX:  Parameterize the content model.
+      $success = $item->add_relationship('hasModel', 'ir:citationCModel', FEDORA_MODEL_URI);
+      if (!$success) {
+        drupal_set_message(t('Failed to add model relation to @pid in Fedora.', array('@pid' => $pid)));
+      }
+
+      $success = $item->add_relationship('isMemberOfCollection', $parent_pid);
+      if (!$success) {
+        drupal_set_message(t('Failed to add parent relation to @pid in Fedora.', array('@pid' => $pid)));
+      }
+      return $success;
     }
     else {
       drupal_set_message(t('Failed to create item @pid in Fedora.', array('@pid' => $pid)), 'error');
