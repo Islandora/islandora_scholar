@@ -21,24 +21,6 @@ class RISImporter extends IslandoraScholarBatchImporter {
     return $count;
   }
 
-  public static function ready_for_batch(&$form_state) {
-    if (empty($form_state['values']['file'])) {
-      $file = file_save_upload('file');
-      if ($file) {
-        $form_state['values']['file'] = $file;
-      }
-    }
-
-    dsm($form_state, 'ready');
-
-    return !empty($form_state['values']['file']);
-  }
-
-  public static function get_batch_info(&$form_state) {
-     $file = $form_state['values']['file'];
-     return $file;
-  }
-
   public static function get_form(&$form_state) {
     return array(
       'fs' => array(
@@ -57,6 +39,24 @@ class RISImporter extends IslandoraScholarBatchImporter {
         'enctype' => 'multipart/form-data',
       ),
     );
+  }
+
+  public static function ready_for_batch(&$form_state) {
+    if (empty($form_state['values']['file'])) {
+      $file = file_save_upload('file');
+      if ($file) {
+        $form_state['values']['file'] = $file;
+      }
+    }
+
+    dsm($form_state, 'ready');
+
+    return !empty($form_state['values']['file']);
+  }
+
+  public static function get_batch_info(&$form_state) {
+     $file = $form_state['values']['file'];
+     return $file;
   }
 }
 
@@ -106,38 +106,36 @@ class RISImportObject extends IslandoraScholarImportObject {
       new self($record, $parent_pid)); //XXX:  Be careful with "self"?  PHP is odd.
   }
 
-  protected $mods;
-
-  protected function __construct($source) {
-    $ris_file = file_create_filename('temp.ris', file_directory_path());
-    file_put_contents($ris_file, $source);
-    $mods_file = file_create_filename('temp_mods.xml', file_directory_path());
-
-    module_load_include('inc', 'bibutils', 'Bibutils');
-    Bibutils::Convert($ris_file, 'RIS', $mods_file, 'MODS');
-
-    $this->mods = file_get_contents($mods_file);
-
-    //Extract title...
-    $this->title = '';
-
-    file_delete($ris_file);
-    file_delete($mods_file);
-  }
-
   public function get_title() {
-    if (empty($this->title)) {
-      $mods_doc = DOMDocument::loadXML($this->mods);
+    static $title = NULL;
+    if ($title === NULL) {
+      $mods_doc = DOMDocument::loadXML($this->get_mods());
       $mods_xpath = new DOMXPath($mods_doc);
       $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
 
-      $this->title = $mods_xpath->evaluate('string(//m:mods/m:titleInfo/m:title/text())');
+      $title = $mods_xpath->evaluate('string(//m:mods/m:titleInfo/m:title/text())');
     }
 
-    return $this->title;
+    return $title;
   }
 
   protected function get_mods() {
-    return $this->mods;
+    static $mods = NULL;
+
+    if ($mods === NULL) {
+      $ris_file = file_create_filename('temp.ris', file_directory_path());
+      file_put_contents($ris_file, $this->source);
+      $mods_file = file_create_filename('temp_mods.xml', file_directory_path());
+
+      module_load_include('inc', 'bibutils', 'Bibutils');
+      Bibutils::Convert($ris_file, 'RIS', $mods_file, 'MODS');
+
+      $mods = file_get_contents($mods_file);
+
+      file_delete($ris_file);
+      file_delete($mods_file);
+    }
+
+    return $mods;
   }
 }
