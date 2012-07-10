@@ -165,21 +165,19 @@ abstract class IslandoraScholarBatchImporter {
         }
         $pid = array_shift($this->context['results']['pid_cache']);
 
-        $result = $item->write_to_fedora($pid, $this->parent_pid);
+        $results = $item->write_to_fedora($pid, $this->parent_pid);
 
-        if ($result === NULL) {
-          // Writing to fedora didn't work.
-          //We failed...
-          $this->context['results'][] = t('Failed to import title %title at item number %num.', array(
-            '%title' => $item->get_title(),
-            '%num' => $this->context['sandbox']['progress']));
-        }
+        $this->context['results'] = array_merge($this->context['results'], $results);
       }
       else {
         //$item::get_one didn't return anything...
-        $this->context['results'][] = t('Failed to extract information for import item number %num.', array(
-          '%num' => $this->context['sandbox']['progress'],
-        ));
+        $this->context['results'][] = array(
+          t('Failed to extract information for import item number %num.'),
+          array(
+            '%num' => $this->context['sandbox']['progress'],
+          ),
+          'error'
+        );
       }
 
       $this->context['sandbox']['progress']++;
@@ -219,6 +217,13 @@ abstract class IslandoraScholarImportObject {
   protected $source;
 
   /**
+   * Should not really be necessary as a member variable; however,  PHP apparently
+   * does not reinstantialize static variables inside methods for different.
+   * @var unknown_type
+   */
+  protected $dc = NULL, $title = NULL;
+
+  /**
    * Get an item from the source
    *
    * Extract one item from the source (modifying the source such that in no
@@ -246,10 +251,23 @@ abstract class IslandoraScholarImportObject {
   /**
    * Get the title.
    *
+   * By default, should just get the first titleInfo/title out of the generated
+   * MODS.
+   *
    * @return string
    *   A string containing the title (eventually used as a label).
    */
-  public abstract function get_title();
+  public function get_title() {
+    if ($this->title === NULL) {
+      $mods_doc = DOMDocument::loadXML($this->get_mods());
+      $mods_xpath = new DOMXPath($mods_doc);
+      $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
+
+      $this->title = $mods_xpath->evaluate('string(//m:mods/m:titleInfo/m:title/text())');
+    }
+
+    return $this->title;
+  }
 
   /**
    * Create some MODS representing us.
@@ -272,31 +290,30 @@ abstract class IslandoraScholarImportObject {
    *   A string containing DC XML.
    */
   protected function get_dc() {
-    $transform_filename = drupal_get_path('module', 'islandora_scholar_importer') . '/xsl/mods_to_dc.xsl';
-    $transform = new DOMDocument();
-    $transform->load($transform_filename);
-    $doc = DOMDocument::loadXML($this->mods);
-    if (isset($doc->documentElement)) {
-      $xslt = new XSLTProcessor();
-      $xslt->importStyleSheet($transform);
-      $doc = $xslt->transformToDoc($doc->documentElement);
-      return $doc->saveXML();
+    if ($this->dc === NULL) {
+      $transform_filename = drupal_get_path('module', 'islandora_scholar_importer') . '/xsl/mods_to_dc.xsl';
+      $transform = new DOMDocument();
+      $transform->load($transform_filename);
+      $doc = DOMDocument::loadXML($this->get_mods());
+      if (isset($doc->documentElement)) {
+        $xslt = new XSLTProcessor();
+        $xslt->importStyleSheet($transform);
+        $doc = $xslt->transformToDoc($doc->documentElement);
+        $this->dc = $doc->saveXML();
+      }
     }
+
+    return $this->dc;
   }
 
   /**
    * Write this item to Fedora.
    */
-  public function write_to_fedora($pid = NULL, $parent_pid = NULL) {
+  public function write_to_fedora($pid, $parent_pid = NULL) {
     global $user;
     module_load_include('inc', 'fedora_item', 'api/fedora_item');
-    static $pid_cache = array();
-    if ($pid === NULL) {
-      if (empty($pid_cache)) {
-        $pid_cache = Fedora_Item::get_next_PID_in_namespace($this->pid_namespace, $this->pid_cache_size);
-      }
-      $pid = array_shift($pid_cache);
-    }
+
+    $to_return = array();
 
     $ingested = $item = Fedora_Item::ingest_new_item($pid, 'A', $this->get_title());
     if ($ingested) {
@@ -305,11 +322,21 @@ abstract class IslandoraScholarImportObject {
       if ($obtained_mods) {
         $added_mods = $item->add_datastream_from_string($obtained_mods, 'MODS', 'MODS Record', 'text/xml', 'X');
         if (!$added_mods) {
-          drupal_set_message(t('Failed to upload MODS to @pid in Fedora.', array('@pid' => $pid)), 'error');
+          $to_return[] = array(
+            t('Failed to upload MODS to @pid in Fedora.'),
+            array('@pid' => $pid),
+            WATCHDOG_DEBUG,
+            l($pid, "fedora/repository/$pid"),
+          );
         }
       }
       else {
-        drupal_set_message(t('Failed to produce MODS for @pid.', array('@pid' => $pid)));
+        $to_return[] = array(
+          t('Failed to produce MODS for @pid.'),
+          array('@pid' => $pid),
+          WATCHDOG_DEBUG,
+          l($pid, "fedora/repository/$pid"),
+        );
       }
 
       //Ingest the DC second (
@@ -317,27 +344,82 @@ abstract class IslandoraScholarImportObject {
       if ($obtained_dc) {
         $added_dc = $item->modify_datastream($obtained_dc, 'DC', 'DC Record', 'text/xml');
         if (!$added_dc) {
-          drupal_set_message(t('Failed to upload DC to @pid in Fedora.', array('@pid' => $pid)));
+          $to_return[] = array(
+            t('Failed to upload DC to @pid in Fedora.'),
+            array(
+              '@pid' => $pid
+            ),
+            WATCHDOG_DEBUG,
+            l($pid, "fedora/repository/$pid"),
+          );
         }
       }
       else {
-        drupal_set_message(t('Failed to produce DC for @pid.', array('@pid' => $pid)));
+        $to_return[] = array(
+          t('Failed to produce DC for @pid.'),
+          array(
+            '@pid' => $pid,
+          ),
+          WATCHDOG_DEBUG,
+          l($pid, "fedora/repository/$pid"),
+        );
       }
 
       //XXX:  Parameterize the content model.
       $success = $item->add_relationship('hasModel', 'ir:citationCModel', FEDORA_MODEL_URI);
       if (!$success) {
-        drupal_set_message(t('Failed to add model relation to @pid in Fedora.', array('@pid' => $pid)));
+        $to_return[] = array(
+          t('Failed to add model relation to @pid in Fedora.'),
+          array(
+            '@pid' => $pid,
+          ),
+          WATCHDOG_DEBUG,
+          l($pid, "fedora/repository/$pid"),
+        );
       }
 
       $success = $item->add_relationship('isMemberOfCollection', $parent_pid);
       if (!$success) {
-        drupal_set_message(t('Failed to add parent relation to @pid in Fedora.', array('@pid' => $pid)));
+        $to_return[] = array(
+          t('Failed to add parent relation to @pid in Fedora.'),
+          array(
+            '@pid' => $pid
+          ),
+          WATCHDOG_DEBUG,
+          l($pid, "fedora/repository/$pid"),
+        );
       }
-      return $success;
+
+      if (count($to_return) > 0) {
+        $to_return[] = array(
+          t('There seem to have been issues ingesting "%title" as %pid.'),
+          array(
+            '%pid' => $pid,
+            '%title' => $this->get_title()),
+          WATCHDOG_ERROR,
+          l($pid, "fedora/repository/$pid"),
+        );
+      }
+      else {
+        $to_return[] = array(
+          t('Ingested "%title" as %pid.'),
+          array(
+            '%title' => $this->get_title(),
+            '%pid' => $pid,
+          ),
+          WATCHDOG_INFO,
+          l($pid, "fedora/repository/$pid"),
+        );
+      }
     }
     else {
-      drupal_set_message(t('Failed to create item @pid in Fedora.', array('@pid' => $pid)), 'error');
+      $to_return[] = array(
+        t('Failed to create item @pid in Fedora.'),
+        array('@pid' => $pid),
+        WATCHDOG_ERROR
+      );
     }
+
+    return $to_return;
   }
 }

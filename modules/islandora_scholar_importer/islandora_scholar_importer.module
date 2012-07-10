@@ -228,8 +228,41 @@ function islandora_scholar_importer_run_batch($class_info, $import_info, $parent
 function islandora_scholar_importer_batch_finished($success, $results, $ops) {
   if ($success) {
     unset($results['pid_cache']);
+
+    $filename = file_create_filename('batch_import_results.html', file_directory_path());
+    $file = fopen($filename, 'w');
+    fputs($file, '<html><body><ol>');
+    $levels = watchdog_severity_levels();
     foreach ($results as $result) {
-      drupal_set_message($result, 'info');
+      $message = $result[0];
+      $subs = (array)$result[1];
+      $level = (isset($result[2]) && array_key_exists($result[2], $levels))?
+        $result[2]:
+        WATCHDOG_INFO;
+      $link = isset($result[3])?
+        $result[3]:
+        '';
+
+      fputs($file, '<li>' . $levels[$level] . ': ' . t($message, $subs) . ((!empty($link))?
+        ('  ' . t('Link: !link.', array('!link' => $link))):
+        '') . "</li>");
+
+      array_unshift($result, 'islandora_scholar_importer');
+      call_user_func_array('watchdog', $result);
+    }
+    fputs($file, '</ol></body></html>');
+    fclose($file);
+
+    if (user_access('access site reports')) {
+      drupal_set_message(t('Batch complete!  View/Download !results or see the !watchdog for details.', array(
+        '!results' => l(t('simple results'), file_create_url($filename)),
+        '!watchdog' => l(t('watchdog log'), 'admin/reports/dblog'),
+      )), 'info');
+    }
+    else {
+      drupal_set_message(t('Batch complete!  View/Download !results.', array(
+        '!results' => l(t('simple results'), file_create_url($filename)),
+      )), 'info');
     }
   }
   else {
