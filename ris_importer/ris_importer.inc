@@ -49,8 +49,6 @@ class RISImporter extends IslandoraScholarBatchImporter {
       }
     }
 
-    dsm($form_state, 'ready');
-
     return !empty($form_state['values']['file']);
   }
 
@@ -67,6 +65,8 @@ class RISImporter extends IslandoraScholarBatchImporter {
  * @author adam
  */
 class RISImportObject extends IslandoraScholarImportObject {
+  protected $mods;
+
   public static function get_one(&$file) {
     $record = '';
 
@@ -106,23 +106,8 @@ class RISImportObject extends IslandoraScholarImportObject {
       new self($record, $parent_pid)); //XXX:  Be careful with "self"?  PHP is odd.
   }
 
-  public function get_title() {
-    static $title = NULL;
-    if ($title === NULL) {
-      $mods_doc = DOMDocument::loadXML($this->get_mods());
-      $mods_xpath = new DOMXPath($mods_doc);
-      $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
-
-      $title = $mods_xpath->evaluate('string(//m:mods/m:titleInfo/m:title/text())');
-    }
-
-    return $title;
-  }
-
   protected function get_mods() {
-    static $mods = NULL;
-
-    if ($mods === NULL) {
+    if ($this->mods === NULL) {
       $ris_file = file_create_filename('temp.ris', file_directory_path());
       file_put_contents($ris_file, $this->source);
       $mods_file = file_create_filename('temp_mods.xml', file_directory_path());
@@ -130,12 +115,12 @@ class RISImportObject extends IslandoraScholarImportObject {
       module_load_include('inc', 'bibutils', 'Bibutils');
       Bibutils::Convert($ris_file, 'RIS', $mods_file, 'MODS');
 
-      $mods = file_get_contents($mods_file);
+      $this->mods = file_get_contents($mods_file);
 
       file_delete($ris_file);
       file_delete($mods_file);
     }
 
-    return $mods;
+    return $this->mods;
   }
 }

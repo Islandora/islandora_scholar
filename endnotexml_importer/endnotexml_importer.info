@@ -1,0 +1,6 @@
+name = EndNoteXML Importer
+description = Importer plugin for EndNoteXML files.
+package = Islandora Tools
+dependencies[] = islandora_scholar_importer
+version = 6.x-dev
+core = 6.x

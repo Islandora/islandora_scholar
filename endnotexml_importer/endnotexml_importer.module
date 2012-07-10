@@ -1,0 +1,13 @@
+<?php
+
+function endnotexml_importer_islandora_scholar_importer() {
+  return array(
+    'endnotexml_importer' => array(
+      'type' => 'inc',
+      'module' => 'endnotexml_importer',
+      'file' => 'endnotexml_importer',
+      'title' => t('EndNote XML Importer'),
+      'class' => 'EndNoteXMLImporter',
+    )
+  );
+}
