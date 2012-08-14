@@ -22,7 +22,7 @@ function islandora_scholar_importer_islandora_tabs($models, $pid, $page) {
       }
     }
 
-    if ($citation_collection) {
+    if ($citation_collection && user_access('ingest new fedora objects')) {
       $tabset += array(
         'islandora_scholar_import' => array(
           '#type' => 'tabpage',
