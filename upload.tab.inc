@@ -63,6 +63,7 @@ function islandora_scholar_modify_form($form_state, $pid) {
       '#value' => $version,
     ),
     'delete_document' => array(
+      '#name' => 'delete_document',
       '#type' => 'submit',
       '#value' => t('Delete Document/PDF'),
     ),
@@ -70,22 +71,25 @@ function islandora_scholar_modify_form($form_state, $pid) {
 }
 
 function islandora_scholar_modify_form_submit($form, &$form_state) {
-  //TODO:  Remove the PDF (and derivatives) if the button is clicked.
   extract($form_state['values']);
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   $item = new Fedora_Item($pid);
-  $status = $item->purge_datastream($dsid);
 
-  if ($status === NULL) {
-    drupal_set_message(t('DON\'T PANIC!, but we may have failed purging the ' .
-      'datastream...  Some info for Adam: @info', array('@info' => print_r($status, TRUE))));
+  if ($form_state['clicked_button']['#name'] == 'delete_document') {
+    //TODO:  Also remove the PDF's derivatives.
+    $status = $item->purge_datastream($dsid);
+
+    if ($status === NULL) {
+      drupal_set_message(t('DON\'T PANIC!, but we may have failed purging the ' .
+        'datastream...  Some debug info: @info', array('@info' => print_r($status, TRUE))));
+    }
   }
 }
 
-function islandora_scholar_upload_form($form_state, $pid) {
+function islandora_scholar_upload_form(&$form_state, $pid) {
   return array(
     '#type' => 'form',
-    array(
+    'upload_document' => array(
       '#type' => 'fieldset',
       '#title' => t('Upload Document'),
       'pid' => array(
@@ -133,7 +137,6 @@ function islandora_scholar_upload_form($form_state, $pid) {
         '#value' => t('Upload'),
       ),
     ),
-    //'#redirect' => array("fedora/repository/$pid", NULL, 'attach-doc'),
     '#action' => url("fedora/repository/$pid", array('fragment' => 'attach-doc')),
     '#attributes' => array('enctype' => "multipart/form-data"),
   );
@@ -266,6 +269,6 @@ function islandora_scholar_upload_form_submit(&$form, &$form_state) {
   }
   else {
     drupal_set_message(t('DON\'T PANIC!, but we may have failed adding the ' .
-      'datastream...  Some info for Adam: @info', array('@info' => print_r($status, TRUE))));
+      'datastream...  Some debug info: @info', array('@info' => print_r($status, TRUE))));
   }
 }

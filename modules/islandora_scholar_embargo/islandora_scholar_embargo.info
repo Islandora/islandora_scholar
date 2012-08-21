@@ -1,0 +1,6 @@
+name = Islandora Scholar Embargo
+dependencies[] = islandora_scholar
+description = Support embargo management in Islandora Scholar.
+package = Islandora
+version = 6.x-$Format:%h$-dev
+core = 6.x
