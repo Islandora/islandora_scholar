@@ -4,3 +4,6 @@
     <?php print $citation; ?>
   </div>
 </div>
+<div class="scholar-icons">
+  <?php print $pdf_icon; ?>  
+</div>
