@@ -13,11 +13,11 @@ class EmbargoView {
     $tab_set = array();
     if (user_access('ingest new fedora objects') || $is_owner) {
       $tab_set['embargo'] = array(
-        '#title' => t('Overview'),
+        '#title' => t('Embargo'),
         '#type' => 'tabpage',
         '#tab_name' => 'embargo',
         'embargo' => array(
-          '#title' => t('Embargo Information'),
+          '#title' => t('Set Embargo'),
           '#type' => 'fieldset',
           '#value' => drupal_get_form('islandora_scholar_embargo_form', $pid),
         ),
@@ -31,7 +31,23 @@ class EmbargoView {
 function islandora_scholar_embargo_form(&$form_state, $pid) {
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   $item = new Fedora_Item($pid);
-  dsm($item->datastreams, 'DSs');
+
+  //XXX: Get the options...  Probably a good place for a hook?  Anyway...
+  $options = array(
+    //XXX: Magic value...  Invalid DSID, so we should be good.
+    '!object/level!'  => t('Object-level embargo'),
+  );
+  foreach ($item->datastreams as $dsid => $values) {
+    $options[$dsid] = $values['label'];
+  }
+
+  //XXX:  Chop 'em down to only those we want...  Another hook/configuration bit?
+  $used_options = array(
+    '!object/level!' => '',
+    'PDF' => '',
+  );
+  $options = array_intersect_key($options, $used_options);
+
   $form = array(
     '#tree' => TRUE,
     'pid' => array(
@@ -40,12 +56,9 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
     ),
     'dsid' => array(
       '#type' => 'select',
-      '#title' => t('Items to be embargoed'),
-      '#options' => array(
-        '!object/level!'  => t('Object'),
-        'PDF' => t('PDF datastream'),
-      ),
-      '#multiple' => TRUE
+      '#title' => t('Item to be embargoed'),
+      '#options' => $options,
+      //'#multiple' => TRUE
     ),
     'embargo_select' => array(
       '#type' => 'radios',
@@ -53,7 +66,7 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
       '#required' => TRUE,
       '#default_value' => 'no_embargo',
       '#options' => array(
-        'no_embargo' => t('Do not embargo'),
+        'no_embargo' => t('Do not embargo/Clear embargo'),
         'indefinite' => t('Embargo indefinitely (must be lifted manually)'),
         'date' => t('Embargo until date specified'),
       ),
@@ -63,11 +76,97 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
       '#title' => t('Embargo date'),
       '#description' => t('A date until which this item should be embargoed.'),
     ),
+    'submit' => array(
+      '#type' => 'submit',
+      '#value' => t('Submit'),
+    ),
   );
 
   return $form;
 }
 
-function islandora_scholar_embargo_form_submit($form, $form_state) {
+/**
+ * Facilitates adding without first lifting all associated embargoes...
+ */
+function islandora_scholar_embargo_lift_associated_except($pid, $dsid = NULL, $expiry = NULL) {
+  module_load_include('inc', 'fedora_repository', 'ObjectHelper');
+  $is = ISLANDORA_SCHOLAR_EMBARGO_RELS_URI;
+  $eu = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
+  $query = <<<EOQ
+PREFIX is:  <$is>
+SELECT ?embargoed ?expiry
+WHERE {{
+    ?embargoed is:$eu ?expiry ;
+               <fedora-model:hasModel> ?model .
+    FILTER(sameTerm(?embargoed, <info:fedora/$pid>))
+  }
+  UNION {
+    <info:fedora/$pid> <fedora-view:disseminates> ?embargoed ;
+                       <fedora-model:hasModel> ?model .
+    ?embargoed is:$eu ?expiry .
+  }
+}
+EOQ;
+  dsm($query, 'q');
+  $results = ObjectHelper::performSparqlQuery($query);
+  dsm($results, 'associated');
+  dsm(func_get_args(), 'match');
+  foreach ((array)$results as $result) {
+    $e_pid = $result['embargoed'];
+    $e_dsid = NULL;
+    $e_exp = $result['expiry'];
+    if(strpos($e_pid, '/') !== FALSE) {
+      //Is DSID
+      list($e_pid, $e_dsid) = explode('/', $e_pid);
+    }
+    dsm($e_pid);
+    dsm($e_dsid);
+    dsm($e_exp);
 
+    //XXX:  Might get into trouble if we somehow have multiple embargo
+    //  statements for a single datastream, due to how we remove them from the
+    //  XACML.
+    //Do not remove statements which match our parameters.
+    if ($e_pid != $pid || $e_dsid != $dsid || $e_exp != $expiry) {
+      islandora_scholar_embargo_lift_embargo($e_pid, $e_dsid);
+    }
+  }
+}
+
+function islandora_scholar_embargo_form_validate($form, $form_state) {
+  if ($form_state['values']['embargo_select'] == 'date') {
+    if (empty($form_state['values']['embargo_date'])) {
+      form_set_error('embargo_date', t('Date must be provided, due to the selected duration.'));
+    }
+    $now = time();
+    $time = $form_state['values']['embargo_date'];
+    $parsed = strtotime($time);
+    if ($parsed <= $time) {
+      form_set_error('embargo_date', t('Date parsing resulted in a date in the past (%date)!', array(
+        '%date' => format_date($parsed),
+      )));
+    }
+  }
+  elseif (!empty($form_state['values']['embargo_date'])) {
+    form_set_error('embargo_date', t('Date field should be empty, given selected duration.'));
+  }
+}
+
+function islandora_scholar_embargo_form_submit($form, $form_state) {
+  $pid = $form_state['values']['pid'];
+  $dsid = $form_state['values']['dsid'];
+  if ($dsid == '!object/level!') {
+    $dsid = NULL;
+  }
+  $date = NULL;
+
+  if ($form_state['values']['embargo_select'] != 'no_embargo') {
+    $date = 'indefinite';
+    if ($form_state['values']['embargo_select'] == 'date') {
+      $date = gmdate("Y-m-d\TH:i:s\Z", strtotime($form_state['values']['embargo_date']));
+    }
+    islandora_scholar_embargo_set_embargo($pid, $dsid, $date);
+  }
+
+  islandora_scholar_embargo_lift_associated_except($pid, $dsid, $date);
 }

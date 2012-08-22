@@ -4,7 +4,7 @@
 //  namespaces, as our predicates can occur in both.
 define('ISLANDORA_SCHOLAR_EMBARGO_RELS_URI', 'info:islandora/islandora-system:def/scholar#');
 define('ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED', 'embargo-expiry-notification-date');
-define('ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
+define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
 
 function islandora_scholar_embargo_islandora_tabs($cms, $pid, $page) {
   $tabset = array();
@@ -88,7 +88,7 @@ function islandora_scholar_embargo_cron() {
   $pre_expiry = gmdate("Y-m-d\TH:i:s\Z", $pre_expiry);
 
   $ise_uri = ISLANDORA_SCHOLAR_EMBARGO_RELS_URI;
-  $eu = ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED;
+  $eu = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
   $np = ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED;
 
   $results = ObjectHelper::performSparqlQuery(<<<EOQ
@@ -193,10 +193,18 @@ function islandora_scholar_embargo_islandora_scholar_embargo_users_to_notify($pi
     );
   }
 
-  return array(
+  $users = array(
     user_load(1),
     user_load($owner),
   );
+
+  foreach($users as $key => $user) {
+    if ($user && intval($user->uid) === 0) {
+      $users[$key] = FALSE; //Failed to load, assigned anonymous...
+    }
+  }
+
+  return $users;
 }
 
 /**
@@ -240,16 +248,18 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   module_load_include('inc', 'islandora_xacml_api', 'IslandoraXacml');
   $item = new Fedora_Item($pid);
-  $xacml = IslandoraXacml($pid);
+  $xacml = new IslandoraXacml($pid);
 
   if ($dsid === NULL) {
     //TODO:  Remove embargo statement from RELS-EXT (and POLICY stream).
-    $item->purge_relationships(ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+    $item->purge_relationships(ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+    $item->purge_relationships(ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
     $xacml->viewingRule->clear();
   }
   else {
     //TODO:  Remove embargo statement from RELS-INT (and POLICY stream) for the given datastream.
-    $item->purge_dsid_relationships($dsid, ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+    $item->purge_dsid_relationships($dsid, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+    $item->purge_dsid_relationships($dsid, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
     $xacml->datastreamRule->removeDsid($dsid);
   }
 
@@ -292,7 +302,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
 
   $type = RELS_TYPE_PLAIN_LITERAL;
   $notification = NULL;
-  if ($end != 'indefinite' || $end !== NULL) {  //XXX: We assume the end date is properly formatted...
+  if ($end != 'indefinite' && $end !== NULL) {  //XXX: We assume the end date is properly formatted...
     $type = RELS_TYPE_DATETIME;
     //XXX:  Make the notification interval configurable.
     $notification = gmdate("Y-m-d\TH:i:s\Z", strtotime('-10DAYS', strtotime($end)));
@@ -303,29 +313,30 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
   $xacml_changed = FALSE;
 
   $users = module_invoke_all('islandora_scholar_embargo_users_to_notify', $pid);
+  dsm($users, 'users');
 
   if ($dsid === NULL) {
-    $item->purge_relationships(ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+    $item->purge_relationships(ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
     $item->purge_relationships(ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
 
     if ($end !== NULL) {
-    $item->add_relationship(ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $type);
+    $item->add_relationship(ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $type);
 
       if ($notification !== NULL) {
         $item->add_relationship(ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $type);
       }
       foreach($users as $user) {
         if ($user) {
-          $xacml->viewingRule->addUser($user->user);
+          $xacml->viewingRule->addUser($user->name);
           $xacml_changed = TRUE;
         }
       }
     }
   }
   else {
-    $item->purge_dsid_relationships($dsid, ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+    $item->purge_dsid_relationships($dsid, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
     $item->purge_dsid_relationships($dsid, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
-    $item->add_dsid_relationship($dsid, ISLANDOAR_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $type);
+    $item->add_dsid_relationship($dsid, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $type);
 
     if ($end !== NULL) {
       if ($notification !== NULL) {
@@ -335,7 +346,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
       $xacml_changed = TRUE;
       foreach($users as $user) {
         if ($user) {
-          $xacml->datastreamRule->addUser($user->user);
+          $xacml->datastreamRule->addUser($user->name);
         }
       }
     }
@@ -400,208 +411,4 @@ function islandora_scholar_embargo_hook_info() {
       ),
     ),
   );
-}
-
-/**
- * Implementation of hook_form_FORM-ID_alter().
- */
-function islandora_scholar_embargo_form_islandora_scholar_upload_form_alter(&$form, &$form_state) {
-  module_load_include('inc', 'php_lib', 'Ahah');
-  Ahah::get_ahah_js();
-
-  dsm($form, 'upload form');
-  dsm($form_state, 'ufs');
-  $to_insert = array(
-    '#prefix' => '<div id="embargo-ahah-wrapper">',
-    '#suffix' => '</div>',
-    '#type' => 'fieldset',
-    '#tree' => TRUE,
-    '#title' => t('Embargo Information'),
-    'embargo_select' => array(
-      '#type' => 'radios',
-      '#title' => t('Duration of Embargo'),
-      '#required' => TRUE,
-      '#default_value' => 'no_embargo',
-      '#options' => array(
-        'no_embargo' => t('Do not embargo'),
-        'indefinite' => t('Embargo indefinitely (must be lifted manually)'),
-        'date' => t('Embargo until date specified'),
-      ),
-    ),
-    'embargo_date' => array(
-      '#type' => 'datepicker',
-      '#title' => t('Embargo date'),
-      '#description' => t('A date until which this item should be embargoed.'),
-    ),
-  );
-
-  $form['#validate'][] = 'islandora_scholar_embargo_islandora_scholar_upload_form_validate';
-  $form['#submit'][] = 'islandora_scholar_embargo_islandora_scholar_upload_form_submit';
-
-  $position = -1;
-  $ud = $form['upload_document'];
-  $form['upload_document'] = array_slice($ud, 0, $position);
-  $form['upload_document']['embargo'] = $to_insert;
-  $form['upload_document'] += array_slice($ud, $position);
-  dsm($form, 'altered upload form');
-}
-
-
-function islandora_scholar_embargo_islandora_scholar_upload_form_validate($form, $form_state) {
-  dsm($form_state, 'validate_fs');
-  if ($form_state['values']['embargo']['embargo_select'] == 'date') {
-    if (empty($form_state['values']['embargo']['embargo_date'])) {
-      form_set_error('embargo_date', t('Date must be provided, due to the selected duration.'));
-    }
-    $now = time();
-    $time = $form_state['values']['embargo']['embargo_date'];
-    $parsed = strtotime($time);
-    if ($parsed <= $time) {
-      form_set_error('embargo_date', t('Date parsing resulted in a date in the past (%date)!', array(
-        '%date' => format_date($parsed),
-      )));
-    }
-  }
-  elseif (!empty($form_state['values']['embargo']['embargo_date'])) {
-    form_set_error('embargo_date', t('Date field should be empty, given selected duration.'));
-  }
-}
-
-function islandora_scholar_embargo_islandora_scholar_upload_form_submit(&$form, &$form_state) {
-  if ($form_state['values']['embargo']['embargo_select'] == 'no_embargo') {
-    islandora_scholar_embargo_set_embargo(
-      $form_state['values']['pid'],
-      $form_state['values']['dsid'],
-      NULL
-    );
-  }
-  else {
-    $date = 'indefinite';
-    if ($form_state['values']['embargo']['embargo_select'] == 'date') {
-      $date = gmdate("Y-m-d\TH:i:s\Z", strtotime($form_state['values']['embargo']['embargo_date']));
-    }
-    islandora_scholar_embargo_set_embargo(
-      $form_state['values']['pid'],
-      $form_state['values']['dsid'],
-      $date
-    );
-  }
-}
-
-/**
- * Implementation of hook_form_FORM-ID_alter().
- */
-function islandora_scholar_embargo_form_islandora_scholar_modify_form_alter(&$form, &$form_state) {
-  module_load_include('inc', 'php_lib', 'Ahah');
-  Ahah::get_ahah_js();
-
-  dsm($form, 'modify form');
-  dsm($form_state, 'mfs');
-  $to_insert = array(
-    '#prefix' => '<div id="embargo-ahah-wrapper">',
-    '#suffix' => '</div>',
-    '#type' => 'fieldset',
-    '#tree' => TRUE,
-    '#title' => t('Embargo Information'),
-    'embargo_select' => array(
-      '#type' => 'radios',
-      '#title' => t('Duration of Embargo'),
-      '#required' => TRUE,
-      '#default_value' => 'no_embargo',
-      '#options' => array(
-        'no_embargo' => t('Do not embargo'),
-        'indefinite' => t('Embargo indefinitely (must be lifted manually)'),
-        'date' => t('Embargo until date specified'),
-      ),
-    ),
-    'embargo_date' => array(
-      '#type' => 'datepicker',
-      '#title' => t('Embargo date'),
-      '#description' => t('A date until which this item should be embargoed.'),
-    ),
-    'do_embargo' => array(
-      '#type' => 'submit',
-      '#name' => 'do_embargo',
-      '#value' => t('Set embargo'),
-    ),
-  );
-
-  module_load_include('inc', 'fedora_repository', 'ObjectHelper');
-  $is = ISLANDORA_SCHOLAR_EMBARGO_RELS_URI;
-  $pid = $form['pid']['#value'];
-  $dsid = $form['dsid']['#value'];
-  $results = ObjectHelper::performSparqlQuery(<<<EOQ
-PREFIX is: <$is>
-SELECT ?expiry
-FROM <#ri>
-WHERE {
-  <info:fedora/$pid/$dsid> is:embargoed-until ?expiry .
-}
-EOQ
-  );
-  if (count($results) > 0) {
-    $result = $results[0];
-    if ($result['expiry'] == 'indefinite') {
-      $to_insert['embargo_select']['#default_value'] = 'indefinite';
-    }
-    else {
-      $to_insert['embargo_select']['#default_value'] = 'date';
-      $to_insert['embargo_date']['#default_value'] = $result['expiry'];
-    }
-  }
-
-
-  $form['#validate'][] = 'islandora_scholar_embargo_islandora_scholar_modify_form_validate';
-  $form['#submit'][] = 'islandora_scholar_embargo_islandora_scholar_modify_form_submit';
-
-  $position = -1;
-  $ud = $form;
-  $form = array_slice($ud, 0, $position);
-  $form['embargo'] = $to_insert;
-  $form += array_slice($ud, $position);
-  dsm($form, 'altered modify form');
-}
-
-function islandora_scholar_embargo_islandora_scholar_modify_form_validate($form, $form_state) {
-  if ($form_state['clicked_button']['#name'] == 'do_embargo') {
-    if ($form_state['values']['embargo']['embargo_select'] == 'date') {
-      if (empty($form_state['values']['embargo']['embargo_date'])) {
-        form_set_error('embargo_date', t('Date must be provided, due to the selected duration.'));
-      }
-      $now = time();
-      $time = $form_state['values']['embargo']['embargo_date'];
-      $parsed = strtotime($time);
-      if ($parsed <= $time) {
-        form_set_error('embargo_date', t('Date parsing resulted in a date in the past (%date)!', array(
-          '%date' => format_date($parsed),
-        )));
-      }
-    }
-    elseif (!empty($form_state['values']['embargo']['embargo_date'])) {
-      form_set_error('embargo_date', t('Date field should be empty, given selected duration.'));
-    }
-  }
-}
-
-function islandora_scholar_embargo_islandora_scholar_modify_form_submit(&$form, &$form_state) {
-  if ($form_state['clicked_button']['#name'] == 'do_embargo') {
-    if ($form_state['values']['embargo']['embargo_select'] == 'no_embargo') {
-      islandora_scholar_embargo_set_embargo(
-        $form_state['values']['pid'],
-        $form_state['values']['dsid'],
-        NULL
-      );
-    }
-    else {
-      $date = 'indefinite';
-      if ($form_state['values']['embargo']['embargo_select'] == 'date') {
-        $date = gmdate("Y-m-d\TH:i:s\Z", strtotime($form_state['values']['embargo']['embargo_date']));
-      }
-      islandora_scholar_embargo_set_embargo(
-        $form_state['values']['pid'],
-        $form_state['values']['dsid'],
-        $date
-      );
-    }
-  }
 }

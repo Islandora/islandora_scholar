@@ -91,6 +91,7 @@ class CitationView {
 }
 
 function islandora_scholar_islandora_scholar_viewer($item) {
+  global $user;
   $to_return = array();
 //   if (array_key_exists('SWF', $item->datastreams)) {
 //     $to_return += array(
@@ -103,18 +104,29 @@ function islandora_scholar_islandora_scholar_viewer($item) {
 //   }
 
   if (array_key_exists('PDF', $item->datastreams)) {
-    $to_return += array(
+    $access_pdf = TRUE;
+
+    module_load_include('inc', 'islandora_xacml_api', 'IslandoraXacml');
+    if ($access_pdf && class_exists('IslandoraXacml')) {
+      $xacml = new IslandoraXacml($item->pid);
+      dsm($user, 'user info');
+      $access_pdf = $access_pdf && (($user->uid === 1) || $xacml->datastreamRule->hasPermission($user->name, $user->roles, NULL, 'PDF'));
+    }
+
+    if ($access_pdf) {
+      $to_return += array(
 //       'flexpaper_temp_swf' => array(
 //         '#callback' => 'islandora_scholar_transformed_pdf_viewer',
 //         '#callback arguments' => array($item),
 //         '#weight' => 0,
 //       ),
-      'google' => array(
-        '#callback' => 'islandora_scholar_google_pdf_viewer',
-        '#callback arguments' => array($item->pid),
-        '#weight' => 1,
-      ),
-    );
+        'google' => array(
+          '#callback' => 'islandora_scholar_google_pdf_viewer',
+          '#callback arguments' => array($item->pid),
+          '#weight' => 1,
+        ),
+      );
+    }
   }
 
   return $to_return;
