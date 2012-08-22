@@ -107,10 +107,8 @@ WHERE {{
   }
 }
 EOQ;
-  dsm($query, 'q');
   $results = ObjectHelper::performSparqlQuery($query);
-  dsm($results, 'associated');
-  dsm(func_get_args(), 'match');
+
   foreach ((array)$results as $result) {
     $e_pid = $result['embargoed'];
     $e_dsid = NULL;
@@ -119,9 +117,6 @@ EOQ;
       //Is DSID
       list($e_pid, $e_dsid) = explode('/', $e_pid);
     }
-    dsm($e_pid);
-    dsm($e_dsid);
-    dsm($e_exp);
 
     //XXX:  Might get into trouble if we somehow have multiple embargo
     //  statements for a single datastream, due to how we remove them from the

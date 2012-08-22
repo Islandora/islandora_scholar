@@ -313,7 +313,6 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
   $xacml_changed = FALSE;
 
   $users = module_invoke_all('islandora_scholar_embargo_users_to_notify', $pid);
-  dsm($users, 'users');
 
   if ($dsid === NULL) {
     $item->purge_relationships(ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
