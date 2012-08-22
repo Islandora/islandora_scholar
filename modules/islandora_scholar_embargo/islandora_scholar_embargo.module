@@ -81,17 +81,18 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
  * to lift.
  */
 function islandora_scholar_embargo_cron() {
-  module_load_include('inc', 'fedora_repository', 'ObjectHelper');
-  $now = time();
-  $pre_expiry = strtotime("-10DAYS", $now);
-  $now = gmdate("Y-m-d\TH:i:s\Z", $now);
-  $pre_expiry = gmdate("Y-m-d\TH:i:s\Z", $pre_expiry);
+  if (module_exists('trigger')) {
+    module_load_include('inc', 'fedora_repository', 'ObjectHelper');
+    $now = time();
+    $pre_expiry = strtotime("-10DAYS", $now);
+    $now = gmdate("Y-m-d\TH:i:s\Z", $now);
+    $pre_expiry = gmdate("Y-m-d\TH:i:s\Z", $pre_expiry);
 
-  $ise_uri = ISLANDORA_SCHOLAR_EMBARGO_RELS_URI;
-  $eu = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
-  $np = ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED;
+    $ise_uri = ISLANDORA_SCHOLAR_EMBARGO_RELS_URI;
+    $eu = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
+    $np = ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED;
 
-  $results = ObjectHelper::performSparqlQuery(<<<EOQ
+    $results = ObjectHelper::performSparqlQuery(<<<EOQ
 PREFIX is: <$ise_uri>
 SELECT ?embargoed ?date
 FROM <#ri>
@@ -103,47 +104,44 @@ WHERE {
     ?date > $now^^xsd:dateTime) .
 }
 EOQ
-);
+  );
 
-  module_load_include('inc', 'fedora_repository', 'api/fedora_utils');
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-  foreach($results as $result) {
-    $pid = $result['embargoed'];
-    $dsid = NULL;
-    if (!valid_pid($pid)) {
-      list($pid, $dsid) = explode('/', $pid);
-    }
-    $item = new Fedora_Item($pid);
-    $context = array(
-      'hook' => 'islandora_scholar_embargo',
-      'op' => 'pre_expiry',
-      'islandora_scholar_embargo' => array(
-        'dsid' => $dsid,
-        'expiry_date' => $result['date'],
-      ),
-    );
-
-    //Fire "pre_expiry" trigger.
-    actions_do(_trigger_get_hook_aids('islandora_scholar_embargo', 'pre_expiry'), $item, $context);
-
-    if ($dsid === NULL) {
-      $item->purge_relationships(
-        ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
-        NULL,
-        ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
+    module_load_include('inc', 'fedora_repository', 'api/fedora_utils');
+    module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+    foreach($results as $result) {
+      $pid = $result['embargoed'];
+      $dsid = NULL;
+      if (!valid_pid($pid)) {
+        list($pid, $dsid) = explode('/', $pid);
+      }
+      $item = new Fedora_Item($pid);
+      $context = array(
+        'hook' => 'islandora_scholar_embargo',
+        'op' => 'pre_expiry',
+        'islandora_scholar_embargo' => array(
+          'dsid' => $dsid,
+          'expiry_date' => $result['date'],
+        ),
       );
-    }
-    else {
-      $item->purge_dsid_relationships(
-        $dsid,
-        ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
-        NULL,
-        ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
-      );
-    }
-  }
 
-  $results = ObjectHelper::performSparqlQuery(<<<EOQ
+      if ($dsid === NULL) {
+        $item->purge_relationships(
+          ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
+          NULL,
+          ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
+        );
+      }
+      else {
+        $item->purge_dsid_relationships(
+          $dsid,
+          ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
+          NULL,
+          ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
+        );
+      }
+    }
+
+    $results = ObjectHelper::performSparqlQuery(<<<EOQ
 PREFIX is: <$ise_uri>
 SELECT ?expired ?date
 FROM <#ri>
@@ -154,24 +152,25 @@ WHERE {
 EOQ
 );
 
-  foreach($results as $result) {
-    $pid = $result['embargoed'];
-    $dsid = NULL;
-    if (!valid_pid($pid)) {
-      list($pid, $dsid) = explode('/', $pid);
-    }
-    $item = new Fedora_Item($pid);
-    $context = array(
-      'hook' => 'islandora_scholar_embargo',
-      'op' => 'expiry',
-      'islandora_scholar_embargo' => array(
-        'dsid' => $dsid,
-        'expiry_date' => $result['date'],
-      ),
-    );
+    foreach($results as $result) {
+      $pid = $result['embargoed'];
+      $dsid = NULL;
+      if (!valid_pid($pid)) {
+        list($pid, $dsid) = explode('/', $pid);
+      }
+      $item = new Fedora_Item($pid);
+      $context = array(
+        'hook' => 'islandora_scholar_embargo',
+        'op' => 'expiry',
+        'islandora_scholar_embargo' => array(
+          'dsid' => $dsid,
+          'expiry_date' => $result['date'],
+        ),
+      );
 
-    //Fire "expiry" trigger.
-    actions_do(_trigger_get_hook_aids('islandora_scholar_embargo', 'expiry'), $item, $context);
+      //Fire "expiry" trigger.
+      actions_do(_trigger_get_hook_aids('islandora_scholar_embargo', 'expiry'), $item, $context);
+    }
   }
 }
 
@@ -273,8 +272,10 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
     ),
   );
 
-  //Pull trigger.
-  actions_do(_trigger_get_hook_aids('islandora_scholar_embargo', 'lifted_embargo'), $item, $context);
+  if (module_exists('trigger')) {
+    //Pull trigger.
+    actions_do(_trigger_get_hook_aids('islandora_scholar_embargo', 'lifted_embargo'), $item, $context);
+  }
 }
 
 /**
