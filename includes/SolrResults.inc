@@ -87,8 +87,11 @@ function template_preprocess_islandora_scholar_search_alt_item(array &$vars) {
   if (is_array($title)) {
     $title = $title[0];
   }
-
-  $vars['title'] = l($title, 'fedora/repository/' . htmlspecialchars($pid, ENT_QUOTES, 'utf-8'));
+  //XXX:  Shouldn't have to occur (multiple times, anyway).
+  while(($decoded = htmlspecialchars_decode($title, ENT_QUOTES)) != $title) {
+    $title = $decoded;
+  }
+  $vars['title'] = l($title, 'fedora/repository/' . htmlspecialchars($pid, ENT_QUOTES, 'utf-8', FALSE));
 
   $vars['citation'] = scholar_citation_from_solr_doc($s_doc, $vars['style'], variable_get('islandora_scholar_mods_xml_solr_field','mods_fullxml_store'), 'js');
 }
@@ -103,7 +106,11 @@ function template_preprocess_islandora_scholar_search_item(array &$variables) {
   $item = new Fedora_Item($pid);
   if ($item->exists() && isset($item->datastreams['MODS'])) {
     $title = $item->objectProfile->objLabel;
-    $variables['title'] = l($title, 'fedora/repository/' . htmlspecialchars($pid, ENT_QUOTES, 'utf-8'));
+    //XXX:  Shouldn't have to occur (multiple times, anyway).
+    while(($decoded = htmlspecialchars_decode($title, ENT_QUOTES)) != $title) {
+      $title = $decoded;
+    }
+    $variables['title'] = l($title, 'fedora/repository/' . htmlspecialchars($pid, ENT_QUOTES, 'utf-8', FALSE));
 
     $style = $variables['style'];
 
