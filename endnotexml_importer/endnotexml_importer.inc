@@ -85,7 +85,7 @@ class EndNoteXMLImportObject extends IslandoraScholarImportObject {
       new self($record, $parent_pid)); //XXX:  Be careful with "self"?  PHP is odd.
   }
 
-  protected function get_mods() {
+  public function get_mods() {
     if ($this->mods === NULL) {
       $enxml_file = file_create_filename('temp_en.xml', file_directory_path());
       file_put_contents($enxml_file, $this->source);
