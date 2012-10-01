@@ -249,6 +249,14 @@ abstract class IslandoraScholarImportObject {
   }
 
   /**
+   * Get the source text.
+   *
+   */
+  public function get_source() {
+    return $this->source;
+  }
+
+  /**
    * Get the title.
    *
    * By default, should just get the first titleInfo/title out of the generated
@@ -279,7 +287,7 @@ abstract class IslandoraScholarImportObject {
    * @return
    *   A string containing MODS XML.
    */
-  protected abstract function get_mods();
+  public abstract function get_mods();
 
   /**
    * Create some DC representing us.
@@ -289,7 +297,7 @@ abstract class IslandoraScholarImportObject {
    * @return string
    *   A string containing DC XML.
    */
-  protected function get_dc() {
+  public function get_dc() {
     if ($this->dc === NULL) {
       $transform_filename = drupal_get_path('module', 'islandora_scholar_importer') . '/xsl/mods_to_dc.xsl';
       $transform = new DOMDocument();

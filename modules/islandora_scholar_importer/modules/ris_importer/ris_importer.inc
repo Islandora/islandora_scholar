@@ -106,7 +106,7 @@ class RISImportObject extends IslandoraScholarImportObject {
       new self($record, $parent_pid)); //XXX:  Be careful with "self"?  PHP is odd.
   }
 
-  protected function get_mods() {
+  public function get_mods() {
     if ($this->mods === NULL) {
       $ris_file = file_create_filename('temp.ris', file_directory_path());
       file_put_contents($ris_file, $this->source);
