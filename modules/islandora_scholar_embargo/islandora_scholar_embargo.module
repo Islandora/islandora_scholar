@@ -306,6 +306,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
   if ($end != 'indefinite' && $end !== NULL) {  //XXX: We assume the end date is properly formatted...
     $type = RELS_TYPE_DATETIME;
     //XXX:  Make the notification interval configurable.
+    $end = gmdate("Y-m-d\TH:i:s\Z", strtotime($end));
     $notification = gmdate("Y-m-d\TH:i:s\Z", strtotime('-10DAYS', strtotime($end)));
   }
 
