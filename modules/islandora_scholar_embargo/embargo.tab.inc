@@ -41,6 +41,42 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
     $options[$dsid] = $values['label'];
   }
 
+  // retrieve the embargo status for the object
+  $query = "select ?e from <#ri> where { <info:fedora/$pid> <info:islandora/islandora-system:def/scholar#embargo-until> ?e }";
+  $result = ObjectHelper::performSparqlQuery($query);
+
+  $embargo_stat = "no_embargo";
+  $embargo_date = "";
+  $embargo_level = "!object/level!";
+
+  if (empty($result)) {
+    // object level embargo isn't set - try datastream level
+    $query = "select ?stream ?e from <#ri> where { <info:fedora/$pid> <fedora-view:disseminates> ?stream . ?stream <info:islandora/islandora-system:def/scholar#embargo-until> ?e }";
+    $result = ObjectHelper::performSparqlQuery($query);
+    // now we have a list of datastreams that are embargoed and how they are embargoed
+    if (empty($result)) {
+      // no embargo detected
+    }
+    else {
+      $exp = explode("/", $result[0][stream]);
+      $embargo_level = end($exp);
+    }
+  }
+  else {
+    $embargo_level = "!object/level!";
+  }
+  // now we've tried filling $result, if theres nothing in it, then there's no embargo
+  if (!empty($result)) {
+    $embargo_stat = $result[0][e];
+    if ($embargo_stat !== "indefinite") {
+      $embargo_date = $embargo_stat;
+      $embargo_stat = "date";
+    }
+  }
+  //else {
+  //  dsm("No embargo no object");
+  //}
+
   //XXX:  Chop 'em down to only those we want...  Another hook/configuration bit?
   $used_options = array(
     '!object/level!' => '',
@@ -58,13 +94,14 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
       '#type' => 'select',
       '#title' => t('Item to be embargoed'),
       '#options' => $options,
+      '#default_value' => $embargo_level,
       //'#multiple' => TRUE
     ),
     'embargo_select' => array(
       '#type' => 'radios',
       '#title' => t('Duration of Embargo'),
       '#required' => TRUE,
-      '#default_value' => 'no_embargo',
+      '#default_value' => $embargo_stat,
       '#options' => array(
         'no_embargo' => t('Do not embargo/Clear embargo'),
         'indefinite' => t('Embargo indefinitely (must be lifted manually)'),
@@ -75,6 +112,7 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
       '#type' => 'datepicker',
       '#title' => t('Embargo date'),
       '#description' => t('A date until which this item should be embargoed.'),
+      '#default_value' => $embargo_date,
     ),
     'submit' => array(
       '#type' => 'submit',
