@@ -610,7 +610,7 @@ function _try_parse_date(&$output, $date_string) {
 function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
   $output = array();
   // Nigel's way
-  $date = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateCaptured[@encoding = 'iso8601']");
+  /*$date = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateCaptured[@encoding = 'iso8601']");
   if (!empty($date)) {
     $date_time = new DateTime($date);
     $output['accessed']['date-parts'] = array(array(intval($date_time->format('Y')), intval($date_time->format('m')), intval($date_time->format('d'))));
@@ -637,7 +637,8 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
     $date = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateCreated");
     $output['issued']['raw'] = $date;
   }
-  /*
+  */
+  ///*
   // Adam's way
   $date_captured = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateCaptured");
   if (!empty($date_captured)) {
@@ -653,7 +654,7 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
   if (!empty($date_created) && empty($output['issued'])) {
     _try_parse_date($output['issued'], $date_created);
   }
-  */
+  //*/
   return $output;
 }
 
