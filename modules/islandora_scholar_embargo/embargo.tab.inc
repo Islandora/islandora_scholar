@@ -17,7 +17,11 @@ class EmbargoView {
    */
   public static function get_tabs($pid) {
     $tab_set = array();
-    if (user_access('ingest new fedora objects') || $is_owner) {
+    /*
+     * @todo implement $is_owner access
+     * if (user_access('ingest new fedora objects') || $is_owner) {
+     */
+    if (user_access('ingest new fedora objects')) {
       $tab_set['embargo'] = array(
         '#title' => t('Embargo'),
         '#type' => 'tabpage',
@@ -63,6 +67,7 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
   $embargo_date = "";
   $embargo_level = "!object/level!";
 
+
   if (empty($result)) {
     // Object level embargo isn't set - try datastream level.
     $query = "select ?stream ?e from <#ri> where { <info:fedora/$pid> <fedora-view:disseminates> ?stream . ?stream <info:islandora/islandora-system:def/scholar#embargo-until> ?e }";
@@ -74,7 +79,7 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
       // No embargo detected.
     }
     else {
-      $exp = explode("/", $result[0][stream]);
+      $exp = explode("/", $result[0]['stream']);
       $embargo_level = end($exp);
     }
   }
@@ -84,7 +89,7 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
   /* Now we've tried filling $result,
    * if theres nothing in it, then there's no embargo.*/
   if (!empty($result)) {
-    $embargo_stat = $result[0][e];
+    $embargo_stat = $result[0]['e'];
     if ($embargo_stat !== "indefinite") {
       $embargo_date = $embargo_stat;
       $embargo_stat = "date";
