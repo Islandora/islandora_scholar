@@ -1,20 +1,28 @@
 <?php
+/**
+ * @file
+ *   The islandora_scholar moudule.
+ */
 
 define('THEME_SCHOLAR_SEARCH_ITEM', 'islandora_scholar_search_item');
 define('THEME_SCHOLAR_SEARCH_ITEM_ALT', 'islandora_scholar_search_alt_item');
 define('THEME_SCHOLAR_SEARCH_TABLE', 'islandora_scholar_search_results_table');
 
+/**
+ * Implements hook_theme().
+ *
+ */
 function islandora_scholar_theme() {
   return array(
     THEME_SCHOLAR_SEARCH_ITEM => array(
       'template' => 'templates/SearchItem',
       'file' => 'includes/SolrResults.inc',
-      'arguments' => array('pid' => NULL, 'style' => NULL)
+      'arguments' => array('pid' => NULL, 'style' => NULL),
     ),
     THEME_SCHOLAR_SEARCH_ITEM_ALT => array(
       'template' => 'templates/SearchItem',
       'file' => 'includes/SolrResults.inc',
-      'arguments' => array('solr_doc' => NULL, 'style' => NULL)
+      'arguments' => array('solr_doc' => NULL, 'style' => NULL),
     ),
     THEME_SCHOLAR_SEARCH_TABLE => array(
       'file' => 'includes/SolrResults.inc',
@@ -24,7 +32,7 @@ function islandora_scholar_theme() {
 }
 
 /**
- * Implementation of hook_islandora_tabs().
+ * Implements hook_islandora_tabs().
  */
 function islandora_scholar_islandora_tabs($cms, $pid, $page) {
   $tabset = array();
@@ -50,7 +58,7 @@ function islandora_scholar_islandora_tabs($cms, $pid, $page) {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements hook_menu().
  */
 function islandora_scholar_menu() {
   return array(
@@ -66,7 +74,7 @@ function islandora_scholar_menu() {
 }
 
 /**
- * Implementation of hook_islandora_object_details_display().
+ * Implements hook_islandora_object_details_display().
  */
 function islandora_scholar_islandora_object_details_display() {
   return array(
@@ -80,6 +88,12 @@ function islandora_scholar_islandora_object_details_display() {
   );
 }
 
+/**
+ * Implements hook_islandora_solr_primary_display().
+ *
+ * @return array
+ *   An array describing the solr display provided.
+ */
 function islandora_scholar_islandora_solr_primary_display() {
   return array(
     'islandora_scholar' => array(
@@ -90,6 +104,56 @@ function islandora_scholar_islandora_solr_primary_display() {
       'function' => "displayResults",
       'description' => t("Results are CSL-rendered citations. '.
         '(Requires MODS streams in objects)"),
-    )
+    ),
+  );
+}
+
+/**
+ * Implements hook_required_fedora_objects().
+ *
+ * @return array
+ *   Describes the Fedora objects that the module needs.
+ *   The citation collection and content model.
+ */
+function islandora_scholar_required_fedora_objects() {
+
+  // Build a thumbnail datastream.
+  $module_path = drupal_get_path('module', 'islandora_scholar');
+  $folder_thumbnail_datastream = array(
+    'dsid' => 'TN',
+    'datastream_file' => "$module_path/images/Crystal_Clear_filesystem_folder_grey.png",
+    'mimetype' => 'image/png',
+  );
+
+  return array(
+    'islandora_scholar' => array(
+      'module' => 'islandora_scholar',
+      'title' => 'Islandora Scholar',
+      'objects' => array(
+        array(
+          // Citations Collection.
+          'pid' => 'ir:citationCollection',
+          'label' => 'Citations',
+          'cmodel' => 'islandora:collectionCModel',
+          'parent' => variable_get('fedora_repository_pid', 'islandora:root'),
+          'datastreams' => array(
+            $folder_thumbnail_datastream,
+            array(
+              'dsid' => 'COLLECTION_POLICY',
+              'datastream_file' => "$module_path/XML/COLLECTION_POLICY.xml",
+              'mimetype' => 'text/xml',
+            ),
+          ),
+        ),
+        array(
+          // Citation Content Model.
+          'pid' => 'ir:citationCModel',
+          'label' => 'Citation Content Model',
+          'cmodel' => 'fedora-system:ContentModel-3.0',
+          'dsid' => 'ISLANDORACM',
+          'datastream_file' => "$module_path/XML/ISLANDORACM.xml",
+        ),
+      ),
+    ),
   );
 }
