@@ -5,8 +5,9 @@
  *   It supports embargo management in Islandora Scholar.
  */
 
-// Doesn't make sense to use either of the Islandora RELS-EXT or RELS-INT
-// Namespaces, as our predicates can occur in both.
+/* Doesn't make sense to use either of the Islandora RELS-EXT or RELS-INT
+ * namespaces, as our predicates can occur in both.
+ */
 define('ISLANDORA_SCHOLAR_EMBARGO_RELS_URI', 'info:islandora/islandora-system:def/scholar#');
 define('ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED', 'embargo-expiry-notification-date');
 define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
