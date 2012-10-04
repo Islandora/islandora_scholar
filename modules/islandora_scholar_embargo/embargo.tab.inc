@@ -213,7 +213,7 @@ function islandora_scholar_embargo_form_validate ($form, $form_state) {
      * @XXX In the future this could be made more user friendly
      *   with ahah to reset the date field.
      */
-    $form_state['values']['embargo_date'] = '';
+    drupal_set_message(t('Embargo date field ignored due to embargo duration set.'));
   }
 }
 
