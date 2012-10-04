@@ -1,17 +1,27 @@
 <?php
+/**
+ * @file
+ *   This file holds supporting code for the scholar embargo module.
+ */
 
 class EmbargoView {
+
   /**
    * Get a tabset to merge into the set of Islandora tabs.
    *
-   * @param $pid string
+   * @param string $pid
    *   A string containing the PID for which we're to render a view.
+   *
    * @return array
    *   A tabset (to be merged with existing tabs).
    */
   public static function get_tabs($pid) {
     $tab_set = array();
-    if (user_access('ingest new fedora objects') || $is_owner) {
+    /*
+     * @todo implement $is_owner access
+     * if (user_access('ingest new fedora objects') || $is_owner) {
+     */
+    if (user_access('ingest new fedora objects')) {
       $tab_set['embargo'] = array(
         '#title' => t('Embargo'),
         '#type' => 'tabpage',
@@ -28,20 +38,28 @@ class EmbargoView {
   }
 }
 
+/**
+ * This funciton will build a form for embargoing an object.
+ *
+ * @param array $form_state
+ *   The state of the form.
+ * @param string $pid
+ *   The Fedora PID to build a form for.
+ */
 function islandora_scholar_embargo_form(&$form_state, $pid) {
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   $item = new Fedora_Item($pid);
 
-  //XXX: Get the options...  Probably a good place for a hook?  Anyway...
+  // XXX: Get the options...  Probably a good place for a hook?  Anyway...
   $options = array(
-    //XXX: Magic value...  Invalid DSID, so we should be good.
+    // XXX: Magic value...  Invalid DSID, so we should be good.
     '!object/level!'  => t('Object-level embargo'),
   );
   foreach ($item->datastreams as $dsid => $values) {
     $options[$dsid] = $values['label'];
   }
 
-  // retrieve the embargo status for the object
+  // Retrieve the embargo status for the object.
   $query = "select ?e from <#ri> where { <info:fedora/$pid> <info:islandora/islandora-system:def/scholar#embargo-until> ?e }";
   $result = ObjectHelper::performSparqlQuery($query);
 
@@ -49,35 +67,37 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
   $embargo_date = "";
   $embargo_level = "!object/level!";
 
+
   if (empty($result)) {
-    // object level embargo isn't set - try datastream level
+    // Object level embargo isn't set - try datastream level.
     $query = "select ?stream ?e from <#ri> where { <info:fedora/$pid> <fedora-view:disseminates> ?stream . ?stream <info:islandora/islandora-system:def/scholar#embargo-until> ?e }";
     $result = ObjectHelper::performSparqlQuery($query);
-    // now we have a list of datastreams that are embargoed and how they are embargoed
+
+    /* Now we have a list of datastreams that are embargoed
+     * and how they are embargoed.*/
     if (empty($result)) {
-      // no embargo detected
+      // No embargo detected.
     }
     else {
-      $exp = explode("/", $result[0][stream]);
+      $exp = explode("/", $result[0]['stream']);
       $embargo_level = end($exp);
     }
   }
   else {
     $embargo_level = "!object/level!";
   }
-  // now we've tried filling $result, if theres nothing in it, then there's no embargo
+  /* Now we've tried filling $result,
+   * if theres nothing in it, then there's no embargo.*/
   if (!empty($result)) {
-    $embargo_stat = $result[0][e];
+    $embargo_stat = $result[0]['e'];
     if ($embargo_stat !== "indefinite") {
       $embargo_date = $embargo_stat;
       $embargo_stat = "date";
     }
   }
-  //else {
-  //  dsm("No embargo no object");
-  //}
 
-  //XXX:  Chop 'em down to only those we want...  Another hook/configuration bit?
+  /* XXX:  Chop 'em down to only those we want...
+   * Another hook/configuration bit?*/
   $used_options = array(
     '!object/level!' => '',
     'PDF' => '',
@@ -95,7 +115,6 @@ function islandora_scholar_embargo_form(&$form_state, $pid) {
       '#title' => t('Item to be embargoed'),
       '#options' => $options,
       '#default_value' => $embargo_level,
-      //'#multiple' => TRUE
     ),
     'embargo_select' => array(
       '#type' => 'radios',
@@ -147,26 +166,35 @@ WHERE {{
 EOQ;
   $results = ObjectHelper::performSparqlQuery($query);
 
-  foreach ((array)$results as $result) {
+  foreach ((array) $results as $result) {
     $e_pid = $result['embargoed'];
     $e_dsid = NULL;
     $e_exp = $result['expiry'];
-    if(strpos($e_pid, '/') !== FALSE) {
-      //Is DSID
+    if (strpos($e_pid, '/') !== FALSE) {
+      // Is DSID.
       list($e_pid, $e_dsid) = explode('/', $e_pid);
     }
 
-    //XXX:  Might get into trouble if we somehow have multiple embargo
-    //  statements for a single datastream, due to how we remove them from the
-    //  XACML.
-    //Do not remove statements which match our parameters.
+    /* XXX:  Might get into trouble if we somehow have multiple embargo
+      statements for a single datastream, due to how we remove them from the
+      XACML.*/
+    // Do not remove statements which match our parameters.
     if ($e_pid != $pid || $e_dsid != $dsid || $e_exp != $expiry) {
       islandora_scholar_embargo_lift_embargo($e_pid, $e_dsid);
     }
   }
 }
 
-function islandora_scholar_embargo_form_validate($form, $form_state) {
+/**
+ * Implements hook_validate().
+ * Validates the embargo_form form.
+ *
+ * @param arrray $form
+ *   The form being validated.
+ * @param array $form_state
+ *   The state of the form being validated.
+ */
+function islandora_scholar_embargo_form_validate ($form, $form_state) {
   if ($form_state['values']['embargo_select'] == 'date') {
     if (empty($form_state['values']['embargo_date'])) {
       form_set_error('embargo_date', t('Date must be provided, due to the selected duration.'));
@@ -185,7 +213,16 @@ function islandora_scholar_embargo_form_validate($form, $form_state) {
   }
 }
 
-function islandora_scholar_embargo_form_submit($form, $form_state) {
+/**
+ * Implements hook_submit().
+ * This function will handle the submission of the embargo form.
+ *
+ * @param unknown_type $form
+ *   The form being submitted.
+ * @param unknown_type $form_state
+ *   The state of the form being submited.
+ */
+function islandora_scholar_embargo_form_submit ($form, $form_state) {
   $pid = $form_state['values']['pid'];
   $dsid = $form_state['values']['dsid'];
   if ($dsid == '!object/level!') {
