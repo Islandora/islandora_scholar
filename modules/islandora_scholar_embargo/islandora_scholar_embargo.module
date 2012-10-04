@@ -386,7 +386,8 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
 }
 
 /**
- * Implements hook_action_info().
+ * A Drupal Action set up to run through
+ * islandora_scholar_embargo_action_info().
  *
  * Makes the embargo for the given object get lifted.
  *
@@ -417,7 +418,7 @@ function islandora_scholar_embargo_action_info() {
     'islandora_scholar_embargo_expired_mail_action' => array(
       'type' => 'islandora_scholar_embargo',
       'description' => t('Embargo lift notification'),
-      'hooks' => array('islandora_scholar_embargo' => array('lifted_embarge')),
+      'hooks' => array('islandora_scholar_embargo' => array('lifted_embargo')),
     ),
   );
 }
