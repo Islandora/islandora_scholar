@@ -209,7 +209,11 @@ function islandora_scholar_embargo_form_validate ($form, $form_state) {
     }
   }
   elseif (!empty($form_state['values']['embargo_date'])) {
-    form_set_error('embargo_date', t('Date field should be empty, given selected duration.'));
+    /* Set to empty string if no-embargo was selected.
+     * @XXX In the future this could be made more user friendly
+     *   with ahah to reset the date field.
+     */
+    $form_state['values']['embargo_date'] = '';
   }
 }
 
