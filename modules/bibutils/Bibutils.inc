@@ -120,8 +120,7 @@ class Bibutils {
       list($exit_status, $output) = self::Execute($command);
       if ($exit_status == 0) {
         $results = module_invoke_all('postprocess_bibutils_convert', $src, $src_format, $dest, $dest_format);
-        error_log(print_r($results, TRUE));
-        return!in_array(FALSE, $results, TRUE); // No post process function returned false.
+        return !in_array(FALSE, $results, TRUE); // No post process function returned false.
       }
     }
     return FALSE;
