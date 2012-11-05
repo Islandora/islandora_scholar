@@ -1,0 +1,6 @@
+name = Pubmed Importer
+description = Importer plugin for Pubmed IDs.
+package = Islandora Tools
+dependencies[] = islandora_scholar_importer
+version = 6.x-dev
+core = 6.x
