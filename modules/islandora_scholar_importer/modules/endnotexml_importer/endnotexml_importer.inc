@@ -82,7 +82,7 @@ class EndNoteXMLImportObject extends IslandoraScholarImportObject {
 
     return (empty($record) ?
       FALSE:
-      new self($record, $parent_pid)); //XXX:  Be careful with "self"?  PHP is odd.
+      new self($record)); //XXX:  Be careful with "self"?  PHP is odd.
   }
 
   public function get_mods() {

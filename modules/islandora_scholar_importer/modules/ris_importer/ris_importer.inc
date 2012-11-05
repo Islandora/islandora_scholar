@@ -103,7 +103,7 @@ class RISImportObject extends IslandoraScholarImportObject {
     $record = trim($record);
     return (empty($record) ?
       FALSE:
-      new self($record, $parent_pid)); //XXX:  Be careful with "self"?  PHP is odd.
+      new self($record)); //XXX:  Be careful with "self"?  PHP is odd.
   }
 
   public function get_mods() {
