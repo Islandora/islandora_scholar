@@ -62,8 +62,8 @@ abstract class IslandoraScholarBatchImporter {
    * @param $context
    *   An array containing the batch context.
    */
-  public function __construct($file, $parent_pid, &$context) {
-    $this->file = $file;
+  public function __construct(&$file, $parent_pid, &$context) {
+    $this->file = &$file;
     $this->parent_pid = $parent_pid;
     $this->context =& $context;
   }

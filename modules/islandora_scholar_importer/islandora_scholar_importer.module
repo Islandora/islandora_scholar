@@ -75,7 +75,7 @@ function islandora_scholar_importer_form(&$form_state, $parent_pid = NULL, $opti
     //   and the class is one which extends IslandoraScholarBatchImporter
     //   (which is defined in islandora_scholar_importer.inc)
     extract($form_state['storage']['importer']);
-    module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
+    module_load_include('inc', 'islandora_scholar_importer');
     module_load_include($type, $module, $file);
     if (is_subclass_of($class, 'IslandoraScholarBatchImporter')) {
       return $class::get_form($form_state);
@@ -145,7 +145,7 @@ function islandora_scholar_importer_form(&$form_state, $parent_pid = NULL, $opti
 function islandora_scholar_importer_form_submit(&$form, &$form_state) {
   if (isset($form_state['storage']['importer'])) {
     extract($form_state['storage']['importer']);
-    module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
+    module_load_include('inc', 'islandora_scholar_importer');
     module_load_include($type, $module, $file);
     if (is_subclass_of($class, 'IslandoraScholarBatchImporter') && $class::ready_for_batch($form_state)) {
       $batch = array(
@@ -204,8 +204,15 @@ function islandora_scholar_importer_form_submit(&$form, &$form_state) {
  */
 function islandora_scholar_importer_run_batch($class_info, $import_info, $parent_pid, &$context) {
   extract($class_info);
-  module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
+  module_load_include('inc', 'islandora_scholar_importer');
   module_load_include($type, $module, $file);
+
+  // XXX:  Bit of a hack, as batch parameters cannot be references.
+  if (!isset($context['results']['islandora_scholar_importer']['import_info'])) {
+    $context['results']['islandora_scholar_importer']['import_info'] = $import_info;
+  }
+  $import_info = &$context['results']['islandora_scholar_importer']['import_info'];
+
   if (is_subclass_of($class, 'IslandoraScholarBatchImporter')) {
     $instance = new $class($import_info, $parent_pid, $context);
     $instance->run_batch();
@@ -227,7 +234,9 @@ function islandora_scholar_importer_run_batch($class_info, $import_info, $parent
  */
 function islandora_scholar_importer_batch_finished($success, $results, $ops) {
   if ($success) {
+    // XXX: Remove some of our "stored" values.
     unset($results['pid_cache']);
+    unset($results['islandora_scholar_importer']);
 
     $filename = file_create_filename('batch_import_results.html', file_directory_path());
     $file = fopen($filename, 'w');

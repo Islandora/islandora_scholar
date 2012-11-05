@@ -1,6 +1,6 @@
 <?php
 
-module_load_include('inc', 'islandora_scholar_importer', 'islandora_scholar_importer');
+module_load_include('inc', 'islandora_scholar_importer');
 
 /**
  * RIS citation importer.
