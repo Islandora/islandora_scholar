@@ -92,7 +92,6 @@ class DOIImportObject extends IslandoraScholarImportObject {
     )));
 
     $response = drupal_http_request($url);
-    dsm($response);
     if ($response->data &&
       strpos($response->headers['Content-Type'], 'text/html') === FALSE &&
       strpos($response->data, "Malformed DOI") === FALSE) {
