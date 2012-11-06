@@ -158,7 +158,7 @@ abstract class IslandoraScholarBatchImporter {
         if (empty($this->context['results']['pid_cache'])) {
           //Get enough PIDs for half of the remaining items...
           //  (plus one, so we'll always get at least one).
-          $this->context['results']['pid_cache'] = Fedora_Item::get_next_PID_in_namespace(
+          $this->context['results']['pid_cache'] = (array)Fedora_Item::get_next_PID_in_namespace(
             $item->pid_namespace,
             intval((($this->context['sandbox']['max'] - $this->context['sandbox']['progress']) / 2) + 1)
           );
@@ -267,11 +267,14 @@ abstract class IslandoraScholarImportObject {
    */
   public function get_title() {
     if ($this->title === NULL) {
-      $mods_doc = DOMDocument::loadXML($this->get_mods());
-      $mods_xpath = new DOMXPath($mods_doc);
-      $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
+      $mods = $this->get_mods();
+      if ($mods) {
+        $mods_doc = DOMDocument::loadXML($mods);
+        $mods_xpath = new DOMXPath($mods_doc);
+        $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
 
-      $this->title = $mods_xpath->evaluate('string(//m:mods/m:titleInfo/m:title/text())');
+        $this->title = $mods_xpath->evaluate('string(//m:mods/m:titleInfo/m:title/text())');
+      }
     }
 
     return $this->title;
