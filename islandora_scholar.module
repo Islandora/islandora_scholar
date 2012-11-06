@@ -62,13 +62,17 @@ function islandora_scholar_islandora_tabs($cms, $pid, $page) {
  */
 function islandora_scholar_menu() {
   return array(
-    'admin/settings/fedora_repository/scholar' => array(
-      'title' => 'Scholar',
-      'type' => MENU_LOCAL_TASK,
+    'admin/settings/islandora_scholar' => array(
+      'title' => 'Islandora Scholar',
+      'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
       'access arguments' => array('access administration pages'),
       'file' => 'islandora_scholar.admin.inc',
+    ),
+    'admin/settings/islandora_scholar/base' => array(
+      'title' => 'Base Config',
+      'type' => MENU_DEFAULT_LOCAL_TASK,
     ),
   );
 }
