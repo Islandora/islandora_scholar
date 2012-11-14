@@ -121,7 +121,8 @@ class CSL {
    *   The default style name
    */
   public static function GetDefaultName() {
-    $default = variable_get('csl_default_style', array_shift(self::GetNames()));
+    $names = self::GetNames();
+    $default = variable_get('csl_default_style', array_shift($names));
     return $default;
   }
 
