@@ -1,10 +1,10 @@
 name = Scholarly Research Data
-dependencies[] = fedora_repository
+dependencies[] = islandora
 dependencies[] = citeproc
 dependencies[] = bibutils
-dependencies[] = islandora_solr_search
-description = Shows a list of items in a fedora collection, specific to scholarly publications
+dependencies[] = islandora_solr
+description = Shows a list of items in a Fedora collection, specific to scholarly publications.
 package = Islandora
-version = 6.x-$Format:%h$-dev
-core = 6.x
+version = 7.x-$Format:%h$-dev
+core = 7.x
 

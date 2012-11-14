@@ -7,6 +7,33 @@
  * @author adam@discoverygarden.ca
  */
 
+interface IslandoraScholarBatchImporterInterface {
+  /**
+   * Determine if we're ready to run our batch process...
+   *
+   * ... probably checking values.  Might almost be thought of as validation?
+   *
+   * @abstract
+   * @param $form_state
+   *   An array containing the form state.
+   * @return
+   *   A boolean indicating whether or not we have all the info to start the
+   *   batch is available.
+   */
+  public static function ready_for_batch(&$form_state);
+
+  /**
+   * Get the required info to pass into the file parameter of the constructor.
+   *
+   * @param $form_state
+   *   An array containing the form state (very likely resulting from the
+   *   submission of the form returned from self::get_form
+   * @return
+   *   Whatever (serializable) data will be passed to self::$item_class->get_one()
+   */
+  public static function get_batch_info(&$form_state);
+}
+
 /**
  * Scholar importer interface/abstract class.
  *
@@ -15,7 +42,7 @@
  *
  * @author adam@discoverygarden.ca
  */
-abstract class IslandoraScholarBatchImporter {
+abstract class IslandoraScholarBatchImporter implements IslandoraScholarBatchImporterInterface {
   /**
    * A string containing the name of a timer used in the run_batch method.
    * @var string
@@ -69,31 +96,6 @@ abstract class IslandoraScholarBatchImporter {
   }
 
   /**
-   * Determine if we're ready to run our batch process...
-   *
-   * ... probably checking values.  Might almost be thought of as validation?
-   *
-   * @abstract
-   * @param $form_state
-   *   An array containing the form state.
-   * @return
-   *   A boolean indicating whether or not we have all the info to start the
-   *   batch is available.
-   */
-  abstract public static function ready_for_batch(&$form_state);
-
-  /**
-   * Get the required info to pass into the file parameter of the constructor.
-   *
-   * @param $form_state
-   *   An array containing the form state (very likely resulting from the
-   *   submission of the form returned from self::get_form
-   * @return
-   *   Whatever (serializable) data will be passed to self::$item_class->get_one()
-   */
-  abstract public static function get_batch_info(&$form_state);
-
-  /**
    * Get the form for this importer...
    *
    * Could have a multiple-page form given ready_for_batch and the form state.
@@ -132,7 +134,8 @@ abstract class IslandoraScholarBatchImporter {
 
     $item_class = $this->item_class;
 
-    module_load_include('inc', 'fedora_repository', 'api/fedora_item');
+    module_load_include('inc', 'islandora', 'includes/tuque');
+    $tuque = new IslandoraTuque();
 
     //Assume we'll have enough time if less than 1/3 of the execution time has passed.
     //  If it's zero, we should have an infinite amount of time (running the batch
@@ -158,7 +161,7 @@ abstract class IslandoraScholarBatchImporter {
         if (empty($this->context['results']['pid_cache'])) {
           //Get enough PIDs for half of the remaining items...
           //  (plus one, so we'll always get at least one).
-          $this->context['results']['pid_cache'] = (array)Fedora_Item::get_next_PID_in_namespace(
+          $this->context['results']['pid_cache'] = (array)$tuque->api->m->getNextPid(
             $item->pid_namespace,
             intval((($this->context['sandbox']['max'] - $this->context['sandbox']['progress']) / 2) + 1)
           );
@@ -198,6 +201,19 @@ abstract class IslandoraScholarBatchImporter {
   }
 }
 
+interface IslandoraScholarImportObjectInterface {
+  /**
+   * Get an item from the source
+   *
+   * Extract one item from the source (modifying the source such that in no
+   * longer contains the one being extracted).  Return an instantiation of
+   * this class representing the one extracted from the source.
+   *
+   * Return NULL if there's none to get.
+   */
+  public static function get_one(&$source);
+}
+
 /**
  * A base object (MODS + DC) which can write itself out to Fedora.
  *
@@ -206,7 +222,7 @@ abstract class IslandoraScholarBatchImporter {
  *
  * @author adam@discoverygarden.ca
  */
-abstract class IslandoraScholarImportObject {
+abstract class IslandoraScholarImportObject implements IslandoraScholarImportObjectInterface {
   public $pid_namespace = 'ir';
   public $pid_cache_size = 2;
 
@@ -217,22 +233,10 @@ abstract class IslandoraScholarImportObject {
   protected $source;
 
   /**
-   * Should not really be necessary as a member variable; however,  PHP apparently
-   * does not reinstantialize static variables inside methods for different.
-   * @var unknown_type
+   * Used for lazy-loading storage.
+   * @var string|null
    */
   protected $dc = NULL, $title = NULL;
-
-  /**
-   * Get an item from the source
-   *
-   * Extract one item from the source (modifying the source such that in no
-   * longer contains the one being extracted).  Return an instantiation of
-   * this class representing the one extracted from the source.
-   *
-   * Return NULL if there's none to get.
-   */
-  public static abstract function get_one(&$source);
 
   /**
    * Private constructor.
@@ -322,112 +326,102 @@ abstract class IslandoraScholarImportObject {
    */
   public function write_to_fedora($pid, $parent_pid = NULL) {
     global $user;
-    module_load_include('inc', 'fedora_item', 'api/fedora_item');
+    module_load_include('ingest.inc', 'islandora', 'includes/islandora');
 
     $to_return = array();
 
-    $ingested = $item = Fedora_Item::ingest_new_item($pid, 'A', $this->get_title());
-    if ($ingested) {
-      //Ingest the MODS.
-      $obtained_mods = $this->get_mods();
-      if ($obtained_mods) {
-        $added_mods = $item->add_datastream_from_string($obtained_mods, 'MODS', 'MODS Record', 'text/xml', 'X');
-        if (!$added_mods) {
-          $to_return[] = array(
-            t('Failed to upload MODS to @pid in Fedora.'),
-            array('@pid' => $pid),
-            WATCHDOG_DEBUG,
-            l($pid, "fedora/repository/$pid"),
-          );
-        }
-      }
-      else {
-        $to_return[] = array(
-          t('Failed to produce MODS for @pid.'),
-          array('@pid' => $pid),
-          WATCHDOG_DEBUG,
-          l($pid, "fedora/repository/$pid"),
-        );
-      }
+    $namespace = $this->pid_namespace;
+    $label = $this->get_title();
+    $datastreams = array();
+    $content_models = array();
+    $relationships = array();
+    $collection_pid = NULL;
 
-      //Ingest the DC second (
-      $obtained_dc = $this->get_dc();
-      if ($obtained_dc) {
-        $added_dc = $item->modify_datastream($obtained_dc, 'DC', 'DC Record', 'text/xml');
-        if (!$added_dc) {
-          $to_return[] = array(
-            t('Failed to upload DC to @pid in Fedora.'),
-            array(
-              '@pid' => $pid
-            ),
-            WATCHDOG_DEBUG,
-            l($pid, "fedora/repository/$pid"),
-          );
-        }
-      }
-      else {
-        $to_return[] = array(
-          t('Failed to produce DC for @pid.'),
-          array(
-            '@pid' => $pid,
-          ),
-          WATCHDOG_DEBUG,
-          l($pid, "fedora/repository/$pid"),
-        );
-      }
+    $files = array();
 
-      //XXX:  Parameterize the content model.
-      $success = $item->add_relationship('hasModel', 'ir:citationCModel', FEDORA_MODEL_URI);
-      if (!$success) {
-        $to_return[] = array(
-          t('Failed to add model relation to @pid in Fedora.'),
-          array(
-            '@pid' => $pid,
-          ),
-          WATCHDOG_DEBUG,
-          l($pid, "fedora/repository/$pid"),
-        );
-      }
-
-      $success = $item->add_relationship('isMemberOfCollection', $parent_pid);
-      if (!$success) {
-        $to_return[] = array(
-          t('Failed to add parent relation to @pid in Fedora.'),
-          array(
-            '@pid' => $pid
-          ),
-          WATCHDOG_DEBUG,
-          l($pid, "fedora/repository/$pid"),
-        );
-      }
-
-      if (count($to_return) > 0) {
-        $to_return[] = array(
-          t('There seem to have been issues ingesting "%title" as %pid.'),
-          array(
-            '%pid' => $pid,
-            '%title' => $this->get_title()),
-          WATCHDOG_ERROR,
-          l($pid, "fedora/repository/$pid"),
-        );
-      }
-      else {
-        $to_return[] = array(
-          t('Ingested "%title" as %pid.'),
-          array(
-            '%title' => $this->get_title(),
-            '%pid' => $pid,
-          ),
-          WATCHDOG_INFO,
-          l($pid, "fedora/repository/$pid"),
-        );
-      }
+    //Ingest the MODS.
+    $obtained_mods = $this->get_mods();
+    if ($obtained_mods) {
+      $files[] = $file = file_save_data($obtained_mods);
+      $datastreams[] = array(
+        'dsid' => 'MODS',
+        'label' => 'MODS Record',
+        'mimetype' => 'text/xml',
+        'control_group' => 'X',
+        'datastream_file' => file_create_url($file->uri),
+      );
     }
     else {
       $to_return[] = array(
-        t('Failed to create item @pid in Fedora.'),
+        t('Failed to produce MODS for @pid.'),
         array('@pid' => $pid),
-        WATCHDOG_ERROR
+        WATCHDOG_DEBUG,
+        l($pid, "islandora/object/$pid"),
+      );
+    }
+
+    //Ingest the DC second (
+    $obtained_dc = $this->get_dc();
+    if ($obtained_dc) {
+      $files[] = $file = file_save_data($obtained_dc);
+      $datastreams[] = array(
+        'dsid' => 'DC',
+        'label' => 'DC Record',
+        'mimetype' => 'text/xml',
+        'control_group' => 'X',
+        'datastream_file' => file_create_url($file->uri),
+      );
+    }
+    else {
+      $to_return[] = array(
+        t('Failed to produce DC for @pid.'),
+        array(
+          '@pid' => $pid,
+        ),
+        WATCHDOG_DEBUG,
+        l($pid, "islandora/object/$pid"),
+      );
+    }
+
+    //XXX:  Parameterize the content model.
+    $content_models[] = 'ir:citationCModel';
+
+    $collection_pid = $parent_pid;
+    $relationships[] = array(
+      'relationship' => 'isMemberOfCollection',
+      'pid' => $parent_pid,
+    );
+
+    $object = islandora_ingest_new_object_prepare($namespace, $label,
+      $datastreams, $content_models, $relationships, $collection_pid);
+
+    $object = islandora_ingest_add_object($object);
+
+    foreach ($files as $file) {
+      if ($file) {
+        file_delete($file);
+      }
+    }
+
+    if (count($to_return) > 0) {
+      $to_return[] = array(
+        t('There seem to have been issues ingesting "%title" as %pid.'),
+        array(
+          '%pid' => $pid,
+          '%title' => $this->get_title()),
+        WATCHDOG_ERROR,
+        l($pid, "islandora/object/$pid"),
+      );
+    }
+    else {
+      $to_return[] = array(
+        t('Ingested "%title" as %pid.'),
+        array(
+          '%title' => $this->get_title(),
+          '%pid' => $pid,
+        ),
+        WATCHDOG_INFO,
+        l($pid, "islandora/object/$pid"),
       );
     }
 

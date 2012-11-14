@@ -92,7 +92,7 @@ class CiteProcJS {
       global $base_url;
       $module_path = drupal_get_path('module', 'citeproc');
       // Required for a javascript error, note the type of the script.
-      drupal_set_html_head("<script type='text/javascript; e4x=1' src='$base_url/$module_path/lib/citeproc-js/xmle4x.js'></script>");
+      drupal_add_html_head("<script type='text/javascript; e4x=1' src='$base_url/$module_path/lib/citeproc-js/xmle4x.js'></script>");
       drupal_add_js($module_path . '/lib/citeproc-js/xmldom.js');
       drupal_add_js($module_path . '/lib/citeproc-js/citeproc.js');
       drupal_add_js($module_path . '/js/loadsys.js');
@@ -120,7 +120,7 @@ class CiteProcJS {
    *   The data to store in the drupal settings object.
    */
   private function storeInSettings(array $data) {
-    $data['refresh'] = true;
+    $data['refresh'] = TRUE;
     drupal_add_js(array('citeproc' => $data), 'setting');
   }
 

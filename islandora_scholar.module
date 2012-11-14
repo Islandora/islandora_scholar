@@ -32,71 +32,45 @@ function islandora_scholar_theme() {
 }
 
 /**
- * Implements hook_islandora_tabs().
- */
-function islandora_scholar_islandora_tabs($cms, $pid, $page) {
-  $tabset = array();
-
-  foreach ($cms as $cm) {
-    if ($cm->pid == 'ir:citationCollectionCModel' | $cm->pid == 'ir:authorityCollectionCModel') {
-      module_load_include('inc', 'fedora_repository', 'CollectionClass');
-      $cc = new CollectionClass($pid);
-      $tabset += $cc->showFieldSets($page);
-    }
-    elseif ($cm->pid == 'ir:citationCModel') {
-      module_load_include('inc', 'islandora_scholar', 'citation.tab');
-      $tabset += CitationView::get_tabs($pid);
-      module_load_include('inc', 'islandora_scholar', 'upload.tab');
-      $tabset += UploadView::get_tabs($pid);
-      module_load_include('inc', 'islandora_scholar', 'romeo.tab');
-      $tabset += RomeoView::get_tabs($pid);
-      module_load_include('inc', 'islandora_scholar', 'supplemental_info.tab');
-    }
-  }
-
-  return $tabset;
-}
-
-/**
  * Implements hook_menu().
  */
 function islandora_scholar_menu() {
   return array(
-    'admin/settings/islandora_scholar' => array(
-      'title' => 'Islandora Scholar',
+    'admin/islandora/scholar' => array(
+      'title' => 'Scholar',
       'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
       'access arguments' => array('access administration pages'),
       'file' => 'islandora_scholar.admin.inc',
     ),
-    'admin/settings/islandora_scholar/base' => array(
-      'title' => 'Base Config',
+    'admin/islandora/scholar/base' =>  array(
+      'title' => 'Basic Configuration',
       'type' => MENU_DEFAULT_LOCAL_TASK,
     ),
-  );
-}
-
-/**
- * Implements hook_islandora_object_details_display().
- */
-function islandora_scholar_islandora_object_details_display() {
-  return array(
-    'islandora_scholar_details' => array(
-      'name' => t('Scholar MODS'),
-      'module' => 'islandora_scholar',
-      'file' => 'includes/Coins.inc',
-      'function' => 'islandora_scholar_details',
-      'description' => t('Some MODS metadata extracted into a table.'),
+    'islandora/object/%islandora_object/islandora_scholar_romeo' => array(
+      'title' => 'RoMEO',
+      'type' => MENU_LOCAL_TASK,
+      'page callback' => 'islandora_scholar_romeo_view',
+      'page arguments' => array(2),
+      'access callback' => 'islandora_scholar_romeo_access',
+      'access arguments' => array(2),
+      'file' => 'romeo.tab.inc',
+    ),
+    'islandora/object/%islandora_object/islandora_scholar_upload' => array(
+      'title' => 'Document',
+      'type' => MENU_LOCAL_TASK,
+      'page callback' => 'islandora_scholar_upload_view',
+      'page arguments' => array(2),
+      'access callback' => 'islandora_scholar_upload_access',
+      'access arguments' => array(2),
+      'file' => 'upload.tab.inc',
     ),
   );
 }
 
 /**
  * Implements hook_islandora_solr_primary_display().
- *
- * @return array
- *   An array describing the solr display provided.
  */
 function islandora_scholar_islandora_solr_primary_display() {
   return array(
@@ -113,14 +87,9 @@ function islandora_scholar_islandora_solr_primary_display() {
 }
 
 /**
- * Implements hook_required_fedora_objects().
- *
- * @return array
- *   Describes the Fedora objects that the module needs.
- *   The citation collection and content model.
+ * Implements hook_islandora_required_objects().
  */
-function islandora_scholar_required_fedora_objects() {
-
+function islandora_scholar_islandora_required_objects() {
   // Build a thumbnail datastream.
   $module_path = drupal_get_path('module', 'islandora_scholar');
   $folder_thumbnail_datastream = array(
@@ -160,4 +129,55 @@ function islandora_scholar_required_fedora_objects() {
       ),
     ),
   );
+}
+
+/**
+ * Implements hook_CMODEL_PID_islandora_view_object().
+ */
+function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
+  module_load_include('inc', 'islandora_scholar', 'citation.tab');
+  module_load_include('inc', 'islandora_scholar', 'includes/Coins');
+  $display = array(
+    'citation' => array(
+      '#markup' => CitationView::get_citation($object['MODS']->content),
+    ),
+    'viewer' => CitationView::get_viewer($object),
+    'metadata' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Metadata'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      'value' => islandora_scholar_details($object),
+    ),
+  );
+
+  dsm($display, 'output array');
+
+  return array('citation.tab' => drupal_render($display));
+}
+
+/**
+ * Access callback for upload tab.
+ *
+ * Allow if the user's allowed to add datastreams or is the object's owner.
+ */
+function islandora_scholar_upload_access($object) {
+  global $user;
+  $is_owner = property_exists($user, 'name') && ($user->name == $object->owner);
+  return in_array('ir:citationCModel', $object->models) &&
+    (user_access(FEDORA_ADD_DS) || $is_owner);
+}
+
+/**
+ * Access callback, to determine whether or not to create the RoMEO tab.
+ *
+ * Checks if it's enabled, we have the relevant content model, and we have an
+ * ISSN to look up.
+ */
+function islandora_scholar_romeo_access($object) {
+  module_load_include('tab.inc', 'islandora_scholar', 'romeo');
+
+  return variable_get('islandora_scholar_romeo_enable', FALSE) &&
+    in_array('ir:citationCModel', $object->models) &&
+    RomeoView::get_issn($object->pid);
 }

@@ -4,7 +4,7 @@
  * @file
  *
  */
-module_load_include('inc', 'islandora_solr_search', 'IslandoraSolrResults');
+module_load_include('inc', 'islandora_solr', 'IslandoraSolrResults');
 
 /**
  * Extention of IslandoraSolrResults for templating purposes.
@@ -19,9 +19,8 @@ class IslandoraSolrResultsCitation extends IslandoraSolrResults {
    * @param string $title
    * @param string $output
    */
-  function displayResults(IslandoraSolrQueryProcessor $query_processor, $title = "Search Results", $output = '') {
+  function displayResults($query_processor) {
     module_load_include('inc', 'scholar', 'SearchForm');
-    drupal_set_title(t('Search Publications'));
     drupal_add_css(drupal_get_path('module', 'scholar') . '/css/Search.css');
 
     if (!empty($_SESSION['scholar']['search']['sort'])) {
@@ -49,7 +48,7 @@ class IslandoraSolrResultsCitation extends IslandoraSolrResults {
     islandora_solr_search_pager_init($total, $query_processor->solrLimit);
     $output .= '<div class="content">';
     $output .= drupal_get_form('islandora_scholar_search_results_form', $query_processor);
-    $output .= theme('pager', null, $query_processor->solrLimit, 0, null, 5);
+    $output .= theme('pager', NULL, $query_processor->solrLimit, 0, NULL, 5);
     $output .= "</div>";
     return $output;
   }
@@ -88,7 +87,7 @@ function template_preprocess_islandora_scholar_search_alt_item(array &$vars) {
     $title = $title[0];
   }
   //XXX:  Shouldn't have to occur (multiple times, anyway).
-  while(($decoded = htmlspecialchars_decode($title, ENT_QUOTES)) != $title) {
+  while (($decoded = htmlspecialchars_decode($title, ENT_QUOTES)) != $title) {
     $title = $decoded;
   }
   $vars['title'] = l($title, 'fedora/repository/' . htmlspecialchars($pid, ENT_QUOTES, 'utf-8', FALSE));
@@ -107,7 +106,7 @@ function template_preprocess_islandora_scholar_search_item(array &$variables) {
   if ($item->exists() && isset($item->datastreams['MODS'])) {
     $title = $item->objectProfile->objLabel;
     //XXX:  Shouldn't have to occur (multiple times, anyway).
-    while(($decoded = htmlspecialchars_decode($title, ENT_QUOTES)) != $title) {
+    while (($decoded = htmlspecialchars_decode($title, ENT_QUOTES)) != $title) {
       $title = $decoded;
     }
     $variables['title'] = l($title, 'fedora/repository/' . htmlspecialchars($pid, ENT_QUOTES, 'utf-8', FALSE));
@@ -117,7 +116,7 @@ function template_preprocess_islandora_scholar_search_item(array &$variables) {
     $cached_raw = NULL;
     $cache_id = NULL;
 
-    if(module_exists('citeproc') && CITEPROC_DO_CACHE) {
+    if (module_exists('citeproc') && CITEPROC_DO_CACHE) {
       $cached_raw = cache_get($cache_id);
       $cache_id = CITEPROC_CACHE_PREFIX . '_' . $pid;
     }
@@ -164,7 +163,7 @@ function islandora_scholar_search_results_form(array &$form_state, IslandoraSolr
     // Turn the choice of getting object MODS from Fedora or Solr into a configuration option
     // Default is to get it the old way: from Fedora -- THEME_SCHOLAR_SEARCH_ITEM
     $result = (
-      variable_get('islandora_scholar_theme_citation_from_solr_mods',false) ?
+      variable_get('islandora_scholar_theme_citation_from_solr_mods', FALSE) ?
       theme(THEME_SCHOLAR_SEARCH_ITEM_ALT, $doc, $style) :
       theme(THEME_SCHOLAR_SEARCH_ITEM, $pid, $style)
     );
@@ -189,7 +188,7 @@ function islandora_scholar_search_results_form(array &$form_state, IslandoraSolr
       'save' => array(),
     ),
     'pager' => array(
-      '#value' => theme('pager', null, $query_processor->solrLimit, 0, null, 5)
+      '#value' => theme('pager', NULL, $query_processor->solrLimit, 0, NULL, 5)
     ),
     'table' => $table,
   );

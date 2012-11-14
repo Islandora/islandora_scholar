@@ -1,7 +1,7 @@
 name = Islandora Scholar Importer
 description = Pluggable importer of citation records.
 package = Islandora Tools
-dependencies[] = fedora_repository
-version = 6.x-dev
-core = 6.x
+dependencies[] = islandora
+version = 7.x-dev
+core = 7.x
 php = 5.2

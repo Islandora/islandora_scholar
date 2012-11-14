@@ -1,34 +1,23 @@
 <?php
 
-class UploadView {
-  public static function get_tabs($pid) {
-    $tab_set = array();
-    module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-    $item = new Fedora_Item($pid);
-    if(user_access('ingest new fedora objects' || $is_owner)) {
-      $has_pdf = array_key_exists('PDF', $item->datastreams);
-      $tab_set += array(
-        'upload' => array(
-          '#type' => 'tabpage',
-          '#tab_name' => 'attach-doc',
-          '#title' => ($has_pdf ?
-            t('Attached Document'):
-            t('Attach Document')),
-          '#content' => ($has_pdf ?
-            drupal_get_form('islandora_scholar_modify_form', $pid):
-            drupal_get_form('islandora_scholar_upload_form', $pid)),
-        ),
-      );
-    }
-
-    return $tab_set;
+/**
+ * Page callback for upload tab.
+ *
+ * Show form to upload if the PDF does not exist on the given object.  Show
+ * form to modify if there is a PDF.
+ */
+function islandora_scholar_upload_view($object) {
+  $form_name = 'islandora_scholar_upload_form';
+  if (isset($object['PDF'])) {
+    $form_name = 'islandora_scholar_modify_form';
   }
+
+  return drupal_get_form($form_name, $object);
 }
 
-function islandora_scholar_modify_form($form_state, $pid) {
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-  $item = new Fedora_Item($pid);
-  $mods_str = trim($item->get_datastream_dissemination('MODS'));
+function islandora_scholar_modify_form($form_state, $object) {
+  $mods_str = trim($object['MODS']->content);
+
   $mods_doc = DOMDocument::loadXML($mods_str);
   $mods_xpath = new DOMXPath($mods_doc);
   $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
@@ -46,7 +35,7 @@ function islandora_scholar_modify_form($form_state, $pid) {
   return array(
     'pid' => array( //Store the PID.
       '#type' => 'value',
-      '#value' => $pid,
+      '#value' => $object->id,
     ),
     'dsid' => array(
       '#type' => 'value',
@@ -72,12 +61,12 @@ function islandora_scholar_modify_form($form_state, $pid) {
 
 function islandora_scholar_modify_form_submit($form, &$form_state) {
   extract($form_state['values']);
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-  $item = new Fedora_Item($pid);
+
+  $object = islandora_object_load($pid);
 
   if ($form_state['clicked_button']['#name'] == 'delete_document') {
     //TODO:  Also remove the PDF's derivatives.
-    $status = $item->purge_datastream($dsid);
+    $status = islandora_purge_datastream($object, $dsid);
 
     if ($status === NULL) {
       drupal_set_message(t('DON\'T PANIC!, but we may have failed purging the ' .
@@ -86,7 +75,7 @@ function islandora_scholar_modify_form_submit($form, &$form_state) {
   }
 }
 
-function islandora_scholar_upload_form(&$form_state, $pid) {
+function islandora_scholar_upload_form(&$form_state, $object) {
   return array(
     '#type' => 'form',
     'upload_document' => array(
@@ -94,7 +83,7 @@ function islandora_scholar_upload_form(&$form_state, $pid) {
       '#title' => t('Upload Document'),
       'pid' => array(
         '#type' => 'value',
-        '#value' => $pid,
+        '#value' => $object->id,
       ),
       'dsid' => array(
         '#type' => 'value',
@@ -137,20 +126,18 @@ function islandora_scholar_upload_form(&$form_state, $pid) {
         '#value' => t('Upload'),
       ),
     ),
-    '#action' => url("fedora/repository/$pid", array('fragment' => 'attach-doc')),
-    '#attributes' => array('enctype' => "multipart/form-data"),
   );
 }
 
 //XXX:  Not the best check, but should be alright...
-function _islandora_scholar_check_mimetype($file, $desired_mimetype) {
+function islandora_scholar_check_mimetype($file, $desired_mimetype) {
   if ($file->filemime == $desired_mimetype) {
     return array();
   }
   elseif ($file->filemime == 'application/octet-stream') {
-    module_load_include('inc', 'fedora_repository', 'MimeClass');
-    $mc = new MimeClass();
-    if ($mc->get_mimemtype($file->filename) == $desired_mimetype) {
+    module_load_include('detect.inc', 'islandora', 'mime');
+    $mc = new MimeDetect();
+    if ($mc->getMimetype($file->filename) == $desired_mimetype) {
       return array();
     }
   }
@@ -163,20 +150,20 @@ function _islandora_scholar_check_mimetype($file, $desired_mimetype) {
 
 function islandora_scholar_upload_form_validate($form, &$form_state) {
   $form_state['values']['file'] = file_save_upload('file', array(
-    '_islandora_scholar_check_mimetype' => array('application/pdf'),
+    'islandora_scholar_check_mimetype' => array('application/pdf'),
   ));
   if ($form_state['values']['file'] === 0) {
     form_set_error('file', t('No file uploaded.'));
   }
 }
 
-function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage, $version) {
-  if (array_key_exists('MODS', $item->datastreams)) {
-    $mods_str = trim($item->get_datastream_dissemination('MODS'));
+function islandora_scholar_add_usage_and_version_elements_to_mods($object, $usage, $version) {
+  if (isset($object['MODS']) {
+    $mods_str = trim($object['MODS']->content);
     if (!$mods_str) {
       drupal_set_message(t('MODS in object @pid is empty...  Refusing to add ' .
         'usage and publication version statements alone.', array(
-          '@pid' => $item->pid
+          '@pid' => $object->id
         )
       ), 'error');
       return FALSE;
@@ -198,7 +185,7 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
       drupal_set_message(t('Could not find MODS element in object @pid is ' .
         'empty...  Refusing to add usage and publication version statements' .
         ' alone.', array(
-          '@pid' => $item->pid
+          '@pid' => $object->id
         )
       ), 'error');
       return FALSE;
@@ -242,12 +229,12 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
     }
     $version_element->appendChild($mods_doc->createTextNode($version));
 
-    $item->modify_datastream($mods_doc->saveXML(), 'MODS', 'MODS datastream', 'text/xml');
+    $object['MODS']->content = $mods_doc->saveXML();
   }
   else {
     drupal_set_message(t('No MODS in object @pid...  Refusing to add usage and ' .
       'publication version statements alone.', array(
-        '@pid' => $item->pid
+        '@pid' => $object->id
       )
     ), 'error');
   }
@@ -256,19 +243,19 @@ function _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage
 function islandora_scholar_upload_form_submit(&$form, &$form_state) {
   extract($form_state['values']);
 
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-  $item = new Fedora_Item($pid);
+  $object = islandora_object_load($pid);
 
-  $status = $item->add_datastream_from_file($file->filepath, $dsid, 'PDF datastream', 'application/pdf');
+  try {
+    $datastream = $object->constructDatastream($dsid, 'M');
+    $datastream->label = 'PDF Datastream';
+    $datastream->mimetype = 'application/pdf';
+    $datastream->setContentFromFile(drupal_realpath($file->filepath));
 
-  //Add datastream should return the DSID added on success...
-  if ($status !== NULL && $status->datastreamID == $dsid) {
-    $form_state['redirect'] = array("fedora/repository/$pid", NULL, 'overview');
+    $object->ingestDatastream($datastream);
 
-    _islandora_scholar_add_usage_and_version_elements_to_mods($item, $usage, $version);
+    islandora_scholar_add_usage_and_version_elements_to_mods($object, $usage, $version);
   }
-  else {
-    drupal_set_message(t('DON\'T PANIC!, but we may have failed adding the ' .
-      'datastream...  Some debug info: @info', array('@info' => print_r($status, TRUE))));
+  catch (Exception $e) {
+    drupal_set_message(t('@message', array('@message' => check_plain($e->getMessage()))), 'error');
   }
 }

@@ -75,8 +75,11 @@ class CSL {
    *   TRUE if the given style exists, FALSE otherwise.
    */
   public static function Exists($style_name) {
-    $query = db_query('SELECT count(name) FROM {%s} WHERE name = "%s"', self::table, $style_name);
-    $count = db_result($query);
+    $results = db_select(self::table, 't')//('SELECT count(name) FROM {%s} WHERE name = "%s"', self::table, $style_name);
+      ->fields('t')
+      ->condition('name', $style_name)
+      ->execute();
+    $count = $results->rowCount();
     return $count == 1;
   }
 
@@ -89,8 +92,10 @@ class CSL {
    */
   public static function GetNames() {
     $names = array();
-    $result = db_query('SELECT name FROM {%s}', self::table);
-    while ($data = db_fetch_object($result)) {
+    $results = db_select(self::table, 't')
+      ->fields('t', array('name'))
+      ->execute();
+    foreach ($results as $data) {
       $names[$data->name] = $data->name;
     }
     return $names;
@@ -133,19 +138,24 @@ class CSL {
    */
   public static function Get($style_name, $as_string=FALSE) {
     if (self::Exists($style_name)) {
-      $query = db_query('SELECT style FROM {%s} WHERE name = "%s"', self::table, $style_name);
-      $xml = db_result($query);
-      $xml = trim($xml);
-      if (!empty($xml)) {
-        $definition = NULL;
-        if (!$as_string) {
-          $definition = new DOMDocument();
-          $definition->loadXML($xml);
+      $results = db_select(self::table, 't')
+        ->fields('t', array('style'))
+        ->condition('name', $style_name)
+        ->execute();
+
+      foreach ($results as $data) {
+        $xml = trim($data->style);
+        if (!empty($xml)) {
+          $definition = NULL;
+          if (!$as_string) {
+            $definition = new DOMDocument();
+            $definition->loadXML($xml);
+          }
+          else {
+            $definition = $xml;
+          }
+           return $definition;
         }
-        else {
-          $definition = $xml;
-        }
-        return $definition;
       }
     }
     return FALSE;
@@ -206,7 +216,9 @@ class CSL {
    */
   public static function Delete($style_name) {
     if (self::Exists($style_name)) {
-      db_query('DELETE FROM {%s} WHERE name = "%s"', self::table, $style_name);
+      db_delete(self::table, 't')
+        ->condition('name', $style_name)
+        ->execute();
       return TRUE;
     }
     return FALSE;

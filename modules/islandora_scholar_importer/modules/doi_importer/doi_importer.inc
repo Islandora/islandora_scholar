@@ -125,13 +125,13 @@ class DOIImportObject extends IslandoraScholarImportObject {
             foreach ($journal->journal_metadata as $metadata) {
               $relatedItem = $mods->addChild('relatedItem');
               $relatedItem->addAttribute('type', 'host');
-              foreach ($metadata->attributes() as $name=>$item) {
+              foreach ($metadata->attributes() as $name => $item) {
                 switch ((string) $name) {
                   case 'language':
                     $language = (string) $item[0];
                 }
               }
-              foreach ($metadata->children() as $name=>$item) {
+              foreach ($metadata->children() as $name => $item) {
                 switch ((string) $name) {
                   case 'full_title':
                     $titleInfo = $relatedItem->addChild('titleInfo');
@@ -154,7 +154,7 @@ class DOIImportObject extends IslandoraScholarImportObject {
               }
             }
             foreach ($journal->journal_issue as $issue) {
-              foreach ($issue->children() as $name=>$item) {
+              foreach ($issue->children() as $name => $item) {
                 switch ((string) $name) {
                   case 'contributors':
                     break;
@@ -177,7 +177,7 @@ class DOIImportObject extends IslandoraScholarImportObject {
               }
             }
             foreach ($journal->journal_article as $article) {
-              foreach ($article->attributes() as $name=>$item) {
+              foreach ($article->attributes() as $name => $item) {
                 switch ((string) $name) {
                   case 'publication_type':
                     // todo
@@ -212,7 +212,7 @@ class DOIImportObject extends IslandoraScholarImportObject {
                     }
                     break;
                   case 'contributors':
-                    foreach ($item->children() as $type=>$contributor) {
+                    foreach ($item->children() as $type => $contributor) {
                       switch ((string) $type) {
                         case 'person_name':
                           $role = strtolower((string) $contributor['contributor_role']);
@@ -237,7 +237,7 @@ class DOIImportObject extends IslandoraScholarImportObject {
                           if ($role) {
                             $name_role = $mods_name->addChild('role');
                             $name_role->addChild('roleTerm', $role);
-                            if (in_array ($role, array('author','editor','translator'))) {
+                            if (in_array ($role, array('author', 'editor', 'translator'))) {
                               $name_role->roleTerm->addAttribute('authority', 'marcrelator');
                               $name_role->roleTerm->addAttribute('type', 'text');
                             }
@@ -329,13 +329,13 @@ class DOIImportObject extends IslandoraScholarImportObject {
                 $date_value = $pubdate_year;
                 if (!empty($pubdate_month)) {
                   if (strlen($pubdate_month) == 1) {
-                    $pubdate_month = "0".$pubdate_month;
+                    $pubdate_month = "0" . $pubdate_month;
                   }
                   $date_value .= "-" . $pubdate_month;
                 }
                 if (!empty($pubdate_day)) {
                   if (strlen($pubdate_day) == 1) {
-                    $pubdate_day = "0".$pubdate_day;
+                    $pubdate_day = "0" . $pubdate_day;
                   }
                   $date_value .= "-" . $pubdate_day;
                 }

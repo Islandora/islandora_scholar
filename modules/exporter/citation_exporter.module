@@ -48,7 +48,8 @@ function citation_exporter_form_islandora_bibliography_form_alter(&$form, &$form
   module_load_include('inc', 'citation_exporter', 'CitationExporter');
   if (CitationExporter::ReadyToExport()) {
     //XXX: refresh dealio may break stuff...
-    drupal_set_html_head('<meta http-equiv="refresh" content="1.0;' . url(MENU_CITATION_EXPORTER_EXPORT, array('absolute' => TRUE)) . '"/>');
+    drupal_add_html_head('<meta http-equiv="refresh" content="1.0;' . url(MENU_CITATION_EXPORTER_EXPORT, array('absolute' => TRUE)) . '"/>');
+
   }
   if (array_key_exists('fieldset', $form)) {
     $form['fieldset']['format']['#options'] = array_merge_recursive($form['fieldset']['format']['#options'], array(
@@ -77,7 +78,7 @@ function citation_exporter_form_islandora_scholar_search_results_form_alter(&$fo
   module_load_include('inc', 'citation_exporter', 'CitationExporter');
   if (CitationExporter::ReadyToExport()) {
     //XXX: refresh dealio seems to be not recommended...
-    drupal_set_html_head('<meta http-equiv="refresh" content="1.0;' . url(MENU_CITATION_EXPORTER_EXPORT, array('absolute' => TRUE)) . '"/>');
+    drupal_add_html_head('<meta http-equiv="refresh" content="1.0;' . url(MENU_CITATION_EXPORTER_EXPORT, array('absolute' => TRUE)) . '"/>');
   }
   if (empty($form['controls']['export'])) {
     module_load_include('inc', 'citation_exporter', 'CitationExporter');
@@ -132,7 +133,7 @@ function citation_exporter_export_submit_handler($form, $form_state) {
     $pids = _islandora_scholar_search_get_all_pids_from_query($form_state);
   }
   else {
-  foreach($form_state['values']['table']['rows'] as $row) {
+  foreach ($form_state['values']['table']['rows'] as $row) {
       if ($row['selections'] !== 0) {
         $pids[] = $row['selections'];
       }

@@ -68,7 +68,7 @@ function citation_exporter_batch_store_pids_in_file($filename, array $pids) {
 function citation_exporter_batch_get_pids_from_file($filename) {
   $file = fopen($filename, 'rb');
   $pids = array();
-  while (($pid = fgets($file)) !== false) {
+  while (($pid = fgets($file)) !== FALSE) {
     $pids[] = trim($pid);
   }
   fclose($file);

@@ -1,40 +1,55 @@
 <?php
 
 /**
- * Implementation of hook_islandora_tabs().
+ * Implements hook_menu().
  */
-function islandora_scholar_importer_islandora_tabs($models, $pid, $page) {
-  $options = module_invoke_all('islandora_scholar_importer');
+function islandora_scholar_importer_menu() {
+  return array(
+    'islandora/object/%islandora_object/scholar_import' => array(
+      'title' => 'Scholar Batch Import',
+      'type' => MENU_CALLBACK,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('islandora_scholar_importer_form', 2),
+      'access callback' => 'islandora_scholar_importer_access_callback',
+      'access arguments' => array(2),
+    ),
+  );
+}
 
-  $tabset = array();
+/**
+ * Wrap a module_invoke_all() call.
+ */
+function islandora_scholar_importer_get_options() {
+  return module_invoke_all('islandora_scholar_importer');
+}
 
-  if (count($options) > 0) {
-    $citation_collection = FALSE;
-
-    $citation_collection = ($pid == 'ir:citationCollection');
-    if (!$citation_collection) {
-      $match_models = array('ir:citationCollectionCModel');
-      foreach ($models as $model) {
-        if (in_array($model->pid, $match_models)) {
-          $citation_collection = TRUE;
-          break;
-        }
-      }
-    }
-
-    if ($citation_collection && user_access('ingest new fedora objects')) {
-      $tabset += array(
-        'islandora_scholar_import' => array(
-          '#type' => 'tabpage',
-          '#title' => t('Import'),
-          '#tab_name' => 'scholar-import',
-          '#content' => drupal_get_form('islandora_scholar_importer_form', $pid, $options),
-        ),
-      );
-    }
+/**
+ * Access callback for menu path.
+ */
+function islandora_scholar_importer_access_callback($object) {
+  if (!$object) {
+    return FALSE;
   }
 
-  return $tabset;
+  return ((count(islandora_scholar_importer_get_options()) > 0) &&
+    user_access(FEDORA_INGEST));
+}
+
+/**
+ * Implements hook_islandora_ingest_registry().
+ */
+function islandora_scholar_importer_islandora_ingest_registry($object) {
+  $reg = array();
+  
+  if (count(islandora_scholar_importer_get_options()) > 0) {
+    $reg[] = array(
+      'name' => 'Scholar Batch Import',
+      'url' => "islandora/object/{$object->id}/scholar_import",
+      'weight' => 1,
+    );
+  }
+
+  return $reg;
 }
 
 /**
@@ -43,31 +58,19 @@ function islandora_scholar_importer_islandora_tabs($models, $pid, $page) {
  * Initially, allows the user to select an importer; when a selection has been
  * made, get the form from the "batch class".
  *
- * @param $form_state
+ * @param array $form
+ * @param array $form_state
  *   A reference to the array containing the form state.
- * @param $parent_pid
+ * @param AbstractFedoraObject
  *   A string containing the Fedora collection PID into which we will import
  *   citations.
- * @param $options
- *   An array of importer info, of the form:
- *   array(
- *     'machine-name' => array(
- *       'type' => ...,
- *       'module' => ...,
- *       'file' => ...,
- *       'title' => t(...),
- *       'class' => ...,
- *     ),
- *   )
- *   The first three (type, module and file) correspond to the parameters for
- *   module_load_include.  Title is used as the label, and the class is on
- *   which extends IslandoraScholarBatchImporter
- *   (defined in islandora_scholar_importer.inc; just implementing the abstract
- *   methods and using your custom "item class" should suffice)
+ *
  * @return array
  *   An array describing the form structure.
  */
-function islandora_scholar_importer_form(&$form_state, $parent_pid = NULL, $options = NULL) {
+function islandora_scholar_importer_form($form, &$form_state, $object) { // $parent_pid = NULL, $options = NULL) {
+  dsm($form_state, 'fs');
+
   if (isset($form_state['storage']['importer'])) {
     //Importers need something like:
     //
@@ -90,7 +93,8 @@ function islandora_scholar_importer_form(&$form_state, $parent_pid = NULL, $opti
   }
 
   if (!isset($form_state['storage']['importer'])) {
-    if (!isset($form_state['storage']['options']) && $options !== NULL) {
+    $options = islandora_scholar_importer_get_options();
+    if (!isset($form_state['storage']['options'])) {
       $form_state['storage']['options'] = $options;
     }
     if (count($options) > 0) {
@@ -100,10 +104,10 @@ function islandora_scholar_importer_form(&$form_state, $parent_pid = NULL, $opti
       }
 
       if (!isset($form_state['storage']['parent_pid'])) {
-        $form_state['storage']['parent_pid'] = $parent_pid;
+        $form_state['storage']['parent_pid'] = $object->id;
       }
 
-      return array(
+      $form = array_merge($form, array(
         'importer' => array(
           '#type' => 'select',
           '#title' => t('Importer'),
@@ -114,14 +118,13 @@ function islandora_scholar_importer_form(&$form_state, $parent_pid = NULL, $opti
           '#type' => 'submit',
           '#value' => t('Submit'),
         ),
-        '#action' => url("fedora/repository/$parent_pid", array(
-          'fragment' => 'scholar-import',
-        )),
-      );
+      ));
+
+      return $form;
     }
     else {
       drupal_set_message(t('There are no valid importer plugins enabled.'), 'error');
-      return array();
+      return $form;
     }
   }
 }
@@ -162,9 +165,6 @@ function islandora_scholar_importer_form_submit(&$form, &$form_state) {
         )
       );
 
-      //Storage contents break the final redirect, so get rid of 'em.
-      unset($form_state['storage']);
-
       //XXX: Allow modules to alter...  Don't know if this is really a good idea or not.
       drupal_alter('islandora_scholar_importer_batch', $batch);
 
@@ -181,6 +181,7 @@ function islandora_scholar_importer_form_submit(&$form, &$form_state) {
     if (!isset($form_state['storage']['parent_pid'])) {
       $form_state['storage']['parent_pid'] = $form_state['values']['parent_pid'];
     }
+    $form_state['rebuild'] = TRUE;
   }
 }
 
@@ -237,6 +238,8 @@ function islandora_scholar_importer_batch_finished($success, $results, $ops) {
     // XXX: Remove some of our "stored" values.
     unset($results['pid_cache']);
     unset($results['islandora_scholar_importer']);
+
+   
 
     $filename = file_create_filename('batch_import_results.html', file_directory_path());
     $file = fopen($filename, 'w');

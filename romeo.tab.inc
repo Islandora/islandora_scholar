@@ -1,27 +1,30 @@
 <?php
 
+/**
+ * Page callback, to render the RoMEO tab.
+ *
+ * Grabs the ISSN from the object, and fires it at the configured URL.
+ */
+function islandora_scholar_romeo_view($object) {
+  return RomeoView::get_romeo_markup(RomeoView::get_issn($object));
+}
+
+/**
+ * Class to bundle up the functions pertaining to rendering RoMEO results.
+ */
 class RomeoView {
-  public static function get_tabs($pid) {
-    $tabset = array();
-
-    if (variable_get('islandora_scholar_romeo_enable', FALSE)) {
-      $issn = self::get_issn($pid);
-      if ($issn) {
-        $tabset += array(
-          'romeo_tab' => array(
-            '#type' => 'tabpage',
-            '#title' => t('RoMEO'),
-            '#content' => self::get_romeo_markup($issn),
-          ),
-        );
-      }
-    }
-
-    return $tabset;
-  }
-
-  protected static function get_issn($pid) {
-    $cache_id = "islandora_scholar_issn_cache_$pid";
+  /**
+   * Get an ISSN from the object's MODS.
+   *
+   * @param FedoraObject $object
+   *   A FedoraObject whose MODS we are to check.
+   *
+   * @return string|FALSE
+   *   Returns either the ISSN in a string, or boolean FALSE if no ISSN could
+   *   be found.
+   */
+  public static function get_issn($object) {
+    $cache_id = "islandora_scholar_issn_cache_{$object->pid}";
     //Try to get the issn of the object
     if ($issn = cache_get($cache_id)) {
       return $issn->data;
@@ -29,19 +32,16 @@ class RomeoView {
     else {
       $issn = FALSE;
 
-      //TODO: Try to get the ISSN from Solr
-      if (!issn) {
+      //TODO: Try to get the ISSN from Solr?
+      if (!$issn) {
 
       }
 
       //Try to get the ISSN from the object in Fedora Proper.
       if (!$issn) {
-        module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-        $item = new Fedora_Item($pid);
-
         //Try to get the ISSN from a MODS stream.
-        if (!$issn && array_key_exists('MODS', $item->datastreams)) {
-          $mods_doc = DOMDocument::loadXML($item->get_datastream_dissemination('MODS'));
+        if (!$issn && isset($object['MODS'])) {
+          $mods_doc = DOMDocument::loadXML($object['MODS']->content);
           $mods_xpath = new DOMXPath($mods_doc);
           $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
 
@@ -61,7 +61,18 @@ class RomeoView {
     }
   }
 
-  protected static function get_romeo_markup($issn) {
+  /**
+   * Fetch markup for the given ISSN.
+   *
+   * @param string $issn
+   *   The ISSN to lookup.
+   *
+   * @return string
+   *   Either a string containing the RoMEO markup, or an empty string in the
+   *   case we could not fetch it (in which case we will also set a Drupal
+   *   message).
+   */
+  public static function get_romeo_markup($issn) {
     $cache_id = "islandora_scholar_romeo_cache_$issn";
     if ($romeo_cache = cache_get($cache_id)) {
       return $romeo_cache->data;
@@ -77,6 +88,8 @@ class RomeoView {
       $ch = curl_init(url(variable_get('islandora_scholar_romeo_url', 'http://www.sherpa.ac.uk/romeo/api29.php'), array(
         'query' => $params,
       )));
+
+      //TODO:  Use Drupal's HTTP request function.
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
       $romeo_content = trim(curl_exec($ch));
       curl_close($ch);

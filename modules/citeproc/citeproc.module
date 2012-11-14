@@ -6,10 +6,10 @@
  * Implements hooks and callbacks for this module.
  */
  
- //TODO: Should probably be made to use it's own table at some point, which can be cleared/enabled/disabled via hooks/config pages.
-define(CITEPROC_DO_CACHE, FALSE); //Use to disable/enable citation caching
-define(CITEPROC_CACHE_TABLE, 'cache');  
-define(CITEPROC_CACHE_PREFIX, 'citation');
+//TODO: Should probably be made to use it's own table at some point, which can be cleared/enabled/disabled via hooks/config pages.
+define('CITEPROC_DO_CACHE', FALSE); //Use to disable/enable citation caching
+define('CITEPROC_CACHE_TABLE', 'cache');  
+define('CITEPROC_CACHE_PREFIX', 'citation');
 
 function citeproc_item_from_mods($mods, $cache_id = NULL) {
   module_load_include('inc', 'citeproc', 'CiteProcJSItem');

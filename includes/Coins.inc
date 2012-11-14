@@ -28,11 +28,9 @@ class Coins {
    *
    * @return type
    */
-  function __construct($pid) {
-    $this->pid = $pid;
-    module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-    $object = new Fedora_Item($pid);
-    $xmlstr = $object->get_datastream_dissemination('MODS');
+  function __construct($object) {
+    $this->pid = $object->id;
+    $xmlstr = $object['MODS']->content;
 
     if ($xmlstr == NULL || strlen($xmlstr) < 5) {
       drupal_set_message(t('No MODS datastream found!'), 'warning');
@@ -289,14 +287,17 @@ class Coins {
 
 }
 
-function islandora_scholar_details($item) {
-  if (array_key_exists('MODS', $item->datastreams)) {
-    $coins = new Coins($item->pid);
+function islandora_scholar_details($object) {
+  if (isset($object['MODS'])) {
+    $coins = new Coins($object);
     extract($coins->render_view());
     return array(
       '#type' => 'item',
       '#title' => t('MODS Metadata'),
-      '#value' => theme('table', $headers, $rows),
+      '#markup' => theme('table', array(
+        'header' => $headers,
+        'rows' => $rows
+      )),
     );
   }
 }

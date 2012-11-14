@@ -7,20 +7,6 @@
  */
 
 /**
- * Implementation of hook_install().
- */
-function csl_install() {
-  drupal_install_schema('csl');
-}
-
-/**
- * Implementation of hook_uninstall().
- */
-function csl_uninstall() {
-  drupal_uninstall_schema('csl');
-}
-
-/**
  * Implementation of hook_enable().
  */
 function csl_enable() {
@@ -49,20 +35,20 @@ function csl_enable() {
  */
 function csl_schema() {
   $schema['csl'] = array(
-    'description' => t('This table is used to store CSL 1.0 styles.'),
+    'description' => 'This table is used to store CSL 1.0 styles.',
     'fields' => array(
       'id' => array(
         'type' => 'serial',
         'not null' => TRUE,
       ),
       'name' => array(
-        'description' => t('The name of the CSL 1.0 style.'),
+        'description' => 'The name of the CSL 1.0 style.',
         'type' => 'varchar',
         'length' => 128,
         'not null' => TRUE
       ),
       'style' => array(
-        'description' => t('The xml based style definition.'),
+        'description' => 'The xml based style definition.',
         'type' => 'text',
         'size' => 'medium',
         'not null' => TRUE

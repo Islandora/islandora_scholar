@@ -29,10 +29,14 @@ function csl_menu() {
 }
 
 /**
- * Implements hook_perm().
+ * Implements hook_permission().
  */
 function csl_perm() {
-  return array(PERM_CSL_MANAGE);
+  return array(
+    PERM_CSL_MANAGE => array(
+      'title' => t('Manage CSL Citations'),
+    ),
+  );
 }
 
 /**
@@ -122,7 +126,7 @@ function csl_manage_delete_style_submit(array $form, array &$form_state) {
   if (count(CSL::GetNames()) == 1) {
     drupal_set_message(t('Can\'t delete the last style: %style, there must always be at least one.', $style_t), 'error');
   }
-  else if (CSL::Delete($style)) {
+  elseif (CSL::Delete($style)) {
     drupal_set_message(t('Successfully deleted style: %style', $style_t));
   }
   else {
