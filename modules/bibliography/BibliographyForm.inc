@@ -199,8 +199,9 @@ function islandora_bibliography_form_preview(array $form, array &$form_state) {
     drupal_set_message(t('No citations were selected!'), 'warning');
   }
   $output .= l(t('Return to the Bibliography.'), 'bibliography');
-  print theme('page', $output, FALSE);
-  exit();
+  //print theme('page', $output, FALSE);
+  //exit();
+  return $output;
 }
 
 /**
@@ -223,12 +224,15 @@ function islandora_bibliography_form_remove(array $form, array &$form_state) {
  * @param array $form
  * @param array $form_state
  */
-function islandora_bibliography_form_export(array $form, array &$form_state) {
+function islandora_bibliography_form_export(array &$form, array &$form_state) {
   $selections = array_filter($form_state['values']['table']['selections']);
   if ($selections != NULL) {
     $pids = array_keys($selections);
     if ($form_state['values']['format'] == 'HTML') {
-      islandora_bibliography_form_preview($form, $form_state);
+      $form = array(
+        '#markup' => islandora_bibliography_form_preview($form, $form_state),
+      );
+      $form_state['redirect'] = FALSE;
     }
   }
   else {
