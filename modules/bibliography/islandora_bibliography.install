@@ -9,14 +9,12 @@
  * Implementation of hook_install().
  */
 function islandora_bibliography_install() {
-  drupal_install_schema('islandora_bibliography');
 }
 
 /**
  * Implementation of hook_uninstall().
  */
 function islandora_bibliography_uninstall() {
-  drupal_uninstall_schema('islandora_bibliography');
 }
 
 /**

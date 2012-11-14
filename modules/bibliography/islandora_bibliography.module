@@ -45,7 +45,7 @@ function islandora_bibliography_menu() {
 function islandora_bibliography_theme() {
   return array(
     THEME_BIBLIOGRAPHY_FORM_TABLE => array(
-      'arguments' => array('element' => NULL),
+      'render element' => 'element',
       'file' => 'BibliographyForm.inc',
     )
   );
@@ -107,7 +107,6 @@ function islandora_bibliography_save_scholar_results_to_bibliography(&$form, &$f
     }
   }
   $count = Bibliography::AddCitations($pids);
-  $form_state['storage'] = NULL;
 
   if ($count > 0) {
     drupal_set_message(format_plural($count, 'Added 1 citation', 'Added @count citations'));

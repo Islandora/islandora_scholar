@@ -17,7 +17,7 @@
  * @return array
  *   The drupal form.
  */
-function islandora_bibliography_form(array &$form_state) {
+function islandora_bibliography_form(array $form, array &$form_state) {
   module_load_include('inc', 'islandora_bibliography', 'Bibliography');
   $pids = Bibliography::GetCitations();
   if (empty($pids)) {
@@ -32,7 +32,7 @@ function islandora_bibliography_form(array &$form_state) {
         '#type' => 'fieldset',
         '#title' => t('Citations'),
         'step_1' => array(
-          '#value' => t('Select or remove your citations'),
+          '#markup' => t('Select or remove your citations'),
           '#prefix' => '<h3>',
           '#suffix' => '</h3>'
         ),
@@ -43,7 +43,7 @@ function islandora_bibliography_form(array &$form_state) {
           '#submit' => array('islandora_bibliography_form_remove')
         ),
         'step_2' => array(
-          '#value' => t('Create bibliography or export references'),
+          '#markup' => t('Create bibliography or export references'),
           '#prefix' => '<h3>',
           '#suffix' => '</h3>'
         ),
@@ -117,8 +117,8 @@ function islandora_bibilgraphy_form_table(array $pids) {
     list($title, $authors) = islandora_bibilgraphy_form_get_title_authors($pid);
     $rows[] = array(
       '#pid' => $pid,
-      'title' => array('#value' => l(check_plain($title), "fedora/repository/$pid")),
-      'author' => array('#value' => check_plain($authors)),
+      'title' => array('#markup' => l(check_plain($title), "islandora/object/$pid")),
+      'author' => array('#markup' => check_plain($authors)),
       'remove' => array(
         '#type' => 'submit',
         '#value' => t('Remove'),
@@ -248,32 +248,32 @@ function islandora_bibliography_form_export(array $form, array &$form_state) {
  *   An MODS document if found and non-empty, FALSE otherwise.
  */
 function islandora_bibilgraphy_form_get_mods($pid) {
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
-  $item = new Fedora_Item($pid);
-  if ($item->exists() && isset($item->datastreams['MODS'])) {
-    $mods = $item->get_datastream_dissemination('MODS');
-    $mods = trim($mods);
-    if (!empty($mods)) {
-      $doc = new DOMDocument();
-      $doc->loadXML($mods);
-      return $doc;
-    }
+  $object = islandora_object_load($pid);
+
+  if (!isset($object)) {
+    return FALSE;
   }
-  return FALSE;
+
+  $mods_str = trim($object['MODS']->content);
+  if ($mods_str) {
+    $doc = new DOMDocument();
+    $doc->loadXML($mods_str);
+    return $doc;
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /**
  * Theme's a form table for this module.
  *
- * @param array $element
- *   A Drupal Form Element.
- *
+ * @param array $args
  * @return sting
  *   HTML that renders a table of settings for datastreams.
  */
-function theme_islandora_bibliography_form_table(array $element) {
-
-  // $caption = t('Remove or export citations from your bibliography');
+function theme_islandora_bibliography_form_table(array $args) {
+  $element = $args['element'];
 
   $rows = array();
   foreach (element_children($element['rows']) as $child) {
@@ -292,5 +292,11 @@ function theme_islandora_bibliography_form_table(array $element) {
     );
   }
   $attributes = isset($element['#id']) ? array('id' => $element['#id']) : NULL;
-  return theme_table($element['#header'], $rows, $attributes, $caption);
+  return theme('table', 
+    array(
+      'header' =>$element['#header'],
+      'rows' => $rows,
+      'attributes' => $attributes,
+      //'caption' => $caption,
+   ));
 }

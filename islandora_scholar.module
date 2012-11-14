@@ -17,16 +17,16 @@ function islandora_scholar_theme() {
     THEME_SCHOLAR_SEARCH_ITEM => array(
       'template' => 'templates/SearchItem',
       'file' => 'includes/SolrResults.inc',
-      'arguments' => array('pid' => NULL, 'style' => NULL),
+      'variables' => array('pid' => NULL, 'style' => NULL),
     ),
     THEME_SCHOLAR_SEARCH_ITEM_ALT => array(
       'template' => 'templates/SearchItem',
       'file' => 'includes/SolrResults.inc',
-      'arguments' => array('solr_doc' => NULL, 'style' => NULL),
+      'variables' => array('solr_doc' => NULL, 'style' => NULL),
     ),
     THEME_SCHOLAR_SEARCH_TABLE => array(
       'file' => 'includes/SolrResults.inc',
-      'arguments' => array('element' => array()),
+      'render element' => 'element',
     ),
   );
 }

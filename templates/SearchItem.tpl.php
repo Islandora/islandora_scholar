@@ -5,5 +5,7 @@
   </div>
 </div>
 <div class="scholar-icons">
-  <?php print $pdf_icon; ?>  
+  <?php if (isset($pdf_icon)):
+    print $pdf_icon;
+  endif; ?>  
 </div>

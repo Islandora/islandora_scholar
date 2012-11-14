@@ -45,14 +45,12 @@ function citation_exporter_batch_combine_mods($pids_filename, $total, $mods_file
 }
 
 function _citation_exporter_batch_combine_mods($filename, array $pids) {
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   $mods = new DOMDocument();
   $mods->load($filename);
   foreach ($pids as $pid) {
-    $item = new Fedora_Item($pid);
-    if ($item->exists() && isset($item->datastreams['MODS'])) {
-      $datastream = $item->get_datastream_dissemination('MODS');
-      $datastream = trim($datastream);
+    $object = islandora_object_load($pid);
+    if (isset($object) && isset($object['MODS'])) {
+      $datastream = trim($object['MODS']->content);
       if (!empty($mods)) {
         $doc = new DOMDocument();
         $doc->loadXML($datastream);
@@ -78,7 +76,5 @@ function citation_exporter_batch_convert_mods_to_ris($mods_filename, array &$con
   $ris_filename = file_create_filename("ris_export.ris", $temp_file_dir);
   if (Bibutils::Convert($mods_filename, 'MODS', $ris_filename, 'RIS')) {
     $context['results']['filename'] = $ris_filename;
-    $context['results']['mime_type'] = 'application/x-Research-Info-Systems';
-    $context['results']['download_filename'] = 'export.ris';
   }
 }

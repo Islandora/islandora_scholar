@@ -24,7 +24,9 @@ function citation_exporter_batch_get_rtf_operations(array $pids, $style) {
   citation_exporter_batch_store_pids_in_file($temp_pids_file, $pids);
   $total = count($pids);
   $operations = array();
-  $header_text = variable_get('fedora_repository_title', 'Fedora Repository');
+
+  // XXX: Header should probably be made configuration.
+  $header_text = t('Islandora Repository');
   $operations[] = array('citation_exporter_batch_add_header_to_text_file', array($temp_text_file, $header_text));
   $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array($temp_pids_file, $total, $temp_text_file, $style));
   $operations[] = array('citation_exporter_batch_convert_txt_to_rtf', array($temp_text_file));
@@ -71,7 +73,6 @@ function citation_exporter_batch_append_citations_to_text_file($pids_filename, $
  *   The batch context.
  */
 function _citation_exporter_batch_append_citations_to_text_file(array $pids, $filename, $style) {
-  module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   module_load_include('php', 'citeproc', 'generators/converter');
   module_load_include('php', 'CiteProc', 'lib/citeproc-php/CiteProc');
   module_load_include('inc', 'csl', 'CSL');
@@ -79,10 +80,9 @@ function _citation_exporter_batch_append_citations_to_text_file(array $pids, $fi
   $citeproc = new citeproc($style->saveXML());
   $file = fopen($filename, 'ab');
   foreach ($pids as $pid) {
-    $item = new Fedora_Item($pid);
-    if ($item->exists() && isset($item->datastreams['MODS'])) {
-      $mods = $item->get_datastream_dissemination('MODS');
-      $mods = trim($mods);
+    $object = islandora_object_load($pid);
+    if (isset($object) && isset($object['MODS'])) {
+      $mods = trim($object['MODS']->content);
       if (!empty($mods)) {
         $json = _citeproc_array_to_object(convert_mods_to_citeproc_jsons($mods));
         $text = $citeproc->render($json, 'bibliography');

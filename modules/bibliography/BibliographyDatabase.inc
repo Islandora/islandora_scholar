@@ -26,8 +26,12 @@ class BibliographyDatabase {
    * @return boolean
    */
   public static function Exists($pid, $uid) {
-    $query = db_query('SELECT count(id) FROM {%s} WHERE pid = "%s" AND uid = "%d"', self::table, $pid, $uid);
-    $count = db_result($query);
+    $results = db_select(self::table, 't')
+      ->fields('t', array('id'))
+      ->condition('pid', $pid)
+      ->condition('uid', $uid)
+      ->execute();
+    $count = $results->rowCount();
     return $count == 1;
   }
 
@@ -59,7 +63,10 @@ class BibliographyDatabase {
    *   The user who is removing the $pid.
    */
   public static function RemoveCitation($pid, $uid) {
-    db_query('DELETE FROM {%s} WHERE pid = "%s" AND uid = "%d"', self::table, $pid, $uid);
+    db_delete(self::table)
+      ->condition('pid', $pid)
+      ->condition('uid', $uid)
+      ->execute();
   }
 
   /**
@@ -73,9 +80,13 @@ class BibliographyDatabase {
    */
   public static function GetCitations($uid) {
     $output = array();
-    $query = db_query('SELECT pid FROM {%s} WHERE uid = "%d"', self::table, $uid);
-    while ($row = db_fetch_array($query)) {
-      $output[] = $row['pid'];
+    $results = db_select(self::table, 't')
+      ->fields('t', array('pid'))
+      ->condition('uid', $uid)
+      ->execute();
+
+    foreach ($results as $data) {
+      $output[] = $data->pid;
     }
     return $output;
   }

@@ -25,7 +25,8 @@ function citation_exporter_batch_get_pdf_operations(array $pids, $style) {
   citation_exporter_batch_store_pids_in_file($temp_pids_file, $pids);
   $total = count($pids);
   $operations = array();
-  $header_text = variable_get('fedora_repository_title', 'Fedora Repository');
+  // XXX: Header should probably be made configuration somewhere.
+  $header_text = t('Islandora Repository');
   $operations[] = array('citation_exporter_batch_add_header_to_text_file', array($temp_text_file, $header_text));
   $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array($temp_pids_file, $total, $temp_text_file, $style));
   $operations[] = array('citation_exporter_batch_convert_text_to_pdf', array($temp_text_file));
