@@ -2,5 +2,5 @@ name = DOI Importer
 description = Importer plugin for Digital Object Identifiers.
 package = Islandora Tools
 dependencies[] = islandora_scholar_importer
-version = 6.x-dev
-core = 6.x
+version = 7.x-dev
+core = 7.x

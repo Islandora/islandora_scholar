@@ -1,7 +1,7 @@
 <?php
 
-function doi_importer_admin_form(&$form_state) {
-  $form = array(
+function doi_importer_admin_form($form, &$form_state) {
+  $form += array(
     'doi_importer_openurl' => array(
       '#type' => 'textfield',
       '#title' => t('DOI OpenURL'),

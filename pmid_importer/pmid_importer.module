@@ -1,5 +1,8 @@
 <?php
 
+/**
+ * Implements hook_islandora_scholar_importer().
+ */
 function pmid_importer_islandora_scholar_importer() {
   return array(
     'pmid_importer' => array(

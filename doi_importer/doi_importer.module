@@ -1,8 +1,11 @@
 <?php
 
+/**
+ * Implements hook_menu().
+ */
 function doi_importer_menu() {
   return array(
-    'admin/settings/islandora_scholar/doi_importer' => array(
+    'admin/islandora/scholar/doi_importer' => array(
       'title' => 'DOI Importer',
       'type' => MENU_LOCAL_TASK,
       'page callback' => 'drupal_get_form',
@@ -13,6 +16,9 @@ function doi_importer_menu() {
   );
 }
 
+/**
+ * Implements hook_islandora_scholar_importer().
+ */
 function doi_importer_islandora_scholar_importer() {
   return array(
     'doi_importer' => array(
