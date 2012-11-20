@@ -46,36 +46,50 @@ class Coins {
     $authors = array();
     $contributors = array();
     $family_names = array();
+    $reverse = array();
     $i = 0;
     foreach ($xml->name as $name) {
       foreach ($name->namePart as $name_part) {
         if ((string) $name_part != '') {
           $np = (string) rtrim($name_part, '.'); //Strip periods off the end.
 
+          $name = '';
+          $full_name = '';
+          $reverse_given = '';
+          $reverse_family = '';
+
           if ($name_part['type'] == 'given') {
-            $names[$i] .= (string) substr($np, 0, 1) . '. ';
-            $full_names[$i] .= (string) $name_part;
+            $name .= (string) substr($np, 0, 1) . '. ';
+            $full_name .= (string) $name_part;
+            $reverse_given .= (string) rtrim($name_part, '.');
           }
           if ($name_part['type'] == 'family') {
-            $names[$i] .= $np;
+            $name .= $np;
             $family_names[$i] = $np;
-            $full_names[$i] .= ' ' . $np;
+            $full_name .= ' ' . $np;
+            $reverse_family .= (string) rtrim($name_part, '.');
           }
+
+          $names[$i] = $name;
+          $full_names[$i] = $full_name;
+          $reverse[$i] = $reverse_family . ', ' . $reverse_given . '.';
         }
       }
-      $role = (string) $name->role->roleTerm;
-      if ($role == 'aut') {
-        $role = 'author';
-      }
-      if ($role == 'author') {
-        $authors[] = $names[$i];
-      }
-      else {
-        $contributors[] = $names[$i];
-      }
+      if (!empty($names[$i])) {
+        $role = (string) @$name->role->roleTerm;
+        if ($role == 'aut') {
+          $role = 'author';
+        }
+        if ($role == 'author') {
+          $authors[] = $names[$i];
+        }
+        else {
+          $contributors[] = $names[$i];
+        }
 
-      if (!empty($role)) {
-        $names[$i] .= ' (' . $role . ')';
+        if (!empty($role)) {
+          $names[$i] .= ' (' . $role . ')';
+        }
       }
       $i++;
     }
@@ -85,20 +99,6 @@ class Coins {
     $this->contributors = $contributors;
     $this->family_names = $family_names;
 
-    $reverse = array();
-    $i = 0;
-    foreach ($xml->name as $name) {
-      foreach ($name->namePart as $name_part) {
-        if ($name_part['type'] == 'family') {
-          $reverse_family[$i] .= (string) rtrim($name_part, '.');
-        }
-        if ($name_part['type'] == 'given') {
-          $reverse_given[$i] .= (string) rtrim($name_part, '.');
-        }
-        $reverse[$i] = $reverse_family[$i] . ', ' . $reverse_given[$i] . '.';
-      }
-      $i++;
-    }
     $this->reverse_names = $reverse;
 
     $issn = $xml->xpath('//mods:identifier[@type="issn"]');
@@ -110,25 +110,39 @@ class Coins {
     }
 
     $volume = $xml->xpath('//mods:part/mods:detail[@type="volume"]/mods:number');
-    $this->volume = $volume[0];
+    if ($volume) {
+      $this->volume = $volume[0];
+    }
 
     $issue = $xml->xpath('//mods:part/mods:detail[@type="issue"]/mods:number');
-    $this->issue = $issue[0];
+    if ($issue) {
+      $this->issue = $issue[0];
+    }
 
     $start_page = $xml->xpath('//mods:extent[@unit="page"]/mods:start');
-    $this->start_page = $start_page[0];
+    if ($start_page) {
+      $this->start_page = $start_page[0];
+    }
 
     $title = $xml->xpath('//mods:title');
-    $this->title = $title[0];
+    if ($title) {
+      $this->title = $title[0];
+    }
 
     $sub_title = $xml->xpath('//mods:subTitle');
-    $this->sub_title = $sub_title[0];
+    if ($sub_title) {
+      $this->sub_title = $sub_title[0];
+    }
 
     $journal_title = $xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
-    $this->journal_title = $journal_title[0];
+    if ($journal_title) {
+      $this->journal_title = $journal_title[0];
+    }
 
     $abstract = $xml->xpath('//mods:abstract');
-    $this->abstract = $abstract[0];
+    if ($abstract) {
+      $this->abstract = $abstract[0];
+    }
 
     $topic = array();
     foreach ($xml->subject as $subject) {
@@ -143,16 +157,24 @@ class Coins {
     $this->note = $note;
 
     $embargo_date = $xml->xpath('//mods:dateOther[@type="embargo"]');
-    $this->embargo_date = $embargo_date[0];
+    if ($embargo_date) {
+      $this->embargo_date = $embargo_date[0];
+    }
 
     $genre = $xml->xpath('//mods:genre');
-    $this->genre = $genre;
+    if ($genre) {
+      $this->genre = $genre;
+    }
 
     $username = $xml->xpath('//mods:identifier[@type="u1"]');
-    $this->username = $username;
+    if ($username) {
+      $this->username = $username;
+    }
 
     $department = $xml->xpath('//mods:identifier[@type="u2"]');
-    $this->department = $department;
+    if ($department) {
+      $this->department = $department;
+    }
   }
 
   /**

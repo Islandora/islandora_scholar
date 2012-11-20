@@ -151,8 +151,6 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
     ),
   );
 
-  dsm($display, 'output array');
-
   return array('citation.tab' => drupal_render($display));
 }
 

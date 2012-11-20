@@ -15,10 +15,11 @@ function islandora_scholar_upload_view($object) {
   return drupal_get_form($form_name, $object);
 }
 
-function islandora_scholar_modify_form($form_state, $object) {
+function islandora_scholar_modify_form($form, &$form_state, $object) {
   $mods_str = trim($object['MODS']->content);
 
-  $mods_doc = DOMDocument::loadXML($mods_str);
+  $mods_doc = new DOMDocument();
+  $mods_doc->loadXML($mods_str);
   $mods_xpath = new DOMXPath($mods_doc);
   $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
   $usage = t('No usage statement');
@@ -44,12 +45,12 @@ function islandora_scholar_modify_form($form_state, $object) {
     'usage' => array(
       '#type' => 'item',
       '#title' => t('Usage'),
-      '#value' => $usage,
+      '#markup' => $usage,
     ),
     'version' => array(
       '#type' => 'item',
       '#title' => t('Publication version'),
-      '#value' => $version,
+      '#markup' => $version,
     ),
     'delete_document' => array(
       '#name' => 'delete_document',
@@ -75,7 +76,7 @@ function islandora_scholar_modify_form_submit($form, &$form_state) {
   }
 }
 
-function islandora_scholar_upload_form(&$form_state, $object) {
+function islandora_scholar_upload_form($form, &$form_state, $object) {
   return array(
     '#type' => 'form',
     'upload_document' => array(
@@ -158,7 +159,7 @@ function islandora_scholar_upload_form_validate($form, &$form_state) {
 }
 
 function islandora_scholar_add_usage_and_version_elements_to_mods($object, $usage, $version) {
-  if (isset($object['MODS']) {
+  if (isset($object['MODS'])) {
     $mods_str = trim($object['MODS']->content);
     if (!$mods_str) {
       drupal_set_message(t('MODS in object @pid is empty...  Refusing to add ' .
@@ -170,7 +171,8 @@ function islandora_scholar_add_usage_and_version_elements_to_mods($object, $usag
     }
 
     //Load the MODS...
-    $mods_doc = DOMDocument::loadXML($mods_str);
+    $mods_doc = new DOMDocument();
+    $mods_doc->loadXML($mods_str);
     $mods_xpath = new DOMXPath($mods_doc);
     $mods_ns = 'http://www.loc.gov/mods/v3';
     $mods_xpath->registerNamespace('m', $mods_ns);
@@ -249,7 +251,7 @@ function islandora_scholar_upload_form_submit(&$form, &$form_state) {
     $datastream = $object->constructDatastream($dsid, 'M');
     $datastream->label = 'PDF Datastream';
     $datastream->mimetype = 'application/pdf';
-    $datastream->setContentFromFile(drupal_realpath($file->filepath));
+    $datastream->setContentFromFile(drupal_realpath($file->uri));
 
     $object->ingestDatastream($datastream);
 
