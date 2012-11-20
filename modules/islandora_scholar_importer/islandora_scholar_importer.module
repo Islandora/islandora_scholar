@@ -69,8 +69,6 @@ function islandora_scholar_importer_islandora_ingest_registry($object) {
  *   An array describing the form structure.
  */
 function islandora_scholar_importer_form($form, &$form_state, $object) { // $parent_pid = NULL, $options = NULL) {
-  dsm($form_state, 'fs');
-
   if (isset($form_state['storage']['importer'])) {
     //Importers need something like:
     //
@@ -239,9 +237,7 @@ function islandora_scholar_importer_batch_finished($success, $results, $ops) {
     unset($results['pid_cache']);
     unset($results['islandora_scholar_importer']);
 
-   
-
-    $filename = file_create_filename('batch_import_results.html', file_directory_path());
+    $filename = file_create_filename('batch_import_results.html', 'public://');
     $file = fopen($filename, 'w');
     fputs($file, '<html><body><ol>');
     $levels = watchdog_severity_levels();

@@ -227,6 +227,12 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
   public $pid_cache_size = 2;
 
   /**
+   * Allow subclasses to use different content models.
+   *
+   */
+  protected $content_model = 'ir:citationCModel';
+
+  /**
    * Used to store the source data in the default implementation.
    * @var unknown_type
    */
@@ -322,69 +328,97 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
   }
 
   /**
-   * Write this item to Fedora.
+   * Acquire base datastreams structure.
+   *
+   * Default implementation gets MODS and DC as inline-XML datastreams.
+   *
+   * @param array $errors
+   *   A reference to an array of arrays describing errors which may occur,
+   *   used to generate a watchdog entries and a simple HTML log which can be
+   *   downloaded after the batch process completes.  Each contained array can
+   *   contain four elements:
+   *   - A translated string
+   * @param array $files
+   *   A reference to an array of Drupal file objects, which will be deleted
+   *   after the ingest process completes (so temporary files can be dealt
+   *   with). (Just seems to need ->uri?)
+   *
+   * @return array
+   *   The array of datastreams as used by
+   *   islandora_ingest_new_object_prepare().
    */
-  public function write_to_fedora($pid, $parent_pid = NULL) {
-    global $user;
-    module_load_include('ingest.inc', 'islandora', 'includes/islandora');
-
-    $to_return = array();
-
-    $namespace = $this->pid_namespace;
-    $label = $this->get_title();
+  protected function get_datastreams(&$errors = NULL, &$files = NULL) {
     $datastreams = array();
-    $content_models = array();
-    $relationships = array();
-    $collection_pid = NULL;
-
-    $files = array();
 
     //Ingest the MODS.
     $obtained_mods = $this->get_mods();
     if ($obtained_mods) {
-      $files[] = $file = file_save_data($obtained_mods);
       $datastreams[] = array(
         'dsid' => 'MODS',
         'label' => 'MODS Record',
         'mimetype' => 'text/xml',
         'control_group' => 'X',
-        'datastream_file' => file_create_url($file->uri),
+        'datastream_content' => $obtained_mods,
       );
     }
     else {
-      $to_return[] = array(
+      $errors[] = array(
         t('Failed to produce MODS for @pid.'),
-        array('@pid' => $pid),
-        WATCHDOG_DEBUG,
-        l($pid, "islandora/object/$pid"),
       );
     }
 
     //Ingest the DC second (
     $obtained_dc = $this->get_dc();
     if ($obtained_dc) {
-      $files[] = $file = file_save_data($obtained_dc);
       $datastreams[] = array(
         'dsid' => 'DC',
         'label' => 'DC Record',
         'mimetype' => 'text/xml',
         'control_group' => 'X',
-        'datastream_file' => file_create_url($file->uri),
+        'datastream_content' => $obtained_dc,
       );
     }
     else {
-      $to_return[] = array(
+      $errors[] = array(
         t('Failed to produce DC for @pid.'),
-        array(
-          '@pid' => $pid,
-        ),
-        WATCHDOG_DEBUG,
-        l($pid, "islandora/object/$pid"),
       );
     }
 
-    //XXX:  Parameterize the content model.
-    $content_models[] = 'ir:citationCModel';
+    return $datastreams;
+  }
+
+  /**
+   * Write this item to Fedora.
+   */
+  public function write_to_fedora($pid, $parent_pid = NULL) {
+    global $user;
+    module_load_include('ingest.inc', 'islandora', 'includes/islandora');
+
+    /**
+     * @var array
+     *   An array of arrays, containing a structure describing error
+     *   conditions.
+     *   - A translated string
+     *   - An associative array of replacements for the string.
+     *   - The error level in the watchdog log.
+     *   - A link to the object in which the error occurred.
+     */
+    $to_return = array();
+    /**
+     * @var array
+     *   An array of Drupal file objects to clean up after ingest.
+     */
+    $files = array();
+
+    $label = $this->get_title();
+    $datastreams = $this->get_datastreams($to_return, $files);
+    $content_models = array();
+    $relationships = array();
+    $collection_pid = NULL;
+
+    $files = array();
+
+    $content_models[] = $this->content_model;
 
     $collection_pid = $parent_pid;
     $relationships[] = array(
@@ -392,7 +426,7 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
       'pid' => $parent_pid,
     );
 
-    $object = islandora_ingest_new_object_prepare($namespace, $label,
+    $object = islandora_ingest_new_object_prepare($pid, $label,
       $datastreams, $content_models, $relationships, $collection_pid);
 
     $object = islandora_ingest_add_object($object);
@@ -404,6 +438,14 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
     }
 
     if (count($to_return) > 0) {
+      foreach ($to_return as &$entry) {
+        $entry[] = array(
+          '@pid' => $pid,
+        );
+        $entry[] = WATCHDOG_DEBUG;
+        $entry[] = l($pid, "islandora/object/$pid");
+      }
+
       $to_return[] = array(
         t('There seem to have been issues ingesting "%title" as %pid.'),
         array(

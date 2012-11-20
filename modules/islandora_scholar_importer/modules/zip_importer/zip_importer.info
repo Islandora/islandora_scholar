@@ -1,0 +1,6 @@
+name = MARCXML Importer
+description = Importer plugin for MARCXML files.
+package = Islandora Tools
+dependencies[] = islandora_scholar_importer
+version = 7.x-dev
+core = 7.x

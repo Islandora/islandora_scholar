@@ -53,8 +53,8 @@ class DOIImporter extends IslandoraScholarBatchImporter {
     $text = trim($form_state['values']['textarea']);
     $file = file_save_upload('file');
     if ($file) {
-      $text .= ' ' . trim(file_get_contents($file->filepath));
-      file_delete($file->filepath);
+      $text .= ' ' . trim(file_get_contents(drupal_realpath($file->uri)));
+      file_delete($file);
     }
 
     if ($text) {
