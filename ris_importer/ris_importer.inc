@@ -11,7 +11,7 @@ class RISImporter extends IslandoraScholarBatchImporter {
 
   public function get_number() {
     $count = 0;
-    $file = fopen($this->file->filepath, 'r');
+    $file = fopen($this->file->uri, 'r');
     while (($line = fgets($file)) !== false) {
       if (trim($line) == 'ER  -') {
         $count++;
@@ -73,7 +73,7 @@ class RISImportObject extends IslandoraScholarImportObject {
     /**
      * Get the first Record from the RIS File.
      */
-    $fp = fopen($file->filepath, 'r');
+    $fp = fopen($file->uri, 'r');
     while (($line = fgets($fp)) !== false) {
       $trimed_line = trim($line);
       if (!empty($trimed_line)) { // Ignore blank lines
@@ -98,7 +98,7 @@ class RISImportObject extends IslandoraScholarImportObject {
     /**
      * Replace the RIS file with the shorter temp file.
      */
-    file_move($temp_filename, $file->filepath, FILE_EXISTS_REPLACE);
+    file_unmanaged_move($temp_filename, $file->uri, FILE_EXISTS_REPLACE);
 
     $record = trim($record);
     return (empty($record) ?
@@ -108,9 +108,9 @@ class RISImportObject extends IslandoraScholarImportObject {
 
   public function get_mods() {
     if ($this->mods === NULL) {
-      $ris_file = file_create_filename('temp.ris', file_directory_path());
+      $ris_file = file_create_filename('temp.ris', file_directory_temp());
       file_put_contents($ris_file, $this->source);
-      $mods_file = file_create_filename('temp_mods.xml', file_directory_path());
+      $mods_file = file_create_filename('temp_mods.xml', file_directory_temp());
 
       module_load_include('inc', 'bibutils', 'Bibutils');
       Bibutils::Convert($ris_file, 'RIS', $mods_file, 'MODS');

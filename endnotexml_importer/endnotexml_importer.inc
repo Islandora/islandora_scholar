@@ -11,7 +11,7 @@ class EndNoteXMLImporter extends IslandoraScholarBatchImporter {
 
   public function get_number() {
     $endnote = new DOMDocument();
-    $endnote->load($this->file->filepath);
+    $endnote->load($this->file->uri);
     $xpath = new DOMXPath($endnote);
     $results = $xpath->query('/xml/records/record');
     return $results?
@@ -69,7 +69,7 @@ class EndNoteXMLImportObject extends IslandoraScholarImportObject {
     $record = '';
 
     $endnote = new DOMDocument();
-    $endnote->load($file->filepath);
+    $endnote->load($file->uri);
     $xpath = new DOMXPath($endnote);
     $results = $xpath->query('/xml/records/record');
     $documents = array();
@@ -77,7 +77,8 @@ class EndNoteXMLImportObject extends IslandoraScholarImportObject {
       $child = $results->item(0); // Get Record
       $record = '<xml><records>' . $endnote->saveXML($child) . '</records></xml>';
       $child->parentNode->removeChild($child); // Remove Record
-      $endnote->save($file->filepath);
+      $endnote->save($file->uri);
+      file_save($file);
     }
 
     return (empty($record) ?
@@ -87,17 +88,21 @@ class EndNoteXMLImportObject extends IslandoraScholarImportObject {
 
   public function get_mods() {
     if ($this->mods === NULL) {
-      $enxml_file = file_create_filename('temp_en.xml', file_directory_path());
-      file_put_contents($enxml_file, $this->source);
-      $mods_file = file_create_filename('temp_mods.xml', file_directory_path());
+      $enxml_file = file_save_data($this->source, "temp://temp_en.xml");
+      $mods_file = drupal_tempnam('temp://', 'temp_mods.xml');
 
       module_load_include('inc', 'bibutils', 'Bibutils');
-      Bibutils::Convert($enxml_file, 'EndNoteXML', $mods_file, 'MODS');
+      Bibutils::Convert(
+        drupal_realpath($enxml_file->uri),
+        'EndNoteXML',
+        drupal_realpath($mods_file),
+        'MODS'
+      );
 
       $this->mods = file_get_contents($mods_file);
 
       file_delete($enxml_file);
-      file_delete($mods_file);
+      unlink($mods_file);
     }
 
     return $this->mods;
