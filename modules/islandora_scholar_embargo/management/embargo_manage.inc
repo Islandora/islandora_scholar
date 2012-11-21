@@ -23,6 +23,7 @@ function embargo_manage_form(&$form_state) {
 
 function embargo_build_table() {
   module_load_include('inc', 'fedora_repository', 'api/fedora_utils');
+  module_load_include('inc', 'fedora_repository', 'ObjectHelper');
 
   $query = <<<'XML'
 select $pid $object $label from <#ri>
@@ -33,23 +34,13 @@ select $pid $object $label from <#ri>
               order by $label
 XML;
 
-  $query = htmlentities(urlencode($query));
-  $content = '';
+  $results = ObjectHelper::performItqlQuery($query);
 
-  $url = variable_get('fedora_repository_url', 'http://localhost:8080/fedora/risearch');
-  $url .= "?type=tuples&flush=TRUE&format=csv&limit=$limit&offset=$offset&lang=itql&stream=on&query=" . $query;
-  $content .= do_curl($url);
-  $results = explode("\n", $content);
-  array_shift($results);
-  $lines = array_filter($results);
-  if (empty($lines)) {
-    return;
-  }
-  foreach ($lines as $line) {
+  foreach ($results as $result) {
     $parts = explode(',', $line);
-    $pid = preg_replace('/info:fedora\//', '', $parts[0]);
-    $objects[$pid]['value'] = $parts[1];
-    $objects[$pid]['label'] = $parts[2];
+    $pid = $result['pid'];
+    $objects[$pid]['value'] = $result['object'];
+    $objects[$pid]['label'] = $result['label'];
     $keys[] = $pid;
   }
 //checkboxes are not used in this iteration
