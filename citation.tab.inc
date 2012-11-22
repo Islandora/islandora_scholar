@@ -51,7 +51,7 @@ function islandora_scholar_islandora_scholar_viewer($object) {
       $to_return += array(
         'google' => array(
           '#callback' => 'islandora_scholar_google_pdf_viewer',
-          '#callback arguments' => array($object->pid),
+          '#callback arguments' => array($object->id),
           '#weight' => 1,
         ),
       );
