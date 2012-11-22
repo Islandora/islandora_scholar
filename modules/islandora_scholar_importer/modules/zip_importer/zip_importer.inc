@@ -1,12 +1,12 @@
 <?php
 
-module_load_include('inc', 'islandora_scholar_importer');
+module_load_include('inc', 'islandora_importer');
 
 /**
  * Zip file importer.
  * @author adam
  */
-class ZipBatchImporter extends IslandoraScholarBatchImporter {
+class ZipBatchImporter extends IslandoraBatchImporter {
   protected $item_class = 'ZipBatchImportObject';
 
   public function get_number() {
@@ -19,9 +19,18 @@ class ZipBatchImporter extends IslandoraScholarBatchImporter {
     module_load_include('ingest.inc', 'islandora', 'includes/islandora');
     $parent_info = islandora_ingest_get_information($parent);
 
-    $options = array();
+    $cm_options = array();
+    $ns_options = array();
     foreach ($parent_info['models'] as $pid => $info) {
-      $options[$pid] = $info['name'];
+      $cm_options[$pid] = array('title' => $info['name']);
+
+      $cm_namespace = $info['namespace'];
+      if (!empty($cm_namespace)) {
+        $cm_namespace = $info['namespace'];
+        $cm_namespace = explode(':', $info['namespace']);
+        $namespace = trim($cm_namespace[0]);
+        $ns_options[$namespace] = $namespace;
+      }
     }
 
     return array(
@@ -39,12 +48,25 @@ class ZipBatchImporter extends IslandoraScholarBatchImporter {
             'file_validate_extensions' => array('zip')
           ),
         ),
-        'content_model' => array(
-          '#type' => 'select',
+        'fs' => array(
+          '#type' => 'fieldset',
           '#title' => t('Content Model'),
-          '#description' => t('The content model to assign to the imported ' .
+          '#description' => t('The content model(s) to assign to the imported ' .
             'objects.'),
-          '#options' => $options,
+          'content_model' => array(
+            '#type' => 'tableselect',
+            '#header' => array('title' => t('Name')),
+            '#multiple' => TRUE,
+            '#options' => $cm_options,
+            '#required' => TRUE,
+          ),
+        ),
+        'namespace' => array(
+          '#type' => 'select',
+          '#title' => t('Object Namespace'),
+          '#description' => t('The namespace in which the imported objects ' .
+            'will be created.'),
+          '#options' => $ns_options,
         ),
         'submit' => array(
           '#type' => 'submit',
@@ -55,21 +77,32 @@ class ZipBatchImporter extends IslandoraScholarBatchImporter {
   }
 
   public static function ready_for_batch(&$form_state) {
-    if (empty($form_state['values']['file'])) {
+    if (empty($form_state['storage']['file'])) {
       $file = file_save_upload('file');
       if ($file) {
-        $form_state['values']['file'] = $file;
+        $form_state['storage']['file'] = $file;
       }
     }
 
-    return !empty($form_state['values']['file']);
+    if (!(count($form_state['values']['content_model']) > 0)) {
+      drupal_set_message(t('Must select at least one content model!'));
+    }
+
+    return !empty($form_state['storage']['file']) && (count($form_state['values']['content_model']) > 0);
   }
 
   public static function get_batch_info(&$form_state) {
+     // Load the file.
+     $file = file_load($form_state['values']['file']);
+
+     // Grab the content models.
+     $content_models = $form_state['values']['content_model'];
+
      $info = array(
-       'file' => file_load($form_state['values']['file']),
-       'content_model' => $form_state['values']['content_model'],
-       'object_info' => self::get_ingest_info(file_load($form_state['values']['file'])),
+       'file' => $file,
+       'pid_namespace' => $form_state['values']['namespace'],
+       'content_model' => $content_models,
+       'object_info' => self::get_ingest_info($file),
        'processed_objects' => array(),
      );
      return $info;
@@ -78,7 +111,9 @@ class ZipBatchImporter extends IslandoraScholarBatchImporter {
   protected static function get_ingest_info($file) {
     $zip = new ZipArchive();
     if (($error = $zip->open(drupal_realpath($file->uri))) !== TRUE) {
-      dsm($error);
+      drupal_set_message(t('Error opening the provided Zip file.  Code: %code', array(
+        '%code' => $error,
+      )));
       return;
     }
 
@@ -94,8 +129,6 @@ class ZipBatchImporter extends IslandoraScholarBatchImporter {
       $info[$object_key][$datastream_key] = $name;
     }
 
-    // XXX: We don't actually want to introduce any changes.
-    //$zip->unchangeAll();
     $zip->close();
 
     return $info;
@@ -108,11 +141,18 @@ class ZipBatchImporter extends IslandoraScholarBatchImporter {
  * Actually does the heavy-lifting during the import.
  * @author adam
  */
-class ZipBatchImportObject extends IslandoraScholarImportObject {
+class ZipBatchImportObject extends IslandoraImportObject {
   protected $mods;
+
+  protected function __construct($source) {
+    parent::__construct($source);
+    $this->pid_namespace = $this->source['pid_namespace'];
+    $this->content_model = $this->source['content_model'];
+  }
 
   public static function get_one(&$info) {
     $record = array(
+      'pid_namespace' => $info['pid_namespace'],
       'file' => $info['file'],
       'content_model' => $info['content_model'],
     );
@@ -145,7 +185,7 @@ class ZipBatchImportObject extends IslandoraScholarImportObject {
       //  as received from the DC-COMPOSITE.
       $mimetype = $mime_detect->getMimetype($name);
       
-      $dsid = 'OBJ';
+      $dsid = strtoupper($datastream);
       foreach ($dsids as $ds => $mimes) {
         if (in_array($mimetype, $mimes)) {
           $dsid = $ds;
@@ -174,31 +214,6 @@ class ZipBatchImportObject extends IslandoraScholarImportObject {
     }
 
     return $to_return;
-  }
-
-  /**
-   * Run an XSLT, and return the results.
-   *
-   * @param array $info
-   *   An associative array of parameters, containing:
-   *   - input: The input XML in a string.
-   *   - xsl: The path to an XSLT file.
-   *
-   * @return string
-   *   The transformed XML, as a string.
-   */
-  protected static function run_xsl_transform($info) {
-    $xsl = new DOMDocument();
-    $xsl->load($info['xsl']);
-
-    $input = new DOMDocument();
-    $input->loadXML($info['input']);
-
-    $processor = new XSLTProcessor();
-    $processor->importStylesheet($xsl);
-
-    // XXX: Suppressing warnings regarding unregistered prefixes.
-    return @$processor->transformToXML($input);
   }
 
   public function get_mods() {

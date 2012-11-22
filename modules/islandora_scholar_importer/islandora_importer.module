@@ -3,14 +3,14 @@
 /**
  * Implements hook_menu().
  */
-function islandora_scholar_importer_menu() {
+function islandora_importer_menu() {
   return array(
-    'islandora/object/%islandora_object/scholar_import' => array(
-      'title' => 'Scholar Batch Import',
+    'islandora/object/%islandora_object/import' => array(
+      'title' => 'Batch Import',
       'type' => MENU_CALLBACK,
       'page callback' => 'drupal_get_form',
-      'page arguments' => array('islandora_scholar_importer_form', 2),
-      'access callback' => 'islandora_scholar_importer_access_callback',
+      'page arguments' => array('islandora_importer_form', 2),
+      'access callback' => 'islandora_importer_access_callback',
       'access arguments' => array(2),
     ),
   );
@@ -19,32 +19,32 @@ function islandora_scholar_importer_menu() {
 /**
  * Wrap a module_invoke_all() call.
  */
-function islandora_scholar_importer_get_options() {
-  return module_invoke_all('islandora_scholar_importer');
+function islandora_importer_get_options() {
+  return module_invoke_all('islandora_importer');
 }
 
 /**
  * Access callback for menu path.
  */
-function islandora_scholar_importer_access_callback($object) {
+function islandora_importer_access_callback($object) {
   if (!$object) {
     return FALSE;
   }
 
-  return ((count(islandora_scholar_importer_get_options()) > 0) &&
+  return ((count(islandora_importer_get_options()) > 0) &&
     user_access(FEDORA_INGEST));
 }
 
 /**
  * Implements hook_islandora_ingest_registry().
  */
-function islandora_scholar_importer_islandora_ingest_registry($object) {
+function islandora_importer_islandora_ingest_registry($object) {
   $reg = array();
   
-  if (count(islandora_scholar_importer_get_options()) > 0) {
+  if (count(islandora_importer_get_options()) > 0) {
     $reg[] = array(
-      'name' => 'Scholar Batch Import',
-      'url' => "islandora/object/{$object->id}/scholar_import",
+      'name' => 'Batch Import',
+      'url' => "islandora/object/{$object->id}/import",
       'weight' => 1,
     );
   }
@@ -68,22 +68,22 @@ function islandora_scholar_importer_islandora_ingest_registry($object) {
  * @return array
  *   An array describing the form structure.
  */
-function islandora_scholar_importer_form($form, &$form_state, $object) { // $parent_pid = NULL, $options = NULL) {
+function islandora_importer_form($form, &$form_state, $object) { // $parent_pid = NULL, $options = NULL) {
   if (isset($form_state['storage']['importer'])) {
     //Importers need something like:
     //
     // The first three correspond the the parameters to module_load_include,
-    //   and the class is one which extends IslandoraScholarBatchImporter
-    //   (which is defined in islandora_scholar_importer.inc)
+    //   and the class is one which extends IslandoraBatchImporter
+    //   (which is defined in islandora_importer.inc)
     extract($form_state['storage']['importer']);
-    module_load_include('inc', 'islandora_scholar_importer');
+    module_load_include('inc', 'islandora_importer');
     module_load_include($type, $module, $file);
-    if (is_subclass_of($class, 'IslandoraScholarBatchImporter')) {
+    if (is_subclass_of($class, 'IslandoraBatchImporter')) {
       return $class::get_form($form_state);
     }
     else {
       drupal_set_message(t('The %title importer does not correctly subclass' .
-        ' IslandoraScholarBatchImporter...  Inform the particular importer module\'s ' .
+        ' IslandoraBatchImporter...  Inform the particular importer module\'s ' .
         'maintainer!', array('%title' => $title)), 'error');
       unset($form_state['storage']['options'][$form_state['storage']['importer_name']]);
       unset($form_state['storage']['importer']);
@@ -146,13 +146,13 @@ function islandora_scholar_importer_form($form, &$form_state, $object) { // $par
 function islandora_scholar_importer_form_submit(&$form, &$form_state) {
   if (isset($form_state['storage']['importer'])) {
     extract($form_state['storage']['importer']);
-    module_load_include('inc', 'islandora_scholar_importer');
+    module_load_include('inc', 'islandora_importer');
     module_load_include($type, $module, $file);
-    if (is_subclass_of($class, 'IslandoraScholarBatchImporter') && $class::ready_for_batch($form_state)) {
+    if (is_subclass_of($class, 'IslandoraBatchImporter') && $class::ready_for_batch($form_state)) {
       $batch = array(
-        'title' => t('Islandora Scholar Batch Import'),
+        'title' => t('Islandora Batch Import'),
         'operations' => array(),
-        'finished' => 'islandora_scholar_importer_batch_finished',
+        'finished' => 'islandora_importer_batch_finished',
       );
 
       $batch['operations'][] = array(
@@ -164,7 +164,7 @@ function islandora_scholar_importer_form_submit(&$form, &$form_state) {
       );
 
       //XXX: Allow modules to alter...  Don't know if this is really a good idea or not.
-      drupal_alter('islandora_scholar_importer_batch', $batch);
+      drupal_alter('islandora_importer_batch', $batch);
 
       //Set and start the batch.
       batch_set($batch);
@@ -188,7 +188,7 @@ function islandora_scholar_importer_form_submit(&$form, &$form_state) {
  *
  * XXX:  This function shouldn't really be necessary, but is due to Drupal.
  *   If "is_callable" was used (in _batch_process, I believe?), we could pass
- *   along a (serializable) instantition of the importer class and the name
+ *   along a (serializable) instantiation of the importer class and the name
  *   of the method to call on it...  Instead, we need to pass the name of
  *   a function due to the use of "function_exists".
  * @param $class_info
@@ -201,18 +201,18 @@ function islandora_scholar_importer_form_submit(&$form, &$form_state) {
  * @param $context
  *   An array containing the Drupal batch context.
  */
-function islandora_scholar_importer_run_batch($class_info, $import_info, $parent_pid, &$context) {
+function islandora_importer_run_batch($class_info, $import_info, $parent_pid, &$context) {
   extract($class_info);
-  module_load_include('inc', 'islandora_scholar_importer');
+  module_load_include('inc', 'islandora_importer');
   module_load_include($type, $module, $file);
 
   // XXX:  Bit of a hack, as batch parameters cannot be references.
-  if (!isset($context['results']['islandora_scholar_importer']['import_info'])) {
-    $context['results']['islandora_scholar_importer']['import_info'] = $import_info;
+  if (!isset($context['results']['islandora_importer']['import_info'])) {
+    $context['results']['islandora_importer']['import_info'] = $import_info;
   }
-  $import_info = &$context['results']['islandora_scholar_importer']['import_info'];
+  $import_info = &$context['results']['islandora_importer']['import_info'];
 
-  if (is_subclass_of($class, 'IslandoraScholarBatchImporter')) {
+  if (is_subclass_of($class, 'IslandoraBatchImporter')) {
     $instance = new $class($import_info, $parent_pid, $context);
     $instance->run_batch();
   }
@@ -231,11 +231,11 @@ function islandora_scholar_importer_run_batch($class_info, $import_info, $parent
  * @param $ops
  *   An array of failed operations.
  */
-function islandora_scholar_importer_batch_finished($success, $results, $ops) {
+function islandora_importer_batch_finished($success, $results, $ops) {
   if ($success) {
     // XXX: Remove some of our "stored" values.
     unset($results['pid_cache']);
-    unset($results['islandora_scholar_importer']);
+    unset($results['islandora_importer']);
 
     $filename = file_create_filename('batch_import_results.html', 'public://');
     $file = fopen($filename, 'w');
@@ -255,7 +255,7 @@ function islandora_scholar_importer_batch_finished($success, $results, $ops) {
         ('  ' . t('Link: !link.', array('!link' => $link))):
         '') . "</li>");
 
-      array_unshift($result, 'islandora_scholar_importer');
+      array_unshift($result, 'islandora_importer');
       call_user_func_array('watchdog', $result);
     }
     fputs($file, '</ol></body></html>');

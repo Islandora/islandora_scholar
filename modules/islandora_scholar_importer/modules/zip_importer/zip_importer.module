@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Implements hook_islandora_scholar_importer().
+ * Implements hook_islandora_importer().
  */
-function zip_importer_islandora_scholar_importer() {
+function zip_importer_islandora_importer() {
   return array(
     'zip_importer' => array(
       'type' => 'inc',
@@ -19,7 +19,7 @@ function zip_importer_islandora_scholar_importer() {
  * Implements hook_help().
  */
 function zip_importer_help($path, $args) {
-  if ($path == 'islandora/object/%islandora_object/scholar_import') {
+  if ($path == 'islandora/object/%islandora_object/import') {
     return '<p>' . t('The "ZIP File Importer" allows for batch imports in a very similar manner as the batch ingester of Drupal 6, where a zip file could be uploaded, and objects created based on the names of the files contained.  The files are grouped by dropping the extension, so "my_file.xml" and "my_file.pdf" will be used to create a single object.  Currently, the XML files can contain MODS, MARCXML or DC (in no XML is given, basic MODS (and DC) will be generated with just the base filename).  For other files, we try to match mimetypes against those declared for datastreams in the selected content model\'s "DS-COMPOSITE" stream.') . '</p>';
   }
 } 

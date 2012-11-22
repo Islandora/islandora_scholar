@@ -1,6 +1,7 @@
-name = MARCXML Importer
-description = Importer plugin for MARCXML files.
+name = Zip File Importer
+description = Importer plugin for Zip files, with selectable content models.
 package = Islandora Tools
-dependencies[] = islandora_scholar_importer
+dependencies[] = islandora_importer
+dependencies[] = islandora_solution_pack_collection
 version = 7.x-dev
 core = 7.x

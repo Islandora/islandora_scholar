@@ -13,11 +13,11 @@
  *   - class: A string containing the class name for your importer.
  *   The first three (type, module and file) correspond to the parameters for
  *   module_load_include.  Title is used as the label, and the class is one
- *   which extends IslandoraScholarBatchImporter (defined in
- *   islandora_scholar_importer.inc; just implementing the abstract methods and
+ *   which extends IslandoraBatchImporter (defined in
+ *   islandora_importer.inc; just implementing the abstract methods and
  *   using your custom "item class" should suffice)
  */
-function hook_islandora_scholar_importer() {
+function hook_islandora_importer() {
   return array(
     'my_awesome_importer' => array(
       'type' => 'inc',

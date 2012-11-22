@@ -1,5 +1,5 @@
-name = Islandora Scholar Importer
-description = Pluggable importer of citation records.
+name = Islandora Batch Importer
+description = Pluggable importer of object records.
 package = Islandora Tools
 dependencies[] = islandora
 version = 7.x-dev

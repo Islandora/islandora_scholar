@@ -1,12 +1,12 @@
 <?php
 
-module_load_include('inc', 'islandora_scholar_importer');
+module_load_include('inc', 'islandora_importer');
 
 /**
  * RIS citation importer.
  * @author adam
  */
-class EndNoteXMLImporter extends IslandoraScholarBatchImporter {
+class EndNoteXMLImporter extends IslandoraBatchImporter {
   protected $item_class = 'EndNoteXMLImportObject';
 
   public function get_number() {
@@ -62,7 +62,7 @@ class EndNoteXMLImporter extends IslandoraScholarBatchImporter {
  * Actually does the heavy-lifting during the import.
  * @author adam
  */
-class EndNoteXMLImportObject extends IslandoraScholarImportObject {
+class EndNoteXMLImportObject extends IslandoraImportObject {
   protected $mods;
 
   public static function get_one(&$file) {

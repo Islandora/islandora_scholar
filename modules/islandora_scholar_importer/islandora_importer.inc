@@ -7,7 +7,7 @@
  * @author adam@discoverygarden.ca
  */
 
-interface IslandoraScholarBatchImporterInterface {
+interface IslandoraBatchImporterInterface {
   /**
    * Determine if we're ready to run our batch process...
    *
@@ -35,26 +35,26 @@ interface IslandoraScholarBatchImporterInterface {
 }
 
 /**
- * Scholar importer interface/abstract class.
+ * Batch importer interface/abstract class.
  *
  * Implement the abstract functions (and those in the Import Object/item class)
  * and it should be able to work.
  *
  * @author adam@discoverygarden.ca
  */
-abstract class IslandoraScholarBatchImporter implements IslandoraScholarBatchImporterInterface {
+abstract class IslandoraBatchImporter implements IslandoraBatchImporterInterface {
   /**
    * A string containing the name of a timer used in the run_batch method.
    * @var string
    */
-  protected $timer_name = 'islandora_scholar_batch_import';
+  protected $timer_name = 'islandora_batch_import';
 
   /**
    * A string containing the name of the class to actually do the heavy
    * lifting.
    * @var string
    */
-  protected $item_class = "IslandoraScholarImportObject";
+  protected $item_class = "IslandoraImportObject";
 
   /**
    * May be a  bit of a misnomer...  We don't really make any assumptions
@@ -201,7 +201,7 @@ abstract class IslandoraScholarBatchImporter implements IslandoraScholarBatchImp
   }
 }
 
-interface IslandoraScholarImportObjectInterface {
+interface IslandoraImportObjectInterface {
   /**
    * Get an item from the source
    *
@@ -222,7 +222,7 @@ interface IslandoraScholarImportObjectInterface {
  *
  * @author adam@discoverygarden.ca
  */
-abstract class IslandoraScholarImportObject implements IslandoraScholarImportObjectInterface {
+abstract class IslandoraImportObject implements IslandoraImportObjectInterface {
   public $pid_namespace = 'ir';
   public $pid_cache_size = 2;
 
@@ -279,7 +279,8 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
     if ($this->title === NULL) {
       $mods = $this->get_mods();
       if ($mods) {
-        $mods_doc = DOMDocument::loadXML($mods);
+        $mods_doc = new DOMDocument();
+        $mods_doc->loadXML($mods);
         $mods_xpath = new DOMXPath($mods_doc);
         $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
 
@@ -312,15 +313,12 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
    */
   public function get_dc() {
     if ($this->dc === NULL) {
-      $transform_filename = drupal_get_path('module', 'islandora_scholar_importer') . '/xsl/mods_to_dc.xsl';
-      $transform = new DOMDocument();
-      $transform->load($transform_filename);
-      $doc = DOMDocument::loadXML($this->get_mods());
-      if (isset($doc->documentElement)) {
-        $xslt = new XSLTProcessor();
-        $xslt->importStyleSheet($transform);
-        $doc = $xslt->transformToDoc($doc->documentElement);
-        $this->dc = $doc->saveXML();
+      $new_dc = self::run_xsl_transform(array(
+        'xsl' => drupal_get_path('module', 'islandora_importer') . '/xsl/mods_to_dc.xsl',
+        'input' => $this->get_mods(),
+      ));
+      if ($new_dc) {
+        $this->dc = $new_dc;
       }
     }
 
@@ -412,13 +410,12 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
 
     $label = $this->get_title();
     $datastreams = $this->get_datastreams($to_return, $files);
-    $content_models = array();
     $relationships = array();
     $collection_pid = NULL;
 
     $files = array();
 
-    $content_models[] = $this->content_model;
+    $content_models = array_unique((array)$this->content_model);
 
     $collection_pid = $parent_pid;
     $relationships[] = array(
@@ -468,5 +465,30 @@ abstract class IslandoraScholarImportObject implements IslandoraScholarImportObj
     }
 
     return $to_return;
+  }
+
+  /**
+   * Run an XSLT, and return the results.
+   *
+   * @param array $info
+   *   An associative array of parameters, containing:
+   *   - input: The input XML in a string.
+   *   - xsl: The path to an XSLT file.
+   *
+   * @return string
+   *   The transformed XML, as a string.
+   */
+  protected static function run_xsl_transform($info) {
+    $xsl = new DOMDocument();
+    $xsl->load($info['xsl']);
+
+    $input = new DOMDocument();
+    $input->loadXML($info['input']);
+
+    $processor = new XSLTProcessor();
+    $processor->importStylesheet($xsl);
+
+    // XXX: Suppressing warnings regarding unregistered prefixes.
+    return @$processor->transformToXML($input);
   }
 }
