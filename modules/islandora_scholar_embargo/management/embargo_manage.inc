@@ -53,8 +53,8 @@ XML;
   foreach ($results as $result) {
     $rows[] = array(
       '#pid' => $result['pid'],
-      'pid' => array('#value' => l($result['pid'], 'fedora/repository/' . $key, $textOptions)),
-      'label' => array('#value' => l($result['label'], 'fedora/repository/' . $key, $textOptions)),
+      'pid' => array('#value' => l($result['pid'], 'fedora/repository/' . $result['pid'], $textOptions)),
+      'label' => array('#value' => l($result['label'], 'fedora/repository/' . $result['pid'], $textOptions)),
       'date' => array('#value' => $result['object']),
     );
   }
