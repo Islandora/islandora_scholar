@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Implements hook_islandora_scholar_importer().
+ * Implements hook_islandora_importer().
  */
-function ris_importer_islandora_scholar_importer() {
+function ris_importer_islandora_importer() {
   return array(
     'ris_importer' => array(
       'type' => 'inc',

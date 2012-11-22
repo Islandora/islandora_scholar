@@ -1,12 +1,12 @@
 <?php
 
-module_load_include('inc', 'islandora_scholar_importer');
+module_load_include('inc', 'islandora_importer');
 
 /**
  * DOI citation importer.
  * @author adam
  */
-class DOIImporter extends IslandoraScholarBatchImporter {
+class DOIImporter extends IslandoraBatchImporter {
   protected $item_class = 'DOIImportObject';
 
   public function get_number() {
@@ -76,7 +76,7 @@ class DOIImporter extends IslandoraScholarBatchImporter {
  * Actually does the heavy-lifting during the import.
  * @author adam
  */
-class DOIImportObject extends IslandoraScholarImportObject {
+class DOIImportObject extends IslandoraImportObject {
   protected $mods;
 
   public static function get_one(&$ids) {

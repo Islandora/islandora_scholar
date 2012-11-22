@@ -1,12 +1,12 @@
 <?php
 
-module_load_include('inc', 'islandora_scholar_importer');
+module_load_include('inc', 'islandora_importer');
 
 /**
  * PMID citation importer.
  * @author adam
  */
-class PMImporter extends IslandoraScholarBatchImporter {
+class PMImporter extends IslandoraBatchImporter {
   protected $item_class = 'PMIDImportObject';
 
   public function get_number() {
@@ -75,7 +75,7 @@ class PMImporter extends IslandoraScholarBatchImporter {
  * Actually does the heavy-lifting during the import.
  * @author adam
  */
-class PMIDImportObject extends IslandoraScholarImportObject {
+class PMIDImportObject extends IslandoraImportObject {
   protected $mods;
 
   public static function get_one(&$ids) {

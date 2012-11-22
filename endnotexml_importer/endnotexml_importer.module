@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Implements hook_islandora_scholar_importer().
+ * Implements hook_islandora_importer().
  */
-function endnotexml_importer_islandora_scholar_importer() {
+function endnotexml_importer_islandora_importer() {
   return array(
     'endnotexml_importer' => array(
       'type' => 'inc',
