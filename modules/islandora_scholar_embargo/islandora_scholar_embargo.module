@@ -1,10 +1,10 @@
 <?php
+
 /**
  * @file
  *   This is the main module file for islandora_scholar_embargo.
  *   It supports embargo management in Islandora Scholar.
  */
-
 /* Doesn't make sense to use either of the Islandora RELS-EXT or RELS-INT
  * namespaces, as our predicates can occur in both.
  */
@@ -25,7 +25,7 @@ define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
  * @return array
  *   The tabset to add to the object page.
  */
-function islandora_scholar_embargo_islandora_tabs ($cms, $pid, $page) {
+function islandora_scholar_embargo_islandora_tabs($cms, $pid, $page) {
   $tabset = array();
 
   $models = variable_get('islandora_scholar_models', 'ir:citationCModel');
@@ -43,6 +43,48 @@ function islandora_scholar_embargo_islandora_tabs ($cms, $pid, $page) {
 }
 
 /**
+ * Implement hook_menu()
+ * @return array
+ */
+
+function islandora_scholar_embargo_menu() {
+  $items = array();
+  $items['manage/embargoed'] = array(
+    'title' => t('Manage Embargoed Items'),
+    'file' => 'management/embargo_manage.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('embargo_manage_form'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array('manage embargoed items'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_perm
+ * @return array
+ */
+
+function islandora_scholar_embargo_perm() {
+  return array(
+    'manage embargoed items',
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function islandora_scholar_embargo_theme() {
+  return array(
+    'embargo_manage_form' => array(
+      'arguments' => array('element' => NULL),
+      'file' => 'management/embargo_manage.inc',
+    ),
+  );
+}
+
+/**
  * Build the array containing a couple tokens needed for mail messages.
  *
  * @param array $params
@@ -53,8 +95,8 @@ function islandora_scholar_embargo_islandora_tabs ($cms, $pid, $page) {
 function islandora_scholar_embargo_mail_tokens($params, $language) {
   $to_return = array(
     '!item' => l(
-      $params['item_title'],
-      'fedora/repository/' . $params['item']
+        $params['item_title'],
+        'fedora/repository/' . $params['item']
     ),
     '%dsid' => $params['dsid'],
     '%date' => format_date(strtotime($params['expiry_date'])),
@@ -147,17 +189,17 @@ EOQ
 
       if ($dsid === NULL) {
         $item->purge_relationships(
-          ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
-          NULL,
-          ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
+            ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
+            NULL,
+            ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
         );
       }
       else {
         $item->purge_dsid_relationships(
-          $dsid,
-          ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
-          NULL,
-          ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
+            $dsid,
+            ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED,
+            NULL,
+            ISLANDORA_SCHOLAR_EMBARGO_RELS_URI
         );
       }
     }
@@ -212,7 +254,7 @@ function islandora_scholar_embargo_islandora_scholar_embargo_users_to_notify($pi
   $owner = $item->objectProfile->ownerId;
   if (!is_numeric($owner)) {
     /* If it's not numeric (which will be used as a uid),
-     * then assume it's a username.*/
+     * then assume it's a username. */
     $owner = array(
       'name' => $owner,
     );
@@ -286,7 +328,7 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
   }
   else {
     /* TODO Remove embargo statement from RELS-INT
-     * (and POLICY stream) for the given datastream.*/
+     * (and POLICY stream) for the given datastream. */
     $item->purge_dsid_relationships($dsid, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
     $item->purge_dsid_relationships($dsid, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, NULL, ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
     $xacml->datastreamRule->removeDsid($dsid);
