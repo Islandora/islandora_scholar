@@ -40,16 +40,18 @@ class IslandoraSolrResultsCitation extends IslandoraSolrResults {
     }
 
     $total = (int) $query_processor->solrResult->response->numFound;
-
+    
     if ($total === 0) {
       $output .= "<h2>Search Results</h2>";
       $output .= "<div>Sorry, but your search returned no results.</div>";
       return $output;
     }
+    
     islandora_solr_search_pager_init($total, $query_processor->solrLimit);
     $output .= '<div class="content">';
-    $output .= drupal_get_form('islandora_scholar_search_results_form', $query_processor);
+    $output .= drupal_get_form('islandora_scholar_search_results_form', $query_processor, $this->addSecondaries($query_processor));
     $output .= theme('pager', null, $query_processor->solrLimit, 0, null, 5);
+   
     $output .= "</div>";
     return $output;
   }
@@ -140,20 +142,21 @@ function template_preprocess_islandora_scholar_search_item(array &$variables) {
   }
 }
 
-function islandora_scholar_search_results_form(array &$form_state, IslandoraSolrQueryProcessor $query_processor) {
+function islandora_scholar_search_results_form(array &$form_state, IslandoraSolrQueryProcessor $query_processor, $secondary_display) {
   global $user;
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   $results = $query_processor->solrResult;
   $total = (int) $results->response->numFound;
   $start = (int) $query_processor->solrStart + 1;
   $end = min(($query_processor->solrLimit + $query_processor->solrStart), $total);
-  $title = t('Search Results (%start - %end of %total)', array('%start' => $start, '%end' => $end, '%total' => $total));
+  $title = t('Search Results (%start - %end of %total)' , array('%start' => $start, '%end' => $end, '%total' => $total));
   $table = array(
     '#header' => array($title),
     '#theme' => THEME_SCHOLAR_SEARCH_TABLE,
+    '#value' => $secondary_display,
     '#tree' => TRUE,
   );
-
+  
   module_load_include('inc', 'csl', 'CSL');
   $style = citeproc_default_style();
   $pids = array();
@@ -191,6 +194,7 @@ function islandora_scholar_search_results_form(array &$form_state, IslandoraSolr
     'pager' => array(
       '#value' => theme('pager', null, $query_processor->solrLimit, 0, null, 5)
     ),
+
     'table' => $table,
   );
 }
