@@ -149,7 +149,6 @@ function islandora_scholar_search_results_form(array &$form_state, IslandoraSolr
   $total = (int) $results->response->numFound;
   $start = (int) $query_processor->solrStart + 1;
   $end = min(($query_processor->solrLimit + $query_processor->solrStart), $total);
-  //$rss_link = $this->addSecondaries($query_processor);
   $title = t('Search Results (%start - %end of %total)' , array('%start' => $start, '%end' => $end, '%total' => $total));
   $table = array(
     '#header' => array($title),
