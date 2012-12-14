@@ -121,8 +121,8 @@ WHERE {
   ?embargoed is:$eu ?date ;
              is:$np ?notify .
   FILTER(sameTerm(dataType(?date), xsd:dateTime) &&
-    ?notify < $now^^xsd:dateTime &&
-    ?date > $now^^xsd:dateTime) .
+    ?notify < '$now'^^xsd:dateTime &&
+    ?date > '$now'^^xsd:dateTime) .
 }
 EOQ
     );
@@ -168,7 +168,7 @@ SELECT ?expired ?date
 FROM <#ri>
 WHERE {
   ?expired is:$eu ?date .
-  FILTER(sameTerm(dataType(?date), xsd:dateTime) && ?date <= $now^^xsd:dateTime) .
+  FILTER(sameTerm(dataType(?date), xsd:dateTime) && ?date <= '$now'^^xsd:dateTime) .
 }
 EOQ
     );
