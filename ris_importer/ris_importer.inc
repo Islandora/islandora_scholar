@@ -27,33 +27,26 @@ class RISImporter extends IslandoraBatchImporter {
         '#type' => 'fieldset',
         '#title' => t('RIS Batch Importer'),
         'file' => array(
-          '#type' => 'file',
-          '#title' => t('File of RIS records to import'),
+          '#type' => 'managed_file',
+          '#title' => t('File of RIS records to import (".ris" extension).'),
+          '#upload_validators' => array(
+            'file_validate_extensions' => array('ris'),
+          ),
         ),
         'submit' => array(
           '#type' => 'submit',
           '#value' => t('Import'),
         ),
       ),
-      '#attributes' => array(
-        'enctype' => 'multipart/form-data',
-      ),
     );
   }
 
   public static function ready_for_batch(&$form_state) {
-    if (empty($form_state['values']['file'])) {
-      $file = file_save_upload('file');
-      if ($file) {
-        $form_state['values']['file'] = $file;
-      }
-    }
-
     return !empty($form_state['values']['file']);
   }
 
   public static function get_batch_info(&$form_state) {
-     $file = $form_state['values']['file'];
+     $file = file_load($form_state['values']['file']);
      return $file;
   }
 }

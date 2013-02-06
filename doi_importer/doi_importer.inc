@@ -25,9 +25,12 @@ class DOIImporter extends IslandoraBatchImporter {
           ' commas (or some combination thereof). NOTE: Presently, only ' .
           'journal (articles) are supported.'),
         'file' => array(
-          '#type' => 'file',
+          '#type' => 'managed_file',
           '#title' => t('File of DOIs'),
-          '#description' => t('A file listing Digital Object Identifiers.'),
+          '#description' => t('A file listing Digital Object Identifiers (with ".txt" extension).'),
+          '#upload_validators' => array(
+            'file_validate_extensions' => array('txt'),
+          ),
         ),
         'textarea' => array(
           '#type' => 'textarea',
@@ -51,10 +54,11 @@ class DOIImporter extends IslandoraBatchImporter {
 
   public static function ready_for_batch(&$form_state) {
     $text = trim($form_state['values']['textarea']);
-    $file = file_save_upload('file');
+    $file = file_load($form_state['values']['file']);
     if ($file) {
       $text .= ' ' . trim(file_get_contents(drupal_realpath($file->uri)));
       file_delete($file);
+      unset($form_state['values']['file']);
     }
 
     if ($text) {

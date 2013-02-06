@@ -25,8 +25,11 @@ class EndNoteXMLImporter extends IslandoraBatchImporter {
         '#type' => 'fieldset',
         '#title' => t('EndNote XML Batch Importer'),
         'file' => array(
-          '#type' => 'file',
+          '#type' => 'managed_file',
           '#title' => t('File of EndNote XML records to import'),
+          '#upload_validators' => array(
+            'file_validate_extensions' => array('xml'),
+          ),
         ),
         'submit' => array(
           '#type' => 'submit',
@@ -40,18 +43,11 @@ class EndNoteXMLImporter extends IslandoraBatchImporter {
   }
 
   public static function ready_for_batch(&$form_state) {
-    if (empty($form_state['values']['file'])) {
-      $file = file_save_upload('file');
-      if ($file) {
-        $form_state['values']['file'] = $file;
-      }
-    }
-
     return !empty($form_state['values']['file']);
   }
 
   public static function get_batch_info(&$form_state) {
-     $file = $form_state['values']['file'];
+     $file = file_load($form_state['values']['file']);
      return $file;
   }
 }
