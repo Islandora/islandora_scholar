@@ -309,6 +309,17 @@ class Coins {
 
 }
 
+/**
+ * Generate a table containing the contents of the MODS stream (if one exists).
+ *
+ * Uses the Coins class to perform extraction.
+ *
+ * @param AbstractFedoraObject $object
+ *   An object containing a MODS stream.
+ *
+ * @return array
+ *   A renderable array.
+ */
 function islandora_scholar_details($object) {
   if (isset($object['MODS'])) {
     $coins = new Coins($object);

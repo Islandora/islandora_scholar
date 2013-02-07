@@ -4,7 +4,6 @@
  * @file
  *
  */
-module_load_include('inc', 'islandora_solr', 'IslandoraSolrResults');
 
 /**
  * Extention of IslandoraSolrResults for templating purposes.
@@ -26,6 +25,7 @@ class IslandoraSolrResultsCitation extends IslandoraSolrResults {
     return drupal_render($output);
   }
 }
+
 function template_preprocess_islandora_scholar_search_alt_item(array &$vars) {
   $mods_title_field = variable_get('islandora_scholar_solr_title_field', 'mods_title_mlt');
   $s_doc = & $vars['solr_doc'];
@@ -53,36 +53,25 @@ function template_preprocess_islandora_scholar_search_item(array &$variables) {
   $object = islandora_object_load($pid);
   if (isset($object) && isset($object['MODS'])) {
     $title = $object->label;
-    //XXX:  Shouldn't have to occur (multiple times, anyway).
+
+    //XXX:  Shouldn't have to occur...  Bit of a hack to handle messily encoded
+    //  titles.
     while (($decoded = htmlspecialchars_decode($title, ENT_QUOTES)) != $title) {
       $title = $decoded;
     }
-    $variables['title'] = l($title, 'islandora/object' . htmlspecialchars($pid, ENT_QUOTES, 'utf-8', FALSE));
+    $variables['title'] = l($title, "islandora/object/$pid");
 
     $style = $variables['style'];
 
-    $cached_raw = NULL;
-    $cache_id = NULL;
+    $mods = $object['MODS']->content;
+    $mods = trim($mods);
+    if (!empty($mods)) {
+      $doc = new DOMDocument();
+      $doc->loadXML($mods);
 
-    if (module_exists('citeproc') && CITEPROC_DO_CACHE) {
-      $cached_raw = cache_get($cache_id);
-      $cache_id = CITEPROC_CACHE_PREFIX . '_' . $pid;
+      $bibliography = citeproc_bibliography_from_mods($style, $doc);
     }
 
-    $bibliography = NULL;
-    if (!empty($cached_raw)) {
-      $bibliography = citeproc_bibliography_from_raw_array($style, $cached_raw->data);
-    }
-    else {
-      $mods = $object['MODS']->content;
-      $mods = trim($mods);
-      if (!empty($mods)) {
-        $doc = new DOMDocument();
-        $doc->loadXML($mods);
-
-        $bibliography = citeproc_bibliography_from_mods($style, $doc, $cache_id);
-      }
-    }
     $variables['citation'] = $bibliography->render();
   }
 }
@@ -101,7 +90,6 @@ function islandora_scholar_search_results_form(array $form, array &$form_state, 
     '#tree' => TRUE,
   );
 
-  module_load_include('inc', 'csl', 'CSL');
   $style = citeproc_default_style();
   $pids = array();
 

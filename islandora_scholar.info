@@ -4,6 +4,7 @@ dependencies[] = citeproc
 dependencies[] = bibutils
 dependencies[] = islandora_solr
 description = Shows a list of items in a Fedora collection, specific to scholarly publications.
+files[] = includes/SolrResults.inc
 package = Islandora
 version = 7.x-$Format:%h$-dev
 core = 7.x
