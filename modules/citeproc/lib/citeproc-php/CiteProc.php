@@ -25,7 +25,7 @@ class citeproc {
   public    $citation;
   public    $style;
   protected $macros;
-  private   $info;
+  public    $info;
   protected $locale;
   protected $style_locale;
   private   $mapper = NULL;
@@ -43,7 +43,6 @@ class citeproc {
     $csl_doc = new DOMDocument();
 
     if ($csl_doc->loadXML($csl)) {
-
       $style_nodes = $csl_doc->getElementsByTagName('style');
       if ($style_nodes) {
         foreach ($style_nodes as $style) {
@@ -60,7 +59,6 @@ class citeproc {
 
       $this->locale = new csl_locale($lang);
       $this->locale->set_style_locale($csl_doc);
-
 
       $macro_nodes = $csl_doc->getElementsByTagName('macro');
       if ($macro_nodes) {
@@ -136,7 +134,6 @@ class csl_collection {
   function render($data, $mode = NULL) {}
 
   function format($text) {return $text;}
-
 }
 
 class csl_element extends csl_collection {
@@ -144,11 +141,9 @@ class csl_element extends csl_collection {
   protected $citeproc;
 
   function __construct($dom_node = NULL, $citeproc = NULL) {
-
     $this->citeproc   = &$citeproc;
     $this->set_attributes($dom_node);
     $this->init($dom_node, $citeproc);
-
   }
 
   function init($dom_node, $citeproc) {
@@ -203,7 +198,7 @@ class csl_element extends csl_collection {
 
   function get_hier_attributes() {
     $hier_attr = array();
-    $hier_names = array('and', 'delimiter-precedes-last', 'et-al-min', 'et-al-use-first',
+    $hier_names = array('and', 'delimiter-precedes-last', 'et-al-min', 'et-al-use-first', 'et-al-use-last',
                         'et-al-subsequent-min', 'et-al-subsequent-use-first', 'initialize-with',
                         'name-as-sort-order', 'sort-separator', 'name-form', 'name-delimiter',
                         'names-delimiter');
@@ -223,24 +218,22 @@ class csl_element extends csl_collection {
       return str_replace(' ', '_', $this->name);
     }
   }
-
 }
 
 class csl_rendering_element extends csl_element {
-
   function render($data, $mode = NULL) {
     $text = '';
     $text_parts = array();
-
     $delim = $this->delimiter;
     foreach ($this->elements as $element) {
       $text_parts[] = $element->render($data, $mode);
     }
-    $text = implode($delim, $text_parts); // insert the delimiter if supplied.
+
+    // Insert the delimiter if supplied.
+    $text = implode($delim, $text_parts);
 
     return $this->format($text);
   }
-
 }
 
 class csl_format extends csl_rendering_element {
@@ -293,9 +286,8 @@ class csl_format extends csl_rendering_element {
         !empty($this->format) ||
         !empty($this->span_class) ||
         !empty($this->div_class)) {
-          $this->no_op = FALSE;
-        }
-
+      $this->no_op = FALSE;
+    }
   }
 
   function format($text) {
@@ -330,20 +322,24 @@ class csl_format extends csl_rendering_element {
     }
     if (!empty($suffix)) { // gaurd against repeaded suffixes...
       $no_tags = strip_tags($text);
+
       if (strlen($no_tags) && ($no_tags[(strlen($no_tags) - 1)] == $suffix[0]) ) {
         $suffix = substr($suffix, 1);
       }
     }
-    
+
     if (!empty($this->format) || !empty($this->span_class)) {
       /**
        * Nigelb edits.
        */
       $style = (!empty($this->format)) ? 'style="' . $this->format . '" ' : '';
-      $class = (!empty($this->span_class)) ? 'class="' . $this->span_class . '"' : ''; 
+      $class = (!empty($this->span_class)) ? 'class="' . $this->span_class . '"' : '';
       //$text = '<span ' . $class . $style . '>' . $text . '</span>';
 
-      $format_stuff = explode(';', $this->format); //Was previously just switching on format; however, format can contain multiple statements (delimited by semi-colons).  Let's reflect this by exploding and checking for the stuff we care about.
+      // Was previously just switching on format; however, format can contain
+      //   multiple statements (delimited by semi-colons).  Let's reflect
+      //   this by exploding and checking for the stuff we care about.
+      $format_stuff = explode(';', $this->format);
       if (in_array('font-style: italic', $format_stuff)) {
         $text = '<i>'. $text .'</i>';
       }
@@ -366,7 +362,6 @@ class csl_format extends csl_rendering_element {
     $text = $prefix . $text . $suffix;
     return $text;
   }
-
 }
 
 class csl_info {
@@ -380,6 +375,9 @@ class csl_info {
     foreach ($dom_node->childNodes as $node) {
       if ($node->nodeType == 1) {
         switch ($node->nodeName) {
+          case 'title':
+              //$this->title = $node->nodeValue;
+          break;
           case 'author':
           case 'contributor':
             foreach ($node->childNodes as $authnode) {
@@ -399,13 +397,10 @@ class csl_info {
         }
       }
     }
-
   }
 }
 
-class csl_terms {
-
-}
+class csl_terms {}
 
 class csl_name extends csl_format {
   private $name_parts = array();
@@ -461,10 +456,10 @@ class csl_name extends csl_format {
     if (isset($this->and)) {
       if ($this->and == 'text') {
         $this->and = $this->citeproc->get_locale('term', 'and');
-       }
-       elseif ($this->and == 'symbol') {
-        $this->and = '&';
-       }
+      }
+      elseif ($this->and == 'symbol') {
+        $this->and = ' &';
+      }
     }
     if (isset($this->citeproc)) {
       $style_attrs = $this->citeproc->style->get_hier_attributes();
@@ -472,7 +467,7 @@ class csl_name extends csl_format {
       $this->attributes = array_merge($style_attrs, $mode_attrs, $this->attributes);
     }
     if (!isset($this->delimiter)) {
-      $this->delimiter =  $this->{'name-delimiter'} ;
+      $this->delimiter =  $this->{'name-delimiter'};
     }
     if (!isset($this->alnum)) {
       list($this->alnum, $this->alpha, $this->cntrl, $this->dash,
@@ -558,7 +553,6 @@ class csl_name extends csl_format {
 
     foreach ($names as $rank => $name) {
       $count++;
-      //$given = (!empty($name->firstname)) ? $name->firstname : '';
       if (!empty($name->given) && isset($initialize_with)) {
           $name->given = preg_replace("/([$this->upper])[$this->lower]+/$this->patternModifiers", '\\1', $name->given);
           $name->given = preg_replace("/(?<=[-$this->upper]) +(?=[-$this->upper])/$this->patternModifiers", "", $name->given);
@@ -595,7 +589,6 @@ class csl_name extends csl_format {
           $name->given = $name->initials;
         }
       }
-
       $ndp = (isset($name->{'non-dropping-particle'})) ? $name->{'non-dropping-particle'} . ' ' : '';
       $suffix = (isset($name->{'suffix'})) ? ' ' . $name->{'suffix'}  : '';
 
@@ -614,27 +607,41 @@ class csl_name extends csl_format {
               $text = $ndp . $name->family . $this->sort_separator . $given;
               break;
             default:
-              $text = $given .' '. $ndp . $name->family . $suffix;
+              $text = $given . $ndp . $name->family . $suffix;
           }
         }
         $authors[] = trim($this->format($text));
       }
-      if (isset($this->{'et-al-min'}) && $count >= $this->{'et-al-min'}) break;
+
+      //________add in code for when et-al-use-last isn't set_________
+
+      if (isset($this->{'et-al-min'}) && $count >= $this->{'et-al-min'} && $this->{'et-al-use-last'} != 'true')
+        break;
     }
-    if (isset($this->{'et-al-min'}) &&
-    $count >= $this->{'et-al-min'} &&
-    isset($this->{'et-al-use-first'})) {
+
+    if (isset($this->{'et-al-min'}) && $count >= $this->{'et-al-min'} && isset($this->{'et-al-use-first'})) {
       if ($this->{'et-al-use-first'} < $this->{'et-al-min'}) {
-        for ($i = $this->{'et-al-use-first'}; $i < $count; $i++) {
+        $et_al_last_author = 0;
+        if(isset($this->{'et-al-use-last'}) && $this->{'et-al-use-last'} == 'true') {
+            $et_al_last_author = 1;
+        }
+
+        for ($i = $this->{'et-al-use-first'}; $i < $count - $et_al_last_author; $i++) {
           unset($authors[$i]);
         }
       }
-      if ($this->etal) {
-        $authors[] = $this->etal->render();
+      if(isset($this->{'et-al-use-last'}) && $this->{'et-al-use-last'} == 'true') {
+        array_splice($authors, count($authors) - 1, 0, '… '); //add in term here
       }
       else {
-      $authors[] = $this->citeproc->get_locale('term', 'et-al');
+        if ($this->etal) {
+          $authors[] = $this->etal->render();
+        }
+        else {
+          $authors[] = $this->citeproc->get_locale('term', 'et-al');
+        }
       }
+
       $et_al_triggered = TRUE;
     }
 
@@ -644,7 +651,17 @@ class csl_name extends csl_format {
         $authors[$auth_count-1] = $this->and . ' ' . $authors[$auth_count-1]; //stick an "and" in front of the last author if "and" is defined
       }
     }
-    $text = implode($this->delimiter, $authors);
+    if(isset($this->{'et-al-use-last'}) && $this->{'et-al-use-last'} == 'true') {
+      $before_ellipsis = array_slice($authors, 0, $this->{'et-al-use-first'} + 1);
+
+      $text = implode($this->delimiter, $before_ellipsis);
+      if(count($authors) > $this->{'et-al-use-first'}) {
+        $text = $text . array_pop($authors);
+      }
+    }
+    else {
+      $text = implode($this->delimiter, $authors);
+    }
 
    if ($this->form == 'count') {
      if (!$et_al_triggered) {
@@ -803,7 +820,6 @@ class csl_names extends csl_format {
         break;
       }
     }
-
     if (!$matches) { // we don't have any primary suspects, so lets check the substitutes...
       if (isset($this->substitutes)) {
         foreach ($this->substitutes->elements as $element) {
@@ -878,8 +894,10 @@ class csl_date extends csl_format {
           }
         }
       }
+
       if ($date_parts = $this->{'date-parts'}) {
         $parts = explode('-', $date_parts);
+
         foreach ($locale_elements as $key => $element) {
           if (array_search($element->name, $parts) === FALSE) {
             unset($locale_elements[$key]);
@@ -918,53 +936,23 @@ class csl_date extends csl_format {
     $text = '';
 
     if (($var = $this->variable) && isset($data->{$var})) {
-      $date_data =& $data->{$var}; 
-      $date = NULL;
-      //$date = $date_data->{'date-parts'}[0]; 
-      if (isset($date_data->{'raw'})) {
-        //dd($data->{$var}, 'Data');
-        $date = $date_data->{'raw'};
-        //dd($date, 'Raw date');
-        require_once(dirname(__FILE__) .'/CSL_Dateparser.php');
-        $parser = CSL_DateParser::getInstance($this->elements);
-        $parser->returnAsArray();
-        $date = $parser->parse($date);
-        //dd($date, 'Parsed date');
-      }
-      
-      //TODO:  This only deals with the first datepart; should be able to specify a range...
-      if (empty($date) && !empty($date_data->date_parts[0])) {  //Not raw, and date_parts in input
-        $date = $date->date_parts[0]; 
-      }
-      elseif (is_array($date) && array_key_exists('date-parts', $date)) { //Was raw, get the parsed date-parts
-        $date = $date['date-parts'][0];
-      }
-      
-      if (is_array($date) && array_key_exists('literal', $date)) {
-        $text = $date['literal'];
-      }
-      elseif (is_object($date) && isset($date->literal)) {
-        $text = $date->literal;
-      }
-      
-      if (empty($text) && !empty($date)) {
+        $date = $data->{$var}->{'date-parts'}[0];
         foreach ($this->elements as $element) {
-          $date_parts[] = $element->render($date, $mode);
+            $date_parts[] = $element->render($date, $mode, $data);
         }
         $text = implode('', $date_parts);
-      }
+
     }
     else {
-      $text = $this->citeproc->get_locale('term', 'no date');
+        $text = $this->citeproc->get_locale('term', 'no date');
     }
-
     return $this->format($text);
   }
 }
 
 class csl_date_part extends csl_format {
 
-  function render($date, $mode) {
+  function render($date, $mode, $data = NULL) {
     $text = '';
 
     switch ($this->name) {
@@ -981,7 +969,14 @@ class csl_date_part extends csl_format {
         break;
       case 'month':
         $text = (isset($date[1])) ? $date[1] : '';
-        if (empty($text) || $text < 1 || $text > 12) return;
+        if (empty($text) || $text < 1 || $text > 12) {
+            if($season_num = $data->issued->season) {
+                $seasons = array('', 'season-01', 'season-02', 'season-03', 'season-04');
+                $text = $this->citeproc->get_locale('term', $seasons[$season_num]);
+                return " $text";
+            } 
+            return;
+        }
        // $form = $this->form;
         switch ($this->form) {
           case 'numeric': break;
@@ -1014,6 +1009,7 @@ class csl_number extends csl_format {
 
   function render($data, $mode) {
     $var = $this->variable;
+
 
     if (!$var || empty($data->$var)) return;
 
@@ -1115,7 +1111,6 @@ class csl_text extends csl_format {
 
   function render($data, $mode) {
     $text = '';
-
     switch ($this->source) {
       case 'variable':
         if(!isset($data->{$this->variable}) || empty($data->{$this->variable})) {
@@ -1155,9 +1150,8 @@ class csl_label extends csl_format {
 
   function render($data, $mode = NULL) {
     $text = '';
-
     $variables = explode(' ', $this->variable);
-    $form = (($form = $this->form)) ? $form : 'long';
+    $form = (($form = $this->form)) ? $form : NULL;
     switch ($this->plural) {
       case 'never':
         $plural = 'single';
@@ -1167,36 +1161,48 @@ class csl_label extends csl_format {
         break;
       case 'contextual':
       default:
-        if (count($data) == 1) {
+          $data_tmp = $data;
+          if(is_array($data_tmp)) {
+             if(isset($data_tmp['variable'])) {
+              unset($data_tmp['variable']);
+            }
+          }
+        if (count($data_tmp) == 1) {
           $plural = 'single';
         }
-        elseif (count($data) > 1) {
+        elseif (count($data_tmp) > 1) {
           $plural = 'multiple';
         }
     }
+
     if (is_array($data) && isset($data['variable'])) {
       $text = $this->citeproc->get_locale('term', $data['variable'], $form, $plural);
     }
+
     if (empty($text)) {
     foreach ($variables as $variable) {
+      if($variable == 'page') {
+          $pages = $data->{$variable};
+          if($pages && preg_match("/^[0-9]+-[0-9]+$/", $pages)) {
+              $plural = "multiple";
+          }
+      }
       if (($term = $this->citeproc->get_locale('term', $variable, $form, $plural))) {
         $text = $term;
         break;
       }
     }
     }
+
     if (empty($text)) return;
     if ($this->{'strip-periods'}) $text = str_replace('.', '', $text);
     return $this->format($text);
   }
 }
 
-class csl_macro extends csl_format{
-
-}
+class csl_macro extends csl_format {}
 
 class csl_macros extends csl_collection{
-
   function __construct($macro_nodes, $citeproc) {
     foreach ($macro_nodes as $macro) {
       $macro = csl_factory::create($macro, $citeproc);
@@ -1210,7 +1216,6 @@ class csl_macros extends csl_collection{
 }
 
 class csl_group extends csl_format{
-
   function render($data, $mode) {
     $text = '';
     $text_parts = array();
@@ -1239,12 +1244,14 @@ class csl_group extends csl_format{
     }
 
     if (empty($text_parts)) return;
-    if ($variables  && !$have_variables ) return; // there has to be at least one other none empty value before the term is output
-    if (count($text_parts) == $terms) return; // there has to be at least one other none empty value before the term is output
+
+    // There has to be at least one other none empty value before the term is output
+    if (($variables  && !$have_variables) || count($text_parts) == $terms) return;
 
     $delimiter = $this->delimiter;
-    $text = implode($delimiter, $text_parts); // insert the delimiter if supplied.
 
+    // Insert the delimiter if supplied.
+    $text = implode($delimiter, $text_parts);
 
     return $this->format($text);
   }
@@ -1260,7 +1267,6 @@ class csl_layout extends csl_format {
   function render($data, $mode) {
     $text = '';
     $parts = array();
-   // $delimiter = $this->delimiter;
 
     foreach ($this->elements as $element) {
       $parts[] = $element->render($data, $mode);
@@ -1332,7 +1338,13 @@ class csl_bibliography  extends csl_format {
     if ($this->{'hanging-indent'} == 'true') {
       //$text = '<div style="  text-indent: -25px; padding-left: 25px;">' . $text . '</div>';
     }
+
+    // This is REALLY hacky...
     $text = str_replace('?.', '?', str_replace('..', '.', $text));
+    // Added in for et al last author stuff.
+    $text = str_replace('…','...',$text);
+    $text = str_replace('  ',' ',$text);
+
     return $this->format($text);
   }
 }
@@ -1346,15 +1358,10 @@ class csl_option  {
   }
 }
 
-class csl_options extends csl_element{
+class csl_options extends csl_element {}
+class csl_sort extends csl_element {}
 
-}
-
-class csl_sort extends csl_element{
-
-}
-class csl_style extends csl_element{
-
+class csl_style extends csl_element {
   function __construct($dom_node = NULL, $citeproc = NULL) {
     if ($dom_node) {
       $this->set_attributes($dom_node);
@@ -1363,7 +1370,6 @@ class csl_style extends csl_element{
 }
 
 class csl_choose extends csl_element{
-
   function render($data, $mode = NULL) {
     foreach ($this->elements as $choice) {
       if ($choice->evaluate($data)) {
@@ -1374,7 +1380,6 @@ class csl_choose extends csl_element{
 }
 
 class csl_if extends csl_rendering_element {
-
   function evaluate($data) {
     $match = (($match = $this->match)) ? $match : 'all';
     if (($types = $this->type)) {
@@ -1391,7 +1396,7 @@ class csl_if extends csl_rendering_element {
       if ($match == 'none' && $matches == 0) return TRUE;
       return FALSE;
     }
-    elseif (($variables = $this->variable)) {
+    if (($variables = $this->variable)) {
       $variables  = explode(' ', $variables);
       $matches = 0;
       foreach ($variables as $var) {
@@ -1399,11 +1404,11 @@ class csl_if extends csl_rendering_element {
         if ((!isset($data->{$var}) || empty($data->{$var})) && $match == 'all') return FALSE;
         if (isset($data->{$var}) && !empty($data->{$var})) $matches++;
       }
-      if ($match == 'all' && $matches = count($variables)) return TRUE;
-      if ($match == 'none' && $matches = 0) return TRUE;
+      if ($match == 'all' && $matches == count($variables)) return TRUE;
+      if ($match == 'none' && $matches == 0) return TRUE;
       return FALSE;
     }
-    elseif (($is_numeric = $this->{'is-numeric'})) {
+    if (($is_numeric = $this->{'is-numeric'})) {
       $variables  = explode(' ', $is_numeric);
       $matches = 0;
       foreach ($variables as $var) {
@@ -1431,22 +1436,17 @@ class csl_if extends csl_rendering_element {
   }
 }
 
-class csl_else_if extends csl_if {
-
-}
+class csl_else_if extends csl_if {}
 
 class csl_else extends csl_if {
-
   function evaluate($data = NULL) {
     return TRUE; // the last else always returns TRUE
   }
 }
 
-class csl_substitute extends csl_element{
+class csl_substitute extends csl_element {}
 
-}
-
-class csl_locale  {
+class csl_locale {
   protected $locale_xmlstring = NULL;
   protected $style_locale_xmlstring = NULL;
   protected $locale = NULL;
@@ -1532,6 +1532,10 @@ class csl_locale  {
         if (empty($term)) {
           $term = $this->locale->xpath("//cs:term[@name='$arg1'$form]$plural");
         }
+
+        if(empty($term) && $arg2 == 'long') {
+              $term = $this->locale->xpath("/cs:locale[@xml:lang='en']/cs:terms/cs:term[@name='$arg1' and not(@form)]$plural");
+          }
         if (isset($term[0])){
           if (isset($arg3) && isset($term[0]->{$arg3})) return (string)$term[0]->{$arg3};
           if (!isset($arg3) && isset($term[0]->single)) return (string)$term[0]->single;
@@ -1612,76 +1616,75 @@ class csl_mapper {
 
   function map_field($field) {
     if (!isset($this->field_map)) {
-      $this->field_map = array('title' => 'title',
-                                'container-title' => 'container-title',
-                                'collection-title' => 'collection-title',
-                                'original-title' => 'original-title',
-                                'publisher' => 'publisher',
-                                'publisher-place' => 'publisher-place',
-                                'original-publisher' => 'original-publisher',
-                                'original-publisher-place' => 'original-publisher-place',
-                                'archive' => 'archive',
-                                'archive-place' => 'archive-place',
-                                'authority' => 'authority',
-                                'archive_location' => 'authority',
-                                'event' => 'event',
-                                'event-place' => 'event-place',
-                                'page' => 'page',
-                                'page-first' => 'page',
-                                'locator' => 'locator',
-                                'version' => 'version',
-                                'volume' => 'volume',
-                                'number-of-volumes' => 'number-of-volumes',
-                                'number-of-pages' => 'number-of-pages',
-                                'issue' => 'issue',
-                                'chapter-number' => 'chapter-number',
-                                'medium' => 'medium',
-                                'status' => 'status',
-                                'edition' => 'edition',
-                                'section' => 'section',
-                                'genre' => 'genre',
-                                'note' => 'note',
-                                'annote' => 'annote',
-                                'abstract'  => 'abstract',
-                                'keyword' => 'keyword',
-                                'number' => 'number',
-                                'references' => 'references',
-                                'URL' => 'URL',
-                                'DOI' => 'DOI',
-                                'ISBN' => 'ISBN',
-                                'call-number' => 'call-number',
-                                'citation-number' => 'citation-number',
-                                'citation-label' => 'citation-label',
-                                'first-reference-note-number' => 'first-reference-note-number',
-                                'year-suffix' => 'year-suffix',
-                                'jurisdiction' => 'jurisdiction',
+      $this->field_map = array(
+        'title' => 'title',
+        'container-title' => 'container-title',
+        'collection-title' => 'collection-title',
+        'original-title' => 'original-title',
+        'publisher' => 'publisher',
+        'publisher-place' => 'publisher-place',
+        'original-publisher' => 'original-publisher',
+        'original-publisher-place' => 'original-publisher-place',
+        'archive' => 'archive',
+        'archive-place' => 'archive-place',
+        'authority' => 'authority',
+        'archive_location' => 'authority',
+        'event' => 'event',
+        'event-place' => 'event-place',
+        'page' => 'page',
+        'page-first' => 'page',
+        'locator' => 'locator',
+        'version' => 'version',
+        'volume' => 'volume',
+        'number-of-volumes' => 'number-of-volumes',
+        'number-of-pages' => 'number-of-pages',
+        'issue' => 'issue',
+        'chapter-number' => 'chapter-number',
+        'medium' => 'medium',
+        'status' => 'status',
+        'edition' => 'edition',
+        'section' => 'section',
+        'genre' => 'genre',
+        'note' => 'note',
+        'annote' => 'annote',
+        'abstract'  => 'abstract',
+        'keyword' => 'keyword',
+        'number' => 'number',
+        'references' => 'references',
+        'URL' => 'URL',
+        'DOI' => 'DOI',
+        'ISBN' => 'ISBN',
+        'call-number' => 'call-number',
+        'citation-number' => 'citation-number',
+        'citation-label' => 'citation-label',
+        'first-reference-note-number' => 'first-reference-note-number',
+        'year-suffix' => 'year-suffix',
+        'jurisdiction' => 'jurisdiction',
 
-      //Date Variables'
+        //Date Variables...
+        'issued' => 'issued',
+        'event' => 'event',
+        'accessed' => 'accessed',
+        'container' => 'container',
+        'original-date' => 'original-date',
 
-                                'issued' => 'issued',
-                                'event' => 'event',
-                                'accessed' => 'accessed',
-                                'container' => 'container',
-                                'original-date' => 'original-date',
-
-                                    //Name Variables'
-
-                                'author' => 'author',
-                                'editor' => 'editor',
-                                'translator' => 'translator',
-                                'recipient' => 'recipient',
-                                'interviewer' => 'interviewer',
-                                'publisher' => 'publisher',
-                                'composer' => 'composer',
-                                'original-publisher' => 'original-publisher',
-                                'original-author' => 'original-author',
-                                'container-author' => 'container-author',
-                                'collection-editor' => 'collection-editor',
-                              );
+        //Name Variables...
+        'author' => 'author',
+        'editor' => 'editor',
+        'translator' => 'translator',
+        'recipient' => 'recipient',
+        'interviewer' => 'interviewer',
+        'publisher' => 'publisher',
+        'composer' => 'composer',
+        'original-publisher' => 'original-publisher',
+        'original-author' => 'original-author',
+        'container-author' => 'container-author',
+        'collection-editor' => 'collection-editor',
+      );
     }
     $vars = explode(' ', $field);
     foreach ($vars as $key => $value) {
-      $vars[$key] = (!empty($this->field_map[$value])) ? $this->field_map[$value] : '';
+      $vars[$key] = (!empty($this->field_map[$value])) ? $this->field_map[$value] : $value;
     }
 
     return implode(' ', $vars);
@@ -1690,40 +1693,40 @@ class csl_mapper {
   function map_type($types) {
     if (!isset($this->type_map)) {
       $this->type_map = array(
-                        'article' => 'article',
-                        'article-magazine'  => 'article-magazine',
-                        'article-newspaper' => 'article-newspaper',
-                        'article-journal' => 'article-journal',
-                        'bill' => 'bill',
-                        'book'  => 'book',
-                        'broadcast' => 'broadcast',
-                        'chapter' => 'chapter',
-                        'entry' => 'entry',
-                        'entry-dictionary'  => 'entry-dictionary',
-                        'entry-encyclopedia'  => 'entry-encyclopedia',
-                        'figure'  => 'figure',
-                        'graphic'  => 'graphic',
-                        'interview'  => 'interview',
-                        'legislation' => 'legislation',
-                        'legal_case' => 'legal_case',
-                        'manuscript' => 'manuscript',
-                        'map' => 'map',
-                        'motion_picture' => 'motion_picture',
-                        'musical_score'  => 'musical_score',
-                        'pamphlet'  => 'pamphlet',
-                        'paper-conference' => 'paper-conference',
-                        'patent' => 'patent',
-                        'post'  => 'post',
-                        'post-weblog'  => 'post-weblog',
-                        'personal_communication' => 'personal_communication',
-                        'report' => 'report',
-                        'review'  => 'review',
-                        'review-book'  => 'review-book',
-                        'song'  => 'song',
-                        'speech'  => 'speech',
-                        'thesis' => 'thesis',
-                        'treaty'  => 'treaty',
-                        'webpage' => 'webpage',
+        'article' => 'article',
+        'article-magazine'  => 'article-magazine',
+        'article-newspaper' => 'article-newspaper',
+        'article-journal' => 'article-journal',
+        'bill' => 'bill',
+        'book'  => 'book',
+        'broadcast' => 'broadcast',
+        'chapter' => 'chapter',
+        'entry' => 'entry',
+        'entry-dictionary'  => 'entry-dictionary',
+        'entry-encyclopedia'  => 'entry-encyclopedia',
+        'figure'  => 'figure',
+        'graphic'  => 'graphic',
+        'interview'  => 'interview',
+        'legislation' => 'legislation',
+        'legal_case' => 'legal_case',
+        'manuscript' => 'manuscript',
+        'map' => 'map',
+        'motion_picture' => 'motion_picture',
+        'musical_score'  => 'musical_score',
+        'pamphlet'  => 'pamphlet',
+        'paper-conference' => 'paper-conference',
+        'patent' => 'patent',
+        'post'  => 'post',
+        'post-weblog'  => 'post-weblog',
+        'personal_communication' => 'personal_communication',
+        'report' => 'report',
+        'review'  => 'review',
+        'review-book'  => 'review-book',
+        'song'  => 'song',
+        'speech'  => 'speech',
+        'thesis' => 'thesis',
+        'treaty'  => 'treaty',
+        'webpage' => 'webpage',
       );
     }
     $vars = explode(' ', $types);
@@ -1732,6 +1735,5 @@ class csl_mapper {
     }
 
     return implode(' ', $vars);
-
   }
 }
