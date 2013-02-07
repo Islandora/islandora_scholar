@@ -95,13 +95,22 @@ class Bibutils {
    * @return array
    *   Where the first parameter was the exit status of the command and the second is the commands output.
    */
-  private static function Execute($command) {
-    $return_value = FALSE;
-    ob_start();
-    passthru($command, $return_value);
-    $output = ob_get_contents();
-    ob_end_clean();
-    return array($return_value, $output);
+  private static function Execute($command, $src, $dest) {
+    if ($command['type'] == 'shell') {
+      $return_value = FALSE;
+      ob_start();
+      $command = "{$command['command']} $src 2>&- 1> $dest";
+      passthru($command, $return_value);
+      $output = ob_get_contents();
+      ob_end_clean();
+      return array($return_value, $output);
+    }
+    elseif ($command['type'] == 'callable') {
+      $return = file_put_contents($dest, call_user_func($command['callable'], $src));
+      return array($return, t('Failed to transform in %callable.', array(
+        '%callable' => $command['callable'],
+      )));
+    }
   }
 
   /**
@@ -122,9 +131,8 @@ class Bibutils {
   public static function Convert($src, $src_format, $dest, $dest_format) {
     $command = self::GetCommand($src_format, $dest_format);
     if ($command) {
-      $command = "$command $src 2>&- 1> $dest";
       module_invoke_all('preprocess_bibutils_convert', $src, $src_format, $dest_format);
-      list($exit_status, $output) = self::Execute($command);
+      list($exit_status, $output) = self::Execute($command, $src, $dest);
       if ($exit_status == 0) {
         $results = module_invoke_all('postprocess_bibutils_convert', $src, $src_format, $dest, $dest_format);
         return!in_array(FALSE, $results, TRUE); // No post process function returned false.
