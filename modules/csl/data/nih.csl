@@ -146,11 +146,7 @@
                   </if>
                   <else-if variable="number-nihmsid">
                      <text variable="number-nihmsid" prefix=" NIHMSID: " suffix="."/>
-                     <text prefix=" " suffix="." value="PMC Journal – In Process"/>
-                  </else-if> 
-                  <else>
-                    <text prefix=" " suffix="." value="PMC Journal – In Process"/>
-                  </else>
+                  </else-if>
                </choose>
             </else>
          </choose>

@@ -35,6 +35,7 @@
 		<single>trans.</single>
 		<multiple>trans.</multiple>
 	  </term>
+	  <term name="ellipsis">...</term>
 	</terms>
   </locale>
   <macro name="container-contributors">
@@ -331,7 +332,10 @@
 	  </group>
 	</layout>
   </citation>
-  <bibliography hanging-indent="true" et-al-min="8" et-al-use-first="7" entry-spacing="0" line-spacing="2">
+  <bibliography hanging-indent="true"
+      et-al-min="8"
+      et-al-use-first="6"
+      et-al-use-last="true" entry-spacing="0" line-spacing="2">
 	<sort>
 	  <key macro="author"/>
 	  <key macro="issued-year" sort="ascending"/>
