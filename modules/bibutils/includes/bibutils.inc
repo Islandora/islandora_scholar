@@ -6,30 +6,36 @@
  * Class that encompases the Bibutils tools.
  */
 class Bibutils {
-
   /**
-   * A table where the keys are the source file types and their value is an array where 
+   * A table where the keys are the source file types and their value is an array where
    * the destination file type is the keys and the required command the value.
-   *  
+   *
    * @var array
    */
   private static $conversionTable = array(
     'EndNoteXML' => array(
-      'MODS' => 'endx2xml -i unicode',
+      'MODS' => array(
+        'type' => 'shell',
+        'command' => escapeshellcmd(variable_get('bibutils_endx2xml_path', 'endx2xml') .' -i unicode'),
+      ),
     ),
     'RIS' => array(
-      'MODS' => 'ris2xml -i unicode',
+      'MODS' => array(
+        'type' => 'shell',
+        'command' => escapeshellcmd(variable_get('bibutils_ris2xml_path', 'ris2xml') .' -i unicode'),
     ),
     'MODS' => array(
-      'RIS' => 'xml2ris',
+      'RIS' => array(
+        'type' => 'callable',
+        'callable' => 'ris::transform_file',
     )
   );
 
   /**
    * Tests if the file format is convertable.
-   * 
-   * @param string $type 
-   * 
+   *
+   * @param string $type
+   *
    * @return boolean
    *   TRUE if convertiable by Bibutils FALSE otherwise.
    */
@@ -39,10 +45,10 @@ class Bibutils {
 
   /**
    * Gets the Bibutil Command for performing a conversion between the given file format types, if possible.
-   * 
+   *
    * @param string $src_format
    *   The file format of the source document.
-   * @param string $dest_format 
+   * @param string $dest_format
    *   The file format the source document will be converted into.
    *
    * @return string
@@ -58,10 +64,10 @@ class Bibutils {
 
   /**
    * Bibutils doesn't produce valid MODS, this function cleans up the generated mods and makes it valid.
-   * 
+   *
    * @param string $filename
    *   The name of the file to clean.
-   * 
+   *
    * @return boolean
    *   TRUE if succesful FALSE otherwise.
    */
@@ -71,6 +77,7 @@ class Bibutils {
     $transform->load($transform_filename);
     $doc = new DOMDocument();
     $doc->load($filename);
+
     if (isset($doc->documentElement)) {
       $xslt = new XSLTProcessor();
       $xslt->importStyleSheet($transform);
@@ -81,10 +88,10 @@ class Bibutils {
 
   /**
    * Executes the given command and the exit status and output of the command.
-   * 
+   *
    * @param string $command
    *   The command to execute.
-   * 
+   *
    * @return array
    *   Where the first parameter was the exit status of the command and the second is the commands output.
    */
@@ -99,16 +106,16 @@ class Bibutils {
 
   /**
    * Converts the given file to the destination format, and saves it to the given destination.
-   *  
+   *
    * @param string $src
    *   The filename of the source file.
    * @param string $src_format
    *   The format of the source file.
    * @param string $dest
    *   The filename of the destination file.
-   * @param string $dest_format 
+   * @param string $dest_format
    *   The format of the destination file.
-   * 
+   *
    * @return boolean
    *   TRUE if successful, FALSE otherwise.
    */
@@ -120,11 +127,10 @@ class Bibutils {
       list($exit_status, $output) = self::Execute($command);
       if ($exit_status == 0) {
         $results = module_invoke_all('postprocess_bibutils_convert', $src, $src_format, $dest, $dest_format);
-        error_log(print_r($results, TRUE));
         return!in_array(FALSE, $results, TRUE); // No post process function returned false.
       }
     }
     return FALSE;
   }
-
 }
+
