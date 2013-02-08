@@ -5,12 +5,9 @@
  *
  * Implements hooks and callbacks for this module.
  */
-/**
- * Constants Permission/Menu/Theme
- */
-define('MENU_BIBLIOGRAPHY_HOME', 'bibliography');
-define('MENU_BIBLIOGRAPHY_CITATION', 'bibliography/citation');
-define('THEME_BIBLIOGRAPHY_FORM_TABLE', 'islandora_bibliography_form_table');
+
+define('MENU_BIBLIOGRAPHY_HOME', 'islandora/bibliography');
+define('MENU_BIBLIOGRAPHY_CITATION', 'islandora/bibliography/citation');
 
 /**
  * The menu entries for this module.
@@ -20,103 +17,217 @@ define('THEME_BIBLIOGRAPHY_FORM_TABLE', 'islandora_bibliography_form_table');
  */
 function islandora_bibliography_menu() {
   $items = array();
-  $items[MENU_BIBLIOGRAPHY_HOME] = array(
-    'title' => t('My Bibliography'),
-    'description' => 'Here you can remove or export citations from your bibliography.',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_bibliography_form'),
+  $items['islandora/bibliography/preview'] = array(
+    'page callback' => 'islandora_bibliography_preview_form',
     'access arguments' => array('access content'),
-    'file' => 'BibliographyForm.inc',
-    'type' => MENU_NORMAL_ITEM,
-  );
-  $items[MENU_BIBLIOGRAPHY_CITATION] = array(
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('islandora_bibliography_citation_form'),
-    'access arguments' => array('access content'),
-    'file' => 'CitationForm.inc',
-    'type' => MENU_CALLBACK,
+    'type' => MENU_CALLBACK
   );
   return $items;
 }
 
 /**
- * Implements hook_theme().
+ * Implements islandora_bookmark_object_markup().
+ *
+ * @param type FedoraObject $fedora_object
+ *   A FedoraObject.
+ *
+ * @return type
+ *   The markup for the citation.
  */
-function islandora_bibliography_theme() {
-  return array(
-    THEME_BIBLIOGRAPHY_FORM_TABLE => array(
-      'render element' => 'element',
-      'file' => 'BibliographyForm.inc',
+function islandora_bibliography_ir_citationCModel_islandora_bookmark_object_markup($fedora_object) {
+  $title_author = islandora_bibilography_get_title_authors($fedora_object->id);
+  $markup = array(
+    'title' => array(
+      '#markup' => l($title_author['title'], 'islandora/object/' . $fedora_object->id)
+    ),
+    'author' => array(
+      '#markup' => '<br/>' . $title_author['authors']
     )
   );
+  return drupal_render($markup);
 }
 
-function islandora_bibliography_form_islandora_scholar_search_results_form_alter(&$form, &$form_state) {
-  if (empty($form['controls']['save'])) {
-    $form['controls']['save'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Save to Bibliography'),
-      '#prefix' => '<div class="save-to-bibliography">',
-      '#suffix' => '</div>',
-      'save all' => array(
-        '#type' => 'submit',
-        '#save' => 'all',
-        '#value' => t('Save All Results'),
-        '#submit' => array('islandora_bibliography_save_scholar_results_to_bibliography')
-      ),
-      'save selected' => array(
-        '#type' => 'submit',
-        '#save' => 'selected',
-        '#value' => t('Save Selected'),
-        '#submit' => array('islandora_bibliography_save_scholar_results_to_bibliography'),
-      ),
-      'goto biblio' => array(
-        '#type' => 'submit',
-        '#value' => t('Go to saved Bibliography'),
-        '#submit' => array('islandora_bibliography_goto')
-      )
-    );
-
-    if (!array_key_exists('selections', $form['table']['rows'][0])) {
-      array_unshift($form['table']['#header'], theme('table_select_header_cell'));
-      foreach (element_children($form['table']['rows']) as $child) {
-        //Odd-looking array merge dealio to make the checkboxes be at the left side...
-        $pid = $form['table']['rows'][$child]['#pid'];
-        $form['table']['rows'][$child] = array_merge(array(
-          "selections" => array(
-            '#type' => 'checkbox',
-            '#return_value' => $pid,
-        )), $form['table']['rows'][$child]);
-      }
-    }
+/**
+ * Get the title and author of a given citation.
+ *
+ * @param string $pid
+ *   A citations within the bibliography.
+ *
+ * @return array
+ *   Where the first key is the title and the second is the authors.
+ */
+function islandora_bibilography_get_title_authors($pid) {
+  $title = $pid;
+  $authors = '';
+  $mods = islandora_bibliography_get_mods($pid);
+  if ($mods) {
+    $mods = simplexml_import_dom($mods);
+    $mods->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
+    $title = implode(' ', $mods->xpath('/mods:mods/mods:titleInfo/mods:title'));
+    $authors_xpath = $mods->xpath('/mods:mods/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]');
+    $authors = is_array($authors_xpath) ? implode(' ', $authors_xpath) : NULL;
   }
+  return array('title' => $title, 'authors' => $authors);
 }
 
-function islandora_bibliography_save_scholar_results_to_bibliography(&$form, &$form_state) {
-  module_load_include('inc', 'islandora_bibliography', 'Bibliography');
-  $action = $form_state['clicked_button']['#save'];
-  $pids = array();
-  if ($action == 'all') {
-    $pids = _islandora_scholar_search_get_all_pids_from_query($form_state);
+/**
+ * Gets the MOD from an object.
+ *
+ * Helper function for getting the MODS metadata.
+ *
+ * @param string $pid
+ *   The fedora object to get the MODS from.
+ *
+ * @return DOMDocument
+ *   An MODS document if found and non-empty, FALSE otherwise.
+ */
+function islandora_bibliography_get_mods($pid) {
+  $object = islandora_object_load($pid);
+
+  if (!isset($object)) {
+    return FALSE;
+  }
+
+  if ($object['MODS']) {
+    $mods_str = trim($object['MODS']->content);
+    $doc = new DOMDocument();
+    $doc->loadXML($mods_str);
+    return $doc;
   }
   else {
-    foreach($form_state['values']['table']['rows'] as $row) {
-      if ($row['selections'] !== 0) {
-        $pids[] = $row['selections'];
-      }
-    }
-  }
-  $count = Bibliography::AddCitations($pids);
-
-  if ($count > 0) {
-    drupal_set_message(format_plural($count, 'Added 1 citation', 'Added @count citations'));
-  }
-  $existed = count($pids) - $count;
-  if ($existed > 0) {
-    drupal_set_message(format_plural($existed, '1 citation already present', '@count citations already present'));
+    return FALSE;
   }
 }
 
-function islandora_bibliography_goto() {
-  drupal_goto(MENU_BIBLIOGRAPHY_HOME);
+/**
+ *
+ * @return string
+ */
+function islandora_bibliography_islandora_bookmark_export_handler() {
+  $formats = islandora_bibliography_get_export_formats();
+  foreach ($formats as $key => $value) {
+    $biblio_export['Bibliography'][$key] = 'citation_exporter_batch_export_' . drupal_strtolower($key);
+  }
+  return $biblio_export;
+}
+
+/**
+ *
+ * @param type $option
+ * @return type
+ */
+function islandora_bibliography_islandora_bookmark_export_styles($option) {
+  if (array_key_exists($option, islandora_bibliography_get_export_formats()) && $option != 'RIS') {
+    return islandora_bibliography_get_export_styles();
+  }
+}
+
+/**
+ *
+ * @return type
+ */
+function islandora_bibliography_get_export_styles() {
+  module_load_include('inc', 'CSL', 'CSL');
+  $styles = CSL::GetNames();
+  return $styles;
+}
+
+/**
+ *
+ * @return string
+ */
+function islandora_bibliography_get_export_formats() {
+  $options = array(
+      'RIS' => 'RIS (Endnote format)',
+      'RTF' => 'RTF (word proccessor format)',
+      'PDF' => 'PDF',
+  );
+  return $options;
+}
+
+/**
+ *
+ * @param type $form
+ * @param type $form_state
+ */
+function islandora_bibliography_form_islandora_bookmark_detailed_form_alter(&$form, &$form_state) {
+  if (array_key_exists('islandora_bookmark_export', $form_state)) {
+    $form['bookmarks']['fieldset']['format_opts']['preview_selected'] = array(
+      '#type' => 'submit',
+      '#value' => t('Preview selected'),
+      '#submit' => array('islandora_bibliography_preview_selected'),
+      '#weight' => 7,
+      '#name' => 'islandora_bibliography_preview',
+    );
+    foreach (islandora_bibliography_get_export_formats() as $key => $value) {
+      if ($key !== 'RIS') {
+        $form['bookmarks']['fieldset']['format_opts']['preview_selected']['#states']['invisible'][':input[name="islandora_bookmark_export_styles_' . $key . '"]'] = array('invisible' => TRUE);
+      }
+    }
+  }
+}
+
+/**
+ *
+ * @param type $form
+ * @param type $form_state
+ */
+function islandora_bibliography_preview_selected(&$form, &$form_state) {
+  $pids = array();
+
+  foreach ($form_state['values']['bookmarks']['fieldset']['table'] as $checkbox => $value) {
+    if ($value !== 0) {
+    // Make sure we can actually access the object
+      if (islandora_object_load($value)) {
+        $pids[] = $value;
+      }
+    }
+  }
+
+  $queries = $_GET;
+  unset($queries['q']);
+  if (count($pids)) {
+    $format = $form_state['input']['islandora_bookmark_export_options_select'];
+    $_SESSION['islandora_bibliography_preview']['style'] = $form_state['input']['islandora_bookmark_export_styles_' . $format];
+    $_SESSION['islandora_bibliography_preview']['pids'] = serialize($pids);
+    $_SESSION['islandora_bibliography_preview']['queries'] = serialize($queries);
+    $_SESSION['islandora_bibliography_preview']['path'] = request_path();
+    drupal_goto('islandora/bibliography/preview');
+  }
+  else {
+    drupal_set_message(t('No citations were selected!'), 'warning');
+  }
+}
+
+/**
+ *
+ * @return type
+ */
+function islandora_bibliography_preview_form() {
+  module_load_include('inc', 'citeproc', 'CiteProcJSBibliography');
+  drupal_add_css(drupal_get_path('module', 'islandora_bibliography') . '/css/export.css');
+
+  $style = citeproc_style($_SESSION['islandora_bibliography_preview']['style']);
+  $bibliography = new CiteProcJSBibliography($style);
+  $output = '';
+
+  foreach (unserialize($_SESSION['islandora_bibliography_preview']['pids']) as $pid) {
+    $mods = islandora_bibliography_get_mods($pid);
+    if ($mods) {
+      $citation = citeproc_citation_from_mods($mods);
+      $bibliography->addCitation($citation);
+    }
+  }
+
+  drupal_set_title(t('Export preview'));
+  $output = $bibliography->render();
+  $output .= l(t('Return to the previous page.'), $_SESSION['islandora_bibliography_preview']['path'], array('query' => unserialize($_SESSION['islandora_bibliography_preview']['queries'])));
+  $form = array(
+    '#markup' => $output
+  );
+  unset($_SESSION['islandora_bibliography_preview']['style']);
+  unset($_SESSION['islandora_bibliography_preview']['pids']);
+  unset($_SESSION['islandora_bibliography_preview']['path']);
+  unset($_SESSION['islandora_bibliography_preview']['queries']);
+  return drupal_render($form);
 }
