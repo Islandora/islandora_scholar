@@ -71,7 +71,7 @@ function islandora_bibilography_get_title_authors($pid) {
 }
 
 /**
- * Gets the MOD from an object.
+ * Gets the MODS from an object.
  *
  * Helper function for getting the MODS metadata.
  *
@@ -100,8 +100,10 @@ function islandora_bibliography_get_mods($pid) {
 }
 
 /**
+ * Implements islandora_bookmark_export_handler().
  *
- * @return string
+ * @return array
+ *   The citation export options available from the exporter module.
  */
 function islandora_bibliography_islandora_bookmark_export_handler() {
   $formats = islandora_bibliography_get_export_formats();
@@ -112,9 +114,13 @@ function islandora_bibliography_islandora_bookmark_export_handler() {
 }
 
 /**
+ * Implements islandora_bookmark_export_styles().
  *
  * @param type $option
- * @return type
+ *   The selected format that we are retrieving styles for.
+ *
+ * @return array
+ *   An associative array containing any avaialble styles for the current format.
  */
 function islandora_bibliography_islandora_bookmark_export_styles($option) {
   if (array_key_exists($option, islandora_bibliography_get_export_formats()) && $option != 'RIS') {
@@ -123,6 +129,7 @@ function islandora_bibliography_islandora_bookmark_export_styles($option) {
 }
 
 /**
+ * Grab available styles from CSL for use in exporting.
  *
  * @return type
  */
@@ -133,6 +140,8 @@ function islandora_bibliography_get_export_styles() {
 }
 
 /**
+ * Provide the list of export formats available for use with islandora_bookmark
+ * integration.
  *
  * @return string
  */
@@ -146,6 +155,8 @@ function islandora_bibliography_get_export_formats() {
 }
 
 /**
+ * Alters the islandora_bookmark_detailed_form such that a preview button is
+ * visible for options that have styles associated with them. Yay #states!
  *
  * @param type $form
  * @param type $form_state
@@ -168,6 +179,8 @@ function islandora_bibliography_form_islandora_bookmark_detailed_form_alter(&$fo
 }
 
 /**
+ * Submit handler which stores values in the $_SESSION to be used when generating
+ * an HTML preview of our citation(s).
  *
  * @param type $form
  * @param type $form_state
@@ -200,8 +213,10 @@ function islandora_bibliography_preview_selected(&$form, &$form_state) {
 }
 
 /**
+ * Generates a preview of the citation for viewing in browser.
  *
  * @return type
+ *   Rendered citations in HTML format.
  */
 function islandora_bibliography_preview_form() {
   module_load_include('inc', 'citeproc', 'CiteProcJSBibliography');
