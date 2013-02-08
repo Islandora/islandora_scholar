@@ -24,10 +24,13 @@ function citation_exporter_batch_get_ris_operations(array $pids) {
   $mods = new DOMDocument();
   $mods->loadXML('<modsCollection xmlns="http://www.loc.gov/mods/v3" />');
   $mods->save($temp_mods_file);
+
+  $queries = $_GET;
+  unset($queries['q']);
   $operations = array();
   $operations[] = array('citation_exporter_batch_combine_mods', array($temp_pids_file, $total, $temp_mods_file));
   $operations[] = array('citation_exporter_batch_convert_mods_to_ris', array($temp_mods_file));
-  $operations[] = array('citation_exporter_batch_redirect', array(request_uri(), array($temp_mods_file, $temp_pids_file)));
+  $operations[] = array('citation_exporter_batch_redirect', array(url(request_path(), array('query' => $queries)), array($temp_mods_file, $temp_pids_file)));
   return $operations;
 }
 
