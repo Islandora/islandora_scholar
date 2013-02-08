@@ -1,6 +1,7 @@
 name = Islandora Bibliography
 description = Allows users can build and export bibliographies.
 package = Islandora Tools
+dependencies[] = csl
 dependencies[] = citeproc
 dependencies[] = islandora
 dependencies[] = islandora_bookmark
