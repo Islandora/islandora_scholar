@@ -5,13 +5,13 @@
  *
  * Implements hooks and callbacks for this module.
  */
-module_load_include('inc', 'citation_exporter', 'Batch');
+module_load_include('inc', 'citation_exporter', 'includes/batch');
 
 /**
  * Constants
  */
 define('SESSION_CITATION_EXPORTER_INDEX', 'citation_exporter');
-define('MENU_CITATION_EXPORTER_EXPORT', 'citation/export');
+define('MENU_CITATION_EXPORTER_EXPORT', 'islandora/citation/export');
 
 /**
  * Implements hook_menu().
@@ -36,113 +36,6 @@ function citation_exporter_export() {
   CitationExporter::Export();
 }
 
-function _citation_export_output_options() {
-  return array( //XXX:  Should probably be modularized...
-    'RIS' => 'RIS (Endnote format)',
-    'RTF' => 'RTF (word proccessor format)',
-    'PDF' => 'PDF',
-  );
-}
 
-function citation_exporter_form_islandora_bibliography_form_alter(&$form, &$form_state) {
-  module_load_include('inc', 'citation_exporter', 'CitationExporter');
-  if (CitationExporter::ReadyToExport()) {
-    //XXX: refresh dealio may break stuff...
-    drupal_add_html_head('<meta http-equiv="refresh" content="1.0;' . url(MENU_CITATION_EXPORTER_EXPORT, array('absolute' => TRUE)) . '"/>');
 
-  }
-  if (array_key_exists('fieldset', $form)) {
-    $form['fieldset']['format']['#options'] = array_merge_recursive($form['fieldset']['format']['#options'], array(
-      t('Bibliography') => array(
-        'PDF' => 'PDF',
-        'RTF' => 'RTF',
-      ),
-      t('Export Data') => array(
-        'RIS' => 'RIS',
-      )
-    ));
-    $form['fieldset']['export']['#submit'][] = 'citation_exporter_islandora_bibliography_export';
-  }
-}
 
-function citation_exporter_islandora_bibliography_export(&$form, &$form_state) {
-  if (in_array($form_state['values']['format'], array('PDF', 'RTF', 'RIS'))) {
-    $pids = array_keys(array_filter($form_state['values']['table']['selections']));
-    module_load_include('inc', 'citation_exporter', 'Batch');
-    citation_exporter_batch_export($pids, $form_state['values']['style'], $form_state['values']['format']);
-    batch_process();
-  }
-}
-
-function citation_exporter_form_islandora_scholar_search_results_form_alter(&$form, &$form_state) {
-  module_load_include('inc', 'citation_exporter', 'CitationExporter');
-  if (CitationExporter::ReadyToExport()) {
-    //XXX: refresh dealio seems to be not recommended...
-    drupal_add_html_head('<meta http-equiv="refresh" content="1.0;' . url(MENU_CITATION_EXPORTER_EXPORT, array('absolute' => TRUE)) . '"/>');
-  }
-  if (empty($form['controls']['export'])) {
-    module_load_include('inc', 'citation_exporter', 'CitationExporter');
-    $form['controls']['export'] = array(
-      '#type' => 'fieldset',
-      '#title' => t('Export To File'),
-      '#prefix' => '<div class="form-export">',
-      '#suffix' => '</div>',
-      'format' => array(
-        '#type' => 'select',
-        '#length' => 50,
-        '#options' => _citation_export_output_options(),
-      ),
-      'style' => array(
-        '#type' => 'select',
-        '#options' => CSL::GetNames()
-      ),
-      'export all' => array(
-        '#type' => 'submit',
-        '#action' => 'export',
-        '#export' => 'all',
-        '#value' => t('Export All Results'),
-        '#submit' => array('citation_exporter_export_submit_handler')
-      ),
-      'export selected' => array(
-        '#type' => 'submit',
-        '#action' => 'export',
-        '#export' => 'selected',
-        '#value' => t('Export Selected'),
-        '#submit' => array('citation_exporter_export_submit_handler')
-      ),
-    );
-
-    if (!array_key_exists('selections', $form['table']['rows'][0])) {
-      array_unshift($form['table']['#header'], theme('table_select_header_cell'));
-      foreach (element_children($form['table']['rows']) as $child) {
-        //Odd-looking array merge dealio to make the checkboxes be at the left side...
-        $form['table']['rows'][$child] = array_merge(array(
-          'selections' => array(
-            '#type' => 'checkbox',
-            '#return_value' => $form['table']['rows'][$child]['#pid'],
-          )), $form['table']['rows'][$child]);
-      }
-    }
-  }
-}
-
-function citation_exporter_export_submit_handler($form, $form_state) {
-  $action = $form_state['clicked_button']['#export'];
-  $pids = array();
-  if ($action == 'all') {
-    $pids = _islandora_scholar_search_get_all_pids_from_query($form_state);
-  }
-  else {
-  foreach ($form_state['values']['table']['rows'] as $row) {
-      if ($row['selections'] !== 0) {
-        $pids[] = $row['selections'];
-      }
-    }
-  }
-
-  module_load_include('inc', 'citation_exporter', 'Batch');
-  citation_exporter_batch_export($pids, $form_state['values']['style'], $form_state['values']['format']);
-  batch_process();
-
-  unset($form_state['storage']);
-}

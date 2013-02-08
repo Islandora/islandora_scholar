@@ -8,11 +8,11 @@
 
 /**
  * Gets the operations required to batch export a collection of citations to an RIS file.
- * 
- * @param array $pids 
+ *
+ * @param array $pids
  *   The citation objects to convert into an RIS file.
- * 
- * @return array 
+ *
+ * @return array
  *   The operations required to generate a RIS file from the given citations.
  */
 function citation_exporter_batch_get_ris_operations(array $pids) {
@@ -27,7 +27,7 @@ function citation_exporter_batch_get_ris_operations(array $pids) {
   $operations = array();
   $operations[] = array('citation_exporter_batch_combine_mods', array($temp_pids_file, $total, $temp_mods_file));
   $operations[] = array('citation_exporter_batch_convert_mods_to_ris', array($temp_mods_file));
-  $operations[] = array('citation_exporter_batch_redirect', array($_GET['q'], array($temp_mods_file, $temp_pids_file)));
+  $operations[] = array('citation_exporter_batch_redirect', array(request_uri(), array($temp_mods_file, $temp_pids_file)));
   return $operations;
 }
 
@@ -64,7 +64,7 @@ function _citation_exporter_batch_combine_mods($filename, array $pids) {
 
 /**
  * Converts the given MODS file to RIS using bibutils
- * 
+ *
  * @param string $filename
  *   The name of the MODS file to convert to RIS.
  * @param array $context
@@ -76,5 +76,7 @@ function citation_exporter_batch_convert_mods_to_ris($mods_filename, array &$con
   $ris_filename = file_create_filename("ris_export.ris", $temp_file_dir);
   if (Bibutils::Convert($mods_filename, 'MODS', $ris_filename, 'RIS')) {
     $context['results']['filename'] = $ris_filename;
+    $context['results']['mime_type'] = 'application/x-Research-Info-Systems';
+    $context['results']['download_filename'] = 'export.ris';
   }
 }
