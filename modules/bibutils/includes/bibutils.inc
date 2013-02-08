@@ -10,26 +10,34 @@ class Bibutils {
    * A table where the keys are the source file types and their value is an array where
    * the destination file type is the keys and the required command the value.
    *
-   * @var array
+   * @return array
    */
-  private static $conversionTable = array(
-    'EndNoteXML' => array(
-      'MODS' => array(
-        'type' => 'shell',
-        'command' => escapeshellcmd(variable_get('bibutils_endx2xml_path', 'endx2xml') .' -i unicode'),
+  private static function getConversionTable() {
+    return array(
+      'EndNoteXML' => array(
+        'MODS' => array(
+          'type' => 'shell',
+          'command' => escapeshellcmd(format_string('!command -i unicode', array(
+            '!command' => variable_get('bibutils_endx2xml_path', 'endx2xml'),
+          ))),
+        ),
       ),
-    ),
-    'RIS' => array(
-      'MODS' => array(
-        'type' => 'shell',
-        'command' => escapeshellcmd(variable_get('bibutils_ris2xml_path', 'ris2xml') .' -i unicode'),
-    ),
-    'MODS' => array(
       'RIS' => array(
-        'type' => 'callable',
-        'callable' => 'ris::transform_file',
-    )
-  );
+        'MODS' => array(
+          'type' => 'shell',
+          'command' => escapeshellcmd(format_string('!command -i unicode', array(
+            '!command' => variable_get('bibutils_ris2xml_path', 'ris2xml'),
+          ))),
+        ),
+      ),
+      'MODS' => array(
+        'RIS' => array(
+          'type' => 'callable',
+          'callable' => 'ris::transform_file',
+        ),
+      ),
+    );
+  }
 
   /**
    * Tests if the file format is convertable.
@@ -40,7 +48,7 @@ class Bibutils {
    *   TRUE if convertiable by Bibutils FALSE otherwise.
    */
   private static function IsConvertable($type) {
-    return array_key_exists($type, self::$conversionTable);
+    return array_key_exists($type, self::getConversionTable());
   }
 
   /**
@@ -55,7 +63,8 @@ class Bibutils {
    *   The command that will perform the conversion if possible FALSE otherwise.
    */
   private static function GetCommand($src_format, $dest_format) {
-    $conversion = isset(self::$conversionTable[$src_format]) ? self::$conversionTable[$src_format] : array();
+    $conversionTable = self::getConversionTable();
+    $conversion = isset($conversionTable[$src_format]) ? $conversionTable[$src_format] : array();
     if (isset($conversion[$dest_format])) {
       return $conversion[$dest_format];
     }

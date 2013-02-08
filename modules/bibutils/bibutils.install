@@ -5,21 +5,19 @@
 /**
  * @file
  *
- * Implements hooks and callbacks for installing this module. As well as some functions that allow for conversions.
- * 
- * Note that bibutils converts to mods 3.1 and not any other version!
+ * Implements hooks and callbacks for installing this module.
  */
 
 /**
  * Checks to see if the given command exists.
- * 
- * @param string $name 
+ *
+ * @param string $name
  *   The name of the program to check.
- * 
+ *
  * @return boolean
  *   TRUE if the command is exists, FALSE otherwise.
  */
-function command_exists($name) {
+function bibutils_install_command_exists($name) {
   $return_value = FALSE;
   system("hash $name 2>&-", $return_value);
   return $return_value === 0;
@@ -27,14 +25,14 @@ function command_exists($name) {
 
 /**
  * Implementation of hook_requirements.
- * 
+ *
  * Checks to make sure the required executable files exist.
- * 
+ *
  * @param string $phase
  *   The phase in which hook_requirements is run:
  *    'install': the module is being installed.
  *    'runtime': the runtime requirements are being checked and shown on the status report page.
- * 
+ *
  * @return array
  *   A keyed array of requirements. Each requirement is itself an array with the following items:
  *    'title': the name of the requirement.
@@ -48,28 +46,53 @@ function command_exists($name) {
  */
 function bibutils_requirements($phase) {
   $requriements = array();
+  $t = get_t();
+
   $commands = array(
-    'ris2xml' => t('Converts RIS files to MODS intermediate'),
-    'endx2xml' => t('Converts EndNote XML files to MODS intermediate'),
-    'xml2ris' => t('Converts MODS file to RIS')
+    'ris2xml' => array(
+      'title' => $t('Bibutils: RIS files to MODS converter'),
+      'command' => variable_get('bibutils_ris2xml_path', 'ris2xml'),
+    ),
+    'endx2xml' => array(
+      'title' => $t('Bibutils: EndNote XML to MODS converter'),
+      'command' => variable_get('bibutils_endx2xml_path', 'endx2xml'),
+    ),
   );
-  foreach ($commands as $command => $description) {
-    $title = t('%command in $PATH', array('%command' => $command));
-    if (command_exists($command)) { // Exists on $PATH
-      $requriements[$command] = array(
-        'title' => $title,
-        'value' => t('Available.'),
+
+  foreach ($commands as $base => $info) {
+    extract($info);
+
+    $requirements[$base] = array(
+      'title' => $title,
+    );
+
+    if (bibutils_install_command_exists($command)) { // Exists on $PATH
+      $requirements[$base] += array(
+        'value' => $t('Found.'),
         'severity' => REQUIREMENT_OK,
-        'description' => $description
       );
     }
-    else { // Does not exist on $PATH.
-      $requriements[$command] = array(
-        'title' => $title,
-        'value' => t('Not in $PATH.'),
-        'severity' => REQUIREMENT_ERROR,
+    else { // Couldn't find...
+      $requirements[$base] += array(
+        'value' => $t('Not found.'),
+        'description' => $t('Unable to find %base at the configured location' .
+        ' (%command).', array(
+          '%base' => $base,
+          '%command' => $command,
+        )),
+        'severity' => REQUIREMENT_WARNING,
       );
+
+      if ($phase == 'runtime') {
+        $requirements[$base]['description'] .= ' ' . $t('Visit the ' .
+          '<a href="@url">Bibutils configuration page</a> to enter an ' .
+          'alternate path.', array(
+            '@url' => url('admin/islandora/scholar/bibutils'),
+        ));
+      }
     }
   }
-  return $requriements;
+
+  return $requirements;
 }
+
