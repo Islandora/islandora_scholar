@@ -25,12 +25,14 @@ function citation_exporter_batch_get_rtf_operations(array $pids, $style) {
   $total = count($pids);
   $operations = array();
 
+  $queries = $_GET;
+  unset($queries['q']);
   // XXX: Header should probably be made configuration.
   $header_text = t('Islandora Repository');
   $operations[] = array('citation_exporter_batch_add_header_to_text_file', array($temp_text_file, $header_text));
   $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array($temp_pids_file, $total, $temp_text_file, $style));
   $operations[] = array('citation_exporter_batch_convert_txt_to_rtf', array($temp_text_file));
-  $operations[] = array('citation_exporter_batch_redirect', array(request_uri(), array($temp_text_file, $temp_pids_file)));
+  $operations[] = array('citation_exporter_batch_redirect', array(url(request_path(), array('query' => $queries)), array($temp_text_file, $temp_pids_file)));
   return $operations;
 }
 
