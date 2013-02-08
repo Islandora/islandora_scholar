@@ -4,5 +4,6 @@ package = Islandora Tools
 dependencies[] = citeproc
 dependencies[] = bibutils
 dependencies[] = islandora
+files[] = includes/citation.export.inc
 version = 7.x-dev
 core = 7.x
