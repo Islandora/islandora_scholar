@@ -142,9 +142,12 @@ class Bibutils {
     if ($command) {
       module_invoke_all('preprocess_bibutils_convert', $src, $src_format, $dest_format);
       list($exit_status, $output) = self::Execute($command, $src, $dest);
-      if ($exit_status == 0) {
+      if ($exit_status !== FALSE) {
         $results = module_invoke_all('postprocess_bibutils_convert', $src, $src_format, $dest, $dest_format);
         return!in_array(FALSE, $results, TRUE); // No post process function returned false.
+      }
+      else {
+        drupal_set_message($output, 'warning');
       }
     }
     return FALSE;
