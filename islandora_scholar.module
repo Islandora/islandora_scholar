@@ -4,33 +4,6 @@
  *   The islandora_scholar moudule.
  */
 
-define('THEME_SCHOLAR_SEARCH_ITEM', 'islandora_scholar_search_item');
-define('THEME_SCHOLAR_SEARCH_ITEM_ALT', 'islandora_scholar_search_alt_item');
-define('THEME_SCHOLAR_SEARCH_TABLE', 'islandora_scholar_search_results_table');
-
-/**
- * Implements hook_theme().
- *
- */
-function islandora_scholar_theme() {
-  return array(
-    THEME_SCHOLAR_SEARCH_ITEM => array(
-      'template' => 'templates/SearchItem',
-      'file' => 'includes/SolrResults.inc',
-      'variables' => array('pid' => NULL, 'style' => NULL),
-    ),
-    THEME_SCHOLAR_SEARCH_ITEM_ALT => array(
-      'template' => 'templates/SearchItem',
-      'file' => 'includes/SolrResults.inc',
-      'variables' => array('solr_doc' => NULL, 'style' => NULL),
-    ),
-    THEME_SCHOLAR_SEARCH_TABLE => array(
-      'file' => 'includes/SolrResults.inc',
-      'render element' => 'element',
-    ),
-  );
-}
-
 /**
  * Implements hook_menu().
  */
@@ -42,7 +15,7 @@ function islandora_scholar_menu() {
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
       'access arguments' => array('access administration pages'),
-      'file' => 'islandora_scholar.admin.inc',
+      'file' => 'includes/admin.inc',
     ),
     'admin/islandora/scholar/base' =>  array(
       'title' => 'Basic Configuration',
@@ -55,7 +28,7 @@ function islandora_scholar_menu() {
       'page arguments' => array(2),
       'access callback' => 'islandora_scholar_romeo_access',
       'access arguments' => array(2),
-      'file' => 'romeo.tab.inc',
+      'file' => 'includes/romeo.tab.inc',
     ),
     'islandora/object/%islandora_object/islandora_scholar_upload' => array(
       'title' => 'Document',
@@ -64,24 +37,7 @@ function islandora_scholar_menu() {
       'page arguments' => array(2),
       'access callback' => 'islandora_scholar_upload_access',
       'access arguments' => array(2),
-      'file' => 'upload.tab.inc',
-    ),
-  );
-}
-
-/**
- * Implements hook_islandora_solr_primary_display().
- */
-function islandora_scholar_islandora_solr_primary_display() {
-  return array(
-    'islandora_scholar' => array(
-      'name' => t('Citations'),
-      'module' => 'islandora_scholar',
-      'file' => 'includes/SolrResults.inc',
-      'class' => "IslandoraSolrResultsCitation",
-      'function' => "displayResults",
-      'description' => t("Results are CSL-rendered citations. '.
-        '(Requires MODS streams in objects)"),
+      'file' => 'includes/upload.tab.inc',
     ),
   );
 }
@@ -89,53 +45,56 @@ function islandora_scholar_islandora_solr_primary_display() {
 /**
  * Implements hook_islandora_required_objects().
  */
-function islandora_scholar_islandora_required_objects() {
+function islandora_scholar_islandora_required_objects(IslandoraTuque $connection) {
   // Build a thumbnail datastream.
   $module_path = drupal_get_path('module', 'islandora_scholar');
-  $folder_thumbnail_datastream = array(
-    'dsid' => 'TN',
-    'datastream_file' => "$module_path/images/Crystal_Clear_filesystem_folder_grey.png",
-    'mimetype' => 'image/png',
-  );
 
+  $citation_content_model = $connection->repository->constructObject('ir:citationCModel');
+  $citation_content_model->owner = 'fedoraAdmin';
+  $citation_content_model->label = 'Citation Content Model';
+  $citation_content_model->models = 'fedora-system:ContentModel-3.0';
+  // ISLANDORACM Datastream
+  $datastream = $citation_content_model->constructDatastream('ISLANDORACM', 'X');
+  $datastream->label = 'Islandora content model';
+  $datastream->mimetype = 'text/xml';
+  $datastream->setContentFromFile("$module_path/XML/ISLANDORACM.xml", FALSE);
+  $citation_content_model->ingestDatastream($datastream);
+
+  // Citation Collection
+  $citation_collection = $connection->repository->constructObject('ir:citationCollection');
+  $citation_collection->owner = 'fedoraAdmin';
+  $citation_collection->label = 'Citations';
+  $citation_collection->models = 'islandora:collectionCModel';
+  $citation_collection->relationships->add(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', 'islandora:root');
+  $datastream = $citation_collection->constructDatastream('COLLECTION_POLICY', 'X');
+
+  // Collection Policy Datastream
+  $datastream->label = 'Collection Policy';
+  $datastream->mimetype = 'text/xml';
+  $datastream->setContentFromFile("$module_path/XML/COLLECTION_POLICY.xml", FALSE);
+  $citation_collection->ingestDatastream($datastream);
+
+  $datastream = $citation_collection->constructDatastream('TN', 'M');
+  $datastream->label = 'Thumbnail';
+  $datastream->mimetype = 'image/png';
+  $datastream->setContentFromFile("$module_path/images/Crystal_Clear_filesystem_folder_grey.png", FALSE);
+  $citation_collection->ingestDatastream($datastream);
   return array(
     'islandora_scholar' => array(
-      'module' => 'islandora_scholar',
       'title' => 'Islandora Scholar',
       'objects' => array(
-        array(
-          // Citations Collection.
-          'pid' => 'ir:citationCollection',
-          'label' => 'Citations',
-          'cmodel' => 'islandora:collectionCModel',
-          'parent' => variable_get('fedora_repository_pid', 'islandora:root'),
-          'datastreams' => array(
-            $folder_thumbnail_datastream,
-            array(
-              'dsid' => 'COLLECTION_POLICY',
-              'datastream_file' => "$module_path/XML/COLLECTION_POLICY.xml",
-              'mimetype' => 'text/xml',
-            ),
-          ),
-        ),
-        array(
-          // Citation Content Model.
-          'pid' => 'ir:citationCModel',
-          'label' => 'Citation Content Model',
-          'cmodel' => 'fedora-system:ContentModel-3.0',
-          'dsid' => 'ISLANDORACM',
-          'datastream_file' => "$module_path/XML/ISLANDORACM.xml",
-        ),
-      ),
-    ),
-  );
+        $citation_content_model,
+        $citation_collection
+       )
+     )
+   );
 }
 
 /**
  * Implements hook_CMODEL_PID_islandora_view_object().
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
-  module_load_include('inc', 'islandora_scholar', 'citation.tab');
+  module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
   module_load_include('inc', 'islandora_scholar', 'includes/Coins');
   $display = array(
     'citation' => array(

@@ -5,9 +5,9 @@
  *
  * A collection of functions for batch processing files to generate the appropriate file for exporting.
  */
-module_load_include('inc', 'citation_exporter', 'BatchExportRIS');
-module_load_include('inc', 'citation_exporter', 'BatchExportRTF');
-module_load_include('inc', 'citation_exporter', 'BatchExportPDF');
+module_load_include('inc', 'citation_exporter', 'includes/batch.export.ris');
+module_load_include('inc', 'citation_exporter', 'includes/batch.export.rtf');
+module_load_include('inc', 'citation_exporter', 'includes/batch.export.pdf');
 
 /**
  * Exports a collection of citations to a file.
@@ -21,7 +21,7 @@ module_load_include('inc', 'citation_exporter', 'BatchExportPDF');
  * @param string $file_format
  *   The format of the exported file.
  */
-function citation_exporter_batch_export(array $pids, $style, $file_format) {
+function citation_exporter_batch_export(array $pids, $style = NULL, $file_format = NULL) {
   $operations = array();
   switch ($file_format) {
     case 'RIS':
@@ -97,6 +97,7 @@ function citation_exporter_batch_get_num_pids_from_file($filename, $num = 1) {
 }
 
 /**
+ * Redirects the batch back to the old URL when complete.
  *
  * @param type $redirect
  * @param array $context
@@ -119,8 +120,20 @@ function citation_exporter_batch_redirect($redirect, array $file_to_unlink, arra
  *   The operations that were part of the batch process.
  */
 function citation_exporter_batch_finished($successful, array $results, array $operations) {
-  module_load_include('inc', 'citation_exporter', 'CitationExporter');
+  module_load_include('inc', 'citation_exporter', 'includes/citation.export');
   if ($successful) {
     CitationExporter::PrepareToExport($results['filename'], $results['mime_type'], $results['download_filename'], $results['redirect']);
   }
+}
+
+function citation_exporter_batch_export_ris(array $pids) {
+  citation_exporter_batch_export($pids, NULL, 'RIS');
+}
+
+function citation_exporter_batch_export_rtf(array $pids, $style) {
+  citation_exporter_batch_export($pids, $style, 'RTF');
+}
+
+function citation_exporter_batch_export_pdf(array $pids, $style) {
+  citation_exporter_batch_export($pids, $style, 'PDF');
 }

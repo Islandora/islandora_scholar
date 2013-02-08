@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * @file
+ * Admin form for the islandora_scholar.module
+ */
+
+/**
+ *
+ * @param type $name
+ * @param type $default
+ * @param type $other
+ * @return type
+ */
 function _islandora_scholar_add_variable($name, $default = '', $other = array()) {
   $other += array( //Some defaults...
     '#type' => 'textfield',
@@ -12,6 +24,11 @@ function _islandora_scholar_add_variable($name, $default = '', $other = array())
   return $to_return;
 }
 
+/**
+ * Admin form islandora_scholar.
+ *
+ * @return type
+ */
 function islandora_scholar_admin_form() {
   $form = array(
     'romeo' => array(
@@ -27,7 +44,7 @@ function islandora_scholar_admin_form() {
     '#title' => t('Provide Google PDF viewer with direct URL.'),
     '#description' => t('Normally, we would have all calls go through Drupal ' .
       'get the relevant PDF...  This option tries to make the call go directly' .
-      ' to your associated Fedora instance.  (Note:  This will not work if you '.
+      ' to your associated Fedora instance.  (Note:  This will not work if you ' .
       'use "localhost" or a non-public IP address in the Islandora\'s base Fedora URL.)'),
   ));
 

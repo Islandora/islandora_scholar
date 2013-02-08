@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Romeo tab for the islandora_scholar module.
+ */
+
+/**
  * Page callback, to render the RoMEO tab.
  *
  * Grabs the ISSN from the object, and fires it at the configured URL.
