@@ -5,16 +5,16 @@
  *
  * Functions for generating a batch export of citations to a single PDF file.
  */
-module_load_include('inc', 'citation_exporter', 'BatchExportRTF');
+module_load_include('inc', 'citation_exporter', 'includes/batch.export.rtf');
 
 /**
  * Get the batch operations required to generate an PDF file.
- * 
+ *
  * @param array $pids
  *   The citation to export to the PDF file.
- * @param sting $style 
+ * @param sting $style
  *   The style to apply to the citation before exporting to the PDF.
- * 
+ *
  * @return array
  *   The batch operations to create the PDF file.
  */
@@ -30,20 +30,20 @@ function citation_exporter_batch_get_pdf_operations(array $pids, $style) {
   $operations[] = array('citation_exporter_batch_add_header_to_text_file', array($temp_text_file, $header_text));
   $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array($temp_pids_file, $total, $temp_text_file, $style));
   $operations[] = array('citation_exporter_batch_convert_text_to_pdf', array($temp_text_file));
-  $operations[] = array('citation_exporter_batch_redirect', array($_GET['q'], array($temp_text_file, $temp_pids_file)));
+  $operations[] = array('citation_exporter_batch_redirect', array(request_uri(), array($temp_text_file, $temp_pids_file)));
   return $operations;
 }
 
 /**
  * Converts an RTF document to a PDF.
- * 
+ *
  * We can't directly generate the PDF so this is a good work around.
- * 
+ *
  * @param array $context
  *   The batch context.
  */
 function citation_exporter_batch_convert_text_to_pdf($filename, array &$context) {
-  module_load_include('php', 'citation_exporter', 'class_pdf');
+  module_load_include('inc', 'citation_exporter', 'includes/pdf');
   $text = '';
   $file = fopen($filename, 'rb');
   while (!feof($file)) {

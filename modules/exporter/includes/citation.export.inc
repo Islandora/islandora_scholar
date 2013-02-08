@@ -9,8 +9,8 @@ class CitationExporter {
 
   /**
    * Gets the storage location of all the export information.
-   * 
-   * @return array 
+   *
+   * @return array
    */
   static private function &GetExportTable() {
     if (!isset($_SESSION[SESSION_CITATION_EXPORTER_INDEX])) {
@@ -28,7 +28,7 @@ class CitationExporter {
 
   /**
    * Prepares a file accessible by the public for download.
-   * 
+   *
    * @param string $filename
    *   The name of the file to download.
    * @param string $mime_type
@@ -48,7 +48,7 @@ class CitationExporter {
 
   /**
    * Checks to see if a file is waiting for download.
-   * 
+   *
    * @return boolean
    */
   static public function ReadyToExport() {
@@ -58,7 +58,7 @@ class CitationExporter {
 
   /**
    * Downloads a file to the clients machine.
-   * 
+   *
    * @global string $base_url
    *   The base url for the site.
    */
@@ -66,21 +66,20 @@ class CitationExporter {
     if (self::ReadyToExport()) {
       $table = &self::GetExportTable();
       $filename = $table['filename'];
-      file_move($filename, file_directory_path(), FILE_EXISTS_REPLACE);
+      $filepath = file_unmanaged_move($filename, 'public://', FILE_EXISTS_REPLACE);
       $mime_type = $table['mime_type'];
       $download_filename = $table['download_filename'];
       $redirect = $table['redirect'];
       self::ClearExportTable();
-      if (file_exists($filename)) {
-        $file_size = filesize($filename);
+      if (file_exists($filepath)) {
+        $file_size = filesize($filepath);
         header("Content-type: $mime_type");
         header("Content-length: $file_size");
         header("Content-Disposition: attachment; filename=\"$download_filename\"");
         header("Cache-control: private");
         $curl_handle = curl_init();
         if ($curl_handle !== FALSE) {
-          global $base_url;
-          $url = $base_url . '/' . $filename;
+          $url = file_create_url($filepath);
           curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, FALSE);
           curl_setopt($curl_handle, CURLOPT_SSL_VERIFYHOST, FALSE);
           curl_setopt($curl_handle, CURLOPT_FAILONERROR, 1); // Fail on errors

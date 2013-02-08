@@ -8,12 +8,12 @@
 
 /**
  * Get the batch operations required to generate an RTF file.
- * 
+ *
  * @param array $pids
  *   The citation to export to the RTF file.
- * @param sting $style 
+ * @param sting $style
  *   The style to apply to the citation before exporting to the RTF.
- * 
+ *
  * @return array
  *   The batch operations to create the RTF file.
  */
@@ -30,7 +30,7 @@ function citation_exporter_batch_get_rtf_operations(array $pids, $style) {
   $operations[] = array('citation_exporter_batch_add_header_to_text_file', array($temp_text_file, $header_text));
   $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array($temp_pids_file, $total, $temp_text_file, $style));
   $operations[] = array('citation_exporter_batch_convert_txt_to_rtf', array($temp_text_file));
-  $operations[] = array('citation_exporter_batch_redirect', array($_GET['q'], array($temp_text_file, $temp_pids_file)));
+  $operations[] = array('citation_exporter_batch_redirect', array(request_uri(), array($temp_text_file, $temp_pids_file)));
   return $operations;
 }
 
@@ -42,10 +42,10 @@ function citation_exporter_batch_add_header_to_text_file($file_name, $header, ar
 
 /**
  *
- * 
+ *
  * @param string $pids_filename
  * @param string $text_filename
- * @param string $style 
+ * @param string $style
  */
 function citation_exporter_batch_append_citations_to_text_file($pids_filename, $total, $text_filename, $style, array &$context) {
   if (empty($context['sandbox'])) {
@@ -62,14 +62,14 @@ function citation_exporter_batch_append_citations_to_text_file($pids_filename, $
 
 /**
  * Appends a citation generated from citeproc-php to the provided text file.
- * 
+ *
  * @param string $filename
  *   The name of the text file to append the citation to.
  * @param string $style
  *   The name of the style used to render the citation.
  * @param type $pid
  *   The object from whom the metadata for the citation is taken.
- * @param array $context 
+ * @param array $context
  *   The batch context.
  */
 function _citation_exporter_batch_append_citations_to_text_file(array $pids, $filename, $style) {
@@ -97,14 +97,14 @@ function _citation_exporter_batch_append_citations_to_text_file(array $pids, $fi
 
 /**
  * Converts TXT file to an RTF File.
- * 
+ *
  * @param string $style
  *   The CSL style to format the JSON citations with.
- * @param array $context 
+ * @param array $context
  *   The batch context.
  */
 function citation_exporter_batch_convert_txt_to_rtf($filename, array &$context) {
-  module_load_include('php', 'citation_exporter', 'class_rtf');
+  module_load_include('inc', 'citation_exporter', 'includes/rtf');
   $text = '';
   $file = fopen($filename, 'rb');
   while (!feof($file)) {

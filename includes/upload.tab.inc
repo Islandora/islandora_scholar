@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Module used to create an upload tab.
+ */
+
+/**
  * Page callback for upload tab.
  *
  * Show form to upload if the PDF does not exist on the given object.  Show
@@ -207,7 +212,7 @@ function islandora_scholar_add_usage_and_version_elements_to_mods($object, $usag
     }
 
     //Delete all children
-    while($node = $usage_element->firstChild) {
+    while ($node = $usage_element->firstChild) {
       $usage_element->removeChild($node);
     }
     $usage_element->appendChild($mods_doc->createTextNode($usage));
@@ -226,7 +231,7 @@ function islandora_scholar_add_usage_and_version_elements_to_mods($object, $usag
     }
 
     //Delete all children
-    while($node = $version_element->firstChild) {
+    while ($node = $version_element->firstChild) {
       $version_element->removeChild($node);
     }
     $version_element->appendChild($mods_doc->createTextNode($version));

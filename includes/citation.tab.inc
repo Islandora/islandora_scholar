@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ * Module used to create a citation view tab.
+ */
 class CitationView {
   /**
    * Covenience method.
@@ -19,6 +23,12 @@ class CitationView {
     return $bibliography->render();
   }
 
+  /**
+   * Retrieves the viewer.
+   *
+   * @param type $object
+   * @return type
+   */
   public static function get_viewer($object) {
     $to_return = array();
 
@@ -26,7 +36,7 @@ class CitationView {
     drupal_alter('islandora_scholar_viewer', $viewers, $object);
     uasort($viewers, 'element_sort');
 
-    while(($viewer = array_shift($viewers)) && empty($to_return)) {
+    while (($viewer = array_shift($viewers)) && empty($to_return)) {
       $to_return = call_user_func_array($viewer['#callback'], $viewer['#callback arguments']);
     }
 
