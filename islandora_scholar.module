@@ -15,7 +15,7 @@ function islandora_scholar_menu() {
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
       'access arguments' => array('access administration pages'),
-      'file' => 'islandora_scholar.admin.inc',
+      'file' => 'includes/admin.inc',
     ),
     'admin/islandora/scholar/base' =>  array(
       'title' => 'Basic Configuration',
@@ -28,7 +28,7 @@ function islandora_scholar_menu() {
       'page arguments' => array(2),
       'access callback' => 'islandora_scholar_romeo_access',
       'access arguments' => array(2),
-      'file' => 'romeo.tab.inc',
+      'file' => 'includes/romeo.tab.inc',
     ),
     'islandora/object/%islandora_object/islandora_scholar_upload' => array(
       'title' => 'Document',
@@ -37,7 +37,7 @@ function islandora_scholar_menu() {
       'page arguments' => array(2),
       'access callback' => 'islandora_scholar_upload_access',
       'access arguments' => array(2),
-      'file' => 'upload.tab.inc',
+      'file' => 'includes/upload.tab.inc',
     ),
   );
 }
@@ -94,7 +94,7 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
  * Implements hook_CMODEL_PID_islandora_view_object().
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
-  module_load_include('inc', 'islandora_scholar', 'citation.tab');
+  module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
   module_load_include('inc', 'islandora_scholar', 'includes/Coins');
   $display = array(
     'citation' => array(
