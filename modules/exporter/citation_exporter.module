@@ -32,7 +32,7 @@ function citation_exporter_menu() {
  * Menu callback.
  */
 function citation_exporter_export() {
-  module_load_include('inc', 'citation_exporter', 'CitationExporter');
+  module_load_include('inc', 'citation_exporter', 'includes/citation.export');
   CitationExporter::Export();
 }
 
