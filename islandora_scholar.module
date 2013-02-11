@@ -134,7 +134,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
       '#title' => t('Metadata'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
-      '#value' => islandora_scholar_details($object),
+      'value' => islandora_scholar_details($object),
     ),
   );
 
