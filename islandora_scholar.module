@@ -123,7 +123,7 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
-  module_load_include('inc', 'islandora_scholar', 'includes/Coins');
+  module_load_include('inc', 'islandora_scholar', 'includes/coins');
   $display = array(
     'citation' => array(
       '#markup' => CitationView::get_citation($object['MODS']->content),
