@@ -376,7 +376,7 @@ class csl_info {
       if ($node->nodeType == 1) {
         switch ($node->nodeName) {
           case 'title':
-              //$this->title = $node->nodeValue;
+            $this->title = $node->nodeValue;
           break;
           case 'author':
           case 'contributor':

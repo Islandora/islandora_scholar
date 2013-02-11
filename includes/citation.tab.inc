@@ -16,11 +16,10 @@ class CitationView {
    *   A string containing HTML markup.
    */
   public static function get_citation($mods) {
-    $bibliography = citeproc_bibliography_from_mods(
-        citeproc_default_style(),
-        $mods
+    return citeproc_bibliography_from_mods(
+      citeproc_default_style(),
+      $mods
     );
-    return $bibliography->render();
   }
 
   /**
