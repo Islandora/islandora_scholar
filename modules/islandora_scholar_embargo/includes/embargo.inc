@@ -15,48 +15,47 @@
  */
 function islandora_scholar_embargo_form($form, &$form_state, $item) {
   $pid = $item->id;
-
+  $label = $item->label;
   $options = array(
     '!object/level!' => t('Object-level embargo'),
   );
 
+  //we're jsut using the PDF datastram at this time, but we'll eave this hear in case we decide to expand
   foreach ($item as $datastream) {
     $options[$datastream->id] = $datastream->label;
   }
 
-  // Retrieve the embargo status for the object.
-  $query = "select ?e from <#ri>
-            where { <info:fedora/$pid> <info:islandora/islandora-system:def/scholar#embargo-until> ?e }";
-  $result = $item->repository->ri->sparqlQuery($query);
-  $embargo_stat = "no_embargo";
   $embargo_date = "";
   $embargo_level = "!object/level!";
-
-
-  if (empty($result)) {
-    // Object level embargo isn't set - try datastream level.
-    $query = "select ?stream ?e from <#ri> where { <info:fedora/$pid> <fedora-view:disseminates> ?stream . ?stream <info:islandora/islandora-system:def/scholar#embargo-until> ?e }";
-    $result = $item->repository->ri->sparqlQuery($query);
-
-    /* Now we have a list of datastreams that are embargoed
-     * and how they are embargoed. */
-
-    if (!empty($result)) {
-      $exp = explode("/", $result[0]['stream']['value']);
-      $embargo_level = end($exp);
-    }
+  $embargo_state = 'no_embargo';
+  $object_result = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+  if (isset($object_result[0]['object']['value'])) {
+    $embargo_date = $object_result[0]['object']['value'];
   }
-  else {
-    $embargo_level = "!object/level!";
+
+  $ds_result = $item['PDF']->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+  if (isset($ds_result[0]['object']['value'])) {
+    $embargo_date = $ds_result[0]['object']['value'];
+    $embargo_level = "PDF";
   }
-  /* Now we've tried filling $result,
-   * if theres nothing in it, then there's no embargo. */
-  if (!empty($result)) {
-    $embargo_stat = $result[0]['e']['value'];
-    if ($embargo_stat !== "indefinite") {
-      $embargo_date = $embargo_stat;
-      $embargo_stat = "date";
+
+  $choices = array();
+  $prompt = t('Embargo until specified date.');
+  $item_info = t('@label has no current embargo', array('@label' => $label));
+
+  if (!empty($embargo_date)) {
+    $prompt = t('Change curent embargo to specified date.');
+    if ($embargo_date == 'indefinite') {
+      $message = 'Indefinite';
+      $embargo_state = 'Indefinite';
     }
+    else {
+      $date = new dateTime($embargo_date);
+      $message = $date->format('M d, Y ');
+      $embargo_state = 'date';
+    }
+    $choices['no_embargo'] = t("Lift Curent Embargo");
+    $item_info = t("Embargo for @label is currently set to @date", array('@label' => $label, '@date' => $message));
   }
 
   /* XXX:  Chop 'em down to only those we want...
@@ -66,10 +65,23 @@ function islandora_scholar_embargo_form($form, &$form_state, $item) {
     'PDF' => '',
   );
   $options = array_intersect_key($options, $used_options);
-  $date_array = $embargo_date ? date_parse($embargo_date) : NULL;
+  $date_array = NULL;
+  if (!empty($embargo_date) && $embargo_date != 'indefinite') {
+    $date_array = date_parse($embargo_date);
+  }
+
+  if ($embargo_date != 'indefinite') {
+    $choices['indefinite'] = t('Embargo indefinitely (Indefinite embargos must be lifted manually).');
+  }
+
+  $choices ['date'] = $prompt;
 
   $form = array(
     '#tree' => TRUE,
+    'prompt' => array(
+      '#type' => 'item',
+      '#markup' => '<h1>' . $item_info . '</h1>',
+    ),
     'pid' => array(
       '#type' => 'value',
       '#value' => $pid,
@@ -84,19 +96,20 @@ function islandora_scholar_embargo_form($form, &$form_state, $item) {
       '#type' => 'radios',
       '#title' => t('Duration of Embargo'),
       '#required' => TRUE,
-      '#default_value' => $embargo_stat,
-      '#options' => array(
-        'no_embargo' => t('Do not embargo/Clear embargo'),
-        'indefinite' => t('Embargo indefinitely (must be lifted manually)'),
-        'date' => t('Embargo until date specified'),
-      ),
+      '#default_value' => $embargo_state,
+      '#options' => $choices,
     ),
     'embargo_date' => array(
       '#type' => 'date',
       '#title' => t('Embargo date'),
       '#description' => t('A date until which this item should be embargoed.'),
       '#default_value' => $date_array,
-      '#after_build' => array('_embargo_set_year_range')
+      '#after_build' => array('_embargo_set_year_range'),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="embargo_select"]' => array('value' => 'date'),
+        ),
+      ),
     ),
     'submit' => array(
       '#type' => 'submit',
@@ -114,7 +127,6 @@ function islandora_scholar_embargo_form($form, &$form_state, $item) {
  * @param <type> $form_values
  * @return <type>
  */
-
 function _embargo_set_year_range($form_element, $form_values) {
   $year = date("Y");
   $form_element['year']['#options'] = drupal_map_assoc(range($year, $year + 20));
@@ -134,7 +146,7 @@ SELECT ?embargoed ?expiry
 WHERE {{
     ?embargoed is:$eu ?expiry ;
                <fedora-model:hasModel> ?model .
-    FILTER(sameTerm(?embargoed, <info:fedora/$pid>))
+      FILTER(sameTerm(?embargoed, <info:fedora/$pid>))
   }
   UNION {
     <info:fedora/$pid> <fedora-view:disseminates> ?embargoed ;
@@ -220,3 +232,4 @@ function islandora_scholar_embargo_form_submit($form, $form_state) {
 
   islandora_scholar_embargo_lift_associated_except($pid, $dsid, $date);
 }
+
