@@ -84,13 +84,15 @@ function islandora_scholar_access($fedora_object = NULL) {
  */
 function islandora_scholar_embargo_mail_tokens($params, $language) {
   global $base_url;
+  $date = $params['expiry_date'] == 'indefinite' ? 'indefinite' : format_date(strtotime($params['expiry_date']));
+  if($params['expiry_date'] )
   $to_return = array(
     '!item' => l(
         $params['item_title'],
         'islandora/object' . $params['pid']
     ),
     '%dsid' => $params['dsid'],
-    '%date' => format_date(strtotime($params['expiry_date'])),
+    '%date' => $date,
     '!site' => $base_url,
   );
 
@@ -177,21 +179,7 @@ EOQ;
     // send emails here
 
     islandora_embargo_user_notify($key, $item, $params);
-//    $users = islandora_scholar_embargo_users_to_notify($item);
-//
-//    foreach ($users as $user) {
-//      if (isset($user->mail)) {
-//        $params['to'] = $user->mail;
-//      }
-//      islandora_scholar_embargo_send($params, $key);
-//    }
-//
-//    if ($params['dsid'] === NULL) {
-//      $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
-//    }
-//    else {
-//      $item[$params['dsid']]->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
-//    }
+
   }
 
   // lift expired embargos
@@ -201,7 +189,7 @@ SELECT ?expired ?date
 FROM <#ri>
 WHERE {
   ?expired is:$eu ?date .
-  FILTER(?date < '$tomorrow'^^xsd:dateTime && ?date > '$yesterday'^^xsd:dateTime) .
+  FILTER(?date < '$tomorrow'^^xsd:dateTime) .
 }
 EOQ;
   $results = $repository->repository->ri->sparqlQuery($query);
