@@ -85,16 +85,16 @@ function islandora_scholar_access($fedora_object = NULL) {
 function islandora_scholar_embargo_mail_tokens($params, $language) {
   global $base_url;
   $date = $params['expiry_date'] == 'indefinite' ? 'indefinite' : format_date(strtotime($params['expiry_date']));
-  if($params['expiry_date'] )
-  $to_return = array(
-    '!item' => l(
-        $params['item_title'],
-        'islandora/object' . $params['pid']
-    ),
-    '%dsid' => $params['dsid'],
-    '%date' => $date,
-    '!site' => $base_url,
-  );
+  if ($params['expiry_date'])
+    $to_return = array(
+      '!item' => l(
+          $params['item_title'],
+          'islandora/object' . $params['pid']
+      ),
+      '%dsid' => $params['dsid'],
+      '%date' => $date,
+      '!site' => $base_url,
+    );
 
   return $to_return;
 }
@@ -179,7 +179,6 @@ EOQ;
     // send emails here
 
     islandora_embargo_user_notify($key, $item, $params);
-
   }
 
   // lift expired embargos
