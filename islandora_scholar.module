@@ -43,6 +43,34 @@ function islandora_scholar_menu() {
 }
 
 /**
+ * Implements hook_islandora_xml_form_builder_forms().
+ */
+function islandora_scholar_islandora_xml_form_builder_forms() {
+  $module_path = drupal_get_path('module', 'islandora_scholar');
+  return array(
+    'Citation MODS form' => array(
+       'form_file' => "$module_path/XML/citation_form.xml"
+    )
+  );
+}
+
+/**
+ * Implements hook_islandora_content_model_forms_form_associations().
+ */
+function islandora_scholar_islandora_content_model_forms_form_associations() {
+  return array(
+    'islandora_scholar_mods_form' => array(
+      'content_model' => 'ir:citationCModel',
+      'form_name' => 'Citation MODS form',
+      'dsid' => 'MODS',
+      'title_field' => array('title'),
+      'transform' => 'mods_to_dc.xsl',
+      'template' => FALSE,
+    )
+  );
+}
+
+/**
  * Implements hook_islandora_required_objects().
  */
 function islandora_scholar_islandora_required_objects(IslandoraTuque $connection) {
@@ -106,7 +134,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
       '#title' => t('Metadata'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
-      'value' => islandora_scholar_details($object),
+      '#value' => islandora_scholar_details($object),
     ),
   );
 
