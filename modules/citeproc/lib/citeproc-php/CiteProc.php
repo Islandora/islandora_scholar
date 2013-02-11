@@ -804,7 +804,7 @@ class csl_names extends csl_format {
     }
   }
 
-  function render($data, $mode) {
+  function render($data, $mode = NULL) {
     $matches = 0;
     $variable_parts = array();
     if (!isset($this->delimiter)) {
@@ -863,7 +863,6 @@ class csl_names extends csl_format {
 }
 
 class csl_date extends csl_format {
-
   function init($dom_node, $citeproc) {
     $locale_elements = array();
 
@@ -926,22 +925,19 @@ class csl_date extends csl_format {
     else {
       parent::init($dom_node, $citeproc);
     }
-
-
   }
 
-  function render($data, $mode) {
+  function render($data, $mode = NULL) {
     $date_parts = array();
     $date = '';
     $text = '';
 
     if (($var = $this->variable) && isset($data->{$var})) {
-        $date = $data->{$var}->{'date-parts'}[0];
-        foreach ($this->elements as $element) {
-            $date_parts[] = $element->render($date, $mode, $data);
-        }
-        $text = implode('', $date_parts);
-
+      $date = $data->{$var}->{'date-parts'}[0];
+      foreach ($this->elements as $element) {
+        $date_parts[] = $element->render($date, $data);
+      }
+      $text = implode('', $date_parts);
     }
     else {
         $text = $this->citeproc->get_locale('term', 'no date');
@@ -951,8 +947,7 @@ class csl_date extends csl_format {
 }
 
 class csl_date_part extends csl_format {
-
-  function render($date, $mode, $data = NULL) {
+  function render($date, $data = NULL) {
     $text = '';
 
     switch ($this->name) {
@@ -970,12 +965,12 @@ class csl_date_part extends csl_format {
       case 'month':
         $text = (isset($date[1])) ? $date[1] : '';
         if (empty($text) || $text < 1 || $text > 12) {
-            if($season_num = $data->issued->season) {
-                $seasons = array('', 'season-01', 'season-02', 'season-03', 'season-04');
-                $text = $this->citeproc->get_locale('term', $seasons[$season_num]);
-                return " $text";
-            } 
-            return;
+          if($season_num = $data->issued->season) {
+            $seasons = array('', 'season-01', 'season-02', 'season-03', 'season-04');
+            $text = $this->citeproc->get_locale('term', $seasons[$season_num]);
+            return " $text";
+          }
+          return;
         }
        // $form = $this->form;
         switch ($this->form) {
@@ -1006,10 +1001,8 @@ class csl_date_part extends csl_format {
 }
 
 class csl_number extends csl_format {
-
-  function render($data, $mode) {
+  function render($data, $mode = NULL) {
     $var = $this->variable;
-
 
     if (!$var || empty($data->$var)) return;
 
@@ -1050,7 +1043,6 @@ class csl_number extends csl_format {
       $num .= $this->citeproc->get_locale('term', 'ordinal-04');
     }
     return $num;
-
   }
 
   function long_ordinal($num) {
@@ -1081,7 +1073,6 @@ class csl_number extends csl_format {
 
     return $ret;
   }
-
 }
 
 class csl_text extends csl_format {
@@ -1101,6 +1092,7 @@ class csl_text extends csl_format {
       }
     }
   }
+
   function init_formatting() {
 //    if ($this->variable == 'title') {
 //      $this->span_class = 'title';
@@ -1109,7 +1101,7 @@ class csl_text extends csl_format {
 
   }
 
-  function render($data, $mode) {
+  function render($data, $mode = NULL) {
     $text = '';
     switch ($this->source) {
       case 'variable':
@@ -1137,7 +1129,6 @@ class csl_text extends csl_format {
 }
 
 class csl_et_al extends csl_text {
-
   function __construct($dom_node = NULL, $citeproc = NULL) {
     $this->var = 'et-al';
     $this->source = 'term';
@@ -1145,6 +1136,7 @@ class csl_et_al extends csl_text {
 
     }
 }
+
 class csl_label extends csl_format {
   private $plural;
 
@@ -1163,7 +1155,7 @@ class csl_label extends csl_format {
       default:
           $data_tmp = $data;
           if(is_array($data_tmp)) {
-             if(isset($data_tmp['variable'])) {
+            if(isset($data_tmp['variable'])) {
               unset($data_tmp['variable']);
             }
           }
@@ -1180,18 +1172,18 @@ class csl_label extends csl_format {
     }
 
     if (empty($text)) {
-    foreach ($variables as $variable) {
-      if($variable == 'page') {
+      foreach ($variables as $variable) {
+        if($variable == 'page') {
           $pages = $data->{$variable};
           if($pages && preg_match("/^[0-9]+-[0-9]+$/", $pages)) {
-              $plural = "multiple";
+            $plural = "multiple";
           }
+        }
+        if (($term = $this->citeproc->get_locale('term', $variable, $form, $plural))) {
+          $text = $term;
+          break;
+        }
       }
-      if (($term = $this->citeproc->get_locale('term', $variable, $form, $plural))) {
-        $text = $term;
-        break;
-      }
-    }
     }
 
     if (empty($text)) return;
@@ -1216,7 +1208,7 @@ class csl_macros extends csl_collection{
 }
 
 class csl_group extends csl_format{
-  function render($data, $mode) {
+  function render($data, $mode = NULL) {
     $text = '';
     $text_parts = array();
 
@@ -1258,13 +1250,12 @@ class csl_group extends csl_format{
 }
 
 class csl_layout extends csl_format {
-
   function init_formatting() {
     $this->div_class = 'csl-entry';
     parent::init_formatting();
   }
 
-  function render($data, $mode) {
+  function render($data, $mode = NULL) {
     $text = '';
     $parts = array();
 
@@ -1280,9 +1271,7 @@ class csl_layout extends csl_format {
     else {
       return $text;
     }
-
   }
-
 }
 
 class csl_citation extends csl_format{
@@ -1307,8 +1296,8 @@ class csl_citation extends csl_format{
 
     return $this->format($text);
   }
-
 }
+
 class csl_bibliography  extends csl_format {
   private $layout = NULL;
 
@@ -1325,7 +1314,6 @@ class csl_bibliography  extends csl_format {
     foreach ($layouts as $layout) {
       $this->layout = new csl_layout($layout, $citeproc);
     }
-
   }
 
   function init_formatting() {
