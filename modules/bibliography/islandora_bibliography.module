@@ -134,7 +134,6 @@ function islandora_bibliography_islandora_bookmark_export_styles($option) {
  * @return type
  */
 function islandora_bibliography_get_export_styles() {
-  module_load_include('inc', 'CSL', 'CSL');
   $styles = CSL::GetNames();
   return $styles;
 }
@@ -219,23 +218,24 @@ function islandora_bibliography_preview_selected(&$form, &$form_state) {
  *   Rendered citations in HTML format.
  */
 function islandora_bibliography_preview_form() {
-  module_load_include('inc', 'citeproc', 'CiteProcJSBibliography');
   drupal_add_css(drupal_get_path('module', 'islandora_bibliography') . '/css/export.css');
 
   $style = citeproc_style($_SESSION['islandora_bibliography_preview']['style']);
-  $bibliography = new CiteProcJSBibliography($style);
   $output = '';
+
+  $bibliography_entries = array();
 
   foreach (unserialize($_SESSION['islandora_bibliography_preview']['pids']) as $pid) {
     $mods = islandora_bibliography_get_mods($pid);
     if ($mods) {
-      $citation = citeproc_citation_from_mods($mods);
-      $bibliography->addCitation($citation);
+      $bibliography_entries[] = citeproc_bibliography_from_mods($style, $mods);
     }
   }
 
   drupal_set_title(t('Export preview'));
-  $output = $bibliography->render();
+
+  //XXX: May have to implode with a line-break?
+  $output = implode($bibliography_entries, '');
   $output .= l(t('Return to the previous page.'), $_SESSION['islandora_bibliography_preview']['path'], array('query' => unserialize($_SESSION['islandora_bibliography_preview']['queries'])));
   $form = array(
     '#markup' => $output
