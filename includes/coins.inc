@@ -154,7 +154,7 @@ class Coins {
     foreach ($xml->note as $note) {
       $notes[] = $note;
     }
-    $this->note = $note;
+    $this->note = $notes;
 
     $embargo_date = $xml->xpath('//mods:dateOther[@type="embargo"]');
     if ($embargo_date) {
