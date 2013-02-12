@@ -965,7 +965,8 @@ class csl_date_part extends csl_format {
       case 'month':
         $text = (isset($date[1])) ? $date[1] : '';
         if (empty($text) || $text < 1 || $text > 12) {
-          if($season_num = $data->issued->season) {
+          if (isset($data->issued->season)) {
+            $season_num = $data->issued->season;
             $seasons = array('', 'season-01', 'season-02', 'season-03', 'season-04');
             $text = $this->citeproc->get_locale('term', $seasons[$season_num]);
             return " $text";

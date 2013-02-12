@@ -35,16 +35,14 @@ function islandora_bibliography_menu() {
  *   The markup for the citation.
  */
 function islandora_bibliography_ir_citationCModel_islandora_bookmark_object_markup($fedora_object) {
-  $title_author = islandora_bibilography_get_title_authors($fedora_object->id);
-  $markup = array(
-    'title' => array(
-      '#markup' => l($title_author['title'], 'islandora/object/' . $fedora_object->id)
-    ),
-    'author' => array(
-      '#markup' => '<br/>' . $title_author['authors']
-    )
-  );
-  return drupal_render($markup);
+  $style = citeproc_default_style();
+  $mods = islandora_bibliography_get_mods($fedora_object->id);
+  if ($mods) {
+    $bibliography_entry = citeproc_bibliography_from_mods($style, $mods);
+  }
+  $output = l($fedora_object->label, 'islandora/object/' . $fedora_object->id) . '<br />';
+  $output .= $bibliography_entry;
+  return $output;
 }
 
 /**
