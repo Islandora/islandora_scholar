@@ -6,9 +6,6 @@
 function pmid_importer_islandora_importer() {
   return array(
     'pmid_importer' => array(
-      'type' => 'inc',
-      'module' => 'pmid_importer',
-      'file' => 'pmid_importer',
       'title' => t('Pubmed Importer'),
       'class' => 'PMImporter',
     )

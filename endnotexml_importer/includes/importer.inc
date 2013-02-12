@@ -1,6 +1,5 @@
 <?php
 
-module_load_include('inc', 'islandora_importer');
 
 /**
  * RIS citation importer.
@@ -91,7 +90,7 @@ class EndNoteXMLImportObject extends IslandoraImportObject {
       $enxml_file = file_save_data($this->source, "temp://temp_en.xml");
       $mods_file = drupal_tempnam('temp://', 'temp_mods.xml');
 
-      module_load_include('inc', 'bibutils', 'Bibutils');
+      module_load_include('inc', 'bibutils', 'includes/utilities');
       Bibutils::Convert(
         drupal_realpath($enxml_file->uri),
         'EndNoteXML',

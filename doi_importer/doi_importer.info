@@ -3,5 +3,6 @@ description = Importer plugin for Digital Object Identifiers, to create citation
 package = Islandora Tools
 dependencies[] = islandora_importer
 dependencies[] = islandora_scholar
+files[] = includes/importer.inc
 version = 7.x-dev
 core = 7.x

@@ -1,6 +1,5 @@
 <?php
 
-module_load_include('inc', 'islandora_importer');
 
 /**
  * RIS citation importer.
@@ -112,7 +111,7 @@ class RISImportObject extends IslandoraImportObject {
       file_put_contents($ris_file, $this->source);
       $mods_file = file_create_filename('temp_mods.xml', file_directory_temp());
 
-      module_load_include('inc', 'bibutils', 'Bibutils');
+      module_load_include('inc', 'bibutils', 'includes/utilities');
       Bibutils::Convert($ris_file, 'RIS', $mods_file, 'MODS');
 
       $this->mods = file_get_contents($mods_file);

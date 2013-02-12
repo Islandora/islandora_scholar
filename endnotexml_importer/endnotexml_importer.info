@@ -4,5 +4,6 @@ package = Islandora Tools
 dependencies[] = islandora_importer
 dependencies[] = islandora_scholar
 dependencies[] = bibutils
+files[] = includes/importer.inc
 version = 7.x-dev
 core = 7.x

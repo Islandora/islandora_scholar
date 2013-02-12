@@ -11,7 +11,7 @@ function doi_importer_menu() {
       'page callback' => 'drupal_get_form',
       'page arguments' => array('doi_importer_admin_form'),
       'access arguments' => array('access administration pages'),
-      'file' => 'doi_importer.admin.inc',
+      'file' => 'includes/admin.form.inc',
     ),
   );
 }
@@ -22,9 +22,6 @@ function doi_importer_menu() {
 function doi_importer_islandora_scholar_importer() {
   return array(
     'doi_importer' => array(
-      'type' => 'inc',
-      'module' => 'doi_importer',
-      'file' => 'doi_importer',
       'title' => t('DOI Importer'),
       'class' => 'DOIImporter',
     )
