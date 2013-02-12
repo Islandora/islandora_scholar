@@ -328,8 +328,8 @@ function convert_mods_to_citeproc_json_type(SimpleXMLElement $mods) {
    *  *UNLESS* //mods/relatedItem[type='host']/titleInfo/title exists
    *  *OR*     //mods/genre[@authority='local'] == 'bookSection'
    */
-  module_load_include('inc', 'citeproc', 'generators/mods_csl_type_conversion');
-  module_load_include('inc', 'citeproc', 'generators/marcrelator_conversion');
+  module_load_include('inc', 'citeproc', 'includes/mods_csl_type_conversion');
+  module_load_include('inc', 'citeproc', 'includes/marcrelator_conversion');
 
   // First try:  Let's map the a provided Endnote genre...
   $output = _get_endnote_type($mods);
@@ -589,7 +589,7 @@ function convert_mods_to_citeproc_json_name_corporate(SimpleXMLElement $name) {
  *   Gets the role of the given name.
  */
 function convert_mods_to_citeproc_json_name_role(SimpleXMLElement $name, array $valid_roles, $default_role) {
-  module_load_include('inc', 'citeproc', 'generators/marcrelator_conversion');
+  module_load_include('inc', 'citeproc', 'includes/marcrelator_conversion');
   if (isset($name->role)) {
     $role = strtolower((string) $name->role->roleTerm);
     if (isset($name->role->roleTerm)) {

@@ -75,9 +75,9 @@ function citation_exporter_batch_append_citations_to_text_file($pids_filename, $
  *   The batch context.
  */
 function _citation_exporter_batch_append_citations_to_text_file(array $pids, $filename, $style) {
-  module_load_include('php', 'citeproc', 'generators/converter');
+  module_load_include('inc', 'citeproc', 'includes/converter');
   module_load_include('php', 'CiteProc', 'lib/citeproc-php/CiteProc');
-  module_load_include('inc', 'csl', 'CSL');
+  module_load_include('inc', 'csl', 'includes/csl');
   $style = CSL::Get($style);
   $citeproc = new citeproc($style->saveXML());
   $file = fopen($filename, 'ab');

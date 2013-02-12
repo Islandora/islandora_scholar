@@ -10,7 +10,7 @@
  * Implementation of hook_enable().
  */
 function csl_enable() {
-  module_load_include('inc', 'csl', 'CSL');
+  module_load_include('inc', 'csl', 'includes/csl');
   $data_path = drupal_get_path('module', 'csl') . '/data/';
   $styles = array(
     'Annotated (NLM style with abstract)' => 'annotated.csl',
