@@ -304,7 +304,6 @@ class Coins {
     if ($embargo_date != NULL) {
       $rows[] = array('Embargo date', $embargo_date);
     }
-    dsm($rows);
     return array(
       'headers' => $headers,
       'rows' => $rows,
