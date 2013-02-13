@@ -104,7 +104,11 @@ class Coins {
     $issn = $xml->xpath('//mods:identifier[@type="issn"]');
     $this->issn = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) $issn[0]);
 
-    $this->date = $xml->part->date;
+    $date = $xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
+    if ($date) {
+      $this->date = $date[0];
+    }
+
     if ($this->date == NULL) {
       $this->date = $xml->originInfo->dateCreated;
     }
@@ -146,15 +150,15 @@ class Coins {
 
     $topic = array();
     foreach ($xml->subject as $subject) {
-      $topic[] = $subject->topic;
+      $topic[] = (string) $subject->topic;
     }
-    $this->topic = $topic;
+    $this->topic = implode(', ', array_filter(array_map('trim', $topic)));
 
     $notes = array();
     foreach ($xml->note as $note) {
-      $notes[] = $note;
+      $notes[] = (string) $note;
     }
-    $this->note = $notes;
+    $this->note = implode(', ', array_filter(array_map('trim', $notes)));
 
     $embargo_date = $xml->xpath('//mods:dateOther[@type="embargo"]');
     if ($embargo_date) {
@@ -300,7 +304,6 @@ class Coins {
     if ($embargo_date != NULL) {
       $rows[] = array('Embargo date', $embargo_date);
     }
-
     return array(
       'headers' => $headers,
       'rows' => $rows,
