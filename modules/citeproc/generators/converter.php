@@ -621,7 +621,7 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
     _try_parse_date($output['accessed'], $date_captured);
   }
 
-  $date_issued = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateIssued");
+  $date_issued = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateIssued | /mods:mods/mods:relatedItem[@type='host']/mods:part/mods:date");
   if (!empty($date_issued)) {
     _try_parse_date($output['issued'], $date_issued);
   }
