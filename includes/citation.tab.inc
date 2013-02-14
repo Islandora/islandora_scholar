@@ -50,7 +50,6 @@ function islandora_scholar_islandora_scholar_viewer($object) {
   if (isset($object['PDF'])) {
     $access_pdf = TRUE;
 
-    module_load_include('inc', 'islandora_xacml_api', 'IslandoraXacml');
     if ($access_pdf && class_exists('IslandoraXacml')) {
       $xacml = new IslandoraXacml($object->id);
       $access_pdf = $access_pdf && (($user->uid === 1) || $xacml->datastreamRule->hasPermission($user->name, $user->roles, NULL, 'PDF'));

@@ -15,7 +15,7 @@ function islandora_scholar_menu() {
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
       'access arguments' => array('access administration pages'),
-      'file' => 'includes/admin.inc',
+      'file' => 'includes/admin.form.inc',
     ),
     'admin/islandora/scholar/base' =>  array(
       'title' => 'Basic Configuration',
@@ -49,7 +49,7 @@ function islandora_scholar_islandora_xml_form_builder_forms() {
   $module_path = drupal_get_path('module', 'islandora_scholar');
   return array(
     'Citation MODS form' => array(
-       'form_file' => "$module_path/XML/citation_form.xml"
+       'form_file' => "$module_path/xml/citation_form.xml"
     )
   );
 }
@@ -85,7 +85,7 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
   $datastream = $citation_content_model->constructDatastream('ISLANDORACM', 'X');
   $datastream->label = 'Islandora content model';
   $datastream->mimetype = 'text/xml';
-  $datastream->setContentFromFile("$module_path/XML/ISLANDORACM.xml", FALSE);
+  $datastream->setContentFromFile("$module_path/xml/ISLANDORACM.xml", FALSE);
   $citation_content_model->ingestDatastream($datastream);
 
   // Citation Collection
@@ -99,7 +99,7 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
   // Collection Policy Datastream
   $datastream->label = 'Collection Policy';
   $datastream->mimetype = 'text/xml';
-  $datastream->setContentFromFile("$module_path/XML/COLLECTION_POLICY.xml", FALSE);
+  $datastream->setContentFromFile("$module_path/xml/COLLECTION_POLICY.xml", FALSE);
   $citation_collection->ingestDatastream($datastream);
 
   $datastream = $citation_collection->constructDatastream('TN', 'M');
@@ -160,7 +160,7 @@ function islandora_scholar_upload_access($object) {
  * ISSN to look up.
  */
 function islandora_scholar_romeo_access($object) {
-  module_load_include('tab.inc', 'islandora_scholar', 'romeo');
+  module_load_include('inc', 'islandora_scholar', 'includes/romeo.tab');
 
   return variable_get('islandora_scholar_romeo_enable', FALSE) &&
     in_array('ir:citationCModel', $object->models) &&

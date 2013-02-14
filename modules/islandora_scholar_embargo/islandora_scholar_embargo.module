@@ -33,7 +33,7 @@ function islandora_scholar_embargo_menu() {
     'page callback' => 'drupal_get_form',
     'access arguments' => array('administer site configuration'),
     'page arguments' => array('islandora_embargo_admin'),
-    'file' => 'admin/islandora_embargo.admin.inc',
+    'file' => 'includes/admin.form.inc',
     'type' => MENU_NORMAL_ITEM,
   );
   return $items;
@@ -258,7 +258,6 @@ function islandora_scholar_embargo_users_to_notify($fedora_item) {
  *   representing a datastream ID to be disembargoed.
  */
 function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
-  module_load_include('inc', 'islandora_xacml_api', 'IslandoraXacml');
   $item = islandora_object_load($pid);
   $rels = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
   $expiry = $rels[0]['object']['value'];
@@ -308,8 +307,6 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
  *   the string 'indefinite' to require it to be manually lifted.
  */
 function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indefinite') {
-  module_load_include('inc', 'islandora_xacml_api', 'IslandoraXacml');
-
   $type = RELS_TYPE_PLAIN_LITERAL;
   $notification = NULL;
   // XXX We assume the end date is properly formatted...
