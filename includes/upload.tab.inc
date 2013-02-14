@@ -141,7 +141,6 @@ function islandora_scholar_check_mimetype($file, $desired_mimetype) {
     return array();
   }
   elseif ($file->filemime == 'application/octet-stream') {
-    module_load_include('detect.inc', 'islandora', 'mime');
     $mc = new MimeDetect();
     if ($mc->getMimetype($file->filename) == $desired_mimetype) {
       return array();

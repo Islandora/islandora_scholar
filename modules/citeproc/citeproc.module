@@ -141,7 +141,7 @@ function citeproc_citation_from_object($style, $raw) {
  *   citeproc_bibliography_from_object().
  */
 function citeproc_bibliography_from_mods($style, $mods) {
-  module_load_include('php', 'citeproc', 'generators/converter');
+  module_load_include('inc', 'citeproc', 'includes/converter');
 
   $raw = convert_mods_to_citeproc_jsons($mods);
   $raw = _citeproc_array_to_object($raw);
@@ -164,11 +164,10 @@ function citeproc_bibliography_from_mods($style, $mods) {
  *   citeproc_citation_from_object().
  */
 function citeproc_citation_from_mods($style, $mods) {
-  module_load_include('php', 'citeproc', 'generators/converter');
+  module_load_include('inc', 'citeproc', 'includes/converter');
 
   $raw = convert_mods_to_citeproc_jsons($mods);
   $raw = _citeproc_array_to_object($raw);
 
   return citeproc_citation_from_object($style, $raw);
 }
-

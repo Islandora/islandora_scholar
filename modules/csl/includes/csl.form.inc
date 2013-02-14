@@ -138,7 +138,7 @@ function csl_manage_add_style_validate(array $form, array &$form_state) {
  *   The drupal form state.
  */
 function csl_manage_add_style_submit(array $form, array &$form_state) {
-  module_load_include('inc', 'csl', 'CSL');
+  module_load_include('inc', 'csl', 'includes/csl');
   $style_name = $form_state['values']['name'];
   $definition = new DOMDocument();
   $definition->load($_FILES['files']['tmp_name']['file']);
