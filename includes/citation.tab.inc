@@ -75,7 +75,7 @@ function islandora_scholar_google_pdf_viewer($pid) {
 
   $base = '!base_url/islandora/object/!pid/datastream/!dsid/view';
   if (variable_get('islandora_scholar_google_direct_to_fedora', FALSE)) {
-    $base = '!fedora_base/object/!pid/datastream/!dsid/content';
+    $base = '!fedora_base/objects/!pid/datastreams/!dsid/content';
   }
 
   $iframe_attrs = array(
