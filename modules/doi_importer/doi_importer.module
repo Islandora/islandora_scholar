@@ -17,9 +17,9 @@ function doi_importer_menu() {
 }
 
 /**
- * Implements hook_islandora_scholar_importer().
+ * Implements hook_islandora_importer().
  */
-function doi_importer_islandora_scholar_importer() {
+function doi_importer_islandora_importer() {
   return array(
     'doi_importer' => array(
       'title' => t('DOI Importer'),
