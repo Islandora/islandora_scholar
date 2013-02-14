@@ -72,7 +72,7 @@ function islandora_scholar_islandora_scholar_viewer($object) {
 function islandora_scholar_google_pdf_viewer($pid) {
   global $base_url;
 
-  $base = '!base_url/islandora/objects/!pid/datastreams/!dsid/view';
+  $base = '!base_url/islandora/object/!pid/datastream/!dsid/view';
   if (variable_get('islandora_scholar_google_direct_to_fedora', FALSE)) {
     $base = '!fedora_base/objects/!pid/datastreams/!dsid/content';
   }
@@ -99,7 +99,7 @@ function islandora_scholar_google_pdf_viewer($pid) {
     'download' => array(
       '#type' => 'item',
       '#title' => t('Download'),
-      '#value' => l(t('PDF'), "islandora/object/$pid/datastreams/PDF/download"),
+      '#markup' => l(t('PDF'), "islandora/object/$pid/datastream/PDF/download"),
       '#weight' => 1,
     ),
   );

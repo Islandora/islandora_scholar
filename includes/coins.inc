@@ -224,7 +224,7 @@ class Coins {
     }
 
     if (!empty($this->topic)) {
-      $topics = implode($this->topic, ', ');
+      $topics = $this->topic;
     }
     else {
       $topics = t('');
