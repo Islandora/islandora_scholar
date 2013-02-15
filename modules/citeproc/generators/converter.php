@@ -507,7 +507,6 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
     }
   }
 
-  
   //Filter out empty entries.
   foreach (array_keys($output) as $role) {
     $filtered = array_filter($output[$role], 'array_filter');
