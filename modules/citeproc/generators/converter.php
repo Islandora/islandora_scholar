@@ -500,7 +500,7 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
           add_mods_namespace($name);
           $role = convert_mods_to_citeproc_json_name_role($name, $valid_roles, $default_role);
           if ($role !== FALSE) {
-            $output[$role][] = convert_mods_to_citeproc_json_name($name);
+             $output[$role][] = convert_mods_to_citeproc_json_name($name);
           }
         }
       }
