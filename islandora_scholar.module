@@ -115,7 +115,7 @@ function islandora_scholar_islandora_solr_primary_display() {
  *   Describes the Fedora objects that the module needs.
  *   The citation collection and content model.
  */
-function islandora_scholar_required_fedora_objects() {
+function islandora_scholar_fedora_repository_required_fedora_objects() {
 
   // Build a thumbnail datastream.
   $module_path = drupal_get_path('module', 'islandora_scholar');
