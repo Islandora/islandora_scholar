@@ -450,12 +450,12 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
    */
   $queries = array(
     0 => array(
-      '/mods:mods/mods:name', // Path
+      '//mods:mods/mods:name', // Path
       'author', // Default Role
       array(// Valid Roles
         'editor' => 'editor',
         'translator' => 'translator',
-        'interviewer' => 'interviewer',
+        #'interviewer' => 'interviewer',
         'composer' => 'composer',
         'original' => 'original-author',
         'recipient' => 'recipient',
@@ -463,7 +463,7 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
       )
     ),
     1 => array(
-      '/mods:mods/mods:relatedItem[@type="host"]/mods:name',
+      '//mods:mods/mods:relatedItem[@type="host"]/mods:name',
       'container-author',
       array(
         'editor' => 'editor',
@@ -472,7 +472,7 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
       )
     ),
     2 => array(
-      '/mods:mods/mods:relatedItem[@type="series"]/mods:name',
+      '//mods:mods/mods:relatedItem[@type="series"]/mods:name',
       NULL,
       array(
         'editor' => 'collection-editor'
@@ -480,19 +480,44 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
     )
   );
   $output = array();
+
+ //Perform all the name queries, mapping the roles to what is used by citeproc.
   foreach ($queries as $query) {
     list($path, $default_role, $valid_roles) = $query;
     $names = $mods->xpath($path);
     if (!empty($names)) {
       foreach ($names as $name) {
-        add_mods_namespace($name);
-        $role = convert_mods_to_citeproc_json_name_role($name, $valid_roles, $default_role);
-        if ($role !== FALSE) {
-          $output[$role][] = convert_mods_to_citeproc_json_name($name);
+        $nameParts = $name->xpath("mods:namePart");
+        $isvalidName = TRUE;
+        //iterate through nameParts to see if any is empty.  We don't want to add them to the output
+        foreach ($nameParts as $namePart) {
+          $content = (string) $namePart;
+            if (empty($content)) {
+              $isvalidName =  FALSE;
+            }
+        }
+        if($isvalidName) {
+          add_mods_namespace($name);
+          $role = convert_mods_to_citeproc_json_name_role($name, $valid_roles, $default_role);
+          if ($role !== FALSE) {
+             $output[$role][] = convert_mods_to_citeproc_json_name($name);
+          }
         }
       }
     }
   }
+
+  //Filter out empty entries.
+  foreach (array_keys($output) as $role) {
+    $filtered = array_filter($output[$role], 'array_filter');
+    if (empty($filtered)) {
+      unset($output[$role]);
+    }
+    else {
+      $output[$role] = $filtered;
+    }
+  }
+
   return $output;
 }
 
@@ -514,7 +539,7 @@ function convert_mods_to_citeproc_json_name(SimpleXMLElement $name) {
 }
 
 /**
- * Gets the array repersentation of the javascript Citation's personal name properties.
+ * Gets the array representation of the javascript Citation's personal name properties.
  * 
  * @param SimpleXMLElement $name
  *   A name element.
@@ -525,20 +550,27 @@ function convert_mods_to_citeproc_json_name(SimpleXMLElement $name) {
 function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
   $output = array();
   $nameParts = $name->xpath("mods:namePart");
+  $name_parts = array();
   foreach ($nameParts as $namePart) {
     $type = (string) $namePart->attributes()->type;
     $content = (string) $namePart;
-    $content .= (strlen($content) == 1) ? '. ' : ' '; // Not sure why this is here...
-    $output[$type] = isset($output[$type]) ?
-        $output[$type] . $content :
-        $content;
+    $content .= (strlen($content) == 1) ? '.' : ''; // Not sure why this is here...
+    $name_parts[$type][] = $content;
   }
-  $output['parse-names'] = "true"; // add the citeproc-js "parse-names" flag.
+
+  foreach ($name_parts as $type => $parts) {
+    $output[$type] = implode(' ', $parts);
+  }
+  
+  //Only add the flag if we have some name parts...
+  if (array_filter($output)) {
+    $output['parse-names'] = "true"; // add the citeproc-js "parse-names" flag.
+  }
   return $output;
 }
 
 /**
- * Gets the array repersentation of the javascript Citation's corporate name properties.
+ * Gets the array representation of the javascript Citation's corporate name properties.
  * 
  * @param SimpleXMLElement $name
  *   A name element.
