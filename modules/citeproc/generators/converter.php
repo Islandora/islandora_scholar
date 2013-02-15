@@ -481,7 +481,7 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
   );
   $output = array();
 
-  //Perform all the name queries, mapping the roles to what is used by citeproc.
+ //Perform all the name queries, mapping the roles to what is used by citeproc.
   foreach ($queries as $query) {
     list($path, $default_role, $valid_roles) = $query;
     $names = $mods->xpath($path);
