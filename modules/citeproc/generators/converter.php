@@ -487,14 +487,26 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
     $names = $mods->xpath($path);
     if (!empty($names)) {
       foreach ($names as $name) {
-        add_mods_namespace($name);
-        $role = convert_mods_to_citeproc_json_name_role($name, $valid_roles, $default_role);
-        if ($role !== FALSE) {
-          $output[$role][] = convert_mods_to_citeproc_json_name($name);
+        $nameParts = $name->xpath("mods:namePart");
+        $isvalidName = TRUE;
+        //iterate through nameParts to see if any is empty.  We don't want to add them to the output
+        foreach ($nameParts as $namePart) {
+          $content = (string) $namePart;
+            if (empty($content)) {
+              $isvalidName =  FALSE;
+            }
+        }
+        if($isvalidName) {
+          add_mods_namespace($name);
+          $role = convert_mods_to_citeproc_json_name_role($name, $valid_roles, $default_role);
+          if ($role !== FALSE) {
+            $output[$role][] = convert_mods_to_citeproc_json_name($name);
+          }
         }
       }
     }
   }
+
   
   //Filter out empty entries.
   foreach (array_keys($output) as $role) {
