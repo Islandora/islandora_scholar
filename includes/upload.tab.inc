@@ -93,15 +93,18 @@ function islandora_scholar_modify_form(array $form, array &$form_state, Abstract
  */
 function islandora_scholar_modify_form_submit(array $form, array &$form_state) {
   extract($form_state['values']);
-
   $object = islandora_object_load($pid);
-
   if ($form_state['clicked_button']['#name'] == 'delete_document') {
-    // @todo Also remove the PDF's derivatives.
-    $status = islandora_purge_datastream($object, $dsid);
-
-    if ($status === NULL) {
-      drupal_set_message(t("DON'T PANIC!, but we may have failed purging the datastream...  Some debug info: @info", array('@info' => print_r($status, TRUE))));
+    try {
+      // @todo Also remove the PDF's derivatives.
+      $object->purgeDatastream($dsid);
+    }
+    catch(Exception $e) {
+      drupal_set_message(t('Failed to purge datastream @dsid from @pid</br>code: @code<br/>message: @msg', array(
+          '@pid' => $pid,
+          '@dsid' => $dsid,
+          '@code' => $e->getCode(),
+          '@msg' => $e->getMessage())), 'error');
     }
   }
 }
