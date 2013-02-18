@@ -187,6 +187,8 @@ function islandora_scholar_upload_form(array $form, array &$form_state, Abstract
 /**
  * Updates the MODS datastream with the given usage and version.
  *
+ * Removes any other usage or version elements.
+ *
  * @param AbstractFedoraObject $object
  *   The object.
  * @param string $usage
@@ -196,78 +198,48 @@ function islandora_scholar_upload_form(array $form, array &$form_state, Abstract
  *  'PUBLISHED', 'POST-PUBLICATION', 'OTHER'.
  */
 function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractFedoraObject $object, $usage, $version) {
-  if (isset($object['MODS'])) {
-    $mods_str = trim($object['MODS']->content);
-    if (!$mods_str) {
-      drupal_set_message(t('MODS in object @pid is empty...  Refusing to add usage and publication version statements alone.', array(
-            '@pid' => $object->id)), 'error');
-      return FALSE;
-    }
-
-    // Load the MODS...
-    $mods_doc = new DOMDocument();
-    $mods_doc->loadXML($mods_str);
-    $mods_xpath = new DOMXPath($mods_doc);
-    $mods_ns = 'http://www.loc.gov/mods/v3';
-    $mods_xpath->registerNamespace('m', $mods_ns);
-    // DOMXPath creates a copy...  let's use it instead.
-    $mods_doc = &$mods_xpath->document;
-
-    $mods_element = NULL;
-    $mods_elements = $mods_xpath->query('//m:mods');
-    if (count($mods_elements) > 0) {
-      $mods_element = $mods_elements->item(0);
-    }
-    else {
-      drupal_set_message(t('Could not find MODS element in object @pid is empty...  Refusing to add usage and publication version statements alone.', array(
-            '@pid' => $object->id)), 'error');
-      return FALSE;
-    }
-
-    $usage_element = NULL;
-    $usage_elements = $mods_xpath->query('m:accessCondition[@type="use and reproduction"]', $mods_element);
-    if ($usage_elements->length > 0) {
-      // Found at least one...  Grab the first?
-      $usage_element = $usage_elements->item(0);
-    }
-    else {
-      // Didn't find any...  Create element with attributes.
-      $usage_element = $mods_doc->createElementNS($mods_ns, 'accessCondition');
-      $usage_element->setAttribute('type', 'use and reproduction');
-      $mods_element->appendChild($usage_element);
-    }
-
-    // Delete all children.
-    while ($node = $usage_element->firstChild) {
-      $usage_element->removeChild($node);
-    }
-    $usage_element->appendChild($mods_doc->createTextNode($usage));
-
-    $version_element = NULL;
-    $version_elements = $mods_xpath->query('m:physicalDescription[@authority="local"]', $mods_element);
-    if ($version_elements->length > 0) {
-      // Found at least one... Grab the first?
-      $version_element = $version_elements->item(0);
-    }
-    else {
-      // Didn't find any... Create element with attributes.
-      $version_element = $mods_doc->createElementNS($mods_ns, 'physicalDescription');
-      $version_element->setAttribute('authority', 'local');
-      $mods_element->appendChild($version_element);
-    }
-
-    // Delete all children.
-    while ($node = $version_element->firstChild) {
-      $version_element->removeChild($node);
-    }
-    $version_element->appendChild($mods_doc->createTextNode($version));
-
-    $object['MODS']->content = $mods_doc->saveXML();
+  $refuse_msg = t('Refusing to add usage and publication version statements alone');
+  if (empty($object['MODS'])) {
+    drupal_set_message(t('No MODS in object @pid. %refuse.', array('@pid' => $object->id, '%refuse' => $refuse_msg)), 'error');
+    return;
   }
-  else {
-    drupal_set_message(t('No MODS in object @pid...  Refusing to add usage and publication version statements alone.', array(
-          '@pid' => $object->id)), 'error');
+  $namespace = 'http://www.loc.gov/mods/v3';
+  $filename = drupal_realpath(file_create_filename("{$object->id}_MODS.xml", 'temporary://'));
+  $object['MODS']->getContent($filename);
+  $doc = new DOMDocument();
+  $doc->load($filename);
+  $xpath = new DOMXPath($doc);
+  $xpath->registerNamespace('mods', $namespace);
+  // Remove all instances of mods:accessCondition and mods:physicalDescription
+  // from every mods:mods element instance.
+  $access_condition_query = '//mods:accessCondition[@type="use and reproduction"]';
+  $physical_description_query = '//mods:physicalDescription[@authority="local"]';
+  $results = $xpath->query("{$access_condition_query} | {$physical_description_query}");
+  foreach ($results as $result) {
+    $result->parentNode->removeChild($result);
   }
+  // Regardless of the number of mods:mods elements in the document we only
+  // add the usage and version to the first one.
+  $results = $xpath->query('//mods:mods[1]');
+  if ($results->length == 0) {
+    drupal_set_message(t('Could not find MODS element in object @pid is empty. %refuse.', array('@pid' => $object->id, '%refuse' => $refuse_msg)), 'error');
+    return;
+  }
+  $mods_element = $results->item(0);
+  // Add mods:accessCondition to the first mods:mods element.
+  $access_condition_element = $doc->createElementNS($namespace, 'accessCondition');
+  $access_condition_element->setAttribute('type', 'use and reproduction');
+  $access_condition_element->nodeValue = $usage;
+  $mods_element->appendChild($access_condition_element);
+  // Add mods:physicalDescription to the first mods:mods element.
+  $physical_description_element = $doc->createElementNS($namespace, 'physicalDescription');
+  $physical_description_element->setAttribute('authority', 'local');
+  $physical_description_element->nodeValue = $version;
+  $mods_element->appendChild($physical_description_element);
+  // Commit changes to datastream
+  $doc->save($filename);
+  $object['MODS']->setContentFromFile($filename);
+  file_unmanaged_delete($filename);
 }
 
 /**
