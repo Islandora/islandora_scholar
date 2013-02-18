@@ -1,10 +1,9 @@
 name = Islandora Bibliography
 description = Allows users can build and export bibliographies.
-package = Islandora Tools
+package = Islandora
 dependencies[] = csl
 dependencies[] = citeproc
 dependencies[] = islandora
 dependencies[] = islandora_bookmark
-files[] = modules/csl/includes/csl.inc
 version = 7.x-dev
 core = 7.x

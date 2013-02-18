@@ -2,45 +2,36 @@
 
 /**
  * @file
- *
  * Implements hooks and callbacks for this module.
  */
 
+// Constants.
 define('MENU_BIBLIOGRAPHY_HOME', 'islandora/bibliography');
 define('MENU_BIBLIOGRAPHY_CITATION', 'islandora/bibliography/citation');
 
 /**
- * The menu entries for this module.
- *
- * @return $menu_entries
- *   An arrray of the items to be added to the drupal menu
+ * Implements hook_menu().
  */
 function islandora_bibliography_menu() {
   $items = array();
   $items['islandora/bibliography/preview'] = array(
     'page callback' => 'islandora_bibliography_preview_form',
     'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK
+    'type' => MENU_CALLBACK,
   );
   return $items;
 }
 
 /**
- * Implements islandora_bookmark_object_markup().
- *
- * @param type FedoraObject $fedora_object
- *   A FedoraObject.
- *
- * @return type
- *   The markup for the citation.
+ * Implements hook_islandora_bookmark_object_markup().
  */
-function islandora_bibliography_ir_citationCModel_islandora_bookmark_object_markup($fedora_object) {
+function islandora_bibliography_ir_citationCModel_islandora_bookmark_object_markup(AbstractFedoraObject $object) {
   $style = citeproc_default_style();
-  $mods = islandora_bibliography_get_mods($fedora_object->id);
+  $mods = islandora_bibliography_get_mods($object->id);
   if ($mods) {
     $bibliography_entry = citeproc_bibliography_from_mods($style, $mods);
   }
-  $output = l($fedora_object->label, 'islandora/object/' . $fedora_object->id) . '<br />';
+  $output = l($object->label, 'islandora/object/' . $object->id) . '<br />';
   $output .= $bibliography_entry;
   return $output;
 }
@@ -113,12 +104,6 @@ function islandora_bibliography_islandora_bookmark_export_handler() {
 
 /**
  * Implements islandora_bookmark_export_styles().
- *
- * @param type $option
- *   The selected format that we are retrieving styles for.
- *
- * @return array
- *   An associative array containing any avaialble styles for the current format.
  */
 function islandora_bibliography_islandora_bookmark_export_styles($option) {
   if (array_key_exists($option, islandora_bibliography_get_export_formats()) && $option != 'RIS') {
@@ -129,7 +114,9 @@ function islandora_bibliography_islandora_bookmark_export_styles($option) {
 /**
  * Grab available styles from CSL for use in exporting.
  *
- * @return type
+ * @return array
+ *   An array of defined style's names, where both the key and the value are the
+ *   style's name.
  */
 function islandora_bibliography_get_export_styles() {
   $styles = CSL::GetNames();
@@ -137,28 +124,28 @@ function islandora_bibliography_get_export_styles() {
 }
 
 /**
- * Provide the list of export formats available for use with islandora_bookmark
- * integration.
+ * Provide the list of export formats available for use with islandora_bookmark.
  *
- * @return string
+ * @return array
+ *   An associative array where the keys are formats this module recognizes and
+ *   the values are human readable formats.
  */
 function islandora_bibliography_get_export_formats() {
   $options = array(
-      'RIS' => 'RIS (Endnote format)',
-      'RTF' => 'RTF (word proccessor format)',
-      'PDF' => 'PDF',
+    'RIS' => 'RIS (Endnote format)',
+    'RTF' => 'RTF (word proccessor format)',
+    'PDF' => 'PDF',
   );
   return $options;
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ *
  * Alters the islandora_bookmark_detailed_form such that a preview button is
  * visible for options that have styles associated with them. Yay #states!
- *
- * @param type $form
- * @param type $form_state
  */
-function islandora_bibliography_form_islandora_bookmark_detailed_form_alter(&$form, &$form_state) {
+function islandora_bibliography_form_islandora_bookmark_detailed_form_alter(array &$form, array &$form_state) {
   if (array_key_exists('islandora_bookmark_export', $form_state)) {
     $form['bookmarks']['fieldset']['format_opts']['preview_selected'] = array(
       '#type' => 'submit',
@@ -176,18 +163,19 @@ function islandora_bibliography_form_islandora_bookmark_detailed_form_alter(&$fo
 }
 
 /**
- * Submit handler which stores values in the $_SESSION to be used when generating
- * an HTML preview of our citation(s).
+ * Modifies the $_SESSION to store values for previewing citation(s).
  *
- * @param type $form
- * @param type $form_state
+ * @param array $form
+ *   The Drupal form definition.
+ * @param array $form_state
+ *   The Drupal form state.
  */
-function islandora_bibliography_preview_selected(&$form, &$form_state) {
+function islandora_bibliography_preview_selected(array $form, array &$form_state) {
   $pids = array();
 
   foreach ($form_state['values']['bookmarks']['fieldset']['table'] as $checkbox => $value) {
     if ($value !== 0) {
-    // Make sure we can actually access the object
+      // Make sure we can actually access the object.
       if (islandora_object_load($value)) {
         $pids[] = $value;
       }
@@ -212,11 +200,11 @@ function islandora_bibliography_preview_selected(&$form, &$form_state) {
 /**
  * Generates a preview of the citation for viewing in browser.
  *
- * @return type
+ * @return string
  *   Rendered citations in HTML format.
  */
 function islandora_bibliography_preview_form() {
-  drupal_add_css(drupal_get_path('module', 'islandora_bibliography') . '/css/export.css');
+  drupal_add_css(drupal_get_path('module', 'islandora_bibliography') . '/css/islandora_bibliography.css');
 
   $style = citeproc_style($_SESSION['islandora_bibliography_preview']['style']);
   $output = '';
@@ -232,11 +220,11 @@ function islandora_bibliography_preview_form() {
 
   drupal_set_title(t('Export preview'));
 
-  //XXX: May have to implode with a line-break?
+  // XXX: May have to implode with a line-break?
   $output = implode($bibliography_entries, '');
   $output .= l(t('Return to the previous page.'), $_SESSION['islandora_bibliography_preview']['path'], array('query' => unserialize($_SESSION['islandora_bibliography_preview']['queries'])));
   $form = array(
-    '#markup' => $output
+    '#markup' => $output,
   );
   unset($_SESSION['islandora_bibliography_preview']['style']);
   unset($_SESSION['islandora_bibliography_preview']['pids']);
