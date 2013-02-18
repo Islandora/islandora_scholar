@@ -12,6 +12,7 @@ function islandora_scholar_menu() {
   return array(
     'admin/islandora/scholar' => array(
       'title' => 'Scholar',
+      'description' => 'Configuration the Scholar solution pack.',
       'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
