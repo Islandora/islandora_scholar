@@ -1,10 +1,7 @@
 <?php
 
-// $Id$
-
 /**
  * @file
- *
  * Implements hooks and callbacks for installing this module.
  */
 
@@ -14,7 +11,7 @@
  * @param string $name
  *   The name of the program to check.
  *
- * @return boolean
+ * @return bool
  *   TRUE if the command is exists, FALSE otherwise.
  */
 function bibutils_install_command_exists($name) {
@@ -24,25 +21,7 @@ function bibutils_install_command_exists($name) {
 }
 
 /**
- * Implementation of hook_requirements.
- *
- * Checks to make sure the required executable files exist.
- *
- * @param string $phase
- *   The phase in which hook_requirements is run:
- *    'install': the module is being installed.
- *    'runtime': the runtime requirements are being checked and shown on the status report page.
- *
- * @return array
- *   A keyed array of requirements. Each requirement is itself an array with the following items:
- *    'title': the name of the requirement.
- *    'value': the current value (e.g. version, time, level, ...). During install phase, this should only be used for version numbers, do not set it if not applicable.
- *    'description': description of the requirement/status.
- *    'severity': the requirement's result/severity level, one of:
- *      REQUIREMENT_INFO: For info only.
- *      REQUIREMENT_OK: The requirement is satisfied.
- *      REQUIREMENT_WARNING: The requirement failed with a warning.
- *      REQUIREMENT_ERROR: The requirement failed with an error.
+ * Implements hook_requirements().
  */
 function bibutils_requirements($phase) {
   $requriements = array();
@@ -65,14 +44,15 @@ function bibutils_requirements($phase) {
     $requirements[$base] = array(
       'title' => $title,
     );
-
-    if (bibutils_install_command_exists($command)) { // Exists on $PATH
+    // Exists on $PATH.
+    if (bibutils_install_command_exists($command)) {
       $requirements[$base] += array(
         'value' => $t('Found.'),
         'severity' => REQUIREMENT_OK,
       );
     }
-    else { // Couldn't find...
+    else {
+      // Couldn't find.
       $requirements[$base] += array(
         'value' => $t('Not found.'),
         'description' => $t('Unable to find %base at the configured location' .
@@ -84,15 +64,12 @@ function bibutils_requirements($phase) {
       );
 
       if ($phase == 'runtime') {
-        $requirements[$base]['description'] .= ' ' . $t('Visit the ' .
-          '<a href="@url">Bibutils configuration page</a> to enter an ' .
-          'alternate path.', array(
-            '@url' => url('admin/islandora/scholar/bibutils'),
-        ));
+        $description = $t('Visit the <a href="@url">Bibutils configuration page</a> to enter an alternate path.', array(
+                         '@url' => url('admin/islandora/scholar/bibutils')));
+        $requirements[$base]['description'] .= ' ' . $description;
       }
     }
   }
 
   return $requirements;
 }
-

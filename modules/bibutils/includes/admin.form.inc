@@ -5,7 +5,18 @@
  * Administration form.
  */
 
-function bibutils_admin_form($form, &$form_state) {
+/**
+ * Defines the admin settings form.
+ *
+ * @param array $form
+ *   The Drupal form definition.
+ * @param array $form_state
+ *   The Drupal form state.
+ *
+ * @return array
+ *   The Drupal form definition.
+ */
+function bibutils_admin_form(array $form, array &$form_state) {
   $form['bibutils_endx2xml_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Endnote XML to MODS executable'),
@@ -21,4 +32,3 @@ function bibutils_admin_form($form, &$form_state) {
 
   return system_settings_form($form);
 }
-
