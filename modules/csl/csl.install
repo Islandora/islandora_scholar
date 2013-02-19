@@ -2,12 +2,11 @@
 
 /**
  * @file
- *
- * Installs the required database schema for storing associations between XML Forms and Content Models.
+ * Implements install hooks for this module.
  */
 
 /**
- * Implementation of hook_enable().
+ * Implements hook_enable().
  */
 function csl_enable() {
   module_load_include('inc', 'csl', 'includes/csl');
@@ -28,10 +27,7 @@ function csl_enable() {
 }
 
 /**
- * Implementation of hook_schema().
- *
- * @return array
- *   The schema definition.
+ * Implements hook_schema().
  */
 function csl_schema() {
   $schema['csl'] = array(
@@ -45,13 +41,13 @@ function csl_schema() {
         'description' => 'The name of the CSL 1.0 style.',
         'type' => 'varchar',
         'length' => 128,
-        'not null' => TRUE
+        'not null' => TRUE,
       ),
       'style' => array(
         'description' => 'The xml based style definition.',
         'type' => 'text',
         'size' => 'medium',
-        'not null' => TRUE
+        'not null' => TRUE,
       ),
     ),
     'unique keys' => array('name' => array('name')),

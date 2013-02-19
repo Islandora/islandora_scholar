@@ -16,35 +16,10 @@ CONTENTS OF THIS FILE
 SUMMARY
 -------
 
-CSL Module.
+CSL Documentation
+http://citationstyles.org/
 
-
-REQUIREMENTS
-------------
-
-
-INSTALLATION
-------------
-
-
-CONFIGURATION
--------------
-
-
-CUSTOMIZATION
--------------
-
-
-TROUBLESHOOTING
----------------
-
-
-F.A.Q.
-------
-
-CONTACT
--------
-
-
-SPONSORS
---------
+The styles repository is currently housed at zotero.org. Note that styles in the
+Zotero styles repository are currently at CSL version 0.8.1. Use the tools
+provided by the CSL project to convert CSL 0.8.1 styles to the version 1.0
+syntax supported by this processor.
