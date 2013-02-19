@@ -1,8 +1,10 @@
 <?php
+
 /**
- *@file
- *  This is a mapping for translation from mods to json.
+ * @file
+ * This is a mapping for translation from mods to json.
  */
+
 $_ir_citation_marcrelator_codes = array(
   "acp" => "art copyist",
   "act" => "actor",
@@ -228,21 +230,27 @@ $_ir_citation_marcrelator_codes = array(
   "wit" => "witness",
 );
 
+/**
+ * Convert the marcrelator code to its term.
+ */
 function marcrelator_code_to_term($code) {
   global $_ir_citation_marcrelator_codes;
   $code = strtolower($code);
-  if ( isset( $_ir_citation_marcrelator_codes[$code] ) )
+  if (isset($_ir_citation_marcrelator_codes[$code])) {
     return $_ir_citation_marcrelator_codes[$code];
-  // else...
+  }
   return $code;
 }
 
+/**
+ * Convert the marcrelator term to its code.
+ */
 function marcrelator_term_to_code($term) {
   global $_ir_citation_marcrelator_codes;
   $term = strtolower($term);
   $marcrelator_terms = array_flip($_ir_citation_marcrelator_codes);
-  if ( isset( $marcrelator_terms[$term] ) )
+  if (isset($marcrelator_terms[$term])) {
     return $marcrelator_terms[$term];
-  // else...
+  }
   return $term;
 }

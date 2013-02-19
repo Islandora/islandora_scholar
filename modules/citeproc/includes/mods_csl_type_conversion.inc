@@ -1,8 +1,10 @@
 <?php
+
 /**
- *@file
- *  This is a mapping for translation from mods to json.
+ * @file
+ * This is a mapping for translation from mods to json.
  */
+
 $_ir_citation_marcgt_csl_terms = array(
   "article" => "article",
   "issue" => "article",
@@ -143,9 +145,12 @@ $_ir_citation_bibutils_noauth_csl_terms = array(
   "unpublished" => NULL,
 );
 
+/**
+ * Convert marcgt term to csl term.
+ */
 function marcgt_to_csl($term) {
   global $_ir_citation_marcgt_csl_terms;
-  if ( !empty( $_ir_citation_marcgt_csl_terms[$term] )) {
+  if (!empty($_ir_citation_marcgt_csl_terms[$term])) {
     return $_ir_citation_marcgt_csl_terms[$term];
   }
   else {
@@ -153,9 +158,12 @@ function marcgt_to_csl($term) {
   }
 }
 
+/**
+ * Convert zotero term to csl term.
+ */
 function zotero_to_csl($term) {
   global $_ir_citation_zotero_local_csl_terms;
-  if ( !empty( $_ir_citation_zotero_local_csl_terms[$term] )) {
+  if (!empty($_ir_citation_zotero_local_csl_terms[$term])) {
     return $_ir_citation_zotero_local_csl_terms[$term];
   }
   else {
@@ -163,9 +171,12 @@ function zotero_to_csl($term) {
   }
 }
 
+/**
+ * Convert bibutil term to csl term.
+ */
 function bibutils_to_csl($term) {
   global $_ir_citation_bibutils_noauth_csl_terms;
-  if ( !empty( $_ir_citation_bibutils_noauth_csl_terms[$term] )) {
+  if (!empty($_ir_citation_bibutils_noauth_csl_terms[$term])) {
     return $_ir_citation_bibutils_noauth_csl_terms[$term];
   }
   else {
@@ -173,17 +184,21 @@ function bibutils_to_csl($term) {
   }
 }
 
+/**
+ * Convert mods genre term to csl term.
+ */
 function mods_genre_to_csl_type($term) {
   $marcgt = marcgt_to_csl($term);
-  if ( !empty( $marcgt )) 
+  if (!empty($marcgt)) {
     return $marcgt;
-
+  }
   $zotero = zotero_to_csl($term);
-  if ( !empty( $zotero ))
+  if (!empty($zotero)) {
     return $zotero;
-
+  }
   $bibutils = bibutils_to_csl($term);
-  if ( !empty( $bibutils ))
+  if (!empty($bibutils)) {
     return $bibutils;
- return FALSE;
+  }
+  return FALSE;
 }
