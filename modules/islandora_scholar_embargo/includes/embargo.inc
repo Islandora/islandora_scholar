@@ -20,28 +20,32 @@ function islandora_scholar_embargo_form($form, &$form_state, $item) {
     '!object/level!' => t('Object-level embargo'),
   );
 
-  //we're jsut using the PDF datastram at this time, but we'll eave this hear in case we decide to expand
+  //we're just using the PDF datastram at this time, but we'll eave this hear in case we decide to expand
   foreach ($item as $datastream) {
     $options[$datastream->id] = $datastream->label;
   }
 
+
+  // set defaults, initialize arrays
   $embargo_date = "";
   $embargo_level = "!object/level!";
   $embargo_state = 'no_embargo';
+  $choices = array();
+  $prompt = t('Embargo until specified date.');
+  $item_info = t('@label has no current embargo', array('@label' => $label));
+
   $object_result = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
   if (isset($object_result[0]['object']['value'])) {
     $embargo_date = $object_result[0]['object']['value'];
   }
+  if ($item['PDF']) {
+    $ds_result = $item['PDF']->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+  }
 
-  $ds_result = $item['PDF']->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
   if (isset($ds_result[0]['object']['value'])) {
     $embargo_date = $ds_result[0]['object']['value'];
     $embargo_level = "PDF";
   }
-
-  $choices = array();
-  $prompt = t('Embargo until specified date.');
-  $item_info = t('@label has no current embargo', array('@label' => $label));
 
   if (!empty($embargo_date)) {
     $prompt = t('Change curent embargo to specified date.');
