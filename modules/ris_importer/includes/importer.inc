@@ -1,17 +1,22 @@
 <?php
 
-
 /**
- * RIS citation importer.
- * @author adam
+ * @file
+ * Defines RISImporter.
  */
-class RISImporter extends IslandoraBatchImporter {
-  protected $item_class = 'RISImportObject';
 
-  public function get_number() {
+class RISImporter extends IslandoraBatchImporter {
+  protected $itemClass = 'RISImportObject';
+
+  /**
+   * Get the number of items to import from $this->file.
+   *
+   * @see IslandoraBatchImporter::getNumber()
+   */
+  public function getNumber() {
     $count = 0;
     $file = fopen($this->file->uri, 'r');
-    while (($line = fgets($file)) !== false) {
+    while (($line = fgets($file)) !== FALSE) {
       if (trim($line) == 'ER  -') {
         $count++;
       }
@@ -20,7 +25,12 @@ class RISImporter extends IslandoraBatchImporter {
     return $count;
   }
 
-  public static function get_form(&$form_state) {
+  /**
+   * Get the form for this importer.
+   *
+   * @see IslandoraBatchImporter::getForm()
+   */
+  public static function getForm(array &$form_state) {
     return array(
       'fs' => array(
         '#type' => 'fieldset',
@@ -40,13 +50,23 @@ class RISImporter extends IslandoraBatchImporter {
     );
   }
 
-  public static function ready_for_batch(&$form_state) {
+  /**
+   * Determine if we're ready to run our batch process.
+   *
+   * @see IslandoraBatchImporter::readyForBatch()
+   */
+  public static function readyForBatch(array &$form_state) {
     return !empty($form_state['values']['file']);
   }
 
-  public static function get_batch_info(&$form_state) {
-     $file = file_load($form_state['values']['file']);
-     return $file;
+  /**
+   * Get the required info to pass into the file parameter of the constructor.
+   *
+   * @see IslandoraBatchImporter::getBatchInfo()
+   */
+  public static function getBatchInfo(array &$form_state) {
+    $file = file_load($form_state['values']['file']);
+    return $file;
   }
 }
 
@@ -59,26 +79,29 @@ class RISImporter extends IslandoraBatchImporter {
 class RISImportObject extends IslandoraImportObject {
   protected $mods;
 
-  public static function get_one(&$file) {
+  /**
+   * Get an item from the source.
+   *
+   * @see IslandoraImportObject::getOne()
+   */
+  public static function getOne(&$file) {
     $record = '';
 
-    /**
-     * Get the first Record from the RIS File.
-     */
+    // Get the first Record from the RIS File.
     $fp = fopen($file->uri, 'r');
-    while (($line = fgets($fp)) !== false) {
+    while (($line = fgets($fp)) !== FALSE) {
       $trimed_line = trim($line);
-      if (!empty($trimed_line)) { // Ignore blank lines
-        $record .= $line; // Store the line in outgoing record
+      // Ignore blank lines.
+      if (!empty($trimed_line)) {
+        // Store the line in outgoing record.
+        $record .= $line;
         if ($trimed_line == 'ER  -') {
           break;
         }
       }
     }
 
-    /**
-     * Put the remaining text into a temp file.
-     */
+    // Put the remaining text into a temp file.
     $temp_filename = file_create_filename("temp.ris", file_directory_temp());
     $temp_file = fopen($temp_filename, 'w');
     while (!feof($fp)) {
@@ -87,18 +110,19 @@ class RISImportObject extends IslandoraImportObject {
     fclose($fp);
     fclose($temp_file);
 
-    /**
-     * Replace the RIS file with the shorter temp file.
-     */
+    // Replace the RIS file with the shorter temp file.
     file_unmanaged_move($temp_filename, $file->uri, FILE_EXISTS_REPLACE);
 
     $record = trim($record);
-    return (empty($record) ?
-      FALSE:
-      new self($record)); //XXX:  Be careful with "self"?  PHP is odd.
+    return (empty($record) ? FALSE : new self($record));
   }
 
-  public function get_mods() {
+  /**
+   * Generates a MODS document repersenting the imported data.
+   *
+   * @see IslandoraImportObject::getMODS()
+   */
+  public function getMODS() {
     if ($this->mods === NULL) {
       $ris_file = file_create_filename('temp.ris', file_directory_temp());
       file_put_contents($ris_file, $this->source);

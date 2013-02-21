@@ -22,6 +22,8 @@ Based on the UPEI scholar module.
 REQUIREMENTS
 ------------
 
+The following Drupal modules are required:
+ * islandora
 
 INSTALLATION
 ------------
