@@ -2,17 +2,15 @@
 
 /**
  * @file
- *
  * Provides export to file functionality for a collection of citations.
  */
+
 class CitationExporter {
 
   /**
    * Gets the storage location of all the export information.
-   *
-   * @return array
    */
-  static private function &GetExportTable() {
+  static protected function &GetExportTable() {
     if (!isset($_SESSION[SESSION_CITATION_EXPORTER_INDEX])) {
       $_SESSION[SESSION_CITATION_EXPORTER_INDEX] = array();
     }
@@ -22,7 +20,7 @@ class CitationExporter {
   /**
    * Clears the storage location for the export information.
    */
-  static private function ClearExportTable() {
+  static protected function ClearExportTable() {
     unset($_SESSION[SESSION_CITATION_EXPORTER_INDEX]);
   }
 
@@ -48,8 +46,6 @@ class CitationExporter {
 
   /**
    * Checks to see if a file is waiting for download.
-   *
-   * @return boolean
    */
   static public function ReadyToExport() {
     $table = &self::GetExportTable();
@@ -76,16 +72,19 @@ class CitationExporter {
         header("Content-type: $mime_type");
         header("Content-length: $file_size");
         header("Content-Disposition: attachment; filename=\"$download_filename\"");
-        header("Cache-control: private");
+        header("Cache-control: protected");
         $curl_handle = curl_init();
         if ($curl_handle !== FALSE) {
           $url = file_create_url($filepath);
           curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, FALSE);
           curl_setopt($curl_handle, CURLOPT_SSL_VERIFYHOST, FALSE);
-          curl_setopt($curl_handle, CURLOPT_FAILONERROR, 1); // Fail on errors
-          curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1); // allow redirects
+          // Fail on errors.
+          curl_setopt($curl_handle, CURLOPT_FAILONERROR, 1);
+          // Allow redirects.
+          curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);
           curl_setopt($curl_handle, CURLOPT_USERAGENT, "Mozilla/4.0 pp(compatible; MSIE 5.01; Windows NT 5.0)");
-          curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 0); // return into a variable
+          // Return into a variable.
+          curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 0);
           curl_setopt($curl_handle, CURLOPT_URL, $url);
         }
         curl_exec($curl_handle);

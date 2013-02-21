@@ -5,46 +5,23 @@ CONTENTS OF THIS FILE
  * summary
  * requirements
  * installation
- * configuration
- * customization
- * troubleshooting
- * faq
- * contact
- * sponsors
-
 
 SUMMARY
 -------
 
 Citation Exporter
 
+Exports a collection of citations to either an RIS/RTF/PDF file.
 
 REQUIREMENTS
 ------------
 
+The following Drupal modules are required:
+ * islandora
+ * citeproc
+ * bibutils
 
 INSTALLATION
 ------------
 
-
-CONFIGURATION
--------------
-
-
-CUSTOMIZATION
--------------
-
-
-TROUBLESHOOTING
----------------
-
-
-F.A.Q.
-------
-
-CONTACT
--------
-
-
-SPONSORS
---------
+Enable the module in the admin/modules page.
