@@ -2,12 +2,11 @@
 
 /**
  * @file
- *   This is the main module file for islandora_scholar_embargo.
- *   It supports embargo management in Islandora Scholar.
+ * Implements hooks and callbacks for this module.
  */
-/* Doesn't make sense to use either of the Islandora RELS-EXT or RELS-INT
- * namespaces, as our predicates can occur in both.
- */
+
+// Doesn't make sense to use either of the Islandora RELS-EXT or RELS-INT
+// namespaces, as our predicates can occur in both.
 define('ISLANDORA_SCHOLAR_EMBARGO_RELS_URI', 'info:islandora/islandora-system:def/scholar#');
 define('ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED', 'embargo-expiry-notification-date');
 define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
@@ -15,8 +14,7 @@ define('ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED', 'can embargo owned objects');
 define('ISLANDORA_EMBARGO_CAN_EMBARGO_ANY', 'can embargo any object');
 
 /**
- * Implementation of hook_menu()
- * @return array
+ * Implements hook_menu().
  */
 function islandora_scholar_embargo_menu() {
   $items['islandora/object/%islandora_object/manage/embargo'] = array(
@@ -46,19 +44,23 @@ function islandora_scholar_embargo_permission() {
   return array(
     ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED => array(
       'title' => t('Manage embargo on own objects'),
-      'description' => t("User can add or remove embargo on their own objects only.")
+      'description' => t("User can add or remove embargo on their own objects only."),
     ),
     ISLANDORA_EMBARGO_CAN_EMBARGO_ANY => array(
       'title' => t('Manage embargo on any objects'),
-      'description' => t("User can add or remove embargo on any obhect in repository.")
+      'description' => t("User can add or remove embargo on any obhect in repository."),
     ),
   );
 }
 
 /**
- * Returns access to menu path based on content mode and user permissions
+ * Returns access to menu path based on content mode and user permissions.
+ *
  * @param FedoraObject $fedora_object
- * @return boolean
+ *   The object to test.
+ *
+ * @return bool
+ *   TRUE if access is allowed FALSE otherwise.
  */
 function islandora_scholar_access($fedora_object = NULL) {
   $access = user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED) ||
@@ -78,14 +80,15 @@ function islandora_scholar_access($fedora_object = NULL) {
  * Build the array containing a couple tokens needed for mail messages.
  *
  * @param array $params
- * @param $language
+ *   Properties to include in the Mail tokens.
  *
  * @return array
+ *   Mail tokens.
  */
 function islandora_scholar_embargo_mail_tokens($params, $language) {
   global $base_url;
   $date = $params['expiry_date'] == 'indefinite' ? 'indefinite' : format_date(strtotime($params['expiry_date']));
-  if ($params['expiry_date'])
+  if ($params['expiry_date']) {
     $to_return = array(
       '!item' => l(
           $params['item_title'],
@@ -95,7 +98,7 @@ function islandora_scholar_embargo_mail_tokens($params, $language) {
       '%date' => $date,
       '!site' => $base_url,
     );
-
+  }
   return $to_return;
 }
 
@@ -118,6 +121,7 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
         $message['body'][] = t('The embargo period for the %dsid datastream on the object !item will expire on %date.', $variables);
       }
       break;
+
     case 'lifted_embargo':
       $message['subject'] = t('Notification from !site', $variables);
       if (empty($params['dsid']) && $params['dsid'] !== '0') {
@@ -137,7 +141,7 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
  * to lift.
  */
 function islandora_scholar_embargo_cron() {
-// detect embargos expiring son, send out notification.
+  // Detect embargos expiring son, send out notification.
   $now = time();
   $tomorrow = gmdate("Y-m-d\TH:i:s\Z", strtotime("+1DAYS", $now));
   $yesterday = gmdate("Y-m-d\TH:i:s\Z", strtotime("-1DAYS", $now));
@@ -176,12 +180,11 @@ EOQ;
     $params['notification_date'] = isset($result['notify']['value']) ? $result['notify']['value'] : NULL;
     $key = isset($result['notify']['value']) ? 'pre_expiry' : 'lifted_embargo';
 
-    // send emails here
-
+    // Send emails here.
     islandora_embargo_user_notify($key, $item, $params);
   }
 
-  // lift expired embargos
+  // Lift expired embargos.
   $query = <<<EOQ
 PREFIX is: <$ise_uri>
 SELECT ?expired ?date
@@ -209,22 +212,21 @@ EOQ;
 }
 
 /**
- * Get info for the individuals to notify,
- * in a format comparable to the $user global...
+ * Get info for the individuals to notify, in a format comparable to the $user.
  *
  * (An array of stdClasses, each of which contain at least an email property.)
  *
- * @param string $pid
+ * @param AbstractFedoraObject $object
+ *   The owner of the given object will be notified.
  *
  * @return array
+ *   An array of user objects to notify.
  */
-function islandora_scholar_embargo_users_to_notify($fedora_item) {
-
-
-  $owner = $fedora_item->owner;
+function islandora_scholar_embargo_users_to_notify(AbstractFedoraObject $object) {
+  $owner = $object->owner;
   if (!is_numeric($owner)) {
-    /* If it's not numeric (which will be used as a uid),
-     * then assume it's a username. */
+    // If it's not numeric (which will be used as a uid),
+    // then assume it's a username.
     $owner = array(
       'name' => $owner,
     );
@@ -237,7 +239,7 @@ function islandora_scholar_embargo_users_to_notify($fedora_item) {
 
   foreach ($users as $key => $user) {
     if ($user && intval($user->uid) === 0) {
-      // Failed to load, assigned anonymous...
+      // Failed to load, assigned anonymous.
       $users[$key] = FALSE;
     }
   }
@@ -279,9 +281,7 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
 
   $xacml->writeBackToFedora();
 
-  //send email notification
-
-
+  // Send email notification.
   $params['pid'] = $pid;
   $params['item_title'] = $item->label;
   $params['dsid'] = isset($dsid) ? $dsid : NULL;
@@ -332,8 +332,6 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
       $item->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, $type);
 
       if ($notification !== NULL) {
-
-
         $item->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
       }
       foreach ($users as $user) {
@@ -369,10 +367,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
 }
 
 /**
- * Get the embargo form
- *
- * @param FedoraObject $object
- * @return form
+ * Get the embargo form.
  */
 function islandora_scholar_embargo_object(FedoraObject $object) {
   module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
@@ -380,11 +375,12 @@ function islandora_scholar_embargo_object(FedoraObject $object) {
 }
 
 /**
- * Sends mail to users
+ * Sends mail to users.
+ *
  * @param array $params
- *  Array of parameters defining required behaviour
+ *   Array of parameters defining required behaviour.
  * @param string $key
- *  defines required action
+ *   Defines required action.
  */
 function islandora_scholar_embargo_send($params, $key) {
   $module = 'islandora_scholar_embargo';
@@ -402,13 +398,14 @@ function islandora_scholar_embargo_send($params, $key) {
 }
 
 /**
- * Send email notifications
+ * Send email notifications.
+ *
  * @param string $key
- *  key identifying operation type
+ *   Key identifying operation type
  * @param IslandoraFedoraItem $item
- *  Tuque item representing object on which embargo is acting.
+ *   Tuque item representing object on which embargo is acting.
  * @param array $params
- *  setup array of mail parameters
+ *   Setup array of mail parameters
  */
 function islandora_embargo_user_notify($key, $item, $params) {
   $users = islandora_scholar_embargo_users_to_notify($item);

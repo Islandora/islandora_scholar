@@ -2,31 +2,35 @@
 
 /**
  * @file
- *   This file holds supporting code for the scholar embargo module.
+ * This file holds supporting code for the scholar embargo module.
  */
 
 /**
  * This builds form for embargoing an object.
  *
+ * @param array $form
+ *   The Drupal form definition.
  * @param array $form_state
- *   The state of the form.
- * @param string $pid
- *   The Fedora PID to build a form for.
+ *   The Drupal form state.
+ * @param AbstractFedoraObject $item
+ *   The Object to embargo.
+ *
+ * @return array
+ *   The Drupal form definition.
  */
-function islandora_scholar_embargo_form($form, &$form_state, $item) {
+function islandora_scholar_embargo_form(array $form, array &$form_state, $item) {
   $pid = $item->id;
   $label = $item->label;
   $options = array(
     '!object/level!' => t('Object-level embargo'),
   );
 
-  //we're just using the PDF datastram at this time, but we'll eave this hear in case we decide to expand
+  // We're jsut using the PDF datastram at this time, but we'll eave this hear
+  // in case we decide to expand.
   foreach ($item as $datastream) {
     $options[$datastream->id] = $datastream->label;
   }
 
-
-  // set defaults, initialize arrays
   $embargo_date = "";
   $embargo_level = "!object/level!";
   $embargo_state = 'no_embargo';
@@ -125,11 +129,7 @@ function islandora_scholar_embargo_form($form, &$form_state, $item) {
 }
 
 /**
- * Customizes date range for form element
- *
- * @param array $form_element
- * @param <type> $form_values
- * @return <type>
+ * Customizes date range for form element.
  */
 function _embargo_set_year_range($form_element, $form_values) {
   $year = date("Y");
@@ -171,9 +171,9 @@ EOQ;
       list($e_pid, $e_dsid) = explode('/', $e_pid);
     }
 
-    /* XXX:  Might get into trouble if we somehow have multiple embargo
-      statements for a single datastream, due to how we remove them from the
-      XACML. */
+    // XXX: Might get into trouble if we somehow have multiple embargo
+    // statements for a single datastream, due to how we remove them from the
+    // XACML.
     // Do not remove statements which match our parameters.
     if ($e_pid != $pid || $e_dsid != $dsid || $e_exp != $expiry) {
       islandora_scholar_embargo_lift_embargo($e_pid, $e_dsid);
@@ -183,14 +183,8 @@ EOQ;
 
 /**
  * Implements hook_validate().
- * Validates the embargo_form form.
- *
- * @param arrray $form
- *   The form being validated.
- * @param array $form_state
- *   The state of the form being validated.
  */
-function islandora_scholar_embargo_form_validate($form, $form_state) {
+function islandora_scholar_embargo_form_validate(array $form, array &$form_state) {
   if ($form_state['values']['embargo_select'] == 'date') {
     if (empty($form_state['values']['embargo_date'])) {
       form_set_error('embargo_date', t('Date must be provided, due to the selected duration.'));
@@ -209,14 +203,8 @@ function islandora_scholar_embargo_form_validate($form, $form_state) {
 
 /**
  * Implements hook_submit().
- * This function will handle the submission of the embargo form.
- *
- * @param unknown_type $form
- *   The form being submitted.
- * @param unknown_type $form_state
- *   The state of the form being submited.
  */
-function islandora_scholar_embargo_form_submit($form, $form_state) {
+function islandora_scholar_embargo_form_submit(array $form, array &$form_state) {
   $pid = $form_state['values']['pid'];
   $dsid = $form_state['values']['dsid'];
   if ($dsid == '!object/level!') {
@@ -236,4 +224,3 @@ function islandora_scholar_embargo_form_submit($form, $form_state) {
 
   islandora_scholar_embargo_lift_associated_except($pid, $dsid, $date);
 }
-

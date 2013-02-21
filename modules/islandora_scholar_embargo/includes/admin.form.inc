@@ -2,19 +2,21 @@
 
 /**
  * @file
- *   This file holds supporting admin functions for the embargo module.
+ * This file holds supporting admin functions for the embargo module.
  */
-
 
 /**
- * Admin form
+ * Defines the admin settings form.
  *
  * @param array $form
+ *   The Drupal form definition.
  * @param array $form_state
+ *   The Drupal form state.
+ *
  * @return array
+ *   The Drupal form definition.
  */
-
-function islandora_embargo_admin($form, &$form_state) {
+function islandora_embargo_admin(array $form, array &$form_state) {
   $options = islandora_embargo_get_content_models_as_option_array();
   $selected = variable_get('islandora_embargo_content_models', array('ir:citationCModel'));
   foreach ($selected as $cmodel) {
@@ -46,7 +48,7 @@ function islandora_embargo_admin($form, &$form_state) {
   );
 
   $form['actions'] = array(
-    '#type' => 'actions'
+    '#type' => 'actions',
   );
 
   $form['actions']['configure'] = array(
@@ -62,37 +64,27 @@ function islandora_embargo_admin($form, &$form_state) {
     '#weight' => 2,
     '#submit' => array('islandora_embargo_admin_submit'),
   );
-
-
   return $form;
 }
 
 /**
- * Admin submit
- *
- * @param array $form
- * @param array $form_state
- *
+ * Submit handler reset all system settings.
  */
-
-function islandora_embargo_admin_submit($form, &$form_state) {
+function islandora_embargo_admin_submit(array $form, array &$form_state) {
   $op = $form_state['clicked_button']['#value'];
   switch ($op) {
     case 'Reset to default':
       variable_del('islandora_embargo_content_models');
       break;
-    default :
+
+    default:
       $enabled = array_filter($form_state['values']['the_table']);
       variable_set('islandora_embargo_content_models', $enabled);
   }
 }
 
 /**
- * Function: get_content_models_as_option_array
- *
- * Description: Returns an associative array of all available content models in Fedora instance
- *
- * @return array
+ * Returns an associative array of all the content models in Fedora instance.
  */
 function islandora_embargo_get_content_models_as_option_array() {
   $connection = islandora_get_tuque_connection();
@@ -113,7 +105,8 @@ function islandora_embargo_get_content_models_as_option_array() {
 
   $list = $connection->repository->ri->itqlQuery($query, 'unlimited');
   $options = array();
-  foreach ($list as $item) {   //removes  blanks
+  // Removes  blanks.
+  foreach ($list as $item) {
     if ($item) {
       $item_namespace = explode(':', $item['object']['value']);
       if (!$restricted || in_array($item_namespace[0], $allowed)) {
