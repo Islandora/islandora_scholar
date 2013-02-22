@@ -121,7 +121,9 @@ class Coins {
     $this->reverseNames = $reverse;
 
     $issn = $xml->xpath('//mods:identifier[@type="issn"]');
-    $this->issn = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) $issn[0]);
+    if (isset($issn[0])) {
+      $this->issn = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) $issn[0]);
+    }
 
     $date = $xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
     if ($date) {
