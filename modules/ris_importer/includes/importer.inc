@@ -133,8 +133,8 @@ class RISImportObject extends IslandoraImportObject {
 
       $this->mods = file_get_contents($mods_file);
 
-      file_delete($ris_file);
-      file_delete($mods_file);
+      drupal_unlink($ris_file);
+      drupal_unlink($mods_file);
     }
 
     return $this->mods;
