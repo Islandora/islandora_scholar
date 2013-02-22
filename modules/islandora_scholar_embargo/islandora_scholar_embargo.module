@@ -212,6 +212,19 @@ EOQ;
 }
 
 /**
+ * Implements hook_islandora_scholar_embargo_users_to_notify().
+ */
+function islandora_scholar_embargo_islandora_scholar_embargo_users_to_notify(AbstractFedoraObject $object) {
+  $users = array(user_load(1));
+  $owner = $object->owner;
+  $owner = is_numeric($owner) ? user_load($owner) : user_load_by_name($owner);
+  if ($owner) {
+    $users[] = $owner;
+  }
+  return $users;
+}
+
+/**
  * Get info for the individuals to notify, in a format comparable to the $user.
  *
  * (An array of stdClasses, each of which contain at least an email property.)
@@ -223,27 +236,19 @@ EOQ;
  *   An array of user objects to notify.
  */
 function islandora_scholar_embargo_users_to_notify(AbstractFedoraObject $object) {
-  $owner = $object->owner;
-  if (!is_numeric($owner)) {
-    // If it's not numeric (which will be used as a uid),
-    // then assume it's a username.
-    $owner = array(
-      'name' => $owner,
-    );
-  }
-
-  $users = array(
-    user_load(1),
-    user_load_by_name($owner['name']),
-  );
-
-  foreach ($users as $key => $user) {
-    if ($user && intval($user->uid) === 0) {
-      // Failed to load, assigned anonymous.
-      $users[$key] = FALSE;
+  $unique_users = function($user) {
+    $seen = &drupal_static('islandora_scholar_embargo_users_to_notify_unique_users');
+    if (isset($seen[$user->uid])) {
+      return FALSE;
     }
-  }
-
+    $seen[$user->uid] = TRUE;
+    return TRUE;
+  };
+  $users = module_invoke_all('islandora_scholar_embargo_users_to_notify', $object);
+  $users = array_filter($users, $unique_users);
+  drupal_alter('islandora_scholar_embargo_users_to_notify', $users, $object);
+  drupal_static_reset('islandora_scholar_embargo_users_to_notify_unique_users');
+  $users = array_filter($users, $unique_users);
   return $users;
 }
 
@@ -322,8 +327,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
   $xacml = new IslandoraXacml($pid);
   $xacml_changed = FALSE;
 
-  $users = module_invoke_all('islandora_scholar_embargo_users_to_notify', $item);
-
+  $users = islandora_scholar_embargo_users_to_notify($item);
   if ($dsid === NULL) {
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
@@ -335,10 +339,8 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
         $item->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
       }
       foreach ($users as $user) {
-        if ($user) {
-          $xacml->viewingRule->addUser($user->name);
-          $xacml_changed = TRUE;
-        }
+        $xacml->viewingRule->addUser($user->name);
+        $xacml_changed = TRUE;
       }
     }
   }
@@ -355,9 +357,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
       $xacml->datastreamRule->addDsid($dsid);
       $xacml_changed = TRUE;
       foreach ($users as $user) {
-        if ($user) {
-          $xacml->datastreamRule->addUser($user->name);
-        }
+        $xacml->datastreamRule->addUser($user->name);
       }
     }
   }
@@ -409,10 +409,11 @@ function islandora_scholar_embargo_send($params, $key) {
  */
 function islandora_embargo_user_notify($key, $item, $params) {
   $users = islandora_scholar_embargo_users_to_notify($item);
-  switch($key){
+  switch ($key) {
     case 'pre_expiry':
       $pred = ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED;
       break;
+
     case 'lifted_embargo':
       $pred = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
       break;
