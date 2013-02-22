@@ -2,12 +2,11 @@
 
 /**
  * @file
- *
  * Functions for generating a batch export of citations to a single RIS file.
  */
 
 /**
- * Gets the operations required to batch export a collection of citations to an RIS file.
+ * Gets the operations required to batch export citations to an RIS file.
  *
  * @param array $pids
  *   The citation objects to convert into an RIS file.
@@ -28,12 +27,18 @@ function citation_exporter_batch_get_ris_operations(array $pids) {
   $queries = $_GET;
   unset($queries['q']);
   $operations = array();
-  $operations[] = array('citation_exporter_batch_combine_mods', array($temp_pids_file, $total, $temp_mods_file));
+  $operations[] = array('citation_exporter_batch_combine_mods', array(
+                    $temp_pids_file, $total, $temp_mods_file));
   $operations[] = array('citation_exporter_batch_convert_mods_to_ris', array($temp_mods_file));
-  $operations[] = array('citation_exporter_batch_redirect', array(url(request_path(), array('query' => $queries)), array($temp_mods_file, $temp_pids_file)));
+  $operations[] = array('citation_exporter_batch_redirect', array(
+                    url(request_path(), array('query' => $queries)),
+                    array($temp_mods_file, $temp_pids_file)));
   return $operations;
 }
 
+/**
+ * Combined MODS batch operation.
+ */
 function citation_exporter_batch_combine_mods($pids_filename, $total, $mods_filename, array &$context) {
   if (empty($context['sandbox'])) {
     $context['sandbox']['progress'] = 0;
@@ -47,6 +52,9 @@ function citation_exporter_batch_combine_mods($pids_filename, $total, $mods_file
   }
 }
 
+/**
+ * Fetch the MODS datastreams from the given $pids and combined them.
+ */
 function _citation_exporter_batch_combine_mods($filename, array $pids) {
   $mods = new DOMDocument();
   $mods->load($filename);
@@ -66,9 +74,9 @@ function _citation_exporter_batch_combine_mods($filename, array $pids) {
 }
 
 /**
- * Converts the given MODS file to RIS using bibutils
+ * Converts the given MODS file to RIS using bibutils.
  *
- * @param string $filename
+ * @param string $mods_filename
  *   The name of the MODS file to convert to RIS.
  * @param array $context
  *   The batch processes context.

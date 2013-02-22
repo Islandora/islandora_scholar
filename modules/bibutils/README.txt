@@ -1,10 +1,27 @@
+CONTENTS OF THIS FILE
+---------------------
 
+ * summary
+ * requirements
+ * installation
 
-/**
- * Hooks
- */
+SUMMARY
+-------
 
- hook_preprocess_bibutils_convert($src, $src_format, $dest_format);
- hook_postprocess_bibutils_convert($src, $src_format, $dest, $dest_format);
+Bibutils
 
- Post process must return TRUE or FALSE on success or failure, it determines whats returned by the Bibutils::Convert function().
+Provides a PHP interface to the bibutils tools.
+
+REQUIREMENTS
+------------
+
+The following Drupal modules are required:
+ * islandora
+
+INSTALLATION
+------------
+
+Enable the module in the admin/modules page.
+
+Follow the instructions here to install Bibutils.
+Found here http://www.scripps.edu/~cdputnam/software/bibutils/

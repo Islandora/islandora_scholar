@@ -2,10 +2,10 @@
 
 /**
  * @file
- *
  * Implements hooks and callbacks for this module.
  */
-module_load_include('inc', 'citation_exporter', 'includes/batch');
+
+require_once dirname(__FILE__) . '/includes/batch.inc';
 
 /**
  * Constants
@@ -27,7 +27,7 @@ function citation_exporter_menu() {
 }
 
 /**
- * Export many citations in a particular format and redirect the user to another page.
+ * Export citations and redirect the user to another page.
  *
  * Menu callback.
  */
@@ -35,7 +35,3 @@ function citation_exporter_export() {
   module_load_include('inc', 'citation_exporter', 'includes/citation.export');
   CitationExporter::Export();
 }
-
-
-
-

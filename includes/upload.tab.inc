@@ -6,21 +6,39 @@
  */
 
 /**
- * Page callback for upload tab.
+ * Display a form to add/modify the objects PDF datastream.
  *
- * Show form to upload if the PDF does not exist on the given object.  Show
- * form to modify if there is a PDF.
+ * Show the form to upload if the PDF does not exist on the given object.
+ * Show the form to modify if there is a PDF.
+ *
+ * @param AbstractFedoraObject $object
+ *   The object.
+ *
+ * @return array
+ *   The Drupal form definition.
  */
-function islandora_scholar_upload_view($object) {
+function islandora_scholar_upload_view(AbstractFedoraObject $object) {
   $form_name = 'islandora_scholar_upload_form';
   if (isset($object['PDF'])) {
     $form_name = 'islandora_scholar_modify_form';
   }
-
   return drupal_get_form($form_name, $object);
 }
 
-function islandora_scholar_modify_form($form, &$form_state, $object) {
+/**
+ * Gets the modify form.
+ *
+ * @param array $form
+ *   The Drupal form definition.
+ * @param array $form_state
+ *   The Drupal form state.
+ * @param AbstractFedoraObject $object
+ *   The object.
+ *
+ * @return array
+ *   The Drupal form definition.
+ */
+function islandora_scholar_modify_form(array $form, array &$form_state, AbstractFedoraObject $object) {
   $mods_str = trim($object['MODS']->content);
 
   $mods_doc = new DOMDocument();
@@ -39,7 +57,7 @@ function islandora_scholar_modify_form($form, &$form_state, $object) {
   }
 
   return array(
-    'pid' => array( //Store the PID.
+    'pid' => array(
       '#type' => 'value',
       '#value' => $object->id,
     ),
@@ -65,23 +83,50 @@ function islandora_scholar_modify_form($form, &$form_state, $object) {
   );
 }
 
-function islandora_scholar_modify_form_submit($form, &$form_state) {
+/**
+ * Submit handler for modify form, delete's the PDF datastream.
+ *
+ * @param array $form
+ *   The Drupal form definition.
+ * @param array $form_state
+ *   The Drupal form state.
+ */
+function islandora_scholar_modify_form_submit(array $form, array &$form_state) {
   extract($form_state['values']);
-
   $object = islandora_object_load($pid);
-
   if ($form_state['clicked_button']['#name'] == 'delete_document') {
-    //TODO:  Also remove the PDF's derivatives.
-    $status = islandora_purge_datastream($object, $dsid);
-
-    if ($status === NULL) {
-      drupal_set_message(t('DON\'T PANIC!, but we may have failed purging the ' .
-        'datastream...  Some debug info: @info', array('@info' => print_r($status, TRUE))));
+    try {
+      // @todo Also remove the PDF's derivatives.
+      $object->purgeDatastream($dsid);
+    }
+    catch(Exception $e) {
+      drupal_set_message(t('Failed to purge datastream @dsid from @pid</br>code: @code<br/>message: @msg', array(
+          '@pid' => $pid,
+          '@dsid' => $dsid,
+          '@code' => $e->getCode(),
+          '@msg' => $e->getMessage())), 'error');
     }
   }
 }
 
-function islandora_scholar_upload_form($form, &$form_state, $object) {
+/**
+ * Gets the upload form.
+ *
+ * @param array $form
+ *   The Drupal form definition.
+ * @param array $form_state
+ *   The Drupal form state.
+ * @param AbstractFedoraObject $object
+ *   The object.
+ *
+ * @return array
+ *   The Drupal form definition.
+ */
+function islandora_scholar_upload_form(array $form, array &$form_state, AbstractFedoraObject $object) {
+  $get_default_value = function($name, $default) use(&$form_state) {
+    return isset($form_state['values'][$name]) ? $form_state['values'][$name] : $default;
+  };
+  $upload_size = min((int) ini_get('post_max_size'), (int) ini_get('upload_max_filesize'));
   return array(
     '#type' => 'form',
     'upload_document' => array(
@@ -96,8 +141,15 @@ function islandora_scholar_upload_form($form, &$form_state, $object) {
         '#value' => 'PDF',
       ),
       'file' => array(
-        '#type' => 'file', //Might want to make this use an AJAX uploader? (upload_element?)
+        '#type' => 'managed_file',
         '#title' => 'PDF file',
+        '#required' => TRUE,
+        '#default_value' => $get_default_value('file', NULL),
+        '#upload_location' => 'temporary://',
+        '#upload_validators' => array(
+          'file_validate_extensions' => array('pdf'),
+          'file_validate_size' => array($upload_size * 1024 * 1024),
+        ),
       ),
       'version' => array(
         '#type' => 'radios',
@@ -123,7 +175,7 @@ function islandora_scholar_upload_form($form, &$form_state, $object) {
         '#type' => 'checkboxes',
         '#title' => t('Certify'),
         '#options' => array(
-         'certify' => t('I certify that I have the right to upload this version.'),
+          'certify' => t('I certify that I have the right to upload this version.'),
         ),
         '#required' => TRUE,
       ),
@@ -135,118 +187,75 @@ function islandora_scholar_upload_form($form, &$form_state, $object) {
   );
 }
 
-//XXX:  Not the best check, but should be alright...
-function islandora_scholar_check_mimetype($file, $desired_mimetype) {
-  if ($file->filemime == $desired_mimetype) {
-    return array();
+/**
+ * Updates the MODS datastream with the given usage and version.
+ *
+ * Removes any other usage or version elements.
+ *
+ * @param AbstractFedoraObject $object
+ *   The object.
+ * @param string $usage
+ *   The usage either the 'publisher' or 'author' holds the copyright.
+ * @param string $version
+ *   The version of the uploaded document either 'PRE-PUBLICATION',
+ *  'PUBLISHED', 'POST-PUBLICATION', 'OTHER'.
+ */
+function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractFedoraObject $object, $usage, $version) {
+  $refuse_msg = t('Refusing to add usage and publication version statements alone');
+  if (empty($object['MODS'])) {
+    drupal_set_message(t('No MODS in object @pid. %refuse.', array('@pid' => $object->id, '%refuse' => $refuse_msg)), 'error');
+    return;
   }
-  elseif ($file->filemime == 'application/octet-stream') {
-    $mc = new MimeDetect();
-    if ($mc->getMimetype($file->filename) == $desired_mimetype) {
-      return array();
-    }
+  $namespace = 'http://www.loc.gov/mods/v3';
+  $filename = drupal_realpath(file_create_filename("{$object->id}_MODS.xml", 'temporary://'));
+  $object['MODS']->getContent($filename);
+  $doc = new DOMDocument();
+  $doc->load($filename);
+  $xpath = new DOMXPath($doc);
+  $xpath->registerNamespace('mods', $namespace);
+  // Remove all instances of mods:accessCondition and mods:physicalDescription
+  // from every mods:mods element instance.
+  $access_condition_query = '//mods:accessCondition[@type="use and reproduction"]';
+  $physical_description_query = '//mods:physicalDescription[@authority="local"]';
+  $results = $xpath->query("{$access_condition_query} | {$physical_description_query}");
+  foreach ($results as $result) {
+    $result->parentNode->removeChild($result);
   }
-
-  return array(t('The file %filename does not have the required mimetype %mime.', array(
-    '%filename' => $file->filename,
-    '%mime' => $desired_mimetype,
-  )));
+  // Regardless of the number of mods:mods elements in the document we only
+  // add the usage and version to the first one.
+  $results = $xpath->query('//mods:mods[1]');
+  if ($results->length == 0) {
+    drupal_set_message(t('Could not find MODS element in object @pid is empty. %refuse.', array('@pid' => $object->id, '%refuse' => $refuse_msg)), 'error');
+    return;
+  }
+  $mods_element = $results->item(0);
+  // Add mods:accessCondition to the first mods:mods element.
+  $access_condition_element = $doc->createElementNS($namespace, 'accessCondition');
+  $access_condition_element->setAttribute('type', 'use and reproduction');
+  $access_condition_element->nodeValue = $usage;
+  $mods_element->appendChild($access_condition_element);
+  // Add mods:physicalDescription to the first mods:mods element.
+  $physical_description_element = $doc->createElementNS($namespace, 'physicalDescription');
+  $physical_description_element->setAttribute('authority', 'local');
+  $physical_description_element->nodeValue = $version;
+  $mods_element->appendChild($physical_description_element);
+  // Commit changes to datastream
+  $doc->save($filename);
+  $object['MODS']->setContentFromFile($filename);
+  file_unmanaged_delete($filename);
 }
 
-function islandora_scholar_upload_form_validate($form, &$form_state) {
-  $form_state['values']['file'] = file_save_upload('file', array(
-    'islandora_scholar_check_mimetype' => array('application/pdf'),
-  ));
-  if ($form_state['values']['file'] === 0) {
-    form_set_error('file', t('No file uploaded.'));
-  }
-}
-
-function islandora_scholar_add_usage_and_version_elements_to_mods($object, $usage, $version) {
-  if (isset($object['MODS'])) {
-    $mods_str = trim($object['MODS']->content);
-    if (!$mods_str) {
-      drupal_set_message(t('MODS in object @pid is empty...  Refusing to add ' .
-        'usage and publication version statements alone.', array(
-          '@pid' => $object->id
-        )
-      ), 'error');
-      return FALSE;
-    }
-
-    //Load the MODS...
-    $mods_doc = new DOMDocument();
-    $mods_doc->loadXML($mods_str);
-    $mods_xpath = new DOMXPath($mods_doc);
-    $mods_ns = 'http://www.loc.gov/mods/v3';
-    $mods_xpath->registerNamespace('m', $mods_ns);
-    $mods_doc =& $mods_xpath->document;  //DOMXPath creates a copy...  let's use it instead.
-
-    $mods_element = NULL;
-    $mods_elements = $mods_xpath->query('//m:mods');
-    if (count($mods_elements) > 0) {
-      $mods_element = $mods_elements->item(0);
-    }
-    else {
-      drupal_set_message(t('Could not find MODS element in object @pid is ' .
-        'empty...  Refusing to add usage and publication version statements' .
-        ' alone.', array(
-          '@pid' => $object->id
-        )
-      ), 'error');
-      return FALSE;
-    }
-
-    $usage_element = NULL;
-    $usage_elements = $mods_xpath->query('m:accessCondition[@type="use and reproduction"]', $mods_element);
-    if ($usage_elements->length > 0) {
-      //Found at least one...  Grab the first?
-      $usage_element = $usage_elements->item(0);
-    }
-    else {
-      //Didn't find any...  Create element with attributes.
-      $usage_element = $mods_doc->createElementNS('http://www.loc.gov/mods/v3', 'accessCondition');
-      $usage_element->setAttribute('type', 'use and reproduction');
-      $mods_element->appendChild($usage_element);
-    }
-
-    //Delete all children
-    while ($node = $usage_element->firstChild) {
-      $usage_element->removeChild($node);
-    }
-    $usage_element->appendChild($mods_doc->createTextNode($usage));
-
-    $version_element = NULL;
-    $version_elements = $mods_xpath->query('m:physicalDescription[@authority="local"]', $mods_element);
-    if ($version_elements->length > 0) {
-      //Found at least one...  Grab the first?
-      $version_element = $version_elements->item(0);
-    }
-    else {
-      //Didn't find any...  Create element with attributes.
-      $version_element = $mods_doc->createElementNS('http://www.loc.gov/mods/v3', 'physicalDescription');
-      $version_element->setAttribute('authority', 'local');
-      $mods_element->appendChild($version_element);
-    }
-
-    //Delete all children
-    while ($node = $version_element->firstChild) {
-      $version_element->removeChild($node);
-    }
-    $version_element->appendChild($mods_doc->createTextNode($version));
-
-    $object['MODS']->content = $mods_doc->saveXML();
-  }
-  else {
-    drupal_set_message(t('No MODS in object @pid...  Refusing to add usage and ' .
-      'publication version statements alone.', array(
-        '@pid' => $object->id
-      )
-    ), 'error');
-  }
-}
-
-function islandora_scholar_upload_form_submit(&$form, &$form_state) {
+/**
+ * Upload form Submit handler, adds PDF datastream.
+ *
+ * Also updates the MODS usage and version for the PDF datastream.
+ *
+ * @param array $form
+ *   The Drupal form definition.
+ * @param array $form_state
+ *   The Drupal form state.
+ */
+function islandora_scholar_upload_form_submit(array $form, array &$form_state) {
   extract($form_state['values']);
 
   $object = islandora_object_load($pid);
@@ -255,7 +264,9 @@ function islandora_scholar_upload_form_submit(&$form, &$form_state) {
     $datastream = $object->constructDatastream($dsid, 'M');
     $datastream->label = 'PDF Datastream';
     $datastream->mimetype = 'application/pdf';
-    $datastream->setContentFromFile(drupal_realpath($file->uri));
+    $file = file_load($file);
+    $path = drupal_realpath($file->uri);
+    $datastream->setContentFromFile($path);
 
     $object->ingestDatastream($datastream);
 

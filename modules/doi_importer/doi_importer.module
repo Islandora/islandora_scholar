@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Defines all the hooks this module implements.
+ */
+
+/**
  * Implements hook_menu().
  */
 function doi_importer_menu() {
@@ -24,6 +29,6 @@ function doi_importer_islandora_importer() {
     'doi_importer' => array(
       'title' => t('DOI Importer'),
       'class' => 'DOIImporter',
-    )
+    ),
   );
 }

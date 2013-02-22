@@ -1,30 +1,26 @@
 <?php
 
-// $Id$
-
 /**
  * @file
- * 
- * Unit Tests.
+ * Unit Tests for converting endnote to xml.
  */
 
 /**
  * Unit Tests for the FormControl class.
  */
-class Bibutils_ENDX2XML_TestCase extends DrupalUnitTestCase {
+class BibutilsENDX2XMLTestCase extends DrupalUnitTestCase {
 
   /**
    * The location of the data directory for the tests.
-   * 
+   *
    * @var string
    */
-  private $data;
+  protected $data;
 
   /**
-   * Get Test info.
-   * 
-   * @return array
-   *   Properties that are displayed in the test selection form.
+   * Get properties to display in the test selection form.
+   *
+   * @see DrupalUnitTestCase::getInfo()
    */
   public static function getInfo() {
     return array(
@@ -35,7 +31,9 @@ class Bibutils_ENDX2XML_TestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Performs any pre-requisite tasks that need to happen in order to run the tests.
+   * Performs any pre-requisite tasks.
+   *
+   * @see DrupalUnitTestCase::setUp()
    */
   public function setUp() {
     parent::setUp('bibutils');
@@ -43,8 +41,10 @@ class Bibutils_ENDX2XML_TestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Test converting a single EndNote XML file to a MODS Document where all the records exists 
-   * as seperate elements within the modsCollection element.
+   * Test converting a single EndNote XML file to a MODS Document.
+   *
+   * Tests the case where all the records exists as seperate elements within
+   * the modsCollection element.
    */
   public function testConvertingFileToSingleDocument() {
     $filename = $this->data . 'EndNote.xml';
@@ -56,8 +56,10 @@ class Bibutils_ENDX2XML_TestCase extends DrupalUnitTestCase {
   }
 
   /**
-   * Test converting a single EndNote XML file to many MODS Document, where each record within 
-   * the modsCollection is its own document.
+   * Test converting a single EndNote XML file to many MODS Documents.
+   *
+   * Tests the case where each record within the modsCollection is its own
+   * document.
    */
   public function testConvertingFileToManyDocuments() {
     $filename = $this->data . 'EndNote.xml';

@@ -1,4 +1,3 @@
-
 CONTENTS OF THIS FILE
 ---------------------
 
@@ -9,16 +8,16 @@ CONTENTS OF THIS FILE
 SUMMARY
 -------
 
-Citation Exporter
+EndnoteXML Importer
 
-Exports a collection of citations to either an RIS/RTF/PDF file.
+Allows users to import EndnoteXML files.
 
 REQUIREMENTS
 ------------
 
 The following Drupal modules are required:
- * islandora
- * citeproc
+ * islandora_importer
+ * islandora_scholar
  * bibutils
 
 INSTALLATION

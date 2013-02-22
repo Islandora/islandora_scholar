@@ -2,10 +2,11 @@
 
 /**
  * @file
+ * Functions for batch use of Bibutils.
  *
- * Functions for batch use of Bibutils. While Bibutils doesn't provide any
- * batch operations directly, these functions will be used by other modules
- * for Doing batch ingests/exports and what not.
+ * While Bibutils doesn't provide any batch operations directly, these
+ * functions will be used by other modules for Doing batch ingests/exports
+ * and what not.
  */
 
 /**
@@ -25,9 +26,9 @@ function bibutils_batch_get_endnote_record($filename) {
   $documents = array();
   if ($results->length >= 1) {
     $doc = new DOMDocument();
-    $child = $results->item(0); // Get Record
+    $child = $results->item(0);
     $doc->loadXML('<xml><records>' . $endnote->saveXML($child) . '</records></xml>');
-    $child->parentNode->removeChild($child); // Remove Record
+    $child->parentNode->removeChild($child);
     $endnote->save($filename);
     return $doc;
   }
@@ -61,23 +62,21 @@ function bibutils_batch_get_number_endnote_records($filename) {
  *   The RIS record if successful, FALSE otherwise.
  */
 function bibutils_batch_get_ris_record($filename) {
-  /**
-   * Get the first Record from the RIS File.
-   */
+  // Get the first Record from the RIS File.
   $file = fopen($filename, 'r');
   $record = '';
-  while (($line = fgets($file)) !== false) {
+  while (($line = fgets($file)) !== FALSE) {
     $trimed_line = trim($line);
-    if (!empty($trimed_line)) { // Ignore blank lines
-      $record .= $line; // Store the line in outgoing record
+    // Ignore blank lines.
+    if (!empty($trimed_line)) {
+      // Store the line in outgoing record.
+      $record .= $line;
       if ($trimed_line == 'ER  -') {
         break;
       }
     }
   }
-  /**
-   * Put the remaining text into a temp file.
-   */
+  // Put the remaining text into a temp file.
   $temp_file_dir = file_directory_temp();
   $temp_filename = file_create_filename("ris_temp.ris", $temp_file_dir);
   $temp_file = fopen($temp_filename, 'w');
@@ -86,10 +85,8 @@ function bibutils_batch_get_ris_record($filename) {
   }
   fclose($file);
   fclose($temp_file);
-  /**
-   * Replace the RIS file with the shorter temp file.
-   */
-  unlink($filename);
+  // Replace the RIS file with the shorter temp file.
+  drupal_unlink($filename);
   rename($temp_filename, $filename);
   return (trim($record) == '') ? FALSE : $record;
 }
@@ -106,7 +103,7 @@ function bibutils_batch_get_ris_record($filename) {
 function bibutils_batch_get_number_ris_records($filename) {
   $count = 0;
   $file = fopen($filename, 'r');
-  while (($line = fgets($file)) !== false) {
+  while (($line = fgets($file)) !== FALSE) {
     if (trim($line) == 'ER  -') {
       $count++;
     }
@@ -114,4 +111,3 @@ function bibutils_batch_get_number_ris_records($filename) {
   fclose($file);
   return $count;
 }
-

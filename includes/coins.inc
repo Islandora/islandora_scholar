@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Coins.inc
+ * Defines a class that helps in the construction of COINS url's.
  */
 
 /**
@@ -15,20 +15,38 @@ class Coins {
   public $mods = NULL;
   public $type = NULL;
 
-  public $issn, $volume, $issue, $date, $start_page, $title, $sub_title,
-    $journal_title, $abstract, $names, $authors, $contributors, $reverse_names,
-    $topic, $note, $embargo_date, $genre, $family_names, $full_names,
-    $username, $department;
+  public $issn;
+  public $volume;
+  public $issue;
+  public $date;
+  public $startPage;
+  public $title;
+  public $subTitle;
+
+  public $journalTitle;
+  public $abstract;
+  public $names;
+  public $authors;
+  public $contributors;
+  public $reverseNames;
+
+  public $topic;
+  public $note;
+  public $embargoDate;
+  public $genre;
+  public $familyNames;
+  public $fullNames;
+
+  public $username;
+  public $department;
 
   /**
-   * Create the object properties from the MODS datastream
+   * Create the object properties from the MODS datastream.
    *
-   * @param type $pid
-   * The PID of the object that you want to extract the MODS data from
-   *
-   * @return type
+   * @param AbstractFedoraObject $object
+   *   The object that you want to extract the MODS data from
    */
-  function __construct($object) {
+  public function __construct(AbstractFedoraObject $object) {
     $this->pid = $object->id;
     $xmlstr = $object['MODS']->content;
 
@@ -51,7 +69,8 @@ class Coins {
     foreach ($xml->name as $name) {
       foreach ($name->namePart as $name_part) {
         if ((string) $name_part != '') {
-          $np = (string) rtrim($name_part, '.'); //Strip periods off the end.
+          // Strip periods off the end.
+          $np = (string) rtrim($name_part, '.');
 
           $name = '';
           $full_name = '';
@@ -94,15 +113,17 @@ class Coins {
       $i++;
     }
     $this->names = $names;
-    $this->full_names = $full_names;
+    $this->fullNames = $full_names;
     $this->authors = $authors;
     $this->contributors = $contributors;
-    $this->family_names = $family_names;
+    $this->familyNames = $family_names;
 
-    $this->reverse_names = $reverse;
+    $this->reverseNames = $reverse;
 
     $issn = $xml->xpath('//mods:identifier[@type="issn"]');
-    $this->issn = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) $issn[0]);
+    if (isset($issn[0])) {
+      $this->issn = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) $issn[0]);
+    }
 
     $date = $xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
     if ($date) {
@@ -125,7 +146,7 @@ class Coins {
 
     $start_page = $xml->xpath('//mods:extent[@unit="page"]/mods:start');
     if ($start_page) {
-      $this->start_page = $start_page[0];
+      $this->startPage = $start_page[0];
     }
 
     $title = $xml->xpath('//mods:title');
@@ -135,12 +156,12 @@ class Coins {
 
     $sub_title = $xml->xpath('//mods:subTitle');
     if ($sub_title) {
-      $this->sub_title = $sub_title[0];
+      $this->subTitle = $sub_title[0];
     }
 
     $journal_title = $xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
     if ($journal_title) {
-      $this->journal_title = $journal_title[0];
+      $this->journalTitle = $journal_title[0];
     }
 
     $abstract = $xml->xpath('//mods:abstract');
@@ -162,7 +183,7 @@ class Coins {
 
     $embargo_date = $xml->xpath('//mods:dateOther[@type="embargo"]');
     if ($embargo_date) {
-      $this->embargo_date = $embargo_date[0];
+      $this->embargoDate = $embargo_date[0];
     }
 
     $genre = $xml->xpath('//mods:genre');
@@ -182,18 +203,18 @@ class Coins {
   }
 
   /**
-   * Function to return citation details in a table-ready form
+   * Function to return citation details in a table-ready form.
    *
    * @param string $type
    *   Type of reference that is being used. Default value is citation but
    * thesis and book are also valid. This parameter will change the values
-   * that are returned when the render_view function is called
+   * that are returned when the renderView function is called
    *
-   * @return type
-   *   An array containing the headers and rows ready to put into a table describing
-   * the reference
+   * @return array
+   *   An array containing the headers and rows ready to put into a table
+   * describing the reference
    */
-  function render_view($type = 'citation') {
+  public function renderView($type = 'citation') {
     global $base_url;
     $admin = user_access('administer scholarly research');
     $fedora_url = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
@@ -235,8 +256,8 @@ class Coins {
       $type = 'book';
     }
 
-    if ($this->embargo_date != NULL) {
-      $embargo_date = date('r', tstamptotime((string) $this->embargo_date));
+    if ($this->embargoDate != NULL) {
+      $embargo_date = date('r', tstamptotime((string) $this->embargoDate));
     }
     else {
       $embargo_date = NULL;
@@ -253,7 +274,8 @@ class Coins {
       if ($contributors != NULL || $admin) {
         $rows[] = array('Contributors', rtrim($contributors, ', '));
       }
-      $rows[] = array('URL', l(t('Download PDF'), 'fedora/repository/' . $this->pid . '/PDF/PDF'));
+      $url = l(t('Download PDF'), "fedora/repository/{$this->pid}/PDF/PDF");
+      $rows[] = array('URL', $url);
     }
     else {
       if ($names != NULL || $admin) {
@@ -266,8 +288,8 @@ class Coins {
     }
 
     if ($type == 'citation') {
-      if (((string) $this->journal_title != NULL) || $admin) {
-        $rows[] = array('Journal', $this->journal_title);
+      if (((string) $this->journalTitle != NULL) || $admin) {
+        $rows[] = array('Journal', $this->journalTitle);
       }
     }
 
@@ -284,8 +306,8 @@ class Coins {
         $rows[] = array('Issue', $this->issue);
       }
 
-      if (((string) $this->start_page != NULL) || $admin) {
-        $rows[] = array('Start page', $this->start_page);
+      if (((string) $this->startPage != NULL) || $admin) {
+        $rows[] = array('Start page', $this->startPage);
       }
 
       if (((string) $this->issn != NULL) || $admin) {
@@ -326,15 +348,14 @@ class Coins {
 function islandora_scholar_details($object) {
   if (isset($object['MODS'])) {
     $coins = new Coins($object);
-    extract($coins->render_view());
+    extract($coins->renderView());
     return array(
       '#type' => 'item',
       '#title' => t('MODS Metadata'),
       '#markup' => theme('table', array(
         'header' => $headers,
-        'rows' => $rows
+        'rows' => $rows,
       )),
     );
   }
 }
-
