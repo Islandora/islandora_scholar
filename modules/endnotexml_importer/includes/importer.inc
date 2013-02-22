@@ -110,8 +110,8 @@ class EndNoteXMLImportObject extends IslandoraImportObject {
    */
   public function getMODS() {
     if ($this->mods === NULL) {
-      $enxml_file = file_save_data($this->source, "temp://temp_en.xml");
-      $mods_file = drupal_tempnam('temp://', 'temp_mods.xml');
+      $enxml_file = file_save_data($this->source, "temporary://temp_en.xml");
+      $mods_file = drupal_tempnam('temporary://', 'temp_mods.xml');
 
       module_load_include('inc', 'bibutils', 'includes/utilities');
       Bibutils::Convert(
