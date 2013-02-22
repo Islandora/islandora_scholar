@@ -90,6 +90,13 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
   $datastream->setContentFromFile("$module_path/xml/ISLANDORACM.xml", FALSE);
   $citation_content_model->ingestDatastream($datastream);
 
+  // DS-COMPOSITE-MODEL Datastream.
+  $datastream = $citation_content_model->constructDatastream('DS-COMPOSITE-MODEL', 'M');
+  $datastream->label = 'DS-COMPOSITE-MODEL';
+  $datastream->mimetype = 'text/xml';
+  $datastream->setContentFromFile("$module_path/xml/DS-COMPOSITE-MODEL.xml", FALSE);
+  $citation_content_model->ingestDatastream($datastream);
+
   // Citation Collection.
   $citation_collection = $connection->repository->constructObject('ir:citationCollection');
   $citation_collection->owner = 'fedoraAdmin';
