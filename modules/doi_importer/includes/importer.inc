@@ -124,8 +124,9 @@ class DOIImportObject extends IslandoraImportObject {
              )));
 
     $response = drupal_http_request($url);
+    $headers = array_change_key_case($response->headers);
     if ($response->data &&
-      strpos($response->headers['Content-Type'], 'text/html') === FALSE &&
+      strpos($headers['content-type'], 'text/html') === FALSE &&
       strpos($response->data, "Malformed DOI") === FALSE) {
 
       $crossref_xml = simplexml_load_string($response->data);
