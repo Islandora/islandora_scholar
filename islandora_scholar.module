@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
- *   The islandora_scholar moudule.
+ * The islandora_scholar moudule.
  */
 
 /**
@@ -11,13 +12,14 @@ function islandora_scholar_menu() {
   return array(
     'admin/islandora/scholar' => array(
       'title' => 'Scholar',
+      'description' => 'Configuration the Scholar solution pack.',
       'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
       'access arguments' => array('access administration pages'),
       'file' => 'includes/admin.form.inc',
     ),
-    'admin/islandora/scholar/base' =>  array(
+    'admin/islandora/scholar/base' => array(
       'title' => 'Basic Configuration',
       'type' => MENU_DEFAULT_LOCAL_TASK,
     ),
@@ -49,8 +51,8 @@ function islandora_scholar_islandora_xml_form_builder_forms() {
   $module_path = drupal_get_path('module', 'islandora_scholar');
   return array(
     'Citation MODS form' => array(
-       'form_file' => "$module_path/xml/citation_form.xml"
-    )
+      'form_file' => "$module_path/xml/citation_form.xml",
+    ),
   );
 }
 
@@ -66,7 +68,7 @@ function islandora_scholar_islandora_content_model_forms_form_associations() {
       'title_field' => array('title'),
       'transform' => 'mods_to_dc.xsl',
       'template' => FALSE,
-    )
+    ),
   );
 }
 
@@ -81,14 +83,21 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
   $citation_content_model->owner = 'fedoraAdmin';
   $citation_content_model->label = 'Citation Content Model';
   $citation_content_model->models = 'fedora-system:ContentModel-3.0';
-  // ISLANDORACM Datastream
+  // ISLANDORACM Datastream.
   $datastream = $citation_content_model->constructDatastream('ISLANDORACM', 'X');
   $datastream->label = 'Islandora content model';
   $datastream->mimetype = 'text/xml';
   $datastream->setContentFromFile("$module_path/xml/ISLANDORACM.xml", FALSE);
   $citation_content_model->ingestDatastream($datastream);
 
-  // Citation Collection
+  // DS-COMPOSITE-MODEL Datastream.
+  $datastream = $citation_content_model->constructDatastream('DS-COMPOSITE-MODEL', 'M');
+  $datastream->label = 'DS-COMPOSITE-MODEL';
+  $datastream->mimetype = 'text/xml';
+  $datastream->setContentFromFile("$module_path/xml/DS-COMPOSITE-MODEL.xml", FALSE);
+  $citation_content_model->ingestDatastream($datastream);
+
+  // Citation Collection.
   $citation_collection = $connection->repository->constructObject('ir:citationCollection');
   $citation_collection->owner = 'fedoraAdmin';
   $citation_collection->label = 'Citations';
@@ -96,7 +105,7 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
   $citation_collection->relationships->add(FEDORA_RELS_EXT_URI, 'isMemberOfCollection', 'islandora:root');
   $datastream = $citation_collection->constructDatastream('COLLECTION_POLICY', 'X');
 
-  // Collection Policy Datastream
+  // Collection Policy Datastream.
   $datastream->label = 'Collection Policy';
   $datastream->mimetype = 'text/xml';
   $datastream->setContentFromFile("$module_path/xml/COLLECTION_POLICY.xml", FALSE);
@@ -112,10 +121,10 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
       'title' => 'Islandora Scholar',
       'objects' => array(
         $citation_content_model,
-        $citation_collection
-       )
-     )
-   );
+        $citation_collection,
+      ),
+    ),
+  );
 }
 
 /**
@@ -126,9 +135,9 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/coins');
   $display = array(
     'citation' => array(
-      '#markup' => CitationView::get_citation($object['MODS']->content),
+      '#markup' => CitationView::getCitation($object['MODS']->content),
     ),
-    'viewer' => CitationView::get_viewer($object),
+    'viewer' => CitationView::getViewer($object),
     'metadata' => array(
       '#type' => 'fieldset',
       '#title' => t('Metadata'),
@@ -164,5 +173,5 @@ function islandora_scholar_romeo_access($object) {
 
   return variable_get('islandora_scholar_romeo_enable', FALSE) &&
     in_array('ir:citationCModel', $object->models) &&
-    RomeoView::get_issn($object->pid);
+    RomeoView::getISSN($object->pid);
 }

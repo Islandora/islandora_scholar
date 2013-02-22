@@ -2,26 +2,13 @@
 
 /**
  * @file
- *
  * Implements hooks and callbacks for this module.
  */
 
 /**
- * Implements hook_postprocess_bibutils_convert()
+ * Implements hook_postprocess_bibutils_convert().
  *
  * Cleans the MODS output from Bibutils.
- *
- * @param string $src
- *   The filename of the source file.
- * @param string $src_format
- *   The format of the source file.
- * @param string $dest
- *   The filename of the destination file.
- * @param string $dest_format
- *   The format of the destination file.
- *
- * @return boolean
- *   TRUE if the MODS is successfully cleaned or if no processing is done, FALSE otherwise.
  */
 function bibutils_postprocess_bibutils_convert($src, $src_format, $dest, $dest_format) {
   if ($dest_format == 'MODS') {
@@ -48,4 +35,3 @@ function bibutils_menu() {
 
   return $items;
 }
-

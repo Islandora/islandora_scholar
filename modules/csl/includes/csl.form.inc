@@ -1,10 +1,20 @@
 <?php
 
+/**
+ * @file
+ * Managed the installed CSL styles.
+ */
 
 /**
- * A form to list/add/remove the installed CSL 1.0 Styles
+ * A form to list/add/remove the installed CSL 1.0 Styles.
  *
+ * @param array $form
+ *   The Drupal form definition.
  * @param array $form_state
+ *   The Drupal form state.
+ *
+ * @return array
+ *   The Drupal form definition.
  */
 function csl_manage_form(array $form, array &$form_state) {
   form_load_include($form_state, 'inc', 'csl', 'includes/csl.form.inc');
@@ -13,7 +23,7 @@ function csl_manage_form(array $form, array &$form_state) {
     '#header' => array(t('Style Name'), '', t('Delete')),
     '#theme' => THEME_CSL_MANAGE_TABLE,
     '#tree' => TRUE,
-    'rows' => array()
+    'rows' => array(),
   );
   $styles = CSL::GetNames();
   $default_style = CSL::GetDefaultName();
@@ -37,7 +47,7 @@ function csl_manage_form(array $form, array &$form_state) {
         '#name' => 'row-' . count($table['rows']) . '-delete',
         '#style' => $style,
         '#submit' => array('csl_manage_delete_style_submit'),
-      )
+      ),
     );
   }
   $table['rows'][] = array(
@@ -55,10 +65,10 @@ function csl_manage_form(array $form, array &$form_state) {
       '#value' => t('Add'),
       '#validate' => array('csl_manage_add_style_validate'),
       '#submit' => array('csl_manage_add_style_submit'),
-    )
+    ),
   );
   return array(
-    'table' => $table
+    'table' => $table,
   );
 }
 
@@ -74,7 +84,7 @@ function csl_manage_delete_style_submit(array $form, array &$form_state) {
   $style = $form_state['clicked_button']['#style'];
   $style_t = array('%style' => $style);
   if (count(CSL::GetNames()) == 1) {
-    drupal_set_message(t('Can\'t delete the last style: %style, there must always be at least one.', $style_t), 'error');
+    drupal_set_message(t("Can't delete the last style: %style, there must always be at least one.", $style_t), 'error');
   }
   elseif (CSL::Delete($style)) {
     drupal_set_message(t('Successfully deleted style: %style', $style_t));
@@ -118,15 +128,6 @@ function csl_manage_add_style_validate(array $form, array &$form_state) {
   elseif (!$file_was_uploaded) {
     form_set_error('file', t('A valid CSL 1.0 Style must be uploaded.'));
   }
-  // No longer requiring styles to be valid CSL.
-  //else { // File was uploaded make sure it is valid.
-  //  $definition = new DOMDocument();
-  //  $definition->load($_FILES['files']['tmp_name']['file']);
-  //  if (!CSL::Valid($definition)) {
-  //    form_set_error('file', t('the uploaded file must be a valid CSL 1.0 ' .
-  //      'Style. The provided file was not valid.'));
-  //  }
-  //}
 }
 
 /**
@@ -144,4 +145,3 @@ function csl_manage_add_style_submit(array $form, array &$form_state) {
   $definition->load($_FILES['files']['tmp_name']['file']);
   CSL::Create($style_name, $definition);
 }
-

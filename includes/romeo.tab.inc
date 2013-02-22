@@ -11,7 +11,7 @@
  * Grabs the ISSN from the object, and fires it at the configured URL.
  */
 function islandora_scholar_romeo_view($object) {
-  return RomeoView::get_romeo_markup(RomeoView::get_issn($object));
+  return RomeoView::getRomeoMarkup(RomeoView::getISSN($object));
 }
 
 /**
@@ -28,23 +28,23 @@ class RomeoView {
    *   Returns either the ISSN in a string, or boolean FALSE if no ISSN could
    *   be found.
    */
-  public static function get_issn($object) {
+  public static function getISSN($object) {
     $cache_id = "islandora_scholar_issn_cache_{$object->pid}";
-    //Try to get the issn of the object
+    // Try to get the issn of the object.
     if ($issn = cache_get($cache_id)) {
       return $issn->data;
     }
     else {
       $issn = FALSE;
 
-      //TODO: Try to get the ISSN from Solr?
+      // @todo Try to get the ISSN from Solr?
       if (!$issn) {
 
       }
 
-      //Try to get the ISSN from the object in Fedora Proper.
+      // Try to get the ISSN from the object in Fedora Proper.
       if (!$issn) {
-        //Try to get the ISSN from a MODS stream.
+        // Try to get the ISSN from a MODS stream.
         if (!$issn && isset($object['MODS'])) {
           $mods_doc = DOMDocument::loadXML($object['MODS']->content);
           $mods_xpath = new DOMXPath($mods_doc);
@@ -57,8 +57,8 @@ class RomeoView {
         }
       }
 
-      //Cache even if not successful...  It's still meaningful that we're not
-      //  able to find one.
+      // Cache even if not successful...  It's still meaningful that we're not
+      // able to find one.
       $cache_time = variable_get('islandora_scholar_issn_cache_time', '2');
       cache_set($cache_id, $issn, 'cache', time() + ($cache_time * 86400));
 
@@ -77,7 +77,7 @@ class RomeoView {
    *   case we could not fetch it (in which case we will also set a Drupal
    *   message).
    */
-  public static function get_romeo_markup($issn) {
+  public static function getRomeoMarkup($issn) {
     $cache_id = "islandora_scholar_romeo_cache_$issn";
     if ($romeo_cache = cache_get($cache_id)) {
       return $romeo_cache->data;
@@ -94,14 +94,15 @@ class RomeoView {
         'query' => $params,
       )));
 
-      //TODO:  Use Drupal's HTTP request function.
+      // @todo Use Drupal's HTTP request function.
       curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
       $romeo_content = trim(curl_exec($ch));
       curl_close($ch);
 
       try {
         $processor = new XsltProcessor();
-      } catch (Exception $e) {
+      }
+      catch (Exception $e) {
         drupal_set_message(t('@error', array('@error' => $e->getMessage())), 'error');
         return;
       }

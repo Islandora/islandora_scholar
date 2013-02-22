@@ -1,24 +1,32 @@
 <?php
 
-
 /**
- * RIS citation importer.
- * @author adam
+ * @file
+ * Defines the EndNoteXMLImporter.
  */
-class EndNoteXMLImporter extends IslandoraBatchImporter {
-  protected $item_class = 'EndNoteXMLImportObject';
 
-  public function get_number() {
+class EndNoteXMLImporter extends IslandoraBatchImporter {
+  protected $itemClass = 'EndNoteXMLImportObject';
+
+  /**
+   * Get the number of items to import from $this->file.
+   *
+   * @see IslandoraBatchImporter::getNumber()
+   */
+  public function getNumber() {
     $endnote = new DOMDocument();
     $endnote->load($this->file->uri);
     $xpath = new DOMXPath($endnote);
     $results = $xpath->query('/xml/records/record');
-    return $results?
-      $results->length:
-      0;
+    return $results ? $results->length : 0;
   }
 
-  public static function get_form(&$form_state) {
+  /**
+   * Get the form for this importer.
+   *
+   * @see IslandoraBatchImporter::getForm()
+   */
+  public static function getForm(array &$form_state) {
     return array(
       'fs' => array(
         '#type' => 'fieldset',
@@ -41,26 +49,41 @@ class EndNoteXMLImporter extends IslandoraBatchImporter {
     );
   }
 
-  public static function ready_for_batch(&$form_state) {
+  /**
+   * Determine if we're ready to run our batch process.
+   *
+   * @see IslandoraBatchImporter::readyForBatch()
+   */
+  public static function readyForBatch(array &$form_state) {
     return !empty($form_state['values']['file']);
   }
 
-  public static function get_batch_info(&$form_state) {
-     $file = file_load($form_state['values']['file']);
-     return $file;
+  /**
+   * Get the required info to pass into the file parameter of the constructor.
+   *
+   * @see IslandoraBatchImporter::getBatchInfo()
+   */
+  public static function getBatchInfo(array &$form_state) {
+    $file = file_load($form_state['values']['file']);
+    return $file;
   }
 }
 
 /**
  * EndNote XML import object.
  *
- * Actually does the heavy-lifting during the import.
+ * Actually does the Heavy-lifting during the import.
  * @author adam
  */
 class EndNoteXMLImportObject extends IslandoraImportObject {
   protected $mods;
 
-  public static function get_one(&$file) {
+  /**
+   * Get an item from the source.
+   *
+   * @see IslandoraImportObject::getOne()
+   */
+  public static function getOne(&$file) {
     $record = '';
 
     $endnote = new DOMDocument();
@@ -69,22 +92,26 @@ class EndNoteXMLImportObject extends IslandoraImportObject {
     $results = $xpath->query('/xml/records/record');
     $documents = array();
     if ($results->length >= 1) {
-      $child = $results->item(0); // Get Record
+      // Get Record.
+      $child = $results->item(0);
       $record = '<xml><records>' . $endnote->saveXML($child) . '</records></xml>';
-      $child->parentNode->removeChild($child); // Remove Record
+      // Remove Record.
+      $child->parentNode->removeChild($child);
       $endnote->save($file->uri);
       file_save($file);
     }
-
-    return (empty($record) ?
-      FALSE:
-      new self($record)); //XXX:  Be careful with "self"?  PHP is odd.
+    return (empty($record) ? FALSE : new self($record));
   }
 
-  public function get_mods() {
+  /**
+   * Generates a MODS document repersenting the imported data.
+   *
+   * @see IslandoraImportObject::getMODS()
+   */
+  public function getMODS() {
     if ($this->mods === NULL) {
-      $enxml_file = file_save_data($this->source, "temp://temp_en.xml");
-      $mods_file = drupal_tempnam('temp://', 'temp_mods.xml');
+      $enxml_file = file_save_data($this->source, "temporary://temp_en.xml");
+      $mods_file = drupal_tempnam('temporary://', 'temp_mods.xml');
 
       module_load_include('inc', 'bibutils', 'includes/utilities');
       Bibutils::Convert(
@@ -97,7 +124,7 @@ class EndNoteXMLImportObject extends IslandoraImportObject {
       $this->mods = file_get_contents($mods_file);
 
       file_delete($enxml_file);
-      unlink($mods_file);
+      drupal_unlink($mods_file);
     }
 
     return $this->mods;

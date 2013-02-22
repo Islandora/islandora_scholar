@@ -2,12 +2,10 @@
 
 /**
  * @file
- *
  * Implements hooks and callbacks for this module.
  */
-/**
- * Constants Permission/Menu/Theme
- */
+
+// Constants Permission/Menu/Theme.
 define('PERM_CSL_MANAGE', 'Manage CSL Citations');
 define('MENU_CSL_MANAGE', 'admin/islandora/csl');
 define('THEME_CSL_MANAGE_TABLE', 'csl_manage_table');
@@ -49,7 +47,7 @@ function csl_theme() {
   return array(
     THEME_CSL_MANAGE_TABLE => array(
       'render element' => 'element',
-    )
+    ),
   );
 }
 
@@ -75,7 +73,7 @@ function theme_csl_manage_table(array $args) {
     }
     $rows[] = array(
       'data' => $fields,
-      'class' => isset($setting['#attributes']['class']) ? $setting['#attributes']['class'] : NULL
+      'class' => isset($setting['#attributes']['class']) ? $setting['#attributes']['class'] : NULL,
     );
   }
 
@@ -87,4 +85,3 @@ function theme_csl_manage_table(array $args) {
     'attributes' => $attributes,
   ));
 }
-

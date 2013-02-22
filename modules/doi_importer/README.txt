@@ -1,4 +1,3 @@
-
 CONTENTS OF THIS FILE
 ---------------------
 
@@ -9,17 +8,16 @@ CONTENTS OF THIS FILE
 SUMMARY
 -------
 
-Citation Exporter
+DOI Importer
 
-Exports a collection of citations to either an RIS/RTF/PDF file.
+Importer plugin for Digital Object Identifiers, to create citation objects.
 
 REQUIREMENTS
 ------------
 
 The following Drupal modules are required:
- * islandora
- * citeproc
- * bibutils
+ * islandora_importer
+ * islandora_scholar
 
 INSTALLATION
 ------------

@@ -2,22 +2,22 @@
 
 /**
  * @file
- *
  * Implements a class for interacting with the stored CSL files.
  */
+
 class CSL {
   /**
    * The name of the table where the CSL styles are stored.
    */
-  const table = 'csl';
+  const TABLE = 'csl';
 
   /**
    * Checks to see if the given CSL style is a valid definition.
    *
-   * @param DOMDocument $style
+   * @param string/DOMDocument $style_in
    *   A CSL 1.0 style file to check to see if it is valid.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if the given style is valid, FALSE otherwise.
    */
   public static function Valid($style_in) {
@@ -30,27 +30,27 @@ class CSL {
       $style = new DOMDocument();
       $style->loadXML($style_in);
     }
-    /**
-     * We don't want to show any of this errors to the end users, but we do want to log them.
-     */
-    libxml_use_internal_errors(TRUE); // Prevent Drupal from catching errors.  
+    // We don't want to show any of this errors to the end users, but we do
+    // want to log them, so we prevent Drupal from catching errors.
+    libxml_use_internal_errors(TRUE);
     if (!($valid = $style->relaxNGValidate($schema_filename))) {
       self::loglibxmlErrors();
     }
-    libxml_use_internal_errors(TRUE); // Allow Drupal to catching errors.  
+    // Allow Drupal to catch errors.
+    libxml_use_internal_errors(TRUE);
     return $valid;
   }
 
   /**
    * Log any xml errors to the watchdog.
    */
-  private static function loglibxmlErrors() {
+  protected static function loglibxmlErrors() {
     $errors = libxml_get_errors();
     foreach ($errors as $error) {
       $levels = array(
         LIBXML_ERR_WARNING => WATCHDOG_WARNING,
         LIBXML_ERR_ERROR => WATCHDOG_ERROR,
-        LIBXML_ERR_FATAL => WATCHDOG_ERROR
+        LIBXML_ERR_FATAL => WATCHDOG_ERROR,
       );
       $severity = $levels[$error->level];
       $message = t('code: %code message: %message file: %file line: %line column: %column', array(
@@ -71,11 +71,11 @@ class CSL {
    * @param string $style_name
    *   The name of the CSL style.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if the given style exists, FALSE otherwise.
    */
   public static function Exists($style_name) {
-    $results = db_select(self::table, 't')//('SELECT count(name) FROM {%s} WHERE name = "%s"', self::table, $style_name);
+    $results = db_select(self::TABLE, 't')
       ->fields('t')
       ->condition('name', $style_name)
       ->execute();
@@ -87,12 +87,12 @@ class CSL {
    * Gets a list of all the availible styles.
    *
    * @return array
-   *   An array of defined style's names, where both the key and the value are the style's name.
-   *   EX. array( 'name' => 'name' );
+   *   An array of defined style's names, where both the key and the value are
+   *   the style's name. EX. array( 'name' => 'name' );
    */
   public static function GetNames() {
     $names = array();
-    $results = db_select(self::table, 't')
+    $results = db_select(self::TABLE, 't')
       ->fields('t', array('name'))
       ->execute();
     foreach ($results as $data) {
@@ -103,8 +103,8 @@ class CSL {
 
   /**
    * Sets the given style name to default if it exists.
-   * 
-   * @param string $style_name 
+   *
+   * @param string $style_name
    *   The name of the style to set to the default.
    */
   public static function SetDefaultName($style_name) {
@@ -114,8 +114,10 @@ class CSL {
   }
 
   /**
-   * Gets the default style name, if it has not been previously set it will be the first
-   * name from self::GetNames().
+   * Gets the default style name.
+   *
+   * If it has not been previously set it will be the first  name from
+   * self::GetNames().
    *
    * @return string
    *   The default style name
@@ -131,15 +133,15 @@ class CSL {
    *
    * @param string $style_name
    *   The name of the CSL style.
-   * @param boolean $as_string
+   * @param bool $as_string
    *   Returns the CSL as a string (default is a DOMDocument)
    *
    * @return mixed
    *   The CSL style definition if found, FALSE otherwise.
    */
-  public static function Get($style_name, $as_string=FALSE) {
+  public static function Get($style_name, $as_string = FALSE) {
     if (self::Exists($style_name)) {
-      $results = db_select(self::table, 't')
+      $results = db_select(self::TABLE, 't')
         ->fields('t', array('style'))
         ->condition('name', $style_name)
         ->execute();
@@ -155,7 +157,7 @@ class CSL {
           else {
             $definition = $xml;
           }
-           return $definition;
+          return $definition;
         }
       }
     }
@@ -164,11 +166,13 @@ class CSL {
 
   /**
    * Gets the default style.
-   * 
-   * @param boolean $as_string
+   *
+   * @param bool $as_string
    *   Return a string if TRUE, a DOMDocument if FALSE.
+   *
    * @return mixed
-   *   Returns teh default style as a string or DOMDocument depending on the $as_string argument.
+   *   Returns the default style as a string or DOMDocument depending on the
+   *   $as_string argument.
    */
   public static function GetDefault($as_string = FALSE) {
     $style_name = self::GetDefaultName();
@@ -185,8 +189,8 @@ class CSL {
    * @param mixed $definition
    *   A CSL style definition. (DOMDocument or string)
    *
-   * @return boolean
-   *  TRUE if successful, otherwise FALSE.
+   * @return bool
+   *   TRUE if successful, otherwise FALSE.
    */
   public static function Create($style_name, $definition) {
     if (!self::Exists($style_name)) {
@@ -198,10 +202,11 @@ class CSL {
       if ($definition instanceof DOMDocument) {
         $object->style = $definition->saveXML();
       }
-      else { //Assume a string.
+      else {
+        // Assume a string.
         $object->style = trim($definition);
       }
-      return drupal_write_record(self::table, $object) !== FALSE;
+      return drupal_write_record(self::TABLE, $object) !== FALSE;
     }
     return FALSE;
   }
@@ -212,12 +217,12 @@ class CSL {
    * @param string $style_name
    *   The name of the CSL style definition.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if successful FALSE otherwise.
    */
   public static function Delete($style_name) {
     if (self::Exists($style_name)) {
-      db_delete(self::table, 't')
+      db_delete(self::TABLE, 't')
         ->condition('name', $style_name)
         ->execute();
       return TRUE;

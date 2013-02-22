@@ -2,17 +2,21 @@
 
 /**
  * @file
- *
  * Class that encompases the Bibutils tools.
  */
+
 class Bibutils {
   /**
-   * A table where the keys are the source file types and their value is an array where
-   * the destination file type is the keys and the required command the value.
+   * Gets the bibutils conversion table.
+   *
+   * A table where the keys are the source file types and their value is an
+   * array where the destination file type is the keys and the required
+   * command the value.
    *
    * @return array
+   *   The conversion table.
    */
-  private static function getConversionTable() {
+  protected static function getConversionTable() {
     return array(
       'EndNoteXML' => array(
         'MODS' => array(
@@ -33,7 +37,7 @@ class Bibutils {
       'MODS' => array(
         'RIS' => array(
           'type' => 'callable',
-          'callable' => 'ris::transform_file',
+          'callable' => 'RIS::transformFile',
         ),
       ),
     );
@@ -43,16 +47,17 @@ class Bibutils {
    * Tests if the file format is convertable.
    *
    * @param string $type
+   *   The type of file to test.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if convertiable by Bibutils FALSE otherwise.
    */
-  private static function IsConvertable($type) {
+  protected static function IsConvertable($type) {
     return array_key_exists($type, self::getConversionTable());
   }
 
   /**
-   * Gets the Bibutil Command for performing a conversion between the given file format types, if possible.
+   * Gets the Bibutil Command for performing a conversion for the given formats.
    *
    * @param string $src_format
    *   The file format of the source document.
@@ -62,9 +67,9 @@ class Bibutils {
    * @return string
    *   The command that will perform the conversion if possible FALSE otherwise.
    */
-  private static function GetCommand($src_format, $dest_format) {
-    $conversionTable = self::getConversionTable();
-    $conversion = isset($conversionTable[$src_format]) ? $conversionTable[$src_format] : array();
+  protected static function GetCommand($src_format, $dest_format) {
+    $conversion_table = self::getConversionTable();
+    $conversion = isset($conversion_table[$src_format]) ? $conversion_table[$src_format] : array();
     if (isset($conversion[$dest_format])) {
       return $conversion[$dest_format];
     }
@@ -72,12 +77,12 @@ class Bibutils {
   }
 
   /**
-   * Bibutils doesn't produce valid MODS, this function cleans up the generated mods and makes it valid.
+   * Bibutils produces invalid MODS, this function cleans up the generated MODS.
    *
    * @param string $filename
    *   The name of the file to clean.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if succesful FALSE otherwise.
    */
   public static function CleanModsFile($filename) {
@@ -102,9 +107,10 @@ class Bibutils {
    *   The command to execute.
    *
    * @return array
-   *   Where the first parameter was the exit status of the command and the second is the commands output.
+   *   Where the first parameter was the exit status of the command and the
+   *   second is the commands output.
    */
-  private static function Execute($command, $src, $dest) {
+  protected static function Execute($command, $src, $dest) {
     if ($command['type'] == 'shell') {
       $return_value = FALSE;
       ob_start();
@@ -123,7 +129,7 @@ class Bibutils {
   }
 
   /**
-   * Converts the given file to the destination format, and saves it to the given destination.
+   * Converts the given file to the destination format, and saves it.
    *
    * @param string $src
    *   The filename of the source file.
@@ -134,7 +140,7 @@ class Bibutils {
    * @param string $dest_format
    *   The format of the destination file.
    *
-   * @return boolean
+   * @return bool
    *   TRUE if successful, FALSE otherwise.
    */
   public static function Convert($src, $src_format, $dest, $dest_format) {
@@ -144,7 +150,8 @@ class Bibutils {
       list($exit_status, $output) = self::Execute($command, $src, $dest);
       if ($exit_status !== FALSE) {
         $results = module_invoke_all('postprocess_bibutils_convert', $src, $src_format, $dest, $dest_format);
-        return!in_array(FALSE, $results, TRUE); // No post process function returned false.
+        // No post process function returned false.
+        return !in_array(FALSE, $results, TRUE);
       }
       else {
         drupal_set_message($output, 'warning');
@@ -153,4 +160,3 @@ class Bibutils {
     return FALSE;
   }
 }
-

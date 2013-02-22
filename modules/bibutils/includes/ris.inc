@@ -2,25 +2,25 @@
 
 /**
  * @file
- *
  * Class for converting MODS to RIS
  *
  * @author Nelson Hart <nelson@discoverygarden.ca>
  * @date Sept 10, 2012
  *
- * @todo Buld method for combining multiple nodes into one RIS field that is not repeatable.
- * Eg: AB is not a repeatable field, but in my xml, I have multiple abtracts from Pubmed.
- * This new method would take all the nodes and combine them into one string.
- *
+ * @todo Build method for combining multiple nodes into one RIS field that is
+ * not repeatable.
+ * Eg: AB is not a repeatable field, but in my xml, I have multiple abstracts
+ * from PUBMED. This new method would take all the nodes and combine them into
+ * one string.
  */
 
-class ris {
+class RIS {
   /**
    * Specifies all the different RIS types
    *
    * @var array
    */
-  var $types = array(
+  protected $types = array(
     "abstract" => "ABST",
     "audiovisual material" => "ADVS",
     "aggregated database" => "AGGR",
@@ -76,7 +76,7 @@ class ris {
     "statute" => "STAT",
     "thesis/dissertation" => "THES",
     "unpublished work" => "UNPB",
-    "video recording" => "VIDEO"
+    "video recording" => "VIDEO",
   );
 
   /**
@@ -84,22 +84,22 @@ class ris {
    *
    * @var array
    */
-  var $required_fields = array("TY", "ER");
+  protected $requiredFields = array("TY", "ER");
 
   /**
    * Specifies which RIS fields are repeatable
    *
    * @var array
    */
-  var $repeat_fields = array("A2", "A3", "A4", "AU", "KW", "ED");
+  protected $repeatFields = array("A2", "A3", "A4", "AU", "KW", "ED");
 
   /**
    * Specifies which RIS fields are allowed
    *
    * @var array
    */
-  var $allowed_fields = array(
-    "TY" => "Type of reference (must be the first tag)", //required
+  protected $allowedFields = array(
+    "TY" => "Type of reference (must be the first tag)",
     "A2" => "Secondary Author (each author on its own line preceded by the tag)",
     "A3" => "Tertiary Author (each author on its own line preceded by the tag)",
     "A4" => "Subsidiary Author (each author on its own line preceded by the tag)",
@@ -155,7 +155,7 @@ class ris {
     "Y2" => "Access Date",
     "ED" => "editor bibutils had this field",
     "ID" => "ID of object exported. I've noticed zotero and endnote add this unique ID field on their exports",
-    "ER" => "End of Reference", //required
+    "ER" => "End of Reference",
   );
 
   /**
@@ -163,89 +163,90 @@ class ris {
    *
    * @var array
    */
-  var $map;
+  protected $map;
 
   /**
    * The returned text of the class
    *
    * @var string
    */
-  var $text;
+  protected $text;
 
   /**
    * Create a ris instance with the xpath map for RIS fields.
    */
-  public function __construct($map) {
+  protected function __construct($map) {
     $missing  = FALSE;
-    foreach($this->required_fields as $field) {
-     if(!isset($map[$field])) {
-       $missing  = TRUE;
-     }
+    foreach ($this->requiredFields as $field) {
+      if (!isset($map[$field])) {
+        $missing  = TRUE;
+      }
     }
-    if($missing == FALSE) {
+    if ($missing == FALSE) {
       $this->map = $map;
     }
     else {
-      drupal_set_message("Your RIS field map is missing required fields","error");
+      drupal_set_message('Your RIS field map is missing required fields', 'error');
     }
+  }
+
+  /**
+   * Gets an instance of this object.
+   */
+  protected static function getInstance() {
+    static $instance = NULL;
+    if ($instance === NULL) {
+      module_load_include('inc', 'bibutils', 'includes/ris_map');
+      $instance = new self(bibutils_ris_field_map());
+    }
+    return $instance;
   }
 
   /**
    * Convenience method to transform the given MODS record into RIS.
    */
   public static function transform($mods) {
-    static $instance = NULL;
-
-    if ($instance === NULL) {
-      module_load_include('inc', 'bibutils', 'includes/ris_map');
-      $instance = new self(bibutils_ris_field_map());
-    }
-
-    return $instance->render($mods);
+    return self::getInstance()->render($mods);
   }
 
   /**
    * Convenience method to transform the given MODS record into RIS.
    */
-  public static function transform_file($mods_file) {
-    static $instance = NULL;
-
-    if ($instance === NULL) {
-      module_load_include('inc', 'bibutils', 'includes/ris_map');
-      $instance = new self(bibutils_ris_field_map());
-    }
-
-    return $instance->render(file_get_contents($mods_file));
+  public static function transformFile($mods_file) {
+    return self::getInstance()->render(file_get_contents($mods_file));
   }
 
   /**
-   * Gets the type of RIS Document. Eg: Book (BOOK), Book Chapter (CHAP)
+   * Gets the type of RIS Document.
    *
-   * @param $type string
+   * Eg: Book (BOOK), Book Chapter (CHAP)
+   *
+   * @param string $type
+   *   The type.
+   *
    * @return string
-   * RIS document type
+   *   RIS document type
    */
-  function getType($type) {
+  protected function getType($type) {
     $type = strtolower($type);
-    $return = $this->types[$type];
-    $return = (!empty($return)) ? $return : "STD";
-    return $return;
+    return isset($this->types[$type]) ? $this->types[$type] : "STD";
   }
 
   /**
-   * Get the RIS date format of a standard data format
+   * Get the RIS date format of a standard data format.
    *
-   * @param $mods_date string
-   * Format can be: YYYY-MM-DD or YYYY-MM or YYYY
+   * @param string $mods_date
+   *   Format can be: YYYY-MM-DD or YYYY-MM or YYYY
+   *
    * @return string
-   * RIS date
+   *   RIS date
    */
-  function getDate($mods_date) {
+  protected function getDate($mods_date) {
     $return = "";
-    if(preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $mods_date) || preg_match('/^[0-9]{4}-[0-9]{2}$/', $mods_date) || preg_match('/^[0-9]{4}$/', $mods_date)) {
+    if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $mods_date) || preg_match('/^[0-9]{4}-[0-9]{2}$/', $mods_date) || preg_match('/^[0-9]{4}$/', $mods_date)) {
       preg_match_all('/-/', $mods_date, $dashes);
       $return = str_replace("-", "/", $mods_date);
-      for($i = count($dashes[0]); $i <= 2; $i++) {
+      for ($i = count($dashes[0]); $i <= 2; $i++) {
         $return .= "/";
       }
     }
@@ -253,26 +254,27 @@ class ris {
   }
 
   /**
-   * Get the RIS Year
+   * Get the RIS Year.
    *
    * @param string $mods_date
    *   Format can be: YYYY*
+   *
    * @return string
-   * RIS Year
+   *   RIS Year
    */
-  function getYear($mods_date) {
+  protected function getYear($mods_date) {
     $return = "";
-    if(preg_match('/^[0-9]{4}/', $mods_date, $year)) {
+    if (preg_match('/^[0-9]{4}/', $mods_date, $year)) {
       $return = $year[0];
     }
     return $return;
   }
 
   /**
-   * Get the name from MODS
+   * Get the name from MODS.
    *
-   * @param simplexmlelement $names XML of the mods:name to the processed
-   *   Format:
+   * @param SimpleXMLElement $names
+   *   XML of the mods:name to the processed format:
    *   <name>
    *    <namePart type="family">
    *    <namePart type="given">
@@ -281,19 +283,19 @@ class ris {
    * @param string $field
    *   RIS field to assiocate the name with
    */
-  function renderName($names,$field) {
-    if(!empty($field)) {
+  protected function renderName($names, $field) {
+    if (!empty($field)) {
       $names->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
       $given = $names->xpath("mods:namePart[@type = 'given']");
       $family = $names->xpath("mods:namePart[@type = 'family']");
-      if(!empty($given[0]) && !empty($family[0])) {
-        $this->text .= "$field  - ".$family[0].", ".$given[0]."\n";
+      if (!empty($given[0]) && !empty($family[0])) {
+        $this->text .= "$field  - {$family[0]}, {$given[0]}.\n";
       }
     }
   }
 
   /**
-   * This where all the magic happens. It takes the given MODS XML and runs the RIS map XPaths against it
+   * Takes the given MODS XML and runs the RIS map XPaths against it.
    *
    * @param string $mods
    *   A string containing a MODS record (or a collection of them).
@@ -301,9 +303,9 @@ class ris {
    * @return string
    *   RIS formated text
    */
-  function render($mods) {
+  protected function render($mods) {
     $this->text = "";
-    if($this->map) {
+    if ($this->map) {
       $mods_doc = new SimpleXMLElement($mods);
       $mods_doc->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
       $mods_records = $mods_doc->xpath('//mods:mods');
@@ -311,7 +313,11 @@ class ris {
       foreach ($mods_records as $mods_record) {
         $mods_record->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
         foreach ($this->map as $field => $xpath) {
-          if(array_key_exists($field, $this->allowed_fields)) {
+          if (array_key_exists($field, $this->allowedFields)) {
+            if ($field == "ER") {
+              $this->text .= "$field  - \n";
+              continue;
+            }
             $data = $mods_record->xpath($xpath);
             foreach ($data as $key => $val) {
               $value = trim($val);
@@ -328,16 +334,13 @@ class ris {
                 $value = $this->getYear($value);
               }
 
-              if(!empty($value)) {
+              if (!empty($value)) {
                 $this->text .= "$field  - $value\n";
               }
 
-              if(!in_array($field,$this->repeat_fields)) {
+              if (!in_array($field, $this->repeatFields)) {
                 break;
               }
-            }
-            if($field == "ER") {
-              $this->text .= "$field  - \n";
             }
           }
         }
@@ -346,4 +349,3 @@ class ris {
     return $this->text;
   }
 }
-

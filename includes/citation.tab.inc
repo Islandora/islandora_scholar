@@ -4,18 +4,20 @@
  * @file
  * Module used to create a citation view tab.
  */
+
 class CitationView {
   /**
    * Covenience method.
    *
    * Get a rendered citation.
    *
-   * @param $pid string
-   *   A string containing the PID for which we're to return markup for a citation.
+   * @param string $mods
+   *   A MODS document.
+   *
    * @return string
    *   A string containing HTML markup.
    */
-  public static function get_citation($mods) {
+  public static function getCitation($mods) {
     return citeproc_bibliography_from_mods(
       citeproc_default_style(),
       $mods
@@ -23,12 +25,17 @@ class CitationView {
   }
 
   /**
+   * Retrieves a viewer for rendering the object as a citation.
+   *
    * Retrieves the viewer.
    *
-   * @param type $object
-   * @return type
+   * @param AbstractFedoraObject $object
+   *   The object to view.
+   *
+   * @return array
+   *   A renderable array
    */
-  public static function get_viewer($object) {
+  public static function getViewer(AbstractFedoraObject $object) {
     $to_return = array();
 
     $viewers = module_invoke_all('islandora_scholar_viewer', $object);
@@ -43,7 +50,10 @@ class CitationView {
   }
 }
 
-function islandora_scholar_islandora_scholar_viewer($object) {
+/**
+ * Implements hook_islandora_scholar_viewer().
+ */
+function islandora_scholar_islandora_scholar_viewer(AbstractFedoraObject $object) {
   global $user;
   $to_return = array();
 
@@ -69,6 +79,20 @@ function islandora_scholar_islandora_scholar_viewer($object) {
   return $to_return;
 }
 
+/**
+ * Renders the given object's PDF datastream in an iframe using Google docs.
+ *
+ * Also provides a download link for the PDF datastream.
+ *
+ * The PDF datastream is rendered directly from Fedora so this will only work
+ * for PDF datastreams which are viewable by anonymous users.
+ *
+ * @param string $pid
+ *   The PID of the object.
+ *
+ * @return array
+ *   A renderable array.
+ */
 function islandora_scholar_google_pdf_viewer($pid) {
   global $base_url;
 
@@ -78,15 +102,16 @@ function islandora_scholar_google_pdf_viewer($pid) {
   }
 
   $iframe_attrs = array(
-    'src' => url('http://docs.google.com/viewer', array('query' => array(
-      'url' =>  t($base, array(
-        '!base_url' => $base_url,
-        '!fedora_base' => variable_get('fedora_base_url', 'http://localhost:8080/fedora'),
-        '!pid' => $pid,
-        '!dsid' => 'PDF',
-      )),
-      'embedded' => 'true',
-    ))),
+    'src' => url('http://docs.google.com/viewer', array(
+             'query' => array(
+               'url' => t($base, array(
+                        '!base_url' => $base_url,
+                        '!fedora_base' => variable_get('fedora_base_url', 'http://localhost:8080/fedora'),
+                        '!pid' => $pid,
+                        '!dsid' => 'PDF',
+                      )),
+               'embedded' => 'true',
+             ))),
     'style' => 'width: 600px; height: 500px;',
     'frameborder' => '0',
   );
