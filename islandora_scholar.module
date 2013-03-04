@@ -173,5 +173,5 @@ function islandora_scholar_romeo_access($object) {
 
   return variable_get('islandora_scholar_romeo_enable', FALSE) &&
     in_array('ir:citationCModel', $object->models) &&
-    RomeoView::getISSN($object->pid);
+    RomeoView::getISSN($object);
 }
