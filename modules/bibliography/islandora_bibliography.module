@@ -15,7 +15,7 @@ define('MENU_BIBLIOGRAPHY_CITATION', 'islandora/bibliography/citation');
 function islandora_bibliography_menu() {
   $items = array();
   $items['islandora/bibliography/preview'] = array(
-    'page callback' => 'islandora_bibliography_preview_form',
+    'page callback' => 'islandora_bibliography_preview',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
@@ -172,7 +172,6 @@ function islandora_bibliography_form_islandora_bookmark_detailed_form_alter(arra
  */
 function islandora_bibliography_preview_selected(array $form, array &$form_state) {
   $pids = array();
-
   foreach ($form_state['values']['bookmarks']['fieldset']['table'] as $checkbox => $value) {
     if ($value !== 0) {
       // Make sure we can actually access the object.
@@ -181,15 +180,10 @@ function islandora_bibliography_preview_selected(array $form, array &$form_state
       }
     }
   }
-
-  $queries = $_GET;
-  unset($queries['q']);
   if (count($pids)) {
     $format = $form_state['input']['islandora_bookmark_export_options_select'];
     $_SESSION['islandora_bibliography_preview']['style'] = $form_state['input']['islandora_bookmark_export_styles_' . $format];
     $_SESSION['islandora_bibliography_preview']['pids'] = serialize($pids);
-    $_SESSION['islandora_bibliography_preview']['queries'] = serialize($queries);
-    $_SESSION['islandora_bibliography_preview']['path'] = request_path();
     drupal_goto('islandora/bibliography/preview');
   }
   else {
@@ -203,32 +197,28 @@ function islandora_bibliography_preview_selected(array $form, array &$form_state
  * @return string
  *   Rendered citations in HTML format.
  */
-function islandora_bibliography_preview_form() {
+function islandora_bibliography_preview() {
+  drupal_set_title(t('Export preview'));
   drupal_add_css(drupal_get_path('module', 'islandora_bibliography') . '/css/islandora_bibliography.css');
-
-  $style = citeproc_style($_SESSION['islandora_bibliography_preview']['style']);
-  $output = '';
-
-  $bibliography_entries = array();
-
-  foreach (unserialize($_SESSION['islandora_bibliography_preview']['pids']) as $pid) {
+  $preview = isset($_SESSION['islandora_bibliography_preview']) ? $_SESSION['islandora_bibliography_preview'] : NULL;
+  $return_link = l(t('Return to the previous page.'), 'javascript:window.history.back();', array('external' => TRUE));
+  if (!$preview) {
+    return $return_link;
+  }
+  $output = array();
+  $style = citeproc_style($preview['style']);
+  foreach (unserialize($preview['pids']) as $pid) {
     $mods = islandora_bibliography_get_mods($pid);
     if ($mods) {
-      $bibliography_entries[] = citeproc_bibliography_from_mods($style, $mods);
+      $output[] = array(
+        '#prefix' => '<div>',
+        '#markup' => citeproc_bibliography_from_mods($style, $mods),
+        '#suffix' => '</div><br/>',
+      );
     }
   }
-
-  drupal_set_title(t('Export preview'));
-
-  // XXX: May have to implode with a line-break?
-  $output = implode($bibliography_entries, '');
-  $output .= l(t('Return to the previous page.'), $_SESSION['islandora_bibliography_preview']['path'], array('query' => unserialize($_SESSION['islandora_bibliography_preview']['queries'])));
-  $form = array(
-    '#markup' => $output,
+  $output[] = array(
+    '#markup' => $return_link,
   );
-  unset($_SESSION['islandora_bibliography_preview']['style']);
-  unset($_SESSION['islandora_bibliography_preview']['pids']);
-  unset($_SESSION['islandora_bibliography_preview']['path']);
-  unset($_SESSION['islandora_bibliography_preview']['queries']);
-  return drupal_render($form);
+  return drupal_render($output);
 }
