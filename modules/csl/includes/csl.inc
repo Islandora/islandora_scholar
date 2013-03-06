@@ -222,7 +222,7 @@ class CSL {
    */
   public static function Delete($style_name) {
     if (self::Exists($style_name)) {
-      db_delete(self::TABLE, 't')
+      db_delete(self::TABLE)
         ->condition('name', $style_name)
         ->execute();
       return TRUE;
