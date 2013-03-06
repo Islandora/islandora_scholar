@@ -29,7 +29,7 @@ class RomeoView {
    *   be found.
    */
   public static function getISSN($object) {
-    $cache_id = "islandora_scholar_issn_cache_{$object->pid}";
+    $cache_id = "islandora_scholar_issn_cache_{$object->id}";
     // Try to get the issn of the object.
     if ($issn = cache_get($cache_id)) {
       return $issn->data;
