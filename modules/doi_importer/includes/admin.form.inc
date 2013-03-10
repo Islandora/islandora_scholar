@@ -27,8 +27,8 @@ function doi_importer_admin_form(array $form, array &$form_state) {
     'doi_importer_openurl_pid' => array(
       '#type' => 'textfield',
       '#title' => t('OpenURL PID'),
-      '#description' => t('An identifier to call yourself, for the OpenURL endpoint.'),
-      '#default_value' => variable_get('doi_importer_openurl_pid', 'zac@yesguy.biz'),
+      '#description' => t('An identifier to call yourself, for the OpenURL endpoint. To use this service you first need to register for an account here: http://www.crossref.org/requestaccount/ '),
+      '#default_value' => variable_get('doi_importer_openurl_pid', 'user@example.com'),
     ),
   );
 

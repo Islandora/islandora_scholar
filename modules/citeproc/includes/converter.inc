@@ -654,18 +654,18 @@ function _try_parse_date(&$output, $date_string) {
  */
 function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
   $output = array();
-  $season = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateOther[@type='season']");
-  $date_captured = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateCaptured");
+  $season = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateOther[@type='season']");
+  $date_captured = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateCaptured");
   if (!empty($date_captured)) {
     _try_parse_date($output['accessed'], $date_captured);
   }
 
-  $date_issued = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateIssued | /mods:mods/mods:relatedItem[@type='host']/mods:part/mods:date");
+  $date_issued = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateIssued | /mods:mods/mods:relatedItem[@type='host']/mods:part/mods:date");
   if (!empty($date_issued)) {
     _try_parse_date($output['issued'], $date_issued);
   }
 
-  $date_created = convert_mods_to_citeproc_json_query($mods, "/mods:mods/mods:originInfo/mods:dateCreated");
+  $date_created = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateCreated");
   if (!empty($date_created) && empty($output['issued'])) {
     _try_parse_date($output['issued'], $date_created);
   }

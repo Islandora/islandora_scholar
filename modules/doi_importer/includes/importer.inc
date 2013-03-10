@@ -29,7 +29,7 @@ class DOIImporter extends IslandoraBatchImporter {
       'fs' => array(
         '#type' => 'fieldset',
         '#title' => t('DOI Batch Journal Importer'),
-        '#description' => t('Give either a list of Digital Object Identifiers in a file, or enter the list in the textarea. In either case, the items in the list should be separated by either whitespace or commas (or some combination thereof). NOTE: Presently, only journal (articles) are supported.'),
+        '#description' => t('Provide either a list of Digital Object Identifiers in a file, or enter DOIs in the textarea below. In either case, the DOIs in the list should be separated by either whitespace or commas (or some combination thereof). NOTE: Presently, only journal (articles) are supported.'),
         'file' => array(
           '#type' => 'managed_file',
           '#title' => t('File of DOIs'),
@@ -41,7 +41,7 @@ class DOIImporter extends IslandoraBatchImporter {
         'textarea' => array(
           '#type' => 'textarea',
           '#title' => t('DOIs'),
-          '#description' => t('A list Digital Object Identifiers.'),
+          '#description' => t('Provide a list Digital Object Identifiers (DOI) - eg. 10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x '),
         ),
         'ids' => array(
           '#type' => 'value',
@@ -282,11 +282,11 @@ class DOIImportObject extends IslandoraImportObject {
 
                           if ($role) {
                             $name_role = $mods_name->addChild('role');
-                            $name_role->addChild('roleterm', $role);
+                            $name_role->addChild('roleTerm', $role);
                             $roles = array('author', 'editor', 'translator');
                             if (in_array($role, $roles)) {
-                              $name_role->roleterm->addAttribute('authority', 'marcrelator');
-                              $name_role->roleterm->addAttribute('type', 'text');
+                              $name_role->roleTerm->addAttribute('authority', 'marcrelator');
+                              $name_role->roleTerm->addAttribute('type', 'text');
                             }
                           }
 
@@ -313,11 +313,20 @@ class DOIImportObject extends IslandoraImportObject {
                     }
                     break;
 
+                  // genre element was not getting populated and it is needed for proper CSL display.
+                  // If we start pulling anything other than journal articles using DOIs, then this will need to be revisited. 
+                  // journal article will work when piped through CSL converter.
+                  case 'genre':
+                    $genre = 'journal article';
+                    $mods_genre = $mods->addChild('genre', $genre);
+                    break;
+
                   case 'publication_date':
                     $pubdate_year = (string) $item[0]->year[0];
                     $pubdate_month = (string) $item[0]->month[0];
                     $pubdate_day = (string) $item[0]->day[0];
                     break;
+
 
                   case 'pages':
                     $first_page = (string) $item[0]->first_page[0];
@@ -355,6 +364,27 @@ class DOIImportObject extends IslandoraImportObject {
                 }
               }
             }
+
+           // we should populated the dateIssued element otherwise CSL does not display a date
+           $originInfo = $mods->addChild('originInfo');
+           if (!empty($pubdate_year)) {
+                $date_value = $pubdate_year;
+                if (!empty($pubdate_month)) {
+                  if (strlen($pubdate_month) == 1) {
+                    $pubdate_month = "0" . $pubdate_month;
+                  }
+                  $date_value .= "-" . $pubdate_month;
+                }
+                if (!empty($pubdate_day)) {
+                  if (strlen($pubdate_day) == 1) {
+                    $pubdate_day = "0" . $pubdate_day;
+                  }
+                  $date_value .= "-" . $pubdate_day;
+                }
+                $originInfo->addChild('dateIssued', $date_value);
+              }
+
+
 
             if (!empty($volume_number) || !empty($issue_number) || !empty($other_pages) || !empty($last_page) || !empty($first_page) || !empty($pubdate_year) || !empty($pubdate_month) || !empty($pubdate_day)) {
               $part = $mods->addChild('part');
