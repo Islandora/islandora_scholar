@@ -20,6 +20,7 @@ class Coins {
   public $issue;
   public $date;
   public $startPage;
+  public $endPage;
   public $title;
   public $subTitle;
 
@@ -105,9 +106,29 @@ class Coins {
     if ($date) {
       $this->date = $date[0];
     }
+    else {
+
+    }
 
     if ($this->date == NULL) {
       $this->date = $xml->originInfo->dateCreated;
+    }
+    $origin_date = $xml->xpath('//mods:originInfo/dateIssued');
+    $part_date = $xml->xpath('//mods:part/mods:date');
+    $related_date = $xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
+
+    if ($origin_date) {
+      $date = (string) reset($origin_date);
+    }
+    elseif ($part_date) {
+      $date = (string) reset($part_date);
+    }
+    elseif ($related_date) {
+      $date = (string) reset($related_date);
+    }
+
+    if ($date) {
+      $this->date = $date;
     }
 
     $volume = $xml->xpath('//mods:part/mods:detail[@type="volume"]/mods:number');
@@ -125,7 +146,12 @@ class Coins {
       $this->startPage = $start_page[0];
     }
 
-    $title = $xml->xpath('//mods:title');
+    $end_page = $xml->xpath('//mods:extent[@unit="page"]/mods:end');
+    if ($end_page) {
+      $this->endPage = (string) reset($end_page);
+    }
+
+    $title = $xml->xpath('/mods:mods/mods:titleInfo/mods:title');
     if ($title) {
       $this->title = $title[0];
     }
@@ -284,6 +310,10 @@ class Coins {
 
       if (((string) $this->startPage != NULL) || $admin) {
         $rows[] = array('Start page', $this->startPage);
+      }
+
+       if (((string) $this->startPage != NULL) || $admin) {
+        $rows[] = array('End page', $this->endPage);
       }
 
       if (((string) $this->issn != NULL) || $admin) {
