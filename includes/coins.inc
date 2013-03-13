@@ -25,17 +25,13 @@ class Coins {
 
   public $journalTitle;
   public $abstract;
-  public $names;
   public $authors;
   public $contributors;
-  public $reverseNames;
 
   public $topic;
   public $note;
   public $embargoDate;
   public $genre;
-  public $familyNames;
-  public $fullNames;
 
   public $username;
   public $department;
@@ -59,66 +55,44 @@ class Coins {
 
     $this->mods = $xml;
 
-    $full_names = array();
-    $names = array();
     $authors = array();
     $contributors = array();
-    $family_names = array();
-    $reverse = array();
-    $i = 0;
-    foreach ($xml->name as $name) {
-      foreach ($name->namePart as $name_part) {
-        if ((string) $name_part != '') {
-          // Strip periods off the end.
-          $np = (string) rtrim($name_part, '.');
 
-          $name = '';
-          $full_name = '';
-          $reverse_given = '';
-          $reverse_family = '';
-
-          if ($name_part['type'] == 'given') {
-            $name .= (string) substr($np, 0, 1) . '. ';
-            $full_name .= (string) $name_part;
-            $reverse_given .= (string) rtrim($name_part, '.');
+    foreach ($xml->name as $name_xml) {
+      $name_parts = array();
+      $role = (string) @$name_xml->role->roleTerm;
+      if ($role) {
+        if ($role == 'author' || $role == 'creator' || $role = 'contributor') {
+          foreach ($name_xml->namePart as $name_part) {
+            if ((string) $name_part != '') {
+              if ($role == 'contributor') {
+                $name_parts['contributor'] = TRUE;
+              }
+              else {
+                $name_parts['contributor'] = FALSE;
+              }
+              // Strip periods off the end.
+              $np = (string) rtrim($name_part, '.');
+              if ($name_part['type'] == 'given') {
+                $name_parts['initial'] = (string) substr($np, 0, 1) . '. ';
+                $name_parts['first_name'] = (string) $name_part;
+              }
+              if ($name_part['type'] == 'family') {
+                $name_parts['last_name'] = $np;
+              }
+            }
           }
-          if ($name_part['type'] == 'family') {
-            $name .= $np;
-            $family_names[$i] = $np;
-            $full_name .= ' ' . $np;
-            $reverse_family .= (string) rtrim($name_part, '.');
-          }
-
-          $names[$i] = $name;
-          $full_names[$i] = $full_name;
-          $reverse[$i] = $reverse_family . ', ' . $reverse_given . '.';
         }
-      }
-      if (!empty($names[$i])) {
-        $role = (string) @$name->role->roleTerm;
-        if ($role == 'aut') {
-          $role = 'author';
-        }
-        if ($role == 'author') {
-          $authors[] = $names[$i];
+        if ($name_parts['contributor'] == FALSE) {
+          $authors[] = $name_parts['initial'] . $name_parts['last_name'];
         }
         else {
-          $contributors[] = $names[$i];
-        }
-
-        if (!empty($role)) {
-          $names[$i] .= ' (' . $role . ')';
+          $contributors[] = $name_parts['initial'] . $name_parts['last_name'];
         }
       }
-      $i++;
     }
-    $this->names = $names;
-    $this->fullNames = $full_names;
-    $this->authors = $authors;
     $this->contributors = $contributors;
-    $this->familyNames = $family_names;
-
-    $this->reverseNames = $reverse;
+    $this->authors = $authors;
 
     $issn = $xml->xpath('//mods:identifier[@type="issn"]');
     if (isset($issn[0])) {
@@ -278,8 +252,8 @@ class Coins {
       $rows[] = array('URL', $url);
     }
     else {
-      if ($names != NULL || $admin) {
-        $rows[] = array('Authors', rtrim($names, ', '));
+      if ($authors != NULL || $admin) {
+        $rows[] = array('Authors', rtrim($authors, ', '));
       }
     }
 
