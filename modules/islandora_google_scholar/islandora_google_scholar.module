@@ -1,0 +1,183 @@
+<?php
+
+
+/**
+ * Creates meta tags to be placed in the head of the HTML to conform to
+ * Zotero and Google Scholar standards.
+ *
+ * @param FedoraObject $object
+ *
+ * @return array $meta_tags
+ *   Associativee array where the key is the name of the tag and the value is the
+ *   content.
+ */
+function islandora_google_scholar_create_meta_tags($object) {
+  // Need at least title, full name of at least one author, publication year.
+
+  if (!$object['MODS']) {
+    return FALSE;
+  }
+  else {
+    $tags = array();
+    $tags['citation_author'] = array();
+    $mods = $object['MODS']->content;
+    $mods_xml = new SimpleXMLElement($mods);
+    $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
+
+    $title_results = $mods_xml->xpath('/mods:mods/mods:titleInfo/mods:title');
+    $title = (string) reset($title_results);
+
+    if (!empty($title)) {
+      $tags['citation_title'] = $title;
+    }
+    else {
+      return FALSE;
+    }
+
+    $authors = array();
+
+    // Authors
+    foreach ($mods_xml->name as $name_xml) {
+      $name_parts = array();
+      $role = (string) @$name_xml->role->roleTerm;
+      if ($role) {
+        if ($role == 'author') {
+          foreach ($name_xml->namePart as $name_part) {
+            if ((string) $name_part != '') {
+               // Strip periods off the end.
+              $np = (string) rtrim($name_part, '.');
+              if ($name_part['type'] == 'given') {
+                $name_parts['first_name'] = (string) $name_part;
+              }
+              if ($name_part['type'] == 'family') {
+                $name_parts['last_name'] = $np;
+              }
+            }
+          }
+        }
+        $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
+      }
+    }
+    if (count($tags['citation_author']) == 0) {
+      return FALSE;
+    }
+
+    $origin_date = $mods_xml->xpath('//mods:originInfo/dateIssued');
+    $part_date = $mods_xml->xpath('//mods:part/mods:date');
+    $related_date = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
+
+    if ($origin_date) {
+      $date = (string) reset($origin_date);
+    }
+    elseif ($part_date) {
+      $date = (string) reset($part_date);
+    }
+    elseif ($related_date) {
+      $date = (string) reset($related_date);
+    }
+    else {
+      return FALSE;
+    }
+
+    // Google requires dates in yy/mm/dd format or just the year. As dates suck
+    // and we don't have a consistent structure of input we will just return the
+    // year for now.
+    if ($date) {
+      $date_obj = new DateTime($date);
+      $date_string = date_format($date_obj, 'Y');
+      $tags['citation_publication_date'] = $date_string;
+    }
+
+    $journal_title = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
+    if ($journal_title) {
+      $tags['citation_journal_title'] = (string) reset($journal_title);
+    }
+
+    $volume = $mods_xml->xpath('//mods:part/mods:detail[@type="volume"]/mods:number');
+    if ($volume) {
+      $tags['citation_volume'] = (string) reset($volume);
+    }
+
+    $issn = $mods_xml->xpath('//mods:identifier[@type="issn"]');
+    if ($issn) {
+      $tags['citation_issn'] = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) reset($issn));
+    }
+
+    $issue = $mods_xml->xpath('//mods:part/mods:detail[@type="issue"]/mods:number');
+    if ($issue) {
+      $tags['citation_issue'] = (string) reset($issue);
+    }
+
+    $start_page = $mods_xml->xpath('//mods:extent[@unit="page"]/mods:start');
+    if ($start_page) {
+      $tags['citation_firstpage'] = (string) reset($start_page);
+    }
+
+    $end_page = $mods_xml->xpath('//mods:extent[@unit="page"]/mods:end');
+    if ($end_page) {
+      $tags['citation_endpage'] = (string) reset($end_page);
+    }
+
+    $online_date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationDate');
+    if ($online_date) {
+      $date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationdate');
+      //some date parsing
+      $tags['citation_online_date'] = 'parsedate';
+    }
+
+    $doi = $mods_xml->xpath('//mods:identifier[@type="doi"]');
+    if ($doi) {
+      $tags['citation_doi'] = (string) reset($doi);
+    }
+
+    if ($object['PDF']) {
+      // Grab the URL
+      $tags['citation_pdf_url'] = url("islandora/object/$object->id/datastream/PDF/view", array('absolute' => TRUE));
+    }
+
+    $tags['citation_abstract_html_url'] = url("islandora/object/$object->id/", array('absolute' => TRUE));
+  }
+
+  return $tags;
+}
+
+/**
+ * Adds the meta tags to the HEAD of the html document.
+ * @param type $tags
+ *   An associate array containing the name => content of the meta tags.
+ */
+function islandora_google_scholar_embed_tags($tags) {
+  if ($tags != FALSE) {
+      foreach ($tags as $name => $content) {
+        if (is_array($content)) {
+          foreach ($content as $key => $nested_val) {
+            $element = array(
+              '#tag' => 'meta',
+              '#attributes' => array(
+                'name' => $name,
+                'content' => htmlspecialchars($nested_val),
+              ),
+            );
+            drupal_add_html_head($element, $key . '_' . $nested_val);
+          }
+        }
+        else {
+          $element = array(
+            '#tag' => 'meta',
+            '#attributes' => array(
+              'name' => $name,
+              'content' => htmlspecialchars($content),
+            ),
+          );
+          drupal_add_html_head($element, $name);
+        }
+      }
+    }
+}
+/**
+ * Implements hook_CMODEL_islandora_view_object().
+ */
+function islandora_google_scholar_ir_citationCModel_islandora_view_object($object) {
+  $tags = islandora_google_scholar_create_meta_tags($object);
+  islandora_google_scholar_embed_tags($tags);
+}
