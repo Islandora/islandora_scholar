@@ -82,12 +82,14 @@ class Coins {
               }
             }
           }
-        }
-        if ($name_parts['contributor'] == FALSE) {
-          $authors[] = $name_parts['initial'] . $name_parts['last_name'];
-        }
-        else {
-          $contributors[] = $name_parts['initial'] . $name_parts['last_name'];
+          if (!empty($name_parts)) {
+            if ($name_parts['contributor'] == FALSE) {
+              $authors[] = $name_parts['initial'] . $name_parts['last_name'];
+            }
+            else {
+              $contributors[] = $name_parts['initial'] . $name_parts['last_name'];
+            }
+          }
         }
       }
     }
