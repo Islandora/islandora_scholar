@@ -2,25 +2,22 @@
 
 /**
  * @file
- *
  * Module used to embed meta tags in the HEAD for use in indexing in Google
  * Scholar and Zotero.
- *
  */
 
 /**
- * Creates meta tags to be placed in the head of the HTML to conform to
- * Zotero and Google Scholar standards.
+ * Creates meta tags to be placed in the head of the HTML.
  *
  * @param FedoraObject $object
+ *   A FedoraObject.
  *
- * @return array $meta_tags
- *   Associativee array where the key is the name of the tag and the value is the
- *   content.
+ * @return array
+ *   Associative array where the key is the name of the tag and the value is
+ *   the content.
  */
 function islandora_google_scholar_create_meta_tags($object) {
   // Need at least title, full name of at least one author, publication year.
-
   if (!$object['MODS']) {
     return FALSE;
   }
@@ -43,7 +40,6 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     $authors = array();
 
-    // Authors
     foreach ($mods_xml->name as $name_xml) {
       $name_parts = array();
       $role = (string) @$name_xml->role->roleTerm;
@@ -51,7 +47,7 @@ function islandora_google_scholar_create_meta_tags($object) {
         if ($role == 'author') {
           foreach ($name_xml->namePart as $name_part) {
             if ((string) $name_part != '') {
-               // Strip periods off the end.
+              // Strip periods off the end.
               $np = (string) rtrim($name_part, '.');
               if ($name_part['type'] == 'given') {
                 $name_parts['first_name'] = (string) $name_part;
@@ -113,7 +109,10 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     $issn = $mods_xml->xpath('//mods:identifier[@type="issn"]');
     if ($issn) {
-      $tags['citation_issn'] = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) reset($issn));
+      $tags['citation_issn'] = str_replace(
+          array("&", "=", ",", ";"),
+          array('', '', '', ''),
+          (string) reset($issn));
     }
 
     $issue = $mods_xml->xpath('//mods:part/mods:detail[@type="issue"]/mods:number');
@@ -134,8 +133,9 @@ function islandora_google_scholar_create_meta_tags($object) {
     $online_date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationDate');
     if ($online_date) {
       $date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationdate');
-      //some date parsing
-      $tags['citation_online_date'] = 'parsedate';
+      $date_obj = new DateTime($date);
+      $date_string = date_format($date_obj, 'Y');
+      $tags['citation_online_date'] = $date_string;
     }
 
     $doi = $mods_xml->xpath('//mods:identifier[@type="doi"]');
@@ -144,7 +144,6 @@ function islandora_google_scholar_create_meta_tags($object) {
     }
 
     if ($object['PDF']) {
-      // Grab the URL
       $tags['citation_pdf_url'] = url("islandora/object/$object->id/datastream/PDF/view", array('absolute' => TRUE));
     }
 
@@ -156,37 +155,39 @@ function islandora_google_scholar_create_meta_tags($object) {
 
 /**
  * Adds the meta tags to the HEAD of the html document.
- * @param type $tags
+ *
+ * @param array $tags
  *   An associate array containing the name => content of the meta tags.
  */
 function islandora_google_scholar_embed_tags($tags) {
   if ($tags != FALSE) {
-      foreach ($tags as $name => $content) {
-        if (is_array($content)) {
-          foreach ($content as $key => $nested_val) {
-            $element = array(
-              '#tag' => 'meta',
-              '#attributes' => array(
-                'name' => $name,
-                'content' => htmlspecialchars($nested_val),
-              ),
-            );
-            drupal_add_html_head($element, $key . '_' . $nested_val);
-          }
-        }
-        else {
+    foreach ($tags as $name => $content) {
+      if (is_array($content)) {
+        foreach ($content as $key => $nested_val) {
           $element = array(
             '#tag' => 'meta',
             '#attributes' => array(
               'name' => $name,
-              'content' => htmlspecialchars($content),
+              'content' => htmlspecialchars($nested_val),
             ),
           );
-          drupal_add_html_head($element, $name);
+          drupal_add_html_head($element, $key . '_' . $nested_val);
         }
       }
+      else {
+        $element = array(
+          '#tag' => 'meta',
+          '#attributes' => array(
+            'name' => $name,
+            'content' => htmlspecialchars($content),
+          ),
+        );
+        drupal_add_html_head($element, $name);
+      }
     }
+  }
 }
+
 /**
  * Implements hook_CMODEL_islandora_view_object().
  */
