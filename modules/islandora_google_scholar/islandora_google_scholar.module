@@ -55,7 +55,9 @@ function islandora_google_scholar_create_meta_tags($object) {
             }
           }
         }
-        $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
+        if (isset($names_parts['last_name']) && isset($name_parts['first_name'])) {
+          $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
+        }
       }
     }
     if (count($tags['citation_author']) == 0) {
