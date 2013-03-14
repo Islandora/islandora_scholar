@@ -62,7 +62,7 @@ function islandora_google_scholar_create_meta_tags($object) {
             }
           }
         }
-        if (isset($names_parts['last_name']) && isset($name_parts['first_name'])) {
+        if (isset($name_parts['last_name']) && isset($name_parts['first_name'])) {
           $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
         }
       }
@@ -71,9 +71,10 @@ function islandora_google_scholar_create_meta_tags($object) {
       return FALSE;
     }
 
-    $origin_date = $mods_xml->xpath('//mods:originInfo/dateIssued');
+    $origin_date = $mods_xml->xpath('//mods:originInfo/mods:dateIssued');
     $part_date = $mods_xml->xpath('//mods:part/mods:date');
     $related_date = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
+    $created_date = $mods_xml->xpath('//mods:originInfo/mods:dateCreated');
 
     if ($origin_date) {
       $date = (string) reset($origin_date);
@@ -83,6 +84,9 @@ function islandora_google_scholar_create_meta_tags($object) {
     }
     elseif ($related_date) {
       $date = (string) reset($related_date);
+    }
+    elseif ($created_date) {
+      $date = (string) reset($created_date);
     }
     else {
       return FALSE;
