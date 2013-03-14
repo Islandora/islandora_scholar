@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @file
+ *
+ * Module used to embed meta tags in the HEAD for use in indexing in Google
+ * Scholar and Zotero.
+ *
+ */
 
 /**
  * Creates meta tags to be placed in the head of the HTML to conform to
