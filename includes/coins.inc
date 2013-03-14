@@ -102,20 +102,10 @@ class Coins {
       $this->issn = str_replace(array("&", "=", ",", ";"), array('', '', '', ''), (string) $issn[0]);
     }
 
-    $date = $xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
-    if ($date) {
-      $this->date = $date[0];
-    }
-    else {
-
-    }
-
-    if ($this->date == NULL) {
-      $this->date = $xml->originInfo->dateCreated;
-    }
-    $origin_date = $xml->xpath('//mods:originInfo/dateIssued');
+    $origin_date = $xml->xpath('//mods:originInfo/mods:dateIssued');
     $part_date = $xml->xpath('//mods:part/mods:date');
     $related_date = $xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
+    $created_date = $xml->xpath('//mods:originInfo/mods:dateCreated');
 
     if ($origin_date) {
       $date = (string) reset($origin_date);
@@ -125,6 +115,9 @@ class Coins {
     }
     elseif ($related_date) {
       $date = (string) reset($related_date);
+    }
+    elseif ($created_date) {
+      $date = (string) reset($created_date);
     }
 
     if ($date) {
