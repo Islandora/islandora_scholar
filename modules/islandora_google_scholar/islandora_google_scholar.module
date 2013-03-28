@@ -132,7 +132,7 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     $online_date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationDate');
     if ($online_date) {
-      $date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationdate');
+      $date = (string) reset($online_date);
       $date_obj = new DateTime($date);
       $date_string = date_format($date_obj, 'Y');
       $tags['citation_online_date'] = $date_string;
