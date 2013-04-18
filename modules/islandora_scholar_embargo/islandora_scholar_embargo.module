@@ -268,7 +268,7 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
   $item = islandora_object_load($pid);
   $rels = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
   $expiry = $rels[0]['object']['value'];
-  $xacml = new IslandoraXacml($pid);
+  $xacml = new IslandoraXacml($item);
 
   if ($dsid === NULL) {
     // TODO Remove embargo statement from RELS-EXT (and POLICY stream).
@@ -324,7 +324,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
 
   $item = islandora_object_load($pid);
 
-  $xacml = new IslandoraXacml($pid);
+  $xacml = new IslandoraXacml($item);
   $xacml_changed = FALSE;
 
   $users = islandora_scholar_embargo_users_to_notify($item);
