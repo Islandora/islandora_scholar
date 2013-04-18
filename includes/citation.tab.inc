@@ -61,7 +61,7 @@ function islandora_scholar_islandora_scholar_viewer(AbstractFedoraObject $object
     $access_pdf = TRUE;
 
     if ($access_pdf && class_exists('IslandoraXacml')) {
-      $xacml = new IslandoraXacml($object->id);
+      $xacml = new IslandoraXacml($object);
       $access_pdf = $access_pdf && (($user->uid === 1) || $xacml->datastreamRule->hasPermission($user->name, $user->roles, NULL, 'PDF'));
     }
 
