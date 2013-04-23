@@ -95,11 +95,13 @@ class EndNoteXMLImportObject extends IslandoraScholarImportObject {
       Bibutils::Convert($enxml_file, 'EndNoteXML', $mods_file, 'MODS');
 
       $this->mods = file_get_contents($mods_file);
+      $mods_doc = DOMDocument::loadXML($this->mods);
+      $mods_doc->documentElement->setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:mods', 'http://www.loc.gov/mods/v3');
+      $this->mods = $mods_doc->saveXML();
 
       file_delete($enxml_file);
       file_delete($mods_file);
     }
-
     return $this->mods;
   }
 }
