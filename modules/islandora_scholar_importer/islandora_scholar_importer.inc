@@ -158,7 +158,7 @@ abstract class IslandoraScholarBatchImporter {
         if (empty($this->context['results']['pid_cache'])) {
           //Get enough PIDs for half of the remaining items...
           //  (plus one, so we'll always get at least one).
-          $this->context['results']['pid_cache'] = Fedora_Item::get_next_PID_in_namespace(
+          $this->context['results']['pid_cache'][] = Fedora_Item::get_next_PID_in_namespace(
             $item->pid_namespace,
             intval((($this->context['sandbox']['max'] - $this->context['sandbox']['progress']) / 2) + 1)
           );
