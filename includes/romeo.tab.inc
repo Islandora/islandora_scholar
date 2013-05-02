@@ -21,8 +21,8 @@ class RomeoView {
   /**
    * Get an ISSN from the object's MODS.
    *
-   * @param FedoraObject $object
-   *   A FedoraObject whose MODS we are to check.
+   * @param AbstractObject $object
+   *   A AbstractObject whose MODS we are to check.
    *
    * @return string|FALSE
    *   Returns either the ISSN in a string, or boolean FALSE if no ISSN could

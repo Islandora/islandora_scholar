@@ -40,10 +40,10 @@ class Coins {
   /**
    * Create the object properties from the MODS datastream.
    *
-   * @param AbstractFedoraObject $object
+   * @param AbstractObject $object
    *   The object that you want to extract the MODS data from
    */
-  public function __construct(AbstractFedoraObject $object) {
+  public function __construct(AbstractObject $object) {
     $this->pid = $object->id;
     $xmlstr = $object['MODS']->content;
 
@@ -338,7 +338,7 @@ class Coins {
  *
  * Uses the Coins class to perform extraction.
  *
- * @param AbstractFedoraObject $object
+ * @param AbstractObject $object
  *   An object containing a MODS stream.
  *
  * @return array

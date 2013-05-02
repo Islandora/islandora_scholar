@@ -25,7 +25,7 @@ function islandora_bibliography_menu() {
 /**
  * Implements hook_islandora_bookmark_object_markup().
  */
-function islandora_bibliography_ir_citationCModel_islandora_bookmark_object_markup(AbstractFedoraObject $object) {
+function islandora_bibliography_ir_citationCModel_islandora_bookmark_object_markup(AbstractObject $object) {
   $style = citeproc_default_style();
   $mods = islandora_bibliography_get_mods($object->id);
   if ($mods) {

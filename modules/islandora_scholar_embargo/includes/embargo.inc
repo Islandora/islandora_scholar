@@ -12,7 +12,7 @@
  *   The Drupal form definition.
  * @param array $form_state
  *   The Drupal form state.
- * @param AbstractFedoraObject $item
+ * @param AbstractObject $item
  *   The Object to embargo.
  *
  * @return array
