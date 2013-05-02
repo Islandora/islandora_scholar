@@ -56,7 +56,7 @@ function islandora_scholar_embargo_permission() {
 /**
  * Returns access to menu path based on content mode and user permissions.
  *
- * @param FedoraObject $fedora_object
+ * @param AbstractObject $fedora_object
  *   The object to test.
  *
  * @return bool
@@ -214,7 +214,7 @@ EOQ;
 /**
  * Implements hook_islandora_scholar_embargo_users_to_notify().
  */
-function islandora_scholar_embargo_islandora_scholar_embargo_users_to_notify(AbstractFedoraObject $object) {
+function islandora_scholar_embargo_islandora_scholar_embargo_users_to_notify(AbstractObject $object) {
   $users = array(user_load(1));
   $owner = $object->owner;
   $owner = is_numeric($owner) ? user_load($owner) : user_load_by_name($owner);
@@ -229,13 +229,13 @@ function islandora_scholar_embargo_islandora_scholar_embargo_users_to_notify(Abs
  *
  * (An array of stdClasses, each of which contain at least an email property.)
  *
- * @param AbstractFedoraObject $object
+ * @param AbstractObject $object
  *   The owner of the given object will be notified.
  *
  * @return array
  *   An array of user objects to notify.
  */
-function islandora_scholar_embargo_users_to_notify(AbstractFedoraObject $object) {
+function islandora_scholar_embargo_users_to_notify(AbstractObject $object) {
   $unique_users = function($user) {
     $seen = &drupal_static('islandora_scholar_embargo_users_to_notify_unique_users');
     if (isset($seen[$user->uid])) {
@@ -369,7 +369,7 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
 /**
  * Get the embargo form.
  */
-function islandora_scholar_embargo_object(FedoraObject $object) {
+function islandora_scholar_embargo_object(AbstractObject $object) {
   module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
   return drupal_get_form('islandora_scholar_embargo_form', $object);
 }
