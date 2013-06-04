@@ -9,8 +9,8 @@
 /**
  * Creates meta tags to be placed in the head of the HTML.
  *
- * @param FedoraObject $object
- *   A FedoraObject.
+ * @param AbstractObject $object
+ *   A AbstractObject.
  *
  * @return array
  *   Associative array where the key is the name of the tag and the value is

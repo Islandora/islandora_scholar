@@ -11,13 +11,13 @@
  * Show the form to upload if the PDF does not exist on the given object.
  * Show the form to modify if there is a PDF.
  *
- * @param AbstractFedoraObject $object
+ * @param AbstractObject $object
  *   The object.
  *
  * @return array
  *   The Drupal form definition.
  */
-function islandora_scholar_upload_view(AbstractFedoraObject $object) {
+function islandora_scholar_upload_view(AbstractObject $object) {
   $form_name = 'islandora_scholar_upload_form';
   if (isset($object['PDF'])) {
     $form_name = 'islandora_scholar_modify_form';
@@ -32,13 +32,13 @@ function islandora_scholar_upload_view(AbstractFedoraObject $object) {
  *   The Drupal form definition.
  * @param array $form_state
  *   The Drupal form state.
- * @param AbstractFedoraObject $object
+ * @param AbstractObject $object
  *   The object.
  *
  * @return array
  *   The Drupal form definition.
  */
-function islandora_scholar_modify_form(array $form, array &$form_state, AbstractFedoraObject $object) {
+function islandora_scholar_modify_form(array $form, array &$form_state, AbstractObject $object) {
   $mods_str = trim($object['MODS']->content);
 
   $mods_doc = new DOMDocument();
@@ -116,13 +116,13 @@ function islandora_scholar_modify_form_submit(array $form, array &$form_state) {
  *   The Drupal form definition.
  * @param array $form_state
  *   The Drupal form state.
- * @param AbstractFedoraObject $object
+ * @param AbstractObject $object
  *   The object.
  *
  * @return array
  *   The Drupal form definition.
  */
-function islandora_scholar_upload_form(array $form, array &$form_state, AbstractFedoraObject $object) {
+function islandora_scholar_upload_form(array $form, array &$form_state, AbstractObject $object) {
   $get_default_value = function($name, $default) use(&$form_state) {
     return isset($form_state['values'][$name]) ? $form_state['values'][$name] : $default;
   };
@@ -192,7 +192,7 @@ function islandora_scholar_upload_form(array $form, array &$form_state, Abstract
  *
  * Removes any other usage or version elements.
  *
- * @param AbstractFedoraObject $object
+ * @param AbstractObject $object
  *   The object.
  * @param string $usage
  *   The usage either the 'publisher' or 'author' holds the copyright.
@@ -200,7 +200,7 @@ function islandora_scholar_upload_form(array $form, array &$form_state, Abstract
  *   The version of the uploaded document either 'PRE-PUBLICATION',
  *  'PUBLISHED', 'POST-PUBLICATION', 'OTHER'.
  */
-function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractFedoraObject $object, $usage, $version) {
+function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractObject $object, $usage, $version) {
   $refuse_msg = t('Refusing to add usage and publication version statements alone');
   if (empty($object['MODS'])) {
     drupal_set_message(t('No MODS in object @pid. %refuse.', array('@pid' => $object->id, '%refuse' => $refuse_msg)), 'error');

@@ -29,13 +29,13 @@ class CitationView {
    *
    * Retrieves the viewer.
    *
-   * @param AbstractFedoraObject $object
+   * @param AbstractObject $object
    *   The object to view.
    *
    * @return array
    *   A renderable array
    */
-  public static function getViewer(AbstractFedoraObject $object) {
+  public static function getViewer(AbstractObject $object) {
     $to_return = array();
 
     $viewers = module_invoke_all('islandora_scholar_viewer', $object);
@@ -53,7 +53,7 @@ class CitationView {
 /**
  * Implements hook_islandora_scholar_viewer().
  */
-function islandora_scholar_islandora_scholar_viewer(AbstractFedoraObject $object) {
+function islandora_scholar_islandora_scholar_viewer(AbstractObject $object) {
   global $user;
   $to_return = array();
 
