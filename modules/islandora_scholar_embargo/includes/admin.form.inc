@@ -17,16 +17,16 @@
  *   The Drupal form definition.
  */
 function islandora_embargo_admin(array $form, array &$form_state) {
-  $options = islandora_embargo_get_content_models_as_option_array();
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $options = islandora_get_content_models();
   $selected = variable_get('islandora_embargo_content_models', array('ir:citationCModel'));
   foreach ($selected as $cmodel) {
     $options = array($cmodel => $options[$cmodel]) + $options;
   }
-
   foreach ($options as $key => $value) {
     $rows[$key] = array(
       'pid' => $key,
-      'title' => $value,
+      'title' => $value['label'],
     );
     in_array($key, $selected) ? $defaults[$key] = TRUE : $defaults[$key] = FALSE;
   }
@@ -81,42 +81,4 @@ function islandora_embargo_admin_submit(array $form, array &$form_state) {
       $enabled = array_filter($form_state['values']['the_table']);
       variable_set('islandora_embargo_content_models', $enabled);
   }
-}
-
-/**
- * Returns an associative array of all the content models in Fedora instance.
- */
-function islandora_embargo_get_content_models_as_option_array() {
-  $connection = islandora_get_tuque_connection();
-  $restricted = variable_get('islandora_namespace_restriction_enforced', FALSE);
-  $allowed_string = variable_get('islandora_pids_allowed', 'default: demo: changeme: islandora:');
-  $namespaces = explode(':', $allowed_string);
-  foreach ($namespaces as $namespace) {
-    if ($namespace) {
-      $allowed[] = trim($namespace);
-    }
-  }
-  $query = 'select $object $title from <#ri>
-          where ($object <fedora-model:label> $title
-          and ($object <fedora-model:hasModel> <info:fedora/fedora-system:ContentModel-3.0>
-          or $object <fedora-rels-ext:isMemberOfCollection> <info:fedora/islandora:ContentModelsCollection>)
-          and $object <fedora-model:state> <info:fedora/fedora-system:def/model#Active>)
-          order by $title';
-
-  $list = $connection->repository->ri->itqlQuery($query, 'unlimited');
-  $options = array();
-  // Removes  blanks.
-  foreach ($list as $item) {
-    if ($item) {
-      $item_namespace = explode(':', $item['object']['value']);
-      if (!$restricted || in_array($item_namespace[0], $allowed)) {
-
-        if (!preg_match('/fedora-system/', $item['object']['value'])) {
-          $options[$item['object']['value']] = $item['title']['value'];
-        }
-      }
-    }
-  }
-
-  return $options;
 }
