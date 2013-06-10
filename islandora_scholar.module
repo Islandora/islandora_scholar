@@ -135,7 +135,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/coins');
   $display = array(
     'citation' => array(
-      '#markup' => CitationView::getCitation($object['MODS']->content),
+      '#markup' => t('Unable to load MODS.'),
     ),
     'viewer' => CitationView::getViewer($object),
     'metadata' => array(
@@ -147,6 +147,10 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
     ),
   );
 
+  if (isset($object['MODS']) && islandora_datastream_object(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
+    $display['citation']['#markup'] = CitationView::getCitation($object['MODS']->content);
+  }
+
   return array('citation.tab' => drupal_render($display));
 }
 
@@ -156,10 +160,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
  * Allow if the user's allowed to add datastreams or is the object's owner.
  */
 function islandora_scholar_upload_access($object) {
-  global $user;
-  $is_owner = property_exists($user, 'name') && ($user->name == $object->owner);
-  return in_array('ir:citationCModel', $object->models) &&
-    (user_access(FEDORA_ADD_DS) || $is_owner);
+  return islandora_object_access(FEDORA_ADD_DS, $object);
 }
 
 /**
@@ -173,5 +174,22 @@ function islandora_scholar_romeo_access($object) {
 
   return variable_get('islandora_scholar_romeo_enable', FALSE) &&
     in_array('ir:citationCModel', $object->models) &&
+    isset($object['MODS']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS']) &&
     RomeoView::getISSN($object);
+}
+
+/**
+ * Implements hook_islandora_object_access().
+ */
+function islandora_scholar_ir_citationcmodel_islandora_object_access($op, $object, $user) {
+  $is_owner = property_exists($user, 'name') && ($user->name == $object->owner);
+  $owner_operations = array(
+    FEDORA_ADD_DS,
+    FEDORA_VIEW_OBJECTS,
+  );
+  if ($is_owner && in_array($op, $owner_operations)) {
+    return TRUE;
+  }
+
+  return NULL;
 }

@@ -54,26 +54,16 @@ class CitationView {
  * Implements hook_islandora_scholar_viewer().
  */
 function islandora_scholar_islandora_scholar_viewer(AbstractObject $object) {
-  global $user;
   $to_return = array();
 
-  if (isset($object['PDF'])) {
-    $access_pdf = TRUE;
-
-    if ($access_pdf && class_exists('IslandoraXacml')) {
-      $xacml = new IslandoraXacml($object);
-      $access_pdf = $access_pdf && (($user->uid === 1) || $xacml->datastreamRule->hasPermission($user->name, $user->roles, NULL, 'PDF'));
-    }
-
-    if ($access_pdf) {
-      $to_return += array(
-        'google' => array(
-          '#callback' => 'islandora_scholar_google_pdf_viewer',
-          '#callback arguments' => array($object->id),
-          '#weight' => 1,
-        ),
-      );
-    }
+  if (isset($object['PDF']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['PDF'])) {
+    $to_return += array(
+      'google' => array(
+        '#callback' => 'islandora_scholar_google_pdf_viewer',
+        '#callback arguments' => array($object->id),
+        '#weight' => 1,
+      ),
+    );
   }
 
   return $to_return;
@@ -104,7 +94,7 @@ function islandora_scholar_google_pdf_viewer($pid) {
   $iframe_attrs = array(
     'src' => url('http://docs.google.com/viewer', array(
              'query' => array(
-               'url' => t($base, array(
+               'url' => format_string($base, array(
                         '!base_url' => $base_url,
                         '!fedora_base' => variable_get('fedora_base_url', 'http://localhost:8080/fedora'),
                         '!pid' => $pid,
