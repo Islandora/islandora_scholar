@@ -53,14 +53,13 @@ class CSL {
         LIBXML_ERR_FATAL => WATCHDOG_ERROR,
       );
       $severity = $levels[$error->level];
-      $message = t('code: %code message: %message file: %file line: %line column: %column', array(
+      watchdog('CSL', 'code: %code message: %message file: %file line: %line column: %column', array(
         '%code' => $error->code,
         '%message' => $error->message,
         '%file' => $error->file,
         '%line' => $error->line,
         '%column' => $error->column)
-      );
-      watchdog('CSL', $message, NULL, $severity);
+      ), $severity);
     }
     libxml_clear_errors();
   }
@@ -88,7 +87,7 @@ class CSL {
    *
    * @return array
    *   An array of defined style's names, where both the key and the value are
-   *   the style's name. EX. array( 'name' => 'name' );
+   *   the style's name. EX. array('name' => 'name')
    */
   public static function GetNames() {
     $names = array();
@@ -195,7 +194,9 @@ class CSL {
   public static function Create($style_name, $definition) {
     if (!self::Exists($style_name)) {
       if (!self::Valid($definition)) {
-        drupal_set_message("The $style_name is not valid CSL 1.0 problems may occur.", 'warning');
+        drupal_set_message(t("The @style is not valid CSL 1.0 problems may occur.", array(
+          '@style' => $style_name,
+        )), 'warning');
       }
       $object = new stdClass();
       $object->name = $style_name;

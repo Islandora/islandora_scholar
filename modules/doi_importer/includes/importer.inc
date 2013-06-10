@@ -313,9 +313,11 @@ class DOIImportObject extends IslandoraImportObject {
                     }
                     break;
 
-                  // genre element was not getting populated and it is needed for proper CSL display.
-                  // If we start pulling anything other than journal articles using DOIs, then this will need to be revisited. 
-                  // journal article will work when piped through CSL converter.
+                  // Genre element was not getting populated and it is needed
+                  // for proper CSL display. If we start pulling anything other
+                  // than journal articles using DOIs, then this will need to
+                  // be revisited. Journal article will work when piped through
+                  // CSL converter.
                   case 'genre':
                     $genre = 'journal article';
                     $mods_genre = $mods->addChild('genre', $genre);
@@ -326,7 +328,6 @@ class DOIImportObject extends IslandoraImportObject {
                     $pubdate_month = (string) $item[0]->month[0];
                     $pubdate_day = (string) $item[0]->day[0];
                     break;
-
 
                   case 'pages':
                     $first_page = (string) $item[0]->first_page[0];
@@ -365,26 +366,25 @@ class DOIImportObject extends IslandoraImportObject {
               }
             }
 
-           // we should populated the dateIssued element otherwise CSL does not display a date
-           $originInfo = $mods->addChild('originInfo');
-           if (!empty($pubdate_year)) {
-                $date_value = $pubdate_year;
-                if (!empty($pubdate_month)) {
-                  if (strlen($pubdate_month) == 1) {
-                    $pubdate_month = "0" . $pubdate_month;
-                  }
-                  $date_value .= "-" . $pubdate_month;
+            // We should populated the dateIssued element otherwise CSL does
+            // not display a date.
+            $originInfo = $mods->addChild('originInfo');
+            if (!empty($pubdate_year)) {
+              $date_value = $pubdate_year;
+              if (!empty($pubdate_month)) {
+                if (strlen($pubdate_month) == 1) {
+                  $pubdate_month = "0" . $pubdate_month;
                 }
-                if (!empty($pubdate_day)) {
-                  if (strlen($pubdate_day) == 1) {
-                    $pubdate_day = "0" . $pubdate_day;
-                  }
-                  $date_value .= "-" . $pubdate_day;
-                }
-                $originInfo->addChild('dateIssued', $date_value);
+                $date_value .= "-" . $pubdate_month;
               }
-
-
+              if (!empty($pubdate_day)) {
+                if (strlen($pubdate_day) == 1) {
+                  $pubdate_day = "0" . $pubdate_day;
+                }
+                $date_value .= "-" . $pubdate_day;
+              }
+              $originInfo->addChild('dateIssued', $date_value);
+            }
 
             if (!empty($volume_number) || !empty($issue_number) || !empty($other_pages) || !empty($last_page) || !empty($first_page) || !empty($pubdate_year) || !empty($pubdate_month) || !empty($pubdate_day)) {
               $part = $mods->addChild('part');
