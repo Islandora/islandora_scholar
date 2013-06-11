@@ -63,7 +63,7 @@ function islandora_scholar_embargo_permission() {
  *   TRUE if access is allowed FALSE otherwise.
  */
 function islandora_scholar_access($object = NULL) {
-  $user_access = user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED) || user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_ANY));
+  $user_access = user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED) || user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_ANY);
 
   $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel'));
   $model_access = count(array_intersect($allowed_cmodels, $object->models)) > 0;

@@ -160,7 +160,8 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
  * Allow if the user's allowed to add datastreams or is the object's owner.
  */
 function islandora_scholar_upload_access($object) {
-  return islandora_object_access(FEDORA_ADD_DS, $object);
+  return is_object($object) && in_array('ir:citationCModel', $object->models) &&
+    islandora_object_access(FEDORA_ADD_DS, $object);
 }
 
 /**
