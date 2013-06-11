@@ -56,7 +56,7 @@ function islandora_scholar_embargo_permission() {
 /**
  * Returns access to menu path based on content mode and user permissions.
  *
- * @param AbstractObject $fedora_object
+ * @param AbstractObject $object
  *   The object to test.
  *
  * @return bool
@@ -72,7 +72,6 @@ function islandora_scholar_access($object = NULL) {
     (!isset($object['POLICY']) && islandora_object_access(FEDORA_ADD_DS, $object)) ||
     (isset($object['POLICY']) && islandora_datastream_access(FEDORA_METADATA_EDIT, $object['POLICY']))
   );
-
 
   return $user_model_and_object_access;
 }

@@ -368,7 +368,7 @@ class DOIImportObject extends IslandoraImportObject {
 
             // We should populated the dateIssued element otherwise CSL does
             // not display a date.
-            $originInfo = $mods->addChild('originInfo');
+            $origin_info = $mods->addChild('originInfo');
             if (!empty($pubdate_year)) {
               $date_value = $pubdate_year;
               if (!empty($pubdate_month)) {
@@ -383,7 +383,7 @@ class DOIImportObject extends IslandoraImportObject {
                 }
                 $date_value .= "-" . $pubdate_day;
               }
-              $originInfo->addChild('dateIssued', $date_value);
+              $origin_info->addChild('dateIssued', $date_value);
             }
 
             if (!empty($volume_number) || !empty($issue_number) || !empty($other_pages) || !empty($last_page) || !empty($first_page) || !empty($pubdate_year) || !empty($pubdate_month) || !empty($pubdate_day)) {

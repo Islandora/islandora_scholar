@@ -378,13 +378,15 @@ class RTF {
 
     $doc_buffer = preg_replace("/<p>(.*?)<\/p>/mi", "\\1\\par ", $doc_buffer);
     $doc_buffer = preg_replace("/<strong>(.*?)<\/strong>/mi", "\\b \\1\\b0 ", $doc_buffer);
-    // XXX: False positive: Thinks "e" flag is in use: http://drupal.org/node/750148
+    // XXX: False positive: Thinks "e" flag is in use:
+    // http://drupal.org/node/750148
     // @codingStandardsIgnoreStart
     $doc_buffer = preg_replace("/<em>(.*?)<\/em>/mi", "\\i \\1\\i0 ", $doc_buffer);
     // @codingStandardsIgnoreEnd
     $doc_buffer = preg_replace("/<i>(.*?)<\/i>/mi", "\\i \\1\\i0 ", $doc_buffer);
     $doc_buffer = preg_replace("/<u>(.*?)<\/u>/mi", "\\ul \\1\\ul0 ", $doc_buffer);
-    // XXX: False positive: Thinks "e" flag is in use: http://drupal.org/node/750148
+    // XXX: False positive: Thinks "e" flag is in use:
+    // http://drupal.org/node/750148
     // @codingStandardsIgnoreStart
     $doc_buffer = preg_replace("/<strike>(.*?)<\/strike>/mi", "\\strike \\1\\strike0 ", $doc_buffer);
     // @codingStandardsIgnoreEnd
