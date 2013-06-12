@@ -53,12 +53,12 @@ class CSL {
         LIBXML_ERR_FATAL => WATCHDOG_ERROR,
       );
       $severity = $levels[$error->level];
-      watchdog('CSL', 'code: %code message: %message file: %file line: %line column: %column', array(
+      watchdog('csl', 'code: %code message: %message file: %file line: %line column: %column', array(
         '%code' => $error->code,
         '%message' => $error->message,
         '%file' => $error->file,
         '%line' => $error->line,
-        '%column' => $error->column)
+        '%column' => $error->column,
       ), $severity);
     }
     libxml_clear_errors();
