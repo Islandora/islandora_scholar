@@ -1,0 +1,29 @@
+language: php
+php:
+  - 5.3.3
+  - 5.4
+branches:
+  only:
+    - 7.x
+env:
+  - FEDORA_VERSION="3.5"
+before_install:
+  - export ISLANDORA_DIR=$TRAVIS_BUILD_DIR
+  - $TRAVIS_BUILD_DIR/tests/scripts/travis_setup.sh
+  - cd $HOME/drupal-*
+script:
+  - ant -buildfile sites/all/modules/islandora/build.xml lint
+  - $ISLANDORA_DIR/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer islandora_scholar
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer bibutils
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer citation_exporter
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer doi_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer islandora_google_scholar
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer islandora_scholar_embargo
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer islandora_bibliography
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer ris_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer endnotexml_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer pmid_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer citeproc
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer csl
+  - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
