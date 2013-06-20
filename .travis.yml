@@ -8,9 +8,13 @@ branches:
 env:
   - FEDORA_VERSION="3.5"
 before_install:
-  - export ISLANDORA_DIR=$TRAVIS_BUILD_DIR
-  - $TRAVIS_BUILD_DIR/tests/scripts/travis_setup.sh
+  - cd $HOME
+  - git clone -b 7.x git://github.com/Islandora/islandora.git
+  - export ISLANDORA_DIR=$HOME/islandora
+  - $HOME/islandora/tests/scripts/travis_setup.sh
   - cd $HOME/drupal-*
+  - ln -s $TRAVIS_BUILD_DIR sites/all/modules/islandora_scholar
+  - drush en --yes --user=1 islandora_scholar
 script:
   - ant -buildfile sites/all/modules/islandora/build.xml lint
   - $ISLANDORA_DIR/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
