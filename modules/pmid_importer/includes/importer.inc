@@ -129,7 +129,8 @@ class PMIDImportObject extends IslandoraImportObject {
    * Get the PMID from the given PubMed Document.
    */
   protected static function getPMID(SimpleXMLElement $xml) {
-    return (string) array_shift($xml->xpath('//PubmedArticle/MedlineCitation/PMID'));
+    $pmid = $xml->xpath('//PubmedArticle/MedlineCitation/PMID');
+    return (string) array_shift($pmid);
   }
 
   /**
@@ -238,7 +239,8 @@ class PMIDImportObject extends IslandoraImportObject {
     if ($this->mods === NULL) {
       $xsl = new DOMDocument();
       $xsl->load(drupal_get_path('module', 'pmid_importer') . '/xsl/pubmed_to_mods.xslt');
-      $pm_xml = DOMDocument::loadXML($this->source);
+      $pm_xml = new DOMDocument();
+      $pm_xml->loadXML($this->source);
 
       $xslt = new XSLTProcessor();
       $xslt->importStylesheet($xsl);
