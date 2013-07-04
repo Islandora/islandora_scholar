@@ -153,8 +153,7 @@ class PMIDImportObject extends IslandoraImportObject {
     $count = $results->length;
     for ($i = 0; $i < $count; $i++) {
       $date = $results->item($i);
-      $date_time = new DateTime();
-      $date->nodeValue = $date_time->format(DateTime::ISO8601) . 'Z';
+      $date->nodeValue = gmdate("Y-m-d\TH:i:s\Z");
     }
 
     return $xpath->document;
