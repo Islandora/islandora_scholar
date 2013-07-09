@@ -147,7 +147,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
     ),
   );
 
-  return array('citation.tab' => drupal_render($display));
+  return array('citation.tab' => $display);
 }
 
 /**
