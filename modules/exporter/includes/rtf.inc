@@ -9,15 +9,14 @@
 
 class RTF {
 
-  // {\colortbl;\red 0\green 0\blue 0;\red 255\green 0\ blue0;\red0 ...}
   protected $colourTable = array();
   protected $colourRGB;
-  // {\fonttbl{\f0}{\f1}{f...}}
+
   protected $fontTable = array();
   protected $fontsArray = array();
   protected $fontFace;
   protected $fontSize;
-  // {\info {\title <title>} {\author <author>} {\operator <operator>}}
+
   protected $infoTable = array();
   protected $pageWidth;
   protected $pageHeight;
@@ -247,9 +246,6 @@ class RTF {
     // Parse the text into RTF.
     $this->buffer .= $this->parseDocument();
     $this->buffer .= "}";
-    // Nigelb edit.
-    // header("Content-Type: text/enriched\n");
-    // header("Content-Disposition: attachment; filename=rtf.rtf");
     return $this->buffer;
   }
 
@@ -382,10 +378,18 @@ class RTF {
 
     $doc_buffer = preg_replace("/<p>(.*?)<\/p>/mi", "\\1\\par ", $doc_buffer);
     $doc_buffer = preg_replace("/<strong>(.*?)<\/strong>/mi", "\\b \\1\\b0 ", $doc_buffer);
+    // XXX: False positive: Thinks "e" flag is in use:
+    // http://drupal.org/node/750148
+    // @codingStandardsIgnoreStart
     $doc_buffer = preg_replace("/<em>(.*?)<\/em>/mi", "\\i \\1\\i0 ", $doc_buffer);
+    // @codingStandardsIgnoreEnd
     $doc_buffer = preg_replace("/<i>(.*?)<\/i>/mi", "\\i \\1\\i0 ", $doc_buffer);
     $doc_buffer = preg_replace("/<u>(.*?)<\/u>/mi", "\\ul \\1\\ul0 ", $doc_buffer);
+    // XXX: False positive: Thinks "e" flag is in use:
+    // http://drupal.org/node/750148
+    // @codingStandardsIgnoreStart
     $doc_buffer = preg_replace("/<strike>(.*?)<\/strike>/mi", "\\strike \\1\\strike0 ", $doc_buffer);
+    // @codingStandardsIgnoreEnd
     $doc_buffer = preg_replace("/<sub>(.*?)<\/sub>/mi", "{\\sub \\1}", $doc_buffer);
     $doc_buffer = preg_replace("/<sup>(.*?)<\/sup>/mi", "{\\super \\1}", $doc_buffer);
 

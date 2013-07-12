@@ -15,6 +15,8 @@
  *   The RIS field to MODS XPath mapping.
  */
 function bibutils_ris_field_map() {
+  // XXX: Some comments go past 80 columns... Let's leave 'em be, for now.
+  // @codingStandardsIgnoreStart
   return array(
     "TY" => "mods:genre",
     "A2" => "mods:relatedItem[@type = 'host']/mods:name[@type = 'corporate' and mods:role/mods:roleTerm = 'author']/mods:namePart",
@@ -75,4 +77,5 @@ function bibutils_ris_field_map() {
     "ID" => "mods:identifier[@type = 'id export']",
     "ER" => "",
   );
+  // @codingStandardsIgnoreEnd
 }
