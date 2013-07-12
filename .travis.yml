@@ -17,7 +17,7 @@ before_install:
   - drush cc all
 script:
   - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
-  - $ISLANDORA_DIR/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
+  - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citation_exporter
