@@ -345,7 +345,7 @@ class Coins {
  *   A renderable array.
  */
 function islandora_scholar_details($object) {
-  if (isset($object['MODS']) && islandora_datatream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
+  if (isset($object['MODS']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
     $coins = new Coins($object);
     extract($coins->renderView());
     return array(
