@@ -671,7 +671,7 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
   }
 
   if (!empty($season) && count($output['issued']['date-parts'][0]) == 1) {
-    $seasons = array('','Spring','Summer','Fall','Winter');
+    $seasons = array('', 'Spring', 'Summer', 'Fall', 'Winter');
     $output['issued']['season'] = (string) array_search($season, $seasons);
   }
   return $output;

@@ -56,24 +56,24 @@ function islandora_scholar_embargo_permission() {
 /**
  * Returns access to menu path based on content mode and user permissions.
  *
- * @param AbstractObject $fedora_object
+ * @param AbstractObject $object
  *   The object to test.
  *
  * @return bool
  *   TRUE if access is allowed FALSE otherwise.
  */
-function islandora_scholar_access($fedora_object = NULL) {
-  $access = user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED) ||
-      user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_ANY);
+function islandora_scholar_access($object = NULL) {
+  $user_access = user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED) || user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_ANY);
+
   $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel'));
-  $rels = $fedora_object->relationships->get('info:fedora/fedora-system:def/model#', 'hasModel');
-  $allowed = FALSE;
-  foreach ($rels as $cmodel) {
-    if (in_array($cmodel['object']['value'], $allowed_cmodels, $cmodel['object']['value'])) {
-      $allowed = TRUE;
-    }
-  }
-  return $access && $allowed;
+  $model_access = count(array_intersect($allowed_cmodels, $object->models)) > 0;
+
+  $user_model_and_object_access = $user_access && $model_access && (
+    (!isset($object['POLICY']) && islandora_object_access(FEDORA_ADD_DS, $object)) ||
+    (isset($object['POLICY']) && islandora_datastream_access(FEDORA_METADATA_EDIT, $object['POLICY']))
+  );
+
+  return $user_model_and_object_access;
 }
 
 /**

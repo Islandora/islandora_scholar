@@ -1,0 +1,33 @@
+language: php
+php:
+  - 5.3.3
+  - 5.4
+branches:
+  only:
+    - /^7.x.*/
+env:
+  - FEDORA_VERSION="3.5"
+before_install:
+  - cd $HOME
+  - git clone -b 7.x git://github.com/Islandora/islandora.git
+  - export ISLANDORA_DIR=$HOME/islandora
+  - $HOME/islandora/tests/scripts/travis_setup.sh
+  - cd $HOME/drupal-*
+  - ln -s $TRAVIS_BUILD_DIR sites/all/modules/islandora_scholar
+  - drush cc all
+script:
+  - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
+  - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citation_exporter
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty doi_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_google_scholar
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar_embargo
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_bibliography
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty ris_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty endnotexml_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty pmid_importer
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
+  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
+  - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar

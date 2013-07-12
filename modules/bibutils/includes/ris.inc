@@ -186,7 +186,7 @@ class RIS {
       $this->map = $map;
     }
     else {
-      drupal_set_message('Your RIS field map is missing required fields', 'error');
+      drupal_set_message(t('Your RIS field map is missing required fields.'), 'error');
     }
   }
 

@@ -154,7 +154,7 @@ class Bibutils {
         return !in_array(FALSE, $results, TRUE);
       }
       else {
-        drupal_set_message($output, 'warning');
+        drupal_set_message(filter_xss($output), 'warning');
       }
     }
     return FALSE;
