@@ -55,8 +55,7 @@ function bibutils_requirements($phase) {
       // Couldn't find.
       $requirements[$base] += array(
         'value' => $t('Not found.'),
-        'description' => $t('Unable to find %base at the configured location' .
-        ' (%command).', array(
+        'description' => $t('Unable to find %base at the configured location (%command).', array(
           '%base' => $base,
           '%command' => $command,
         )),

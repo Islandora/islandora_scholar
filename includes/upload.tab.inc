@@ -99,7 +99,7 @@ function islandora_scholar_modify_form_submit(array $form, array &$form_state) {
       // @todo Also remove the PDF's derivatives.
       $object->purgeDatastream($dsid);
     }
-    catch(Exception $e) {
+    catch (Exception $e) {
       drupal_set_message(t('Failed to purge datastream @dsid from @pid</br>code: @code<br/>message: @msg', array(
           '@pid' => $pid,
           '@dsid' => $dsid,
@@ -239,7 +239,7 @@ function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractObject
   $physical_description_element->setAttribute('authority', 'local');
   $physical_description_element->nodeValue = $version;
   $mods_element->appendChild($physical_description_element);
-  // Commit changes to datastream
+  // Commit changes to datastream.
   $doc->save($filename);
   $object['MODS']->setContentFromFile($filename);
   file_unmanaged_delete($filename);

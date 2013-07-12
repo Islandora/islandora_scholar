@@ -8,7 +8,7 @@
 /**
  * Unit Tests for the FormControl class.
  */
-class BibutilsENDX2XMLTestCase extends DrupalUnitTestCase {
+class BibutilsENDX2XMLTestCase extends BibutilsBaseTestCase {
 
   /**
    * The location of the data directory for the tests.
@@ -28,16 +28,6 @@ class BibutilsENDX2XMLTestCase extends DrupalUnitTestCase {
       'description' => 'Unit tests for bibutils focusing on converting EndNote XML to MODS.',
       'group' => 'Bibutils',
     );
-  }
-
-  /**
-   * Performs any pre-requisite tasks.
-   *
-   * @see DrupalUnitTestCase::setUp()
-   */
-  public function setUp() {
-    parent::setUp('bibutils');
-    $this->data = drupal_get_path('module', 'bibutils') . '/tests/data/';
   }
 
   /**
@@ -65,16 +55,6 @@ class BibutilsENDX2XMLTestCase extends DrupalUnitTestCase {
     $filename = $this->data . 'EndNote.xml';
     $schema = $this->data . 'mods-3-1.xsd';
     $documents = bibutils_endnote_xml_file_to_mods_documents($filename);
-    $this->assertTrue(is_array($documents), 'Created multiple mods documents.');
-    $this->assertEqual(count($documents), 11, 'Created the correct number of mods documents.');
-    $valid = TRUE;
-    foreach ($documents as $document) {
-      if (!$document->schemaValidate($schema)) {
-        $valid = FALSE;
-        break;
-      }
-    }
-    $this->assertTrue($valid, 'All mods documents are valid.');
+    $this->testCreatedDocuments($documents);
   }
-
 }

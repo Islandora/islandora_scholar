@@ -13,6 +13,6 @@ function pmid_importer_islandora_importer() {
     'pmid_importer' => array(
       'title' => t('Pubmed Importer'),
       'class' => 'PMImporter',
-    )
+    ),
   );
 }

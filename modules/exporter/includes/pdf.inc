@@ -53,7 +53,7 @@ function citation_exporter_create_pdf($html_input, $output_filename) {
   $pdf->setLanguageArray($l);
 
   // Set default font subsetting mode.
-  $pdf->setFontSubsetting(dTRUE);
+  $pdf->setFontSubsetting(TRUE);
 
   // Set font.
   // Dejavusans is a UTF-8 Unicode font, if you only need to

@@ -60,7 +60,7 @@ function _citation_exporter_batch_combine_mods($filename, array $pids) {
   $mods->load($filename);
   foreach ($pids as $pid) {
     $object = islandora_object_load($pid);
-    if (isset($object) && isset($object['MODS'])) {
+    if (isset($object) && isset($object['MODS']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
       $datastream = trim($object['MODS']->content);
       if (!empty($mods)) {
         $doc = new DOMDocument();
