@@ -133,16 +133,21 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
   module_load_include('inc', 'islandora_scholar', 'includes/coins');
+  $i = 0;
   $display = array(
     'citation' => array(
+      '#weight' => $i++,
       '#markup' => t('Unable to load MODS.'),
     ),
-    'viewer' => CitationView::getViewer($object),
+    'viewer' => CitationView::getViewer($object) + array(
+      '#weight' => $i++,
+    ),
     'metadata' => array(
       '#type' => 'fieldset',
       '#title' => t('Metadata'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
+      '#weight' => $i++,
       'value' => islandora_scholar_details($object),
     ),
   );
@@ -151,7 +156,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
     $display['citation']['#markup'] = CitationView::getCitation($object['MODS']->content);
   }
 
-  return array('citation.tab' => drupal_render($display));
+  return array('citation.tab' => $display);
 }
 
 /**
