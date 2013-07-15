@@ -274,7 +274,7 @@ class Coins {
     }
     else {
       if ($authors != NULL || $admin) {
-        $rows[] = array(t('Authors', rtrim($authors, ', ')));
+        $rows[] = array(t('Authors'), rtrim($authors, ', '));
       }
     }
 
