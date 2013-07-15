@@ -222,28 +222,28 @@ class Coins {
       $names = implode(', ', $this->names);
     }
     else {
-      $names = t('');
+      $names = '';
     }
 
     if (!empty($this->authors)) {
       $authors = implode(', ', $this->authors);
     }
     else {
-      $authors = t('');
+      $authors = '';
     }
 
     if (!empty($this->contributors)) {
       $contributors = implode(', ', $this->contributors);
     }
     else {
-      $contributors = t('');
+      $contributors = '';
     }
 
     if (!empty($this->topic)) {
       $topics = $this->topic;
     }
     else {
-      $topics = t('');
+      $topics = '';
     }
 
     $genre = $this->genre;
@@ -259,71 +259,71 @@ class Coins {
     }
 
     if (((string) $this->title != NULL) || $admin) {
-      $rows[] = array('Title', $this->title);
+      $rows[] = array(t('Title'), $this->title);
     }
 
     if ($type == 'thesis') {
       if ($authors != NULL || $admin) {
-        $rows[] = array('Authors', rtrim($authors, ', '));
+        $rows[] = array(t('Authors'), rtrim($authors, ', '));
       }
       if ($contributors != NULL || $admin) {
-        $rows[] = array('Contributors', rtrim($contributors, ', '));
+        $rows[] = array(t('Contributors'), rtrim($contributors, ', '));
       }
-      $url = l(t('Download PDF'), "fedora/repository/{$this->pid}/PDF/PDF");
-      $rows[] = array('URL', $url);
+      $url = l(t('Download PDF'), "islandora/object/{$this->pid}/datastream/PDF/download");
+      $rows[] = array(t('URL'), $url);
     }
     else {
       if ($authors != NULL || $admin) {
-        $rows[] = array('Authors', rtrim($authors, ', '));
+        $rows[] = array(t('Authors'), rtrim($authors, ', '));
       }
     }
 
     if (((string) $this->abstract != NULL) || $admin) {
-      $rows[] = array('Abstract', $this->abstract);
+      $rows[] = array(t('Abstract'), $this->abstract);
     }
 
     if ($type == 'citation') {
       if (((string) $this->journalTitle != NULL) || $admin) {
-        $rows[] = array('Journal', $this->journalTitle);
+        $rows[] = array(t('Journal'), $this->journalTitle);
       }
     }
 
     if (((string) $this->date != NULL) || $admin) {
-      $rows[] = array('Date', $this->date);
+      $rows[] = array(t('Date'), $this->date);
     }
 
     if ($type == 'citation') {
       if (((string) $this->volume != NULL) || $admin) {
-        $rows[] = array('Volume', $this->volume);
+        $rows[] = array(t('Volume'), $this->volume);
       }
 
       if (((string) $this->issue != NULL) || $admin) {
-        $rows[] = array('Issue', $this->issue);
+        $rows[] = array(t('Issue'), $this->issue);
       }
 
       if (((string) $this->startPage != NULL) || $admin) {
-        $rows[] = array('Start page', $this->startPage);
+        $rows[] = array(t('Start page'), $this->startPage);
       }
 
-       if (((string) $this->startPage != NULL) || $admin) {
-        $rows[] = array('End page', $this->endPage);
+      if (((string) $this->startPage != NULL) || $admin) {
+        $rows[] = array(t('End page'), $this->endPage);
       }
 
       if (((string) $this->issn != NULL) || $admin) {
-        $rows[] = array('ISSN', $this->issn);
+        $rows[] = array(t('ISSN'), $this->issn);
       }
 
       if (((string) $topics != NULL) || $admin) {
-        $rows[] = array('Subjects', rtrim($topics, ', '));
+        $rows[] = array(t('Subjects'), rtrim($topics, ', '));
       }
 
       if (((string) $this->note != NULL) || $admin) {
-        $rows[] = array('Note', $this->note);
+        $rows[] = array(t('Note'), $this->note);
       }
     }
 
     if ($embargo_date != NULL) {
-      $rows[] = array('Embargo date', $embargo_date);
+      $rows[] = array(t('Embargo date'), $embargo_date);
     }
     return array(
       'headers' => $headers,
@@ -345,7 +345,7 @@ class Coins {
  *   A renderable array.
  */
 function islandora_scholar_details($object) {
-  if (isset($object['MODS'])) {
+  if (isset($object['MODS']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
     $coins = new Coins($object);
     extract($coins->renderView());
     return array(

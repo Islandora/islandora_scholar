@@ -82,7 +82,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, $item) 
     $choices['indefinite'] = t('Embargo indefinitely (Indefinite embargos must be lifted manually).');
   }
 
-  $choices ['date'] = $prompt;
+  $choices['date'] = $prompt;
 
   $form = array(
     '#tree' => TRUE,
