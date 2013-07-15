@@ -301,9 +301,10 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
  * One oddity:  an $end of NULL will clear any embargo...  Only meant to be
  * used behind the scenes, to avoid triggering actions.
  *
- * @param string $pid
- *   A string containing a Fedora PID, which is either the item to be
- *   embargoed, or the item in which the datastream to be embargoed exists.
+ * @param mixed $param
+ *   A string containing a Fedora PID or an AbstractObject. Which is either the
+ *   item to be embargoed, or the item in which the datastream to be embargoed
+ *   exists.
  * @param mixed $dsid
  *   Either NULL--meaning the object should be embargoed--or a string
  *   representing a datastream ID to be embargoed.
@@ -311,7 +312,13 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
  *   Either an xsd:dateTime compliant string for when to lift the embargo, or
  *   the string 'indefinite' to require it to be manually lifted.
  */
-function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indefinite') {
+function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'indefinite') {
+  if ($param instanceof AbstractObject) {
+    $item = $param;
+  }
+  else {
+    $item = islandora_object_load($param);
+  }
   $type = RELS_TYPE_PLAIN_LITERAL;
   $notification = NULL;
   // XXX We assume the end date is properly formatted...
@@ -321,8 +328,6 @@ function islandora_scholar_embargo_set_embargo($pid, $dsid = NULL, $end = 'indef
     $end = gmdate("Y-m-d\TH:i:s\Z", strtotime($end));
     $notification = gmdate("Y-m-d\TH:i:s\Z", strtotime('-10DAYS', strtotime($end)));
   }
-
-  $item = islandora_object_load($pid);
 
   $xacml = new IslandoraXacml($item);
   $xacml_changed = FALSE;
