@@ -112,7 +112,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, $item) 
   }
   $form['update_date_options'] = array(
     '#type' => 'radios',
-    '#title' => $embargoed ? t('Update Options') : t('Embargo Options'),
+    '#title' => check_plain($embargoed ? t('Update Options') : t('Embargo Options')),
     '#options' => array(
       'change_embargo_date' => $embargoed ? t('Change the embargo date') : t('Set the embargo date'),
       'indefinite_embargo' => t('Embargo indefinitely (Indefinite embargos must be lifted manually).'),
@@ -219,7 +219,11 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
   if (($embargoed && isset($form_state['values']['update_options']) && $form_state['values']['update_options'] !== 'lift_embargo') || (!$embargoed)) {
     if ($form_state['values']['update_date_options'] === 'change_embargo_date') {
       $date = $form_state['values']['embargo_date'];
-      $parsed_date = $form_state['values']['embargo_date']['year']  . '-' . $form_state['values']['embargo_date']['month'] . '-' . $form_state['values']['embargo_date']['day'];
+      $parsed_date = format_string('@year-@month-@day', array(
+        '@year' => $form_state['values']['embargo_date']['year'],
+        '@month' => $form_state['values']['embargo_date']['month'],
+        '@day' => $form_state['values']['embargo_date']['day'],
+      ));
       $time_now = time();
       $parsed = strtotime($parsed_date);
       if ($embargoed) {
@@ -364,12 +368,12 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
     }
     else {
       $date = new dateTime($end);
-      $date = $date->format('M d, Y ');
+      $date = $date->format('M d, Y');
       drupal_set_message(t('A object-level embargo has been set on @label (@pid) until @duration.',
            array(
              '@label' => $object->label,
              '@pid' => $pid,
-             '@duration' => trim($date),
+             '@duration' => $date,
            )
        ));
     }
@@ -386,13 +390,13 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
     }
     else {
       $date = new dateTime($end);
-      $date = $date->format('M d, Y ');
+      $date = $date->format('M d, Y');
       drupal_set_message(t('A @dsid datastream embargo has been set on @label (@pid) until @duration.',
            array(
              '@dsid' => $dsid,
              '@label' => $object->label,
              '@pid' => $pid,
-             '@duration' => trim($date),
+             '@duration' => $date,
            )
        ));
     }
