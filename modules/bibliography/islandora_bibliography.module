@@ -5,10 +5,6 @@
  * Implements hooks and callbacks for this module.
  */
 
-// Constants.
-define('MENU_BIBLIOGRAPHY_HOME', 'islandora/bibliography');
-define('MENU_BIBLIOGRAPHY_CITATION', 'islandora/bibliography/citation');
-
 /**
  * Implements hook_menu().
  */
@@ -34,6 +30,48 @@ function islandora_bibliography_ir_citationCModel_islandora_bookmark_object_mark
   $output = l($object->label, 'islandora/object/' . $object->id) . '<br />';
   $output .= $bibliography_entry;
   return $output;
+}
+
+/**
+ * Implements hook_islandora_bookmark_rss_item().
+ */
+function islandora_bibliography_ir_citationCModel_islandora_bookmark_rss_item(AbstractObject $object) {
+
+  // Global variables.
+  global $base_url;
+
+  // Create an associative array for the required elements
+  // for a valid bookmark RSS item.
+  $rss_item = array();
+
+  // Get the citeproc default style.
+  $style = citeproc_default_style();
+  // Get the mods datastream.
+  $mods = islandora_bibliography_get_mods($object->id);
+  // If mods exists then create bibliography from mods.
+  if ($mods) {
+    $bibliography_entry = citeproc_bibliography_from_mods($style, $mods);
+
+    // The title of the item will be the objects label.
+    $rss_item['title'] = $object->label;
+    // The link will be to the objects page.
+    $rss_item['link'] = url('islandora/object/' . htmlspecialchars($object->id, ENT_QUOTES, 'utf-8'), array('absolute' => TRUE));
+    // The description will be the bibliography entry.
+    $rss_item['description'] = $bibliography_entry;
+
+    // Get the site name to be the value of the source.
+    $rss_source = variable_get('site_name', "Default site name");
+
+    // Set the default source attribute to be to be the base url.
+    $rss_item['items'] = array(
+      array(
+        'key' => 'source',
+        'value' => $rss_source, 'attributes' => array('url' => $base_url)),
+    );
+  }
+
+  // Returns the the rss default item.
+  return $rss_item;
 }
 
 /**
