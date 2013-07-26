@@ -38,6 +38,19 @@ function islandora_scholar_embargo_menu() {
 }
 
 /**
+ * Implements hook_islandora_object_access().
+ */
+function islandora_scholar_embargo_islandora_object_access($op, $object, $user) {
+  module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
+  if ($op == 'administer islandora_xacml_editor') {
+    $embargoed = islandora_scholar_embargo_get_embargoed($object);
+    if (!empty($embargoed)) {
+      return FALSE;
+    }
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function islandora_scholar_embargo_permission() {
@@ -266,12 +279,11 @@ function islandora_scholar_embargo_users_to_notify(AbstractObject $object) {
  */
 function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
   $item = islandora_object_load($pid);
-  $rels = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
-  $expiry = $rels[0]['object']['value'];
   $xacml = new IslandoraXacml($item);
 
   if ($dsid === NULL) {
     // TODO Remove embargo statement from RELS-EXT (and POLICY stream).
+    $rels = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
     $xacml->viewingRule->clear();
@@ -279,13 +291,21 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
   else {
     /* TODO Remove embargo statement from RELS-INT
      * (and POLICY stream) for the given datastream. */
-    $item[$dsid]->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
-    $item[$dsid]->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+    if (!isset($item[$dsid])) {
+      $embargo_ds = $item->constructDatastream($dsid);
+    }
+    else {
+      $embargo_ds = $item[$dsid];
+    }
+    $rels = $embargo_ds->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
     $xacml->datastreamRule->removeDsid($dsid);
   }
 
   $xacml->writeBackToFedora();
 
+  $expiry = $rels[0]['object']['value'];
   // Send email notification.
   $params['pid'] = $pid;
   $params['item_title'] = $item->label;
@@ -321,6 +341,7 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
   }
   $type = RELS_TYPE_PLAIN_LITERAL;
   $notification = NULL;
+  $item->relationships->registerNamespace('islandora-embargo', ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
   // XXX We assume the end date is properly formatted...
   if ($end != 'indefinite' && $end !== NULL) {
     $type = RELS_TYPE_DATETIME;
@@ -350,14 +371,23 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
     }
   }
   else {
+    // Handles the case where we are setting an embargo before adding the
+    // embargoed datastream to the object.
+    if (!isset($item[$dsid])) {
+      $embargo_ds = $item->constructDatastream($dsid);
+    }
+    else {
+      $embargo_ds = $item[$dsid];
+    }
+    $embargo_ds->relationships->registerNamespace('islandora-embargo', ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
 
-    $item[$dsid]->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
-    $item[$dsid]->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+    $embargo_ds->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, $type);
 
-    $item[$dsid]->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, $type);
     if ($end !== NULL) {
       if ($notification !== NULL) {
-        $item[$dsid]->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
+        $embargo_ds->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
       }
       $xacml->datastreamRule->addDsid($dsid);
       $xacml_changed = TRUE;
@@ -435,6 +465,12 @@ function islandora_embargo_user_notify($key, $item, $params) {
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
   }
   else {
-    $item[$params['dsid']]->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
+    if (!isset($item[$params['dsid']])) {
+      $embargo_ds = $item->constructDatastream($params['dsid']);
+    }
+    else {
+      $embargo_ds = $item[$params['dsid']];
+    }
+    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
   }
 }
