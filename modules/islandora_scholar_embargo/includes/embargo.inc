@@ -20,7 +20,6 @@
  */
 function islandora_scholar_embargo_form(array $form, array &$form_state, $item) {
   $pid = $item->id;
-  $label = $item->label;
   $options = array(
     'object' => t('Object-level embargo'),
     'PDF' => t('PDF'),
