@@ -133,7 +133,7 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
   module_load_include('inc', 'islandora_scholar', 'includes/coins');
-  $i = 0;
+  $i = 1;
   $display = array(
     'citation' => array(
       '#weight' => $i++,
@@ -154,6 +154,28 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
 
   if (isset($object['MODS']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
     $display['citation']['#markup'] = CitationView::getCitation($object['MODS']->content);
+  }
+
+  // Google Scholar Search.
+  $mods_xml = simplexml_load_string($object['MODS']->content);
+  $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
+
+  // Default search term is the title of the citation.
+  $title = $mods_xml->xpath('//mods:title');
+  $search_term = (string) reset($title);
+
+  // Search for doi for search term.  If exists use it instead of default.
+  $doi = $mods_xml->xpath('//mods:identifier[@type="doi"]');
+  if ($doi) {
+    $search_term = (string) reset($doi);
+  }
+
+  if (variable_get('islandora_scholar_google_scholar_search', FALSE)) {
+    $display['google_scholar_search'] = array(
+      '#type' => 'item',
+      '#markup' => l(t('Search for this publication on Google Scholar'), "http://scholar.google.ca/scholar?q=$search_term"),
+      '#weight' => 0,
+    );
   }
 
   return array('citation.tab' => $display);
