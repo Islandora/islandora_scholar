@@ -167,7 +167,8 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
 
     // Search for doi for search term.  If exists use it instead of default.
     $identifier = variable_get('islandora_scholar_google_scholar_search_field', FALSE);
-    $doi = $mods_xml->xpath('//mods:identifier[@type="$identifier"]');
+
+    $doi = $mods_xml->xpath("//mods:identifier[@type=\"$identifier\"]");
     if ($doi) {
       $search_term = (string) reset($doi);
     }
