@@ -43,6 +43,12 @@ function islandora_scholar_admin_form() {
       '#description' => t('Various parameters used by RoMEO'),
       '#collapsible' => TRUE,
     ),
+    'google_scholar_search' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Google Scholar Search configuration'),
+      '#description' => t('Various parameters used by Google Scholar Search'),
+      '#collapsible' => TRUE,
+    ),
   );
 
   $form += _islandora_scholar_add_variable('islandora_scholar_google_direct_to_fedora', FALSE, array(
@@ -50,10 +56,15 @@ function islandora_scholar_admin_form() {
     '#title' => t('Provide Google PDF viewer with direct URL.'),
     '#description' => t('Normally, we would have all calls go through Drupal get the relevant PDF. This option tries to make the call go directly to your associated Fedora instance.  (Note:  This will not work if you use "localhost" or a non-public IP address in the Islandora\'s base Fedora URL.)'),
   ));
-  $form += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search', FALSE, array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search', FALSE, array(
     '#type' => 'checkbox',
     '#title' => t('Google Scholar Search.'),
     '#description' => t('Enable Searching in Google Scholar.'),
+  ));
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search_field', "doi", array(
+    '#type' => 'textfield',
+    '#title' => t('Google Scholar Search field.'),
+    '#description' => t('The MODS field you want to use to search.  Default is doi'),
   ));
   $form['romeo'] += _islandora_scholar_add_variable('islandora_scholar_romeo_enable', FALSE, array(
     '#type' => 'checkbox',
