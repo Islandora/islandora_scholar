@@ -61,10 +61,15 @@ function islandora_scholar_admin_form() {
     '#title' => t('Google Scholar Search.'),
     '#description' => t('Enable Searching in Google Scholar.'),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search_field', "doi", array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_primary_search_xpath', "//mods:identifier[@type=\"doi\"]", array(
     '#type' => 'textfield',
-    '#title' => t('Google Scholar Search field.'),
-    '#description' => t('The MODS field you want to use to search.  Default is doi'),
+    '#title' => t('Google Scholar Primary Search XPath.'),
+    '#description' => t('The primary xpath you want to use to search.'),
+  ));
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:title", array(
+    '#type' => 'textfield',
+    '#title' => t('Google Scholar Default Search XPath.'),
+    '#description' => t('The default xpath you want to use to search'),
   ));
   $form['romeo'] += _islandora_scholar_add_variable('islandora_scholar_romeo_enable', FALSE, array(
     '#type' => 'checkbox',

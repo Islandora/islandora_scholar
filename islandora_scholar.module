@@ -161,16 +161,15 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
     $mods_xml = simplexml_load_string($object['MODS']->content);
     $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
 
-    // Default search term is the title of the citation.
-    $title = $mods_xml->xpath('//mods:title');
-    $search_term = (string) reset($title);
-
     // Search for doi for search term.  If exists use it instead of default.
-    $identifier = variable_get('islandora_scholar_google_scholar_search_field', FALSE);
-
-    $doi = $mods_xml->xpath("//mods:identifier[@type=\"$identifier\"]");
+    $doi = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_primary_search_xpath', ""));
     if ($doi) {
       $search_term = (string) reset($doi);
+    }
+    else {
+      // Default search term is the title of the citation.
+      $title = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_default_search_xpath', ""));
+      $search_term = (string) reset($title);
     }
 
     $display['google_scholar_search'] = array(
