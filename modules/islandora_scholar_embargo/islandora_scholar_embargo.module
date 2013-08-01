@@ -61,7 +61,7 @@ function islandora_scholar_embargo_permission() {
     ),
     ISLANDORA_EMBARGO_CAN_EMBARGO_ANY => array(
       'title' => t('Manage embargo on any objects'),
-      'description' => t("User can add or remove embargo on any obhect in repository."),
+      'description' => t("User can add or remove embargo on any object in repository."),
     ),
   );
 }
@@ -165,7 +165,9 @@ function islandora_scholar_embargo_cron() {
   $ise_uri = ISLANDORA_SCHOLAR_EMBARGO_RELS_URI;
   $eu = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
   $np = ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED;
-  $repository = new IslandoraTuque();
+  // Force the cron to run as user 1 so we don't get locked out of objects.
+  $user = user_load(1);
+  $repository = islandora_get_tuque_connection($user);
   $query = <<<EOQ
 PREFIX is: <$ise_uri>
 SELECT ?embargoed ?date ?notify
