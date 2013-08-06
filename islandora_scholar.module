@@ -156,7 +156,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
     $display['citation']['#markup'] = CitationView::getCitation($object['MODS']->content);
   }
 
-  if (variable_get('islandora_scholar_google_scholar_search', FALSE) && isset($object['MODS'])) {
+  if (variable_get('islandora_scholar_google_scholar_search_enabled', FALSE) && isset($object['MODS'])) {
     // Google Scholar Search.
     $mods_xml = simplexml_load_string($object['MODS']->content);
     $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
