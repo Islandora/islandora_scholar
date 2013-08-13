@@ -82,8 +82,8 @@ function islandora_scholar_access($object = NULL) {
   $model_access = count(array_intersect($allowed_cmodels, $object->models)) > 0;
 
   $user_model_and_object_access = $user_access && $model_access && (
-    (!isset($object['POLICY']) && islandora_object_access(FEDORA_ADD_DS, $object)) ||
-    (isset($object['POLICY']) && islandora_datastream_access(FEDORA_METADATA_EDIT, $object['POLICY']))
+    (!isset($object['POLICY']) && islandora_object_access(ISLANDORA_ADD_DS, $object)) ||
+    (isset($object['POLICY']) && islandora_datastream_access(ISLANDORA_METADATA_EDIT, $object['POLICY']))
   );
 
   return $user_model_and_object_access;

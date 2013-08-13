@@ -56,7 +56,7 @@ class CitationView {
 function islandora_scholar_islandora_scholar_viewer(AbstractObject $object) {
   $to_return = array();
 
-  if (isset($object['PDF']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['PDF'])) {
+  if (isset($object['PDF']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PDF'])) {
     $to_return += array(
       'google' => array(
         '#callback' => 'islandora_scholar_google_pdf_viewer',
