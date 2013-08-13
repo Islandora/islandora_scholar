@@ -10,8 +10,14 @@
 define('ISLANDORA_SCHOLAR_EMBARGO_RELS_URI', 'info:islandora/islandora-system:def/scholar#');
 define('ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED', 'embargo-expiry-notification-date');
 define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
-define('ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED', 'can embargo owned objects');
-define('ISLANDORA_EMBARGO_CAN_EMBARGO_ANY', 'can embargo any object');
+define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED', 'can embargo owned objects');
+define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY', 'can embargo any object');
+
+// @codingStandardsIgnoreStart
+// XXX: These should be removed at some point in the future.
+define('ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED', ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED);
+define('ISLANDORA_EMBARGO_CAN_EMBARGO_ANY', ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
+// @codingStandardsIgnoreEnd
 
 /**
  * Implements hook_menu().
@@ -55,11 +61,11 @@ function islandora_scholar_embargo_islandora_object_access($op, $object, $user) 
  */
 function islandora_scholar_embargo_permission() {
   return array(
-    ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED => array(
+    ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED => array(
       'title' => t('Manage embargo on own objects'),
       'description' => t("User can add or remove embargo on their own objects only."),
     ),
-    ISLANDORA_EMBARGO_CAN_EMBARGO_ANY => array(
+    ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY => array(
       'title' => t('Manage embargo on any objects'),
       'description' => t("User can add or remove embargo on any object in repository."),
     ),
@@ -76,7 +82,7 @@ function islandora_scholar_embargo_permission() {
  *   TRUE if access is allowed FALSE otherwise.
  */
 function islandora_scholar_access($object = NULL) {
-  $user_access = user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED) || user_access(ISLANDORA_EMBARGO_CAN_EMBARGO_ANY);
+  $user_access = user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED) || user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
 
   $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel'));
   $model_access = count(array_intersect($allowed_cmodels, $object->models)) > 0;
