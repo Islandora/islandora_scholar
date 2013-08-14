@@ -6,9 +6,16 @@
  */
 
 // Constants Permission/Menu/Theme.
-define('PERM_CSL_MANAGE', 'Manage CSL Citations');
-define('MENU_CSL_MANAGE', 'admin/islandora/csl');
-define('THEME_CSL_MANAGE_TABLE', 'csl_manage_table');
+define('CSL_MANAGE_PERM', 'Manage CSL Citations');
+define('CSL_MANAGE_MENU', 'admin/islandora/csl');
+define('CSL_MANAGE_TABLE_THEME', 'csl_manage_table');
+
+// @codingStandardsIgnoreStart
+// XXX: These should be removed at some point.
+define('PERM_CSL_MANAGE', CSL_MANAGE_PERM);
+define('MENU_CSL_MANAGE', CSL_MANAGE_MENU);
+define('THEME_CSL_MANAGE_TABLE', CSL_MANAGE_TABLE_THEME);
+// @codingStandardsIgnoreStart
 
 /**
  * Implements hook_menu().
@@ -16,12 +23,12 @@ define('THEME_CSL_MANAGE_TABLE', 'csl_manage_table');
 function csl_menu() {
   $items = array();
 
-  $items[MENU_CSL_MANAGE] = array(
+  $items[CSL_MANAGE_MENU] = array(
     'title' => 'CSL Styles',
     'description' => 'List, add or remove the installed CSL 1.0 Styles.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('csl_manage_form'),
-    'access arguments' => array(PERM_CSL_MANAGE),
+    'access arguments' => array(CSL_MANAGE_PERM),
     'file' => 'includes/csl.form.inc',
     'type' => MENU_NORMAL_ITEM,
   );
@@ -34,7 +41,7 @@ function csl_menu() {
  */
 function csl_permission() {
   return array(
-    PERM_CSL_MANAGE => array(
+    CSL_MANAGE_PERM => array(
       'title' => t('Manage CSL Citations'),
     ),
   );
@@ -45,7 +52,7 @@ function csl_permission() {
  */
 function csl_theme() {
   return array(
-    THEME_CSL_MANAGE_TABLE => array(
+    CSL_MANAGE_TABLE_THEME => array(
       'render element' => 'element',
     ),
   );

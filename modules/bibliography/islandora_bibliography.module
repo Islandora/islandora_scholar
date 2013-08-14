@@ -111,7 +111,7 @@ function islandora_bibilography_get_title_authors($pid) {
 function islandora_bibliography_get_mods($pid) {
   $object = islandora_object_load($pid);
 
-  if (isset($object) && isset($object['MODS']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
+  if (isset($object) && isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
     $mods_str = trim($object['MODS']->content);
     $doc = new DOMDocument();
     $doc->loadXML($mods_str);

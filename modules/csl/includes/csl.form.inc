@@ -21,7 +21,7 @@ function csl_manage_form(array $form, array &$form_state) {
 
   $table = array(
     '#header' => array(t('Style Name'), '', t('Delete')),
-    '#theme' => THEME_CSL_MANAGE_TABLE,
+    '#theme' => CSL_MANAGE_TABLE_THEME,
     '#tree' => TRUE,
     'rows' => array(),
   );
