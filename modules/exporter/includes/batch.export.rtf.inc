@@ -90,7 +90,7 @@ function _citation_exporter_batch_append_citations_to_text_file(array $pids, $fi
   $file = fopen($filename, 'ab');
   foreach ($pids as $pid) {
     $object = islandora_object_load($pid);
-    if (isset($object) && isset($object['MODS']) && islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
+    if (isset($object) && isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
       $mods = trim($object['MODS']->content);
       if (!empty($mods)) {
         $json = _citeproc_array_to_object(convert_mods_to_citeproc_jsons($mods));

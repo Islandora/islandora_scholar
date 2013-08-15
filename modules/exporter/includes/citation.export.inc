@@ -11,17 +11,17 @@ class CitationExporter {
    * Gets the storage location of all the export information.
    */
   static protected function &GetExportTable() {
-    if (!isset($_SESSION[SESSION_CITATION_EXPORTER_INDEX])) {
-      $_SESSION[SESSION_CITATION_EXPORTER_INDEX] = array();
+    if (!isset($_SESSION[CITATION_EXPORTER_INDEX_SESSION])) {
+      $_SESSION[CITATION_EXPORTER_INDEX_SESSION] = array();
     }
-    return $_SESSION[SESSION_CITATION_EXPORTER_INDEX];
+    return $_SESSION[CITATION_EXPORTER_INDEX_SESSION];
   }
 
   /**
    * Clears the storage location for the export information.
    */
   static protected function ClearExportTable() {
-    unset($_SESSION[SESSION_CITATION_EXPORTER_INDEX]);
+    unset($_SESSION[CITATION_EXPORTER_INDEX_SESSION]);
   }
 
   /**

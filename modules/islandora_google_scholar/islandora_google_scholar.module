@@ -18,7 +18,7 @@
  */
 function islandora_google_scholar_create_meta_tags($object) {
   // Need at least title, full name of at least one author, publication year.
-  if (!isset($object['MODS']) || !islandora_datastream_access(FEDORA_VIEW_OBJECTS, $object['MODS'])) {
+  if (!isset($object['MODS']) || !islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
     return FALSE;
   }
   else {
