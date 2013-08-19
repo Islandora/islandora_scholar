@@ -10,5 +10,5 @@ files[] = includes/coins.inc
 files[] = includes/romeo.tab.inc
 files[] = tests/hooked_access.test
 package = Islandora
-version = 7.x-$Format:%h$-dev
+version = 7.x-dev
 core = 7.x
