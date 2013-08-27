@@ -44,7 +44,7 @@ function islandora_scholar_embargo_menu() {
     'title' => 'Manage Embargoed Items',
     'file' => 'includes/embargo_manage.inc',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('embargo_manage_form'),
+    'page arguments' => array('islandora_scholar_embargo_manage_form'),
     'type' => MENU_NORMAL_ITEM,
     'access arguments' => array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY),
   );

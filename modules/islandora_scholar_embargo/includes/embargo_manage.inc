@@ -8,16 +8,16 @@
  * Builds management form for embargoed citations.
  * 
  * @param array $form
- *   The form
+ *   The form.
  * @param array $form_state
- *   The form state
+ *   The form state.
  * 
  * @return array
- *   Returns the form
+ *   Returns the form.
  */
-function embargo_manage_form(array $form, array &$form_state) {
+function islandora_scholar_embargo_manage_form(array $form, array &$form_state) {
 
-  $table = embargo_build_table();
+  $table = islandora_scholar_embargo_build_table();
 
   $form['table'] = array(
     '#type' => 'markup',
@@ -31,30 +31,23 @@ function embargo_manage_form(array $form, array &$form_state) {
  * Builds table to pass to theming function.
  * 
  * @return array
- *   Returns the table
+ *   Returns the table.
  */
-function embargo_build_table() {
+function islandora_scholar_embargo_build_table() {
 
-  module_load_include('inc', 'islandora', 'includes/tuque');
-  $repository = new IslandoraTuque();
+  $repository = islandora_get_tuque_connection();
 
-  $query = <<<'XML'
-      select $pid $object $label from <#ri>
+  $query = 'select $pid $object $label from <#ri>
               where $pid <info:islandora/islandora-system:def/scholar#embargo-until> $object
               and $pid <info:fedora/fedora-system:def/model#label> $label
-              order by $label
-XML;
+              order by $label';
 
   $results = $repository->repository->ri->itqlQuery($query, 'unlimited', '0');
 
   if (empty($results)) {
-    return;
+    $empty = t("There are no embargoed citations");
   }
-  $header = array('PID', t('Label'), t('Embargoed until'), t('Manage'));
-
-  $text_options = array(
-    'attributes' => array('target' => '_blank'),
-  );
+  $header = array(t('PID'), t('Label'), t('Embargoed until'), t('Manage'));
 
   $rows = array();
   foreach ($results as $result) {
@@ -66,5 +59,8 @@ XML;
     );
   }
 
-  return theme('table', array('header' => $header, 'rows' => $rows));
+  return theme('table', array(
+    'header' => $header,
+    'rows' => $rows,
+    'empty' => $empty));
 }
