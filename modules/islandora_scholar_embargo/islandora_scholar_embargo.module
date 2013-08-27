@@ -40,6 +40,15 @@ function islandora_scholar_embargo_menu() {
     'file' => 'includes/admin.form.inc',
     'type' => MENU_NORMAL_ITEM,
   );
+  $items['manage/embargoed'] = array(
+    'title' => 'Manage Embargoed Items',
+    'file' => 'includes/embargo_manage.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('embargo_manage_form'),
+    'type' => MENU_NORMAL_ITEM,
+    'access arguments' => array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY),
+  );
+
   return $items;
 }
 
@@ -71,6 +80,7 @@ function islandora_scholar_embargo_permission() {
     ),
   );
 }
+
 
 /**
  * Returns access to menu path based on content mode and user permissions.
