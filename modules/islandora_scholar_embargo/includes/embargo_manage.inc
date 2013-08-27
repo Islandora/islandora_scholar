@@ -44,9 +44,6 @@ function islandora_scholar_embargo_build_table() {
 
   $results = $repository->repository->ri->itqlQuery($query, 'unlimited', '0');
 
-  if (empty($results)) {
-    $empty = t("There are no embargoed citations");
-  }
   $header = array(t('PID'), t('Label'), t('Embargoed until'), t('Manage'));
 
   $rows = array();
@@ -62,5 +59,5 @@ function islandora_scholar_embargo_build_table() {
   return theme('table', array(
     'header' => $header,
     'rows' => $rows,
-    'empty' => $empty));
+    'empty' => "There are no embargoed citations"));
 }
