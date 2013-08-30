@@ -43,7 +43,7 @@ function islandora_scholar_embargo_build_table() {
               order by $label';
 
   $results = $repository->repository->ri->itqlQuery($query, 'unlimited', '0');
-
+ dsm($results);
   $header = array(t('PID'), t('Label'), t('Embargoed until'), t('Manage'));
 
   $rows = array();
