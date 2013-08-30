@@ -38,12 +38,13 @@ function islandora_scholar_embargo_build_table() {
   $repository = islandora_get_tuque_connection();
 
   $query = 'select $pid $object $label from <#ri>
-              where $pid <info:islandora/islandora-system:def/scholar#embargo-until> $object
-              and $pid <info:fedora/fedora-system:def/model#label> $label
+              where ($pid <info:islandora/islandora-system:def/scholar#embargo-until> $object
+              and $pid <info:fedora/fedora-system:def/model#label> $label)
+              or($pid <info:islandora/islandora-system:def/scholar#embargo-until> $object)
               order by $label';
 
   $results = $repository->repository->ri->itqlQuery($query, 'unlimited', '0');
- dsm($results);
+
   $header = array(t('PID'), t('Label'), t('Embargoed until'), t('Manage'));
 
   $rows = array();
