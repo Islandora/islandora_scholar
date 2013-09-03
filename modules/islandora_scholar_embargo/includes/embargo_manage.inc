@@ -6,12 +6,12 @@
 
 /**
  * Builds management form for embargoed citations.
- * 
+ *
  * @param array $form
  *   The form.
  * @param array $form_state
  *   The form state.
- * 
+ *
  * @return array
  *   Returns the form.
  */
@@ -29,31 +29,49 @@ function islandora_scholar_embargo_manage_form(array $form, array &$form_state) 
 
 /**
  * Builds table to pass to theming function.
- * 
+ *
  * @return array
  *   Returns the table.
  */
 function islandora_scholar_embargo_build_table() {
-
-  $repository = islandora_get_tuque_connection();
-
-  $query = 'select $pid $object $label from <#ri>
-              where ($pid <info:islandora/islandora-system:def/scholar#embargo-until> $object
-              and $pid <info:fedora/fedora-system:def/model#label> $label)
-              or($pid <info:islandora/islandora-system:def/scholar#embargo-until> $object)
-              order by $label';
-
-  $results = $repository->repository->ri->itqlQuery($query, 'unlimited', '0');
-
-  $header = array(t('PID'), t('Label'), t('Embargoed until'), t('Manage'));
-
+  module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
+  $embargoed = islandora_scholar_embargo_get_all_embargoed();
+  $header = array(
+    t('Label'),
+    t('PID'),
+    t('Type'),
+    t('Embargoed until'),
+    t('Manage'),
+  );
   $rows = array();
-  foreach ($results as $result) {
+  foreach ($embargoed as $result) {
+    $pid = $result['obj']['value'];
+    $object_parts = explode('/', $pid);
+
+    // When we explode if there's more than 1 element it constitutes that we
+    // embargoed something other than the object itself.
+    if (count($object_parts) == 1) {
+      $type = t('Object');
+    }
+    else {
+      $type = $object_parts[1];
+      $pid = $object_parts[0];
+    }
+    $date = $result['date']['value'];
+    if ($date != 'indefinite') {
+      $date = new dateTime($date);
+      $date = $date->format('M d, Y ');
+    }
+    else {
+      $date = ucwords($date);
+    }
+    $temp_obj = islandora_object_load($pid);
     $rows[] = array(
-      $result['pid']['value'],
-      l($result['label']['value'], 'islandora/object/' . $result['pid']['value']),
-      $result['object']['value'],
-      l(t('Manage'), 'islandora/object/' . $result['pid']['value'] . '/manage/embargo'),
+      l($temp_obj->label, 'islandora/object/' . $pid),
+      $pid,
+      $type,
+      $date,
+      l(t('Manage'), 'islandora/object/' . $pid . '/manage/embargo'),
     );
   }
 
