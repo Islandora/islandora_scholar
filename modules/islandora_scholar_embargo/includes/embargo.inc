@@ -62,7 +62,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, $item) 
     $embargoed = FALSE;
   }
 
-  // We're juut using the PDF datastram at this time, but we'll leave this here
+  // We're just using the PDF datastram at this time, but we'll leave this here
   // in case we decide to expand.
   foreach ($item as $datastream) {
     $options[$datastream->id] = $datastream->label;
@@ -341,6 +341,27 @@ WHERE {
 }
 EOQ;
   $embargo_results = $object->repository->ri->sparqlQuery($current_embargo, 'unlimited', '0');
+  return $embargo_results;
+}
+
+/**
+ * Retrieve all embargoed items from an object.
+ *
+ * @return array
+ *   An array containing the list of embargoed items on an object
+ */
+function islandora_scholar_embargo_get_all_embargoed() {
+  $current_embargo = <<<EOQ
+PREFIX is: <info:islandora/islandora-system:def/scholar#>
+SELECT ?obj ?date
+FROM <#ri>
+WHERE {
+  ?obj is:embargo-until ?date
+}
+ORDER BY ?obj
+EOQ;
+  $connection = islandora_get_tuque_connection();
+  $embargo_results = $connection->repository->ri->sparqlQuery($current_embargo, 'unlimited', '0');
   return $embargo_results;
 }
 
