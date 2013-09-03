@@ -54,8 +54,7 @@ function islandora_scholar_embargo_build_table() {
       $type = t('Object');
     }
     else {
-      $type = $object_parts[1];
-      $pid = $object_parts[0];
+      list($pid, $type) = $object_parts;
     }
     $date = $result['date']['value'];
     if ($date != 'indefinite') {
