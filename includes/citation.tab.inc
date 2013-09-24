@@ -108,6 +108,8 @@ function islandora_scholar_google_pdf_viewer($pid) {
 
   return array(
     'viewer' => array(
+      '#prefix' => '<div id="google-pdf-viewer">',
+      '#suffix' => '</div>',
       '#markup' => '<iframe ' . drupal_attributes($iframe_attrs) . '></iframe>',
       '#weight' => 0,
     ),
