@@ -5,7 +5,7 @@
  */
 
 /**
- * Builds management form for embargoed citations.
+ * Builds management form for embargoed entries.
  *
  * @param array $form
  *   The form.
@@ -77,5 +77,5 @@ function islandora_scholar_embargo_build_table() {
   return theme('table', array(
     'header' => $header,
     'rows' => $rows,
-    'empty' => "There are no embargoed citations"));
+    'empty' => "There are no embargoed entries"));
 }
