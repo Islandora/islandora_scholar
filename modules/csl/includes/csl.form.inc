@@ -18,7 +18,17 @@
  */
 function csl_manage_form(array $form, array &$form_state) {
   form_load_include($form_state, 'inc', 'csl', 'includes/csl.form.inc');
-
+  $form['hidden_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Hidden Submit'),
+    '#attributes' => array(
+      'style' => array(
+        'display: none;',
+      ),
+    ),
+    '#validate' => array('csl_manage_add_style_validate'),
+    '#submit' => array('csl_manage_add_style_submit'),
+  );
   $table = array(
     '#header' => array(t('Style Name'), '', t('Delete')),
     '#theme' => CSL_MANAGE_TABLE_THEME,
@@ -67,9 +77,8 @@ function csl_manage_form(array $form, array &$form_state) {
       '#submit' => array('csl_manage_add_style_submit'),
     ),
   );
-  return array(
-    'table' => $table,
-  );
+  $form['table'] = $table;
+  return $form;
 }
 
 /**
