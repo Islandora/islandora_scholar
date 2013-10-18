@@ -53,6 +53,18 @@ function csl_theme() {
  */
 function csl_manage(array &$form_state) {
   module_load_include('inc', 'csl', 'CSL');
+  $form = array(
+    '#attributes' => array('enctype' => 'multipart/form-data'),
+  );
+  $form['hidden_submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Hidden Submit'),
+    '#attributes' => array(
+      'style' => 'display: none;',
+    ),
+   '#validate' => array('csl_manage_add_style_validate'),
+   '#submit' => array('csl_manage_add_style_submit'),
+  ); 
   $table = array(
     '#header' => array(t('Style Name'), '', t('Delete')),
     '#theme' => THEME_CSL_MANAGE_TABLE,
@@ -101,10 +113,8 @@ function csl_manage(array &$form_state) {
       '#submit' => array('csl_manage_add_style_submit'),
     )
   );
-  return array(
-    '#attributes' => array('enctype' => 'multipart/form-data'),
-    'table' => $table
-  );
+  $form['table'] = $table;
+  return $form;
 }
 
 /**
