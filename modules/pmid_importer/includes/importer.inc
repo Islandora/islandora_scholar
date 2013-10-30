@@ -5,7 +5,7 @@
  * Defines the PMImporter.
  */
 
-class PMImporter extends IslandoraBatchImporter {
+class PMImporter extends ScholarBatchImporter {
   protected $itemClass = 'PMIDImportObject';
 
   /**

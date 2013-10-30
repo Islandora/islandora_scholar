@@ -5,7 +5,7 @@
  * Defines the EndNoteXMLImporter.
  */
 
-class EndNoteXMLImporter extends IslandoraBatchImporter {
+class EndNoteXMLImporter extends ScholarBatchImporter {
   protected $itemClass = 'EndNoteXMLImportObject';
 
   /**

@@ -9,6 +9,7 @@ files[] = includes/citation.tab.inc
 files[] = includes/coins.inc
 files[] = includes/romeo.tab.inc
 files[] = tests/hooked_access.test
+files[] = includes/importer.inc
 package = Islandora
 version = 7.x-dev
 core = 7.x
