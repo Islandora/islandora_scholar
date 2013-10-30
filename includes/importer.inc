@@ -7,16 +7,11 @@
 abstract class ScholarBatchImporter extends IslandoraBatchImporter {
 
   /**
-   * Get an identifier.
+   * Get an identifier by checking for a Collection Policy defined namespace.
    *
-   * @param IslandoraTuque $tuque
-   *   a tuque object
-   * @param string $namespace
-   *   a default namespace.  We use this namespace if we can't find a Collection
-   * Policy or the collection solution pack is not installed.
+   * If we can't find one we use the $namespace passed to this function.
    *
-   * @return string
-   *   An identifier for the repo.
+   * @see IslandoraBatchImporter::getIdentifier()
    */
   protected function getIdentifier(IslandoraTuque $tuque, $namespace) {
     static $cm_namespace;
@@ -45,16 +40,12 @@ abstract class ScholarBatchImporter extends IslandoraBatchImporter {
     }
     $parent = islandora_object_load($this->parentPid);
     if (isset($parent['COLLECTION_POLICY'])) {
-      module_load_include('inc', 'islandora_basic_collection', 'collection_policy');
       $policy_stream = $parent['COLLECTION_POLICY'];
       $policy = new CollectionPolicy($policy_stream->content);
-
-      foreach ($policy->getContentModels() as $pid => $info) {
-        if ($pid == 'ir:citationCModel' && isset($info['namespace'])) {
-          return $info['namespace'];
-        }
-      }
+      $cmodels = $policy->getContentModels();
+      $namespace = (empty($cmodels['ir:citationCModel']['namespace'])) ?
+        NULL : $cmodels['ir:citationCModel']['namespace'];
     }
-    return $default_namespace;
+    return (empty($namespace)) ? $default_namespace : $namespace;
   }
 }
