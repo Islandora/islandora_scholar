@@ -92,9 +92,13 @@ function islandora_google_scholar_create_meta_tags($object) {
     // and we don't have a consistent structure of input we will just return the
     // year for now.
     if ($date) {
-      $date_obj = new DateTime($date);
-      $date_string = date_format($date_obj, 'Y');
-      $tags['citation_publication_date'] = $date_string;
+      $date_string = islandora_google_scholar_parse_date_foryear($date);
+      if ($date_string) {
+        $tags['citation_publication_date'] = $date_string;
+      }
+      else {
+        return FALSE;
+      }
     }
 
     $journal_title = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
@@ -132,10 +136,10 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     $online_date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationDate');
     if ($online_date) {
-      $date = (string) reset($online_date);
-      $date_obj = new DateTime($date);
-      $date_string = date_format($date_obj, 'Y');
-      $tags['citation_online_date'] = $date_string;
+      $date_string = islandora_google_scholar_parse_date_foryear($online_date);
+      if ($date_string) {
+        $tags['citation_online_date'] = $date_string;
+      }
     }
 
     $doi = $mods_xml->xpath('//mods:identifier[@type="doi"]');
@@ -151,6 +155,30 @@ function islandora_google_scholar_create_meta_tags($object) {
   }
 
   return $tags;
+}
+
+/**
+ * Return the year portion of a date.
+ *
+ * @param string|array $date
+ *   The date to parse.  If it is array we use the first element in the array
+ *
+ * @return null|string
+ *   returns the year if the date was parsable and NULL otherwise
+ */
+function islandora_google_scholar_parse_date_foryear($date) {
+  if (is_array($date)) {
+    $date = (string) reset($date);
+  }
+  try {
+    $date_obj = new DateTime($date);
+    $date_string = date_format($date_obj, 'Y');
+    return $date_string;
+  }
+  catch (Exception $e) {
+    // TODO: should we log this?
+    return NULL;
+  }
 }
 
 /**
