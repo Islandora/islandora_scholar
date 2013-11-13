@@ -65,7 +65,7 @@ function islandora_scholar_islandora_content_model_forms_form_associations() {
       'content_model' => 'ir:citationCModel',
       'form_name' => 'Citation MODS form',
       'dsid' => 'MODS',
-      'title_field' => array('title'),
+      'title_field' => array('titleInfo', 'title'),
       'transform' => 'mods_to_dc.xsl',
       'template' => FALSE,
     ),
