@@ -14,4 +14,13 @@
   <dsTypeModel ID="PDF" optional="true">
     <form MIME="application/pdf"/>
   </dsTypeModel>
+  <dsTypeModel ID="FULL_TEXT">
+    <form MIME="text/plain"></form>
+  </dsTypeModel>
+  <dsTypeModel ID="TN">
+    <form MIME="image/jpeg"></form>
+  </dsTypeModel>
+  <dsTypeModel ID="PREVIEW">
+    <form MIME="image/jpeg"></form>
+  </dsTypeModel>
 </dsCompositeModel>
