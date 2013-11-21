@@ -112,7 +112,8 @@ function islandora_scholar_admin_form() {
  * @return array
  *   An array representing a Drupal form.
  */
-function islandora_scholar_admin_pdf_form($form, $form_state) {
+function islandora_scholar_admin_pdf_form($form, &$form_state) {
+  form_load_include($form_state, 'inc', 'islandora_scholar', 'includes/admin.form');
   // @TODO: Consolidate all this into derivatives library code so we don't
   // have similar code within PDF and Scholar.
   if (isset($form_state['values']['islandora_scholar_path_to_pdftotext'])) {
