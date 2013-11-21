@@ -32,10 +32,37 @@ function islandora_scholar_drush_command() {
 }
 
 /**
- * Command callback to install required objects.
+ * Command callback to update citations with PDF derivatives.
  */
 function drush_islandora_scholar_update_citations() {
-  module_load_include('inc', 'islandora', 'includes/derivatives');
+  batch_set(islandora_scholar_citation_update_create_batch());
+  drush_backend_batch_process();
+}
+
+/**
+ * Constructs a batch used to update things via Drush.
+ */
+function islandora_scholar_citation_update_create_batch() {
+  return array(
+    'operations' => array(
+      array('islandora_scholar_update_citation_batch_operation', array()),
+    ),
+    'title' => t('Updating PDF derivatives for citations...'),
+    'init_message' => t('Preparing to update derivatives.'),
+    'progress_message' => t('Time elapsed: @elapsed <br/>Estimated time remaning @estimate.'),
+    'error_message' => t('An error has occurred.'),
+    'file' => drupal_get_path('module', 'islandora_scholar') . '/islandora_scholar.drush.inc',
+  );
+}
+
+/**
+ * Constructs and performs the citation batch operation.
+ *
+ * @param array $context
+ *   The context of the Drupal batch.
+ */
+function islandora_scholar_update_citation_batch_operation(&$context) {
+  $citation_update = 10;
   $query = <<<EOQ
 SELECT ?pid FROM <#ri>
 WHERE {
@@ -45,8 +72,29 @@ WHERE {
 }
 EOQ;
   $connection = islandora_get_tuque_connection();
-  $results = $connection->repository->ri->sparqlQuery($query, 'unlimited');
-  drush_log(dt('Processing @num results...', array('@num' => count($results))), 'notice');
+
+  $sandbox = &$context['sandbox'];
+  if (!isset($sandbox['offset'])) {
+    $sparql_count = $connection->repository->ri->countQuery($query, 'sparql');
+    $sandbox['offset'] = 0;
+    $sandbox['total'] = $sparql_count;
+    if ($sandbox['total'] === 0) {
+      return;
+    }
+  }
+
+  $context['message'] = t('Processing results @start to @end.', array(
+    '@start' => $sandbox['offset'],
+    '@end' => min($sandbox['offset'] + $citation_update, $sandbox['total']),
+  ));
+
+  $offset_start = $sandbox['offset'];
+  $query .= "
+  LIMIT $citation_update
+  OFFSET $offset_start
+  ";
+  module_load_include('inc', 'islandora', 'includes/derivatives');
+  $results = $connection->repository->ri->sparqlQuery($query);
   foreach ($results as $result) {
     $object = islandora_object_load($result['pid']['value']);
     $derivative_results = islandora_do_derivatives($object, array(
@@ -67,4 +115,6 @@ EOQ;
       drush_log(dt("PDF derivative creation failed for @pid. Check the Drupal watchdog for detailed errors.", array('@pid' => $object->id)), 'error');
     }
   }
+  $sandbox['offset'] += $citation_update;
+  $context['finished'] = $sandbox['offset'] / $sandbox['total'];
 }

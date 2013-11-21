@@ -140,7 +140,7 @@ function islandora_scholar_admin_pdf_form($form, $form_state) {
   $form['islandora_scholar_url_fieldset']['islandora_scholar_create_fulltext'] = array(
     '#type' => 'checkbox',
     '#title' => t("Extract text streams from PDFs using pdftotext"),
-    '#description' => t("Extracted text streams are appended to PDFs as FULL_TEXT datastreams and are indexed into Solr. Uploading a text file takes priority over text stream extraction.
+    '#description' => t("The extracted text stream is added as FULL_TEXT datastreams and are indexed into Solr. Uploading a text file takes priority over text stream extraction.
        </br><strong>Note:</strong> PDFs that contain visible text do not necessarily contain text streams (e.g. images scanned and saved as PDFs). Consider converting text-filled images with no text streams to TIFFs and using the !book with !ocr enabled.", array(
          '!book' => l(t('Book Solution Pack'), 'https://wiki.duraspace.org/display/ISLANDORA711/Book+Solution+Pack'),
          '!ocr' => l(t('OCR'), 'https://wiki.duraspace.org/display/ISLANDORA711/Islandora+OCR'),
@@ -168,7 +168,7 @@ function islandora_scholar_admin_pdf_form($form, $form_state) {
         '!confirmation_message' => $confirmation_message)
     ),
     '#ajax' => array(
-      'callback' => 'islandora_update_pdftotext_url_div',
+      'callback' => 'islandora_scholar_update_pdftotext_url_div',
       'wrapper' => 'islandora-url',
       'effect' => 'fade',
       'event' => 'blur',
@@ -247,9 +247,7 @@ function islandora_scholar_admin_pdf_form_validate($form, &$form_state) {
 /**
  * Function updates PDF to text URL div.
  */
-function islandora_update_pdftotext_url_div($form, $form_state) {
-  unset($form_state['submit_handlers']);
+function islandora_scholar_update_pdftotext_url_div($form, $form_state) {
   $form_state['rebuild'] = TRUE;
-
   return $form['islandora_scholar_url_fieldset']['wrapper'];
 }
