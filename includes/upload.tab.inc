@@ -93,11 +93,20 @@ function islandora_scholar_modify_form(array $form, array &$form_state, Abstract
  */
 function islandora_scholar_modify_form_submit(array $form, array &$form_state) {
   extract($form_state['values']);
+
   $object = islandora_object_load($pid);
   if ($form_state['clicked_button']['#name'] == 'delete_document') {
     try {
-      // @todo Also remove the PDF's derivatives.
       $object->purgeDatastream($dsid);
+      if (isset($object['TN'])) {
+        $object->purgeDatastream('TN');
+      }
+      if (isset($object['PREVIEW'])) {
+        $object->purgeDatastream('PREVIEW');
+      }
+      if (isset($object['FULL_TEXT'])) {
+        $object->purgeDatastream('FULL_TEXT');
+      }
     }
     catch (Exception $e) {
       drupal_set_message(t('Failed to purge datastream @dsid from @pid</br>code: @code<br/>message: @msg', array(
@@ -207,10 +216,8 @@ function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractObject
     return;
   }
   $namespace = 'http://www.loc.gov/mods/v3';
-  $filename = drupal_realpath(file_create_filename("{$object->id}_MODS.xml", 'temporary://'));
-  $object['MODS']->getContent($filename);
   $doc = new DOMDocument();
-  $doc->load($filename);
+  $doc->loadXML($object['MODS']->content);
   $xpath = new DOMXPath($doc);
   $xpath->registerNamespace('mods', $namespace);
   // Remove all instances of mods:accessCondition and mods:physicalDescription
@@ -240,9 +247,8 @@ function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractObject
   $physical_description_element->nodeValue = $version;
   $mods_element->appendChild($physical_description_element);
   // Commit changes to datastream.
-  $doc->save($filename);
-  $object['MODS']->setContentFromFile($filename);
-  file_unmanaged_delete($filename);
+  $object['MODS']->setContentFromString($doc->saveXML());
+
 }
 
 /**

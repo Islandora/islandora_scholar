@@ -51,11 +51,6 @@ function islandora_scholar_admin_form() {
     ),
   );
 
-  $form += _islandora_scholar_add_variable('islandora_scholar_google_direct_to_fedora', FALSE, array(
-    '#type' => 'checkbox',
-    '#title' => t('Provide Google PDF viewer with direct URL.'),
-    '#description' => t('Normally, we would have all calls go through Drupal get the relevant PDF. This option tries to make the call go directly to your associated Fedora instance.  (Note:  This will not work if you use "localhost" or a non-public IP address in the Islandora\'s base Fedora URL.)'),
-  ));
   $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search_enabled', FALSE, array(
     '#type' => 'checkbox',
     '#title' => t('Render Google Scholar Search link'),
@@ -104,4 +99,156 @@ function islandora_scholar_admin_form() {
   ));
 
   return system_settings_form($form);
+}
+
+/**
+ * Defines the Islandora Scholar PDF derivative options form.
+ *
+ * @param array $form
+ *   An array representing a Drupal form.
+ * @param array $form_state
+ *   An array representing the Drupal form state.
+ *
+ * @return array
+ *   An array representing a Drupal form.
+ */
+function islandora_scholar_admin_pdf_form($form, &$form_state) {
+  form_load_include($form_state, 'inc', 'islandora_scholar', 'includes/admin.form');
+  // @TODO: Consolidate all this into derivatives library code so we don't
+  // have similar code within PDF and Scholar.
+  if (isset($form_state['values']['islandora_scholar_path_to_pdftotext'])) {
+    $islandora_scholar_path_to_pdftotext = $form_state['values']['islandora_scholar_path_to_pdftotext'];
+  }
+  else {
+    $islandora_scholar_path_to_pdftotext = variable_get('islandora_scholar_path_to_pdftotext', '/usr/bin/pdftotext');
+  }
+  exec($islandora_scholar_path_to_pdftotext, $output, $return_value);
+  $confirmation_message = '<img src="' . url('misc/watchdog-ok.png') . '"/>'
+    . t('pdftotext executable found at !url', array('!url' => "<strong>$islandora_scholar_path_to_pdftotext</strong>"));
+  if ($return_value != 99) {
+    $confirmation_message = '<img src="' . url('misc/watchdog-error.png') . '"/> '
+      . t('Unable to find pdftotext executable at !url', array('!url' => "<strong>$islandora_scholar_path_to_pdftotext</strong>"));
+  }
+
+  $form = array();
+
+  // AJAX wrapper for url checking.
+  $form['islandora_scholar_url_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('TEXT'),
+  );
+
+  $form['islandora_scholar_url_fieldset']['islandora_scholar_create_fulltext'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Extract text streams from PDFs using pdftotext"),
+    '#description' => t("The extracted text stream is added as FULL_TEXT datastreams and are indexed into Solr. Uploading a text file takes priority over text stream extraction.
+       </br><strong>Note:</strong> PDFs that contain visible text do not necessarily contain text streams (e.g. images scanned and saved as PDFs). Consider converting text-filled images with no text streams to TIFFs and using the !book with !ocr enabled.", array(
+         '!book' => l(t('Book Solution Pack'), 'https://wiki.duraspace.org/display/ISLANDORA711/Book+Solution+Pack'),
+         '!ocr' => l(t('OCR'), 'https://wiki.duraspace.org/display/ISLANDORA711/Islandora+OCR'),
+       )),
+    '#default_value' => variable_get('islandora_scholar_create_fulltext', FALSE),
+  );
+
+  $form['islandora_scholar_url_fieldset']['wrapper'] = array(
+    '#prefix' => '<div id="islandora-url">',
+    '#suffix' => '</div>',
+    '#type' => 'markup',
+  );
+  $form['islandora_scholar_url_fieldset']['wrapper'] = array(
+    '#prefix' => '<div id="islandora-url">',
+    '#suffix' => '</div>',
+    '#type' => 'markup',
+  );
+
+  $form['islandora_scholar_url_fieldset']['wrapper']['islandora_scholar_path_to_pdftotext'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Path to pdftotext executable'),
+    '#default_value' => $islandora_scholar_path_to_pdftotext,
+    '#description' => t('!confirmation_message',
+      array(
+        '!confirmation_message' => $confirmation_message)
+    ),
+    '#ajax' => array(
+      'callback' => 'islandora_scholar_update_pdftotext_url_div',
+      'wrapper' => 'islandora-url',
+      'effect' => 'fade',
+      'event' => 'blur',
+      'progress' => array('type' => 'throbber'),
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_create_fulltext"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+
+  $form['islandora_scholar_thumbnail_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Thumbnail'),
+    '#description' => t('Settings for creating PDF thumbnail derivatives'),
+  );
+
+  $form['islandora_scholar_thumbnail_fieldset']['islandora_scholar_thumbnail_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Width'),
+    '#description' => t('The width of the thumbnail in pixels.'),
+    '#element_validate' => array('element_validate_number'),
+    '#default_value' => variable_get('islandora_scholar_thumbnail_width', 200),
+    '#size' => 5,
+  );
+
+  $form['islandora_scholar_thumbnail_fieldset']['islandora_scholar_thumbnail_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Height'),
+    '#description' => t('The height of the thumbnail in pixels.'),
+    '#element_validate' => array('element_validate_number'),
+    '#default_value' => variable_get('islandora_scholar_thumbnail_height', 200),
+    '#size' => 5,
+  );
+
+  $form['islandora_scholar_preview_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Preview image'),
+    '#description' => t('Settings for creating PDF preview image derivatives'),
+  );
+
+  $form['islandora_scholar_preview_fieldset']['islandora_scholar_preview_width'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Max width'),
+    '#description' => t('The maximum width of the preview in pixels.'),
+    '#element_validate' => array('element_validate_number'),
+    '#default_value' => variable_get('islandora_scholar_preview_width', 500),
+    '#size' => 5,
+  );
+
+  $form['islandora_scholar_preview_fieldset']['islandora_scholar_preview_height'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Max height'),
+    '#description' => t('The maximum height of the preview in pixels.'),
+    '#element_validate' => array('element_validate_number'),
+    '#default_value' => variable_get('islandora_scholar_preview_height', 700),
+    '#size' => 5,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Admin form validate function.
+ */
+function islandora_scholar_admin_pdf_form_validate($form, &$form_state) {
+  if ($form_state['values']['islandora_scholar_create_fulltext']) {
+    $islandora_scholar_path_to_pdftotext = $form_state['values']['islandora_scholar_path_to_pdftotext'];
+    exec($islandora_scholar_path_to_pdftotext, $output, $return_value);
+    if ($return_value != 99) {
+      form_set_error('islandora_scholar_path_to_pdftotext', t('Cannot extract text from PDF without a valid path to pdftotext.'));
+    }
+  }
+}
+
+/**
+ * Function updates PDF to text URL div.
+ */
+function islandora_scholar_update_pdftotext_url_div($form, $form_state) {
+  $form_state['rebuild'] = TRUE;
+  return $form['islandora_scholar_url_fieldset']['wrapper'];
 }
