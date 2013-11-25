@@ -22,3 +22,15 @@ function islandora_scholar_uninstall() {
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   islandora_install_solution_pack('islandora_scholar', 'uninstall');
 }
+
+/**
+ * Print and log a message about updating derivative PDFs.
+ */
+function islandora_scholar_update_7100(&$sandbox) {
+  drupal_set_message(filter_xss(t('Existing citations with PDF datastreams should have derivatives created for them via Drush. Please consult the !url for further information.',
+    array(
+      '!url' => l(t('README'), 'https://github.com/discoverygarden/islandora_scholar/blob/7.x/README.txt', array('absolute' => TRUE)),
+    )
+  )));
+  watchdog('islandora_scholar', 'Existing citations with PDF datastreams should have derivatives created for them via Drush.', array(), WATCHDOG_NOTICE, l(t('README'), 'https://github.com/discoverygarden/islandora_scholar/blob/7.x/README.txt', array('external' => TRUE)));
+}
