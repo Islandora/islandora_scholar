@@ -40,7 +40,9 @@ function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FA
   $width = variable_get('islandora_scholar_thumbnail_width', 200);
   $height = variable_get('islandora_scholar_thumbnail_height', 200);
   $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object);
-  return islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force);
+  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force);
+  file_unmanaged_delete($file_uri);
+  return $results;
 }
 
 /**
@@ -70,6 +72,7 @@ function islandora_scholar_add_fulltext_derivative(AbstractObject $object, $forc
     $derivative_file_uri = drupal_realpath($temp);
     $command = "$executable $source $derivative_file_uri";
     exec($command, $execout, $returncode);
+    file_unmanaged_delete($file_uri);
     $success = ($returncode === 0);
 
     if (!$success) {
@@ -146,7 +149,9 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
   $width = variable_get('islandora_scholar_preview_width', 500);
   $height = variable_get('islandora_scholar_preview_height', 700);
   $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object);
-  return islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force);
+  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force);
+  file_unmanaged_delete($file_uri);
+  return $results;
 }
 
 /**
@@ -176,15 +181,10 @@ function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri,
       return islandora_scholar_missing_pdf_datastream($object->id);
     }
     $derivative_file_uri = islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $height);
-
-    // We encountered an error here stop all derivativing!
-    if (is_array($derivative_file_uri)) {
-      return $derivative_file_uri;
-    }
+    file_unmanaged_delete($file_uri);
     // Receive a valid file URI to add or an error message otherwise.
-    if (file_valid_uri($derivative_file_uri)) {
+    if (!is_array($derivative_file_uri) && file_valid_uri($derivative_file_uri)) {
       $success = islandora_scholar_add_datastream($object, $dsid, $derivative_file_uri);
-      file_unmanaged_delete($derivative_file_uri);
       if ($success === TRUE) {
         return array(
           'success' => TRUE,
@@ -296,6 +296,7 @@ function islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $heig
  *   TRUE if successfully added/modified the datastream, error message if not.
  */
 function islandora_scholar_add_datastream($object, $datastream_id, $file_uri) {
+  $return = TRUE;
   try {
     $ingest = !isset($object[$datastream_id]);
     $mime_detector = new MimeDetect();
@@ -311,11 +312,12 @@ function islandora_scholar_add_datastream($object, $datastream_id, $file_uri) {
     if ($ingest) {
       $object->ingestDatastream($ds);
     }
-    return TRUE;
   }
   catch (exception $e) {
-    return $e->getMessage();
+    $return = $e->getMessage();
   }
+  file_unmanaged_delete($file_uri);
+  return $return;
 }
 
 /**
