@@ -146,7 +146,7 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
          '!book' => l(t('Book Solution Pack'), 'https://wiki.duraspace.org/display/ISLANDORA711/Book+Solution+Pack'),
          '!ocr' => l(t('OCR'), 'https://wiki.duraspace.org/display/ISLANDORA711/Islandora+OCR'),
        )),
-    '#default_value' => variable_get('islandora_scholar_create_fulltext', FALSE),
+    '#default_value' => variable_get('islandora_scholar_create_fulltext', TRUE),
   );
 
   $form['islandora_scholar_url_fieldset']['wrapper'] = array(

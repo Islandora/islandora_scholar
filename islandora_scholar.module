@@ -292,7 +292,7 @@ function islandora_scholar_ir_citationCModel_islandora_derivative() {
     ),
     'file' => drupal_get_path('module', 'islandora_scholar') . '/includes/derivatives.inc',
   );
-  if (variable_get('islandora_scholar_create_fulltext', FALSE)) {
+  if (variable_get('islandora_scholar_create_fulltext', TRUE)) {
     $derivatives[] = array(
       'source_dsid' => 'PDF',
       'destination_dsid' => 'FULL_TEXT',
