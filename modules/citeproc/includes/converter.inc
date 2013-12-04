@@ -62,6 +62,7 @@ function add_mods_namespace(SimpleXMLElement &$mods) {
  *   process children.
  */
 function _citeproc_array_to_object($in) {
+
   if (!is_array($in)) {
     return $in;
   }
@@ -575,15 +576,26 @@ function convert_mods_to_citeproc_json_name(SimpleXMLElement $name) {
 function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
   $output = array();
   $name_parts = $name->xpath("mods:namePart");
+
   foreach ($name_parts as $name_part) {
     $type = (string) $name_part->attributes()->type;
     $content = (string) $name_part;
-    // Not sure why this is here...
-    $content .= (strlen($content) == 1) ? '. ' : ' ';
-    $output[$type] = isset($output[$type]) ?
-        $output[$type] . $content :
-        $content;
+
+    // If the tpye is empty, it is a combined name last, first.
+    if (empty($type)) {
+      $names = explode(", ", $content);
+      $output['family'] = $names[0];
+      $output['given'] = $names[1];
+    }
+    else {
+      // Not sure why this is here...
+      $content .= (strlen($content) == 1) ? '. ' : ' ';
+      $output[$type] = isset($output[$type]) ?
+          $output[$type] . $content :
+          $content;
+    }
   }
+
   // Add the citeproc-js "parse-names" flag.
   $output['parse-names'] = "true";
   return $output;

@@ -1174,7 +1174,8 @@ class csl_label extends csl_format {
 
     if (empty($text)) {
       foreach ($variables as $variable) {
-        if($variable == 'page') {
+
+        if($variable == 'page' && isset($data->{$variable})) {
           $pages = $data->{$variable};
           if($pages && preg_match("/^[0-9]+-[0-9]+$/", $pages)) {
             $plural = "multiple";
