@@ -215,8 +215,8 @@ function islandora_bibliography_preview_selected(array $form, array &$form_state
     }
   }
   if (count($pids)) {
-    $format = $form_state['input']['islandora_bookmark_export_options_select'];
-    $_SESSION['islandora_bibliography_preview']['style'] = $form_state['input']['islandora_bookmark_export_styles_' . $format];
+    $format = $form_state['values']['bookmarks']['fieldset']['export_options'];
+    $_SESSION['islandora_bibliography_preview']['style'] = $form_state['values']['bookmarks']['fieldset']['format_opts']['export_styles'][$format];
     $_SESSION['islandora_bibliography_preview']['pids'] = serialize($pids);
     drupal_goto('islandora/bibliography/preview');
   }
