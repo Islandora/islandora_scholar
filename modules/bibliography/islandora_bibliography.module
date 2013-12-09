@@ -187,12 +187,15 @@ function islandora_bibliography_form_islandora_bookmark_detailed_form_alter(arra
       '#submit' => array('islandora_bibliography_preview_selected'),
       '#weight' => 7,
       '#name' => 'islandora_bibliography_preview',
+      '#states' => array(
+        'visible' => array(
+          ':input[name="bookmarks[fieldset][export_options]"]' => array(
+            array('value' => 'RTF'),
+            array('value' => 'PDF'),
+          ),
+        ),
+      ),
     );
-    foreach (islandora_bibliography_get_export_formats() as $key => $value) {
-      if ($key !== 'RIS') {
-        $form['bookmarks']['fieldset']['format_opts']['preview_selected']['#states']['invisible'][':input[name="islandora_bookmark_export_styles_' . $key . '"]'] = array('invisible' => TRUE);
-      }
-    }
   }
 }
 
