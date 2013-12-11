@@ -28,10 +28,6 @@ function citation_exporter_batch_get_pdf_operations(array $pids, $style) {
 
   $queries = $_GET;
   unset($queries['q']);
-  // XXX: Header should probably be made configuration somewhere.
-  $header_text = t('Islandora Repository');
-  $operations[] = array('citation_exporter_batch_add_header_to_text_file', array(
-                    $temp_text_file, $header_text));
   $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array(
                     $temp_pids_file, $total, $temp_text_file, $style));
   $operations[] = array('citation_exporter_batch_convert_text_to_pdf', array($temp_text_file));
