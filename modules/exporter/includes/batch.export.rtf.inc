@@ -119,7 +119,6 @@ function citation_exporter_batch_convert_txt_to_rtf($filename, array &$context) 
     $text .= fread($file, 4096);
   }
   fclose($file);
-  $data = json_decode($json);
   $rtf = new RTF();
   $rtf->addText($text);
   /* File */
