@@ -41,7 +41,7 @@ class DOIImporter extends ScholarBatchImporter {
         'textarea' => array(
           '#type' => 'textarea',
           '#title' => t('DOIs'),
-          '#description' => t('Provide a list Digital Object Identifiers (DOI) - eg. 10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x '),
+          '#description' => t('Provide a list Digital Object Identifiers (DOI) - eg. 10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x'),
         ),
         'ids' => array(
           '#type' => 'value',
