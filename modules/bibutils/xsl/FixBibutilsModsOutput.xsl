@@ -10,13 +10,13 @@
     xmlns:mods="http://www.loc.gov/mods/v3">
     <xsl:output omit-xml-declaration="yes" indent="yes" method="xml"/>
     <xsl:strip-space elements="*"/>
-    <xsl:template match="/mods:modsCollection/mods:mods | @* | node()[local-name() != 'modsCollection']">
+    <xsl:template match="//mods:mods[1]/mods:mods | @* | node()[local-name() != 'modsCollection']">
         <xsl:copy>
             <xsl:apply-templates select="@* | node()"/>
         </xsl:copy>
     </xsl:template>
     <!-- Move the language into the proper languageTerm field -->
-    <xsl:template match="mods:language[parent::mods:mods]">
+    <xsl:template match="mods:language[parent::mods:mods[1]]">
         <xsl:copy>
             <xsl:apply-templates select="@*"/>
             <xsl:element name="languageTerm" namespace="http://www.loc.gov/mods/v3">
@@ -25,7 +25,7 @@
         </xsl:copy>
     </xsl:template>
     <!-- Move content from placeTerm into an affliated note 
-    <xsl:template match="mods:mods">
+    <xsl:template match="//mods:mods[1]">
         <xsl:copy>
             <xsl:apply-templates/>
             <xsl:for-each select="mods:originInfo/mods:place/mods:placeTerm">
@@ -37,5 +37,5 @@
         </xsl:copy>
     </xsl:template>-->
     <!-- Remove place where placeTerm that was moved into an affliated note 
-    <xsl:template match="mods:mods/mods:originInfo/mods:place"/>-->
+    <xsl:template match="//mods:mods[1]/mods:originInfo/mods:place"/>-->
 </xsl:stylesheet>

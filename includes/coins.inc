@@ -144,7 +144,7 @@ class Coins {
       $this->endPage = (string) reset($end_page);
     }
 
-    $title = $xml->xpath('/mods:mods/mods:titleInfo/mods:title');
+    $title = $xml->xpath('//mods:mods[1]/mods:titleInfo/mods:title');
     if ($title) {
       $this->title = $title[0];
     }
