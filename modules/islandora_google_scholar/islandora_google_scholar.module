@@ -223,3 +223,11 @@ function islandora_google_scholar_ir_citationCModel_islandora_view_object($objec
   $tags = islandora_google_scholar_create_meta_tags($object);
   islandora_google_scholar_embed_tags($tags);
 }
+
+/**
+ * Implements hook_CMODEL_islandora_view_object().
+ */
+function islandora_google_scholar_ir_thesisCModel_islandora_view_object($object) {
+  $tags = islandora_google_scholar_create_meta_tags($object);
+  islandora_google_scholar_embed_tags($tags);
+}
