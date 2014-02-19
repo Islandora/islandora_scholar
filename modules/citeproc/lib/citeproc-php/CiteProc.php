@@ -595,6 +595,9 @@ class csl_name extends csl_format {
       if (isset($name->given)) {
         $given = $this->format($name->given, 'given');
       }
+      else {
+        $given = '';
+      }
       if(isset($name->family)) {
         $name->family = $this->format($name->family, 'family');
         if ($this->form == 'short') {
