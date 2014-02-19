@@ -61,6 +61,9 @@ function islandora_scholar_islandora_xml_form_builder_forms() {
     'Citation MODS form' => array(
       'form_file' => "$module_path/xml/citation_form.xml",
     ),
+    'Thesis MODS form' => array(
+      'form_file' => "$module_path/xml/thesis_form.xml",
+    ),
   );
 }
 
@@ -72,6 +75,14 @@ function islandora_scholar_islandora_content_model_forms_form_associations() {
     'islandora_scholar_mods_form' => array(
       'content_model' => 'ir:citationCModel',
       'form_name' => 'Citation MODS form',
+      'dsid' => 'MODS',
+      'title_field' => array('titleInfo', 'title'),
+      'transform' => 'mods_to_dc.xsl',
+      'template' => FALSE,
+    ),
+    'islandora_thesis_mods_form' => array(
+      'content_model' => 'ir:thesisCModel',
+      'form_name' => 'Thesis MODS form',
       'dsid' => 'MODS',
       'title_field' => array('titleInfo', 'title'),
       'transform' => 'mods_to_dc.xsl',
@@ -105,6 +116,19 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
   $datastream->setContentFromFile("$module_path/xml/DS-COMPOSITE-MODEL.xml", FALSE);
   $citation_content_model->ingestDatastream($datastream);
 
+  // Thesis Content model.
+  $thesis_content_model = $connection->repository->constructObject('ir:thesisCModel');
+  $thesis_content_model->owner = 'fedoraAdmin';
+  $thesis_content_model->label = 'Thesis Content Model';
+  $thesis_content_model->models = 'fedora-system:ContentModel-3.0';
+
+  // DS-COMPOSITE-MODEL Datastream.
+  $datastream = $thesis_content_model->constructDatastream('DS-COMPOSITE-MODEL', 'M');
+  $datastream->label = 'DS-COMPOSITE-MODEL';
+  $datastream->mimetype = 'text/xml';
+  $datastream->setContentFromFile("$module_path/xml/DS-COMPOSITE-MODEL.xml", FALSE);
+  $thesis_content_model->ingestDatastream($datastream);
+
   // Citation Collection.
   $citation_collection = $connection->repository->constructObject('ir:citationCollection');
   $citation_collection->owner = 'fedoraAdmin';
@@ -129,6 +153,7 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
       'title' => 'Islandora Scholar',
       'objects' => array(
         $citation_content_model,
+        $thesis_content_model,
         $citation_collection,
       ),
     ),
@@ -139,94 +164,16 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
  * Implements hook_CMODEL_PID_islandora_view_object().
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
-  module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
-  module_load_include('inc', 'islandora_scholar', 'includes/coins');
-  $i = 1;
-  $display = array(
-    'citation' => array(
-      '#weight' => $i++,
-    ),
-    'preview' => array(
-      '#weight' => $i++,
-    ),
-    'pdf_download' => array(
-      '#weight' => $i++,
-    ),
-    'metadata' => array(
-      '#type' => 'fieldset',
-      '#title' => t('Metadata'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#weight' => $i++,
-      'value' => islandora_scholar_details($object),
-    ),
-  );
-  // @TODO: Let Solr metadata and other Islandora metadata viewers interact
-  // with this.
-  if (isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
-    $display['citation']['#markup'] = citeproc_bibliography_from_mods(
-      citeproc_default_style(),
-      $object['MODS']->content
-    );
+  module_load_include('inc', 'islandora_scholar', 'includes/utilities');
+  return islandora_scholar_get_view($object);
+}
 
-    if (variable_get('islandora_scholar_google_scholar_search_enabled', FALSE)) {
-      // Google Scholar Search.
-      $mods_xml = simplexml_load_string($object['MODS']->content);
-      $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-
-      // Search for doi for search term.  If exists use it instead of default.
-      $primary_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_primary_search_xpath', NULL));
-      if ($primary_search) {
-        $search_term = (string) reset($primary_search);
-      }
-      else {
-        // Default search term is the title of the citation.
-        $default_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_default_search_xpath', "$object->label"));
-        $search_term = (string) reset($default_search);
-      }
-
-      $display['google_scholar_search'] = array(
-        '#type' => 'item',
-        '#markup' => l(t('Search for this publication on Google Scholar'), "http://scholar.google.ca/scholar?q=\"$search_term\""),
-        '#weight' => 0,
-      );
-    }
-  }
-  else {
-    $display['citation']['#markup'] = t('Unable to load MODS.');
-  }
-
-  if (isset($object['PREVIEW']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PREVIEW'])) {
-    $image = theme('image', array(
-      'path' => "islandora/object/$object->id/datastream/PREVIEW/view",
-    ));
-    if (isset($object['PDF']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PDF'])) {
-      $display['preview'] = array(
-        '#markup' => l($image, "islandora/object/$object->id/datastream/PDF/view", array(
-          'html' => TRUE,
-        )),
-        '#weight' => $display['preview']['#weight'],
-      );
-    }
-    else {
-      $display['preview'] = array(
-        '#theme' => 'image',
-        '#path' => "islandora/object/$object/datastream/PREVIEW/view",
-        '#weight' => $display['preview']['#weight'],
-      );
-    }
-  }
-
-  if (isset($object['PDF']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PDF'])) {
-    $display['pdf_download'] = array(
-      '#type' => 'item',
-      '#title' => t('Download'),
-      '#markup' => l(t('PDF'), "islandora/object/$object->id/datastream/PDF/download/citation.pdf"),
-      '#weight' => $display['pdf_download']['#weight'],
-    );
-  }
-
-  return array('citation.tab' => $display);
+/**
+ * Implements hook_CMODEL_PID_islandora_view_object().
+ */
+function islandora_scholar_ir_thesisCModel_islandora_view_object($object) {
+  module_load_include('inc', 'islandora_scholar', 'includes/utilities');
+  return islandora_scholar_get_view($object);
 }
 
 /**
@@ -236,7 +183,7 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
  */
 function islandora_scholar_upload_access($object) {
   return is_object($object) && in_array('ir:citationCModel', $object->models) &&
-    islandora_object_access(ISLANDORA_ADD_DS, $object);
+      islandora_object_access(ISLANDORA_ADD_DS, $object);
 }
 
 /**
@@ -249,59 +196,39 @@ function islandora_scholar_romeo_access($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/romeo.tab');
 
   return variable_get('islandora_scholar_romeo_enable', FALSE) &&
-    in_array('ir:citationCModel', $object->models) &&
-    isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS']) &&
-    RomeoView::getISSN($object);
+      in_array('ir:citationCModel', $object->models) &&
+      isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS']) &&
+      RomeoView::getISSN($object);
 }
 
 /**
  * Implements hook_islandora_ingest_steps().
  */
 function islandora_scholar_ir_citationCModel_islandora_ingest_steps() {
-  return array(
-    'islandora_scholar_file_upload' => array(
-      'weight' => 10,
-      'type' => 'form',
-      'form_id' => 'islandora_scholar_pdf_upload_form',
-      'module' => 'islandora_scholar',
-      'file' => 'includes/pdf_upload.form.inc',
-    ),
-  );
+  module_load_include('inc', 'islandora_scholar', 'includes/utilities');
+  return islandora_scholar_get_ingest_steps();
+}
+
+/**
+ * Implements hook_islandora_ingest_steps().
+ */
+function islandora_scholar_ir_thesisCModel_islandora_ingest_steps() {
+  module_load_include('inc', 'islandora_scholar', 'includes/utilities');
+  return islandora_scholar_get_ingest_steps();
 }
 
 /**
  * Implements hook_CMODEL_PID_islandora_derivative().
  */
 function islandora_scholar_ir_citationCModel_islandora_derivative() {
-  $derivatives = array();
-  $derivatives[] = array(
-    'source_dsid' => 'PDF',
-    'destination_dsid' => 'TN',
-    'weight' => '0',
-    'function' => array(
-      'islandora_scholar_add_tn_derivative',
-    ),
-    'file' => drupal_get_path('module', 'islandora_scholar') . '/includes/derivatives.inc',
-  );
-  $derivatives[] = array(
-    'source_dsid' => 'PDF',
-    'destination_dsid' => 'PREVIEW',
-    'weight' => '1',
-    'function' => array(
-      'islandora_scholar_add_preview_derivative',
-    ),
-    'file' => drupal_get_path('module', 'islandora_scholar') . '/includes/derivatives.inc',
-  );
-  if (variable_get('islandora_scholar_create_fulltext', TRUE)) {
-    $derivatives[] = array(
-      'source_dsid' => 'PDF',
-      'destination_dsid' => 'FULL_TEXT',
-      'weight' => '2',
-      'function' => array(
-        'islandora_scholar_add_fulltext_derivative',
-      ),
-      'file' => drupal_get_path('module', 'islandora_scholar') . '/includes/derivatives.inc',
-    );
-  }
-  return $derivatives;
+  module_load_include('inc', 'islandora_scholar', 'includes/utilities');
+  return islandora_scholar_get_derivatives();
+}
+
+/**
+ * Implements hook_CMODEL_PID_islandora_derivative().
+ */
+function islandora_scholar_ir_thesisCModel_islandora_derivative() {
+  module_load_include('inc', 'islandora_scholar', 'includes/utilities');
+  return islandora_scholar_get_derivatives();
 }
