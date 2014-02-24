@@ -85,10 +85,14 @@ class Coins {
           }
           if (!empty($name_parts)) {
             if ($name_parts['contributor'] == FALSE) {
-              $authors[] = $name_parts['initial'] . $name_parts['last_name'];
+              if (isset($name_parts['initial']) && isset($name_parts['last_name'])) {
+                $authors[] = $name_parts['initial'] . $name_parts['last_name'];
+              }
             }
             else {
-              $contributors[] = $name_parts['initial'] . $name_parts['last_name'];
+              if (isset($name_parts['initial']) && isset($name_parts['last_name'])) {
+                $contributors[] = $name_parts['initial'] . $name_parts['last_name'];
+              }
             }
           }
         }
