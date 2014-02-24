@@ -83,7 +83,7 @@ class Coins {
               }
             }
           }
-          if (!empty($name_parts)) {
+          if (!empty($name_parts) && isset($name_parts['initial']) && isset($name_parts['last_name'])) {
             if ($name_parts['contributor'] == FALSE) {
               $authors[] = $name_parts['initial'] . $name_parts['last_name'];
             }
