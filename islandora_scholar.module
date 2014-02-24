@@ -183,7 +183,7 @@ function islandora_scholar_ir_thesisCModel_islandora_view_object($object) {
  */
 function islandora_scholar_upload_access($object) {
   $allowed_models = array('ir:citationCModel', 'ir:thesisCModel');
-  return is_object($object) && count(array_intersect($allowed_models, $object->models) > 0) &&
+  return is_object($object) && count(array_intersect($allowed_models, $object->models)) > 0 &&
       islandora_object_access(ISLANDORA_ADD_DS, $object);
 }
 
