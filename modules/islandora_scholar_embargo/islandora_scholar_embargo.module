@@ -102,7 +102,7 @@ function islandora_scholar_embargo_permission() {
 function islandora_scholar_access($object = NULL) {
   $user_access = user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED) || user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
 
-  $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel'));
+  $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
   $model_access = count(array_intersect($allowed_cmodels, $object->models)) > 0;
 
   $user_model_and_object_access = $user_access && $model_access && (
