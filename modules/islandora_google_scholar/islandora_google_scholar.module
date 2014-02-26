@@ -28,7 +28,7 @@ function islandora_google_scholar_create_meta_tags($object) {
     $mods_xml = new SimpleXMLElement($mods);
     $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
 
-    $title_results = $mods_xml->xpath('/mods:mods/mods:titleInfo/mods:title');
+    $title_results = $mods_xml->xpath('//mods:mods[1]/mods:titleInfo/mods:title');
     $title = (string) reset($title_results);
 
     if (!empty($title)) {
