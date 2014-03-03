@@ -345,9 +345,6 @@
               <required>FALSE</required>
               <resizable>FALSE</resizable>
               <tree>TRUE</tree>
-              <user_data>
-                <islandora_authority_t_pattern>!last, !first (ID: !id Status: !status)</islandora_authority_t_pattern>
-              </user_data>
               <actions>
                 <create>
                   <path>self::node()</path>
@@ -372,42 +369,6 @@
               </actions>
             </properties>
             <children>
-              <element name="id">
-                <properties>
-                  <type>textfield</type>
-                  <access>TRUE</access>
-                  <collapsed>FALSE</collapsed>
-                  <collapsible>FALSE</collapsible>
-                  <disabled>FALSE</disabled>
-                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
-                  <executes_submit_callback>FALSE</executes_submit_callback>
-                  <multiple>FALSE</multiple>
-                  <required>FALSE</required>
-                  <resizable>FALSE</resizable>
-                  <title>University ID</title>
-                  <tree>TRUE</tree>
-                  <actions>
-                    <create>
-                      <path>self::node()</path>
-                      <context>parent</context>
-                      <schema/>
-                      <type>attribute</type>
-                      <prefix>NULL</prefix>
-                      <value>id</value>
-                    </create>
-                    <read>
-                      <path>@id</path>
-                      <context>parent</context>
-                    </read>
-                    <update>
-                      <path>self::node()</path>
-                      <context>self</context>
-                    </update>
-                    <delete>NULL</delete>
-                  </actions>
-                </properties>
-                <children/>
-              </element>
               <element name="given">
                 <properties>
                   <type>textfield</type>
@@ -421,10 +382,6 @@
                   <resizable>FALSE</resizable>
                   <title>First name, Middle Initial *</title>
                   <tree>TRUE</tree>
-                  <user_data>
-                    <islandora_authority_solr_search_field>coh_employee_name_given_edge</islandora_authority_solr_search_field>
-                    <islandora_authority_mapping>!first</islandora_authority_mapping>
-                  </user_data>
                   <actions>
                     <create>
                       <path>self::node()</path>
@@ -464,10 +421,6 @@
                   <resizable>FALSE</resizable>
                   <title>Last Name</title>
                   <tree>TRUE</tree>
-                  <user_data>
-                    <islandora_authority_solr_search_field>coh_employee_name_family_edge</islandora_authority_solr_search_field>
-                    <islandora_authority_mapping>!last</islandora_authority_mapping>
-                  </user_data>
                   <actions>
                     <create>
                       <path>self::node()</path>
@@ -479,6 +432,45 @@
                     </create>
                     <read>
                       <path>mods:namePart[@type = 'family']</path>
+                      <context>parent</context>
+                    </read>
+                    <update>
+                      <path>self::node()</path>
+                      <context>self</context>
+                    </update>
+                    <delete>
+                      <path>self::node()</path>
+                      <context>self</context>
+                    </delete>
+                  </actions>
+                </properties>
+                <children/>
+              </element>
+              <element name="qualified_name">
+                <properties>
+                  <type>textfield</type>
+                  <access>TRUE</access>
+                  <collapsed>FALSE</collapsed>
+                  <collapsible>FALSE</collapsible>
+                  <disabled>FALSE</disabled>
+                  <executes_submit_callback>FALSE</executes_submit_callback>
+                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
+                  <multiple>FALSE</multiple>
+                  <required>FALSE</required>
+                  <resizable>FALSE</resizable>
+                  <title>Qualified Name</title>
+                  <tree>TRUE</tree>
+                  <actions>
+                    <create>
+                      <path>self::node()</path>
+                      <context>parent</context>
+                      <schema/>
+                      <type>xml</type>
+                      <prefix>NULL</prefix>
+                      <value>&lt;displayForm&gt;%value%&lt;/displayForm&gt;</value>
+                    </create>
+                    <read>
+                      <path>mods:displayForm</path>
                       <context>parent</context>
                     </read>
                     <update>
