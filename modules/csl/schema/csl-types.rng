@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
   <div>
-    <a:documentation>CSL Types</a:documentation>
-    <define name="cs-types">
+    <a:documentation>Item types</a:documentation>
+    <define name="item-types">
       <choice>
         <value>article</value>
         <value>article-journal</value>
@@ -12,6 +12,7 @@
         <value>book</value>
         <value>broadcast</value>
         <value>chapter</value>
+        <value>dataset</value>
         <value>entry</value>
         <value>entry-dictionary</value>
         <value>entry-encyclopedia</value>

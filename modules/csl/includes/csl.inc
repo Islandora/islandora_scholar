@@ -194,7 +194,7 @@ class CSL {
   public static function Create($style_name, $definition) {
     if (!self::Exists($style_name)) {
       if (!self::Valid($definition)) {
-        drupal_set_message(t("The @style is not valid CSL 1.0 file. Problems may occur.", array(
+        drupal_set_message(t("The @style is not valid CSL 1.0.1 file. Problems may occur.", array(
           '@style' => $style_name,
         )), 'warning');
       }

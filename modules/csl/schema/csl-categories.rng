@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns:cs="http://purl.org/net/xbiblio/csl" xmlns="http://relaxng.org/ns/structure/1.0">
+<grammar xmlns:a="http://relaxng.org/ns/compatibility/annotations/1.0" xmlns="http://relaxng.org/ns/structure/1.0">
   <div>
-    <define name="info-format-categories">
+    <a:documentation>Categories for style metadata</a:documentation>
+    <define name="category.citation-format">
       <choice>
+        <value>author</value>
         <value>author-date</value>
-        <value>numeric</value>
         <value>label</value>
         <value>note</value>
-        <value>author</value>
+        <value>numeric</value>
       </choice>
     </define>
-    <define name="info-field-categories">
-      <a:documentation>"generic-base" is reserved for truly generic styles (APA, Harvard, etc.).</a:documentation>
+    <define name="category.field">
+      <a:documentation>Use "generic-base" for styles that are non-discipline specific, such as
+APA, Harvard, etc.</a:documentation>
       <choice>
         <value>anthropology</value>
         <value>astronomy</value>
@@ -39,13 +41,7 @@
         <value>sociology</value>
         <value>theology</value>
         <value>zoology</value>
-        <ref name="info-categories.extension"/>
       </choice>
-    </define>
-    <define name="info-categories.extension">
-      <a:documentation>Categories can be redefined in a customization schema, though please
-report obvious gaps for inclusion in the schema.</a:documentation>
-      <notAllowed/>
     </define>
   </div>
 </grammar>
