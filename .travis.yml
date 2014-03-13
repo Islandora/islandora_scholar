@@ -4,9 +4,11 @@ php:
   - 5.4
 branches:
   only:
-    - /^7.x.*/
+    - 7.x
 env:
   - FEDORA_VERSION="3.5"
+  - FEDORA_VERSION="3.6.2"
+  - FEDORA_VERSION="3.7.0"
 before_install:
   - cd $HOME
   - git clone -b 7.x git://github.com/Islandora/islandora.git
@@ -15,6 +17,7 @@ before_install:
   - cd $HOME/drupal-*
   - ln -s $TRAVIS_BUILD_DIR sites/all/modules/islandora_scholar
   - drush cc all
+  - drush en --yes islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
 script:
   - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
@@ -31,3 +34,4 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
+  - drush test-run --uri=http://localhost:8081 "Islandora Scholar"
