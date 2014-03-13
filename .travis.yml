@@ -12,10 +12,18 @@ env:
 before_install:
   - cd $HOME
   - git clone -b 7.x git://github.com/Islandora/islandora.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_solr_search.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_importer.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_xacml_editor.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_bookmark.git
   - export ISLANDORA_DIR=$HOME/islandora
   - $HOME/islandora/tests/scripts/travis_setup.sh
   - cd $HOME/drupal-*
   - ln -s $TRAVIS_BUILD_DIR sites/all/modules/islandora_scholar
+  - ln -s $HOME/islandora_solr_search sites/all/modules/islandora_solr_search
+  - ln -s $HOME/islandora_importer sites/all/modules/islandora_importer
+  - ln -s $HOME/islandora_xacml_editor sites/all/modules/islandora_xacml_editor
+  - ln -s $HOME/islandora_bookmark sites/all/modules/islandora_bookmark
   - drush cc all
   - drush en --yes islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
 script:
