@@ -1,4 +1,4 @@
-name = Scholarly Research Data
+name = Islandora Scholar
 description = Shows a list of items in a Fedora collection, specific to scholarly publications.
 dependencies[] = islandora
 dependencies[] = citeproc
