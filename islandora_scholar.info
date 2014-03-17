@@ -11,5 +11,5 @@ files[] = includes/romeo.tab.inc
 files[] = tests/hooked_access.test
 files[] = includes/importer.inc
 package = Islandora
-version = 7.x-dev
+version = 7.x-1.3
 core = 7.x

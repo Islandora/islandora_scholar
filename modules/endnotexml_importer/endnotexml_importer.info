@@ -5,5 +5,5 @@ dependencies[] = islandora_importer
 dependencies[] = islandora_scholar
 dependencies[] = bibutils
 files[] = includes/importer.inc
-version = 7.x-dev
+version = 7.x-1.3
 core = 7.x
