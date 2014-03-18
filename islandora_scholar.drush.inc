@@ -49,7 +49,7 @@ function islandora_scholar_citation_update_create_batch() {
     ),
     'title' => t('Updating PDF derivatives for citations...'),
     'init_message' => t('Preparing to update derivatives.'),
-    'progress_message' => t('Time elapsed: @elapsed <br/>Estimated time remaning @estimate.'),
+    'progress_message' => t('Time elapsed: @elapsed <br/>Estimated time remaining @estimate.'),
     'error_message' => t('An error has occurred.'),
     'file' => drupal_get_path('module', 'islandora_scholar') . '/islandora_scholar.drush.inc',
   );

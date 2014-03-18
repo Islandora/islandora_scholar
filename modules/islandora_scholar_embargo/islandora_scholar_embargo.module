@@ -93,6 +93,8 @@ function islandora_scholar_embargo_permission() {
 /**
  * Returns access to menu path based on content mode and user permissions.
  *
+ * @global object $user
+ *
  * @param AbstractObject $object
  *   The object to test.
  *
@@ -100,7 +102,10 @@ function islandora_scholar_embargo_permission() {
  *   TRUE if access is allowed FALSE otherwise.
  */
 function islandora_scholar_access($object = NULL) {
-  $user_access = user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED) || user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
+  global $user;
+  // Beware that this repersents a cross-site security issue in that users of a
+  // different multi-site with the same name will have access to this page.
+  $user_access = (user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED) && $object->owner == $user->name) || user_access(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
 
   $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
   $model_access = count(array_intersect($allowed_cmodels, $object->models)) > 0;

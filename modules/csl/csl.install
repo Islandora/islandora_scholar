@@ -12,10 +12,7 @@ function csl_enable() {
   module_load_include('inc', 'csl', 'includes/csl');
   $data_path = drupal_get_path('module', 'csl') . '/data/';
   $styles = array(
-    'Annotated (NLM style with abstract)' => 'annotated.csl',
     'APA' => 'apa.csl',
-    'NIH' => 'nih.csl',
-    'Numbered (NLM)' => 'nlm.csl',
   );
   foreach ($styles as $style_name => $filename) {
     if (!CSL::Exists($style_name)) {

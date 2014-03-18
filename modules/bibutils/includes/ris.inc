@@ -308,7 +308,7 @@ class RIS {
     if ($this->map) {
       $mods_doc = new SimpleXMLElement($mods);
       $mods_doc->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-      $mods_records = $mods_doc->xpath('//mods:mods');
+      $mods_records = $mods_doc->xpath('//mods:mods[1]');
 
       foreach ($mods_records as $mods_record) {
         $mods_record->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
