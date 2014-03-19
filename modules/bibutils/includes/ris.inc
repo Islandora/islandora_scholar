@@ -13,6 +13,7 @@
  * from PUBMED. This new method would take all the nodes and combine them into
  * one string.
  */
+
 class RIS {
 
   /**
