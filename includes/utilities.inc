@@ -18,8 +18,15 @@ function islandora_scholar_get_view(AbstractObject $object) {
   module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
   module_load_include('inc', 'islandora_scholar', 'includes/coins');
   $i = 1;
+  $classes = str_replace(array(':', '-', '.'), '_', implode(' ', $object->models));
   $display = array(
+    'prefix' => array(
+      '#markup' => "<div class='{$classes}'>",
+      '#weight' => $i++,
+    ),
     'citation' => array(
+      '#prefix' => '<span class="citation">',
+      '#suffix' => '</span>',
       '#weight' => $i++,
     ),
     'preview' => array(
@@ -35,6 +42,10 @@ function islandora_scholar_get_view(AbstractObject $object) {
       '#collapsed' => TRUE,
       '#weight' => $i++,
       'value' => islandora_scholar_details($object),
+    ),
+    'suffix' => array(
+      '#markup' => "</div>",
+      '#weight' => $i++,
     ),
   );
   // @TODO: Let Solr metadata and other Islandora metadata viewers interact
