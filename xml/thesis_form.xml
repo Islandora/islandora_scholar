@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<definition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2">
+<definition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3">
   <properties>
     <root_name>mods</root_name>
     <schema_uri>http://www.loc.gov/standards/mods/v3/mods-3-4.xsd</schema_uri>
@@ -113,7 +113,13 @@
             <properties>
               <type>tabpanel</type>
               <access>TRUE</access>
+              <collapsed>FALSE</collapsed>
+              <collapsible>FALSE</collapsible>
+              <disabled>FALSE</disabled>
+              <executes_submit_callback>FALSE</executes_submit_callback>
+              <multiple>FALSE</multiple>
               <required>FALSE</required>
+              <resizable>FALSE</resizable>
               <tree>TRUE</tree>
               <actions>
                 <create>
@@ -199,9 +205,9 @@
         <properties>
           <type>tabs</type>
           <access>TRUE</access>
+          <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
           <required>FALSE</required>
           <title>Thesis Advisor</title>
-          <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
           <tree>TRUE</tree>
         </properties>
         <children>
@@ -233,11 +239,11 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
+                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
                   <collapsed>FALSE</collapsed>
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>
                   <executes_submit_callback>FALSE</executes_submit_callback>
-                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
                   <multiple>FALSE</multiple>
                   <required>FALSE</required>
                   <resizable>FALSE</resizable>
@@ -309,11 +315,11 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
+                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
                   <collapsed>FALSE</collapsed>
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>
                   <executes_submit_callback>FALSE</executes_submit_callback>
-                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
                   <multiple>FALSE</multiple>
                   <required>FALSE</required>
                   <resizable>FALSE</resizable>
@@ -361,7 +367,13 @@
             <properties>
               <type>tabpanel</type>
               <access>TRUE</access>
+              <collapsed>FALSE</collapsed>
+              <collapsible>FALSE</collapsible>
+              <disabled>FALSE</disabled>
+              <executes_submit_callback>FALSE</executes_submit_callback>
+              <multiple>FALSE</multiple>
               <required>FALSE</required>
+              <resizable>FALSE</resizable>
               <tree>TRUE</tree>
               <actions>
                 <create>
@@ -414,10 +426,9 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
+                  <autocomplete_path>islandora/entities/autocomplete/department</autocomplete_path>
                   <required>FALSE</required>
                   <title>Department</title>
-                  <autocomplete_path>islandora/entities/autocomplete/department</autocomplete_path>
-
                   <tree>TRUE</tree>
                   <actions>
                     <create>
@@ -445,7 +456,6 @@
           </element>
         </children>
       </element>
-
       <element name="typeOfResource">
         <properties>
           <type>hidden</type>
@@ -830,7 +840,13 @@
         <properties>
           <type>tabs</type>
           <access>TRUE</access>
+          <collapsed>FALSE</collapsed>
+          <collapsible>FALSE</collapsible>
+          <disabled>FALSE</disabled>
+          <executes_submit_callback>FALSE</executes_submit_callback>
+          <multiple>FALSE</multiple>
           <required>FALSE</required>
+          <resizable>FALSE</resizable>
           <title>Subject</title>
           <tree>TRUE</tree>
         </properties>
@@ -839,7 +855,13 @@
             <properties>
               <type>tabpanel</type>
               <access>TRUE</access>
+              <collapsed>FALSE</collapsed>
+              <collapsible>FALSE</collapsible>
+              <disabled>FALSE</disabled>
+              <executes_submit_callback>FALSE</executes_submit_callback>
+              <multiple>FALSE</multiple>
               <required>FALSE</required>
+              <resizable>FALSE</resizable>
               <tree>TRUE</tree>
               <actions>
                 <create>
@@ -848,13 +870,10 @@
                   <schema/>
                   <type>xml</type>
                   <prefix>NULL</prefix>
-                  <value>&lt;name type='personal'&gt;&lt;role&gt;&lt;roleTerm
-                    authority="marcrelator" type="text"&gt;Thesis
-                    advisor&lt;/roleTerm&gt;&lt;/role&gt;&lt;/name&gt;</value>
+                  <value>&lt;subject authority="lcsh"/&gt;</value>
                 </create>
                 <read>
-                  <path>(mods:name[@type='personal']/mods:role[mods:roleTerm = 'Thesis
-                    advisor'])/..</path>
+                  <path>/mods:mods/mods:subject[@authority="lcsh"]</path>
                   <context>document</context>
                 </read>
                 <update>NULL</update>
@@ -866,7 +885,13 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
+                  <collapsed>FALSE</collapsed>
+                  <collapsible>FALSE</collapsible>
+                  <disabled>FALSE</disabled>
+                  <executes_submit_callback>FALSE</executes_submit_callback>
+                  <multiple>FALSE</multiple>
                   <required>FALSE</required>
+                  <resizable>FALSE</resizable>
                   <title>Topic</title>
                   <tree>TRUE</tree>
                   <actions>
@@ -895,7 +920,13 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
+                  <collapsed>FALSE</collapsed>
+                  <collapsible>FALSE</collapsible>
+                  <disabled>FALSE</disabled>
+                  <executes_submit_callback>FALSE</executes_submit_callback>
+                  <multiple>FALSE</multiple>
                   <required>FALSE</required>
+                  <resizable>FALSE</resizable>
                   <title>Geographic</title>
                   <tree>TRUE</tree>
                   <actions>
@@ -924,7 +955,13 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
+                  <collapsed>FALSE</collapsed>
+                  <collapsible>FALSE</collapsible>
+                  <disabled>FALSE</disabled>
+                  <executes_submit_callback>FALSE</executes_submit_callback>
+                  <multiple>FALSE</multiple>
                   <required>FALSE</required>
+                  <resizable>FALSE</resizable>
                   <title>Temporal</title>
                   <tree>TRUE</tree>
                   <actions>
