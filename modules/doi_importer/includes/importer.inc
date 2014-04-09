@@ -114,7 +114,7 @@ class DOIImportObject extends IslandoraImportObject {
     $id = array_shift($ids);
 
     $openurl = variable_get('doi_importer_openurl', 'http://www.crossref.org/openurl');
-    $openurl_pid = variable_get('doi_importer_openurl_pid', 'zac@yesguy.biz');
+    $openurl_pid = variable_get('doi_importer_openurl_pid', 'user@example.com');
     $url = url($openurl, array(
              'query' => array(
                'noredirect' => 'true',
