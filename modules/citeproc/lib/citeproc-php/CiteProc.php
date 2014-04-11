@@ -24,7 +24,7 @@ class citeproc {
   public    $citation;
   public    $style;
   protected $macros;
-  public    $info;
+  public   $info;
   protected $locale;
   protected $style_locale;
   public    $quash;
