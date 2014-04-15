@@ -32,7 +32,7 @@ function islandora_scholar_embargo_menu() {
     'access arguments' => array(2),
     'file' => 'includes/embargo.inc',
   );
-  $items['admin/islandora/tools/embargo'] = array(
+  $items['admin/islandora/solution_pack_config/embargo'] = array(
     'title' => 'Islandora Scholar Embargo',
     'description' => 'Configure the Embargo module.',
     'page callback' => 'drupal_get_form',
@@ -40,7 +40,7 @@ function islandora_scholar_embargo_menu() {
     'access arguments' => array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY),
     'file' => 'includes/admin.form.inc',
   );
-  $items['admin/islandora/tools/embargo/settings'] = array(
+  $items['admin/islandora/solution_pack_config/embargo/settings'] = array(
     'title' => 'Embargo settings',
     'description' => 'Configure the Embargo module.',
     'page callback' => 'drupal_get_form',
@@ -49,7 +49,7 @@ function islandora_scholar_embargo_menu() {
     'file' => 'includes/admin.form.inc',
     'type' => MENU_DEFAULT_LOCAL_TASK,
   );
-  $items['admin/islandora/tools/embargo/list'] = array(
+  $items['admin/islandora/solution_pack_config/embargo/list'] = array(
     'title' => 'Manage Embargoed Items',
     'file' => 'includes/embargo_manage.inc',
     'page callback' => 'drupal_get_form',

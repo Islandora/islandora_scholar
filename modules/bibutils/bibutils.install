@@ -64,7 +64,7 @@ function bibutils_requirements($phase) {
 
       if ($phase == 'runtime') {
         $description = $t('Visit the <a href="@url">Bibutils configuration page</a> to enter an alternate path.', array(
-                         '@url' => url('admin/islandora/scholar/bibutils')));
+                         '@url' => url('admin/islandora/solution_pack_config/scholar/bibutils')));
         $requirements[$base]['description'] .= ' ' . $description;
       }
     }
