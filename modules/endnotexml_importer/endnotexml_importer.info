@@ -1,6 +1,6 @@
 name = EndNoteXML Importer
 description = Importer plugin for EndNoteXML files, to create citation objects.
-package = Islandora
+package = Islandora Solution Packs
 dependencies[] = islandora_importer
 dependencies[] = islandora_scholar
 dependencies[] = bibutils

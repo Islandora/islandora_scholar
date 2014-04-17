@@ -1,6 +1,6 @@
 name = Bibutils
 description = Provides a PHP interface to the bibutils tools. Found here http://www.scripps.edu/~cdputnam/software/bibutils/
-package = Islandora
+package = Islandora Solution Packs
 files[] = includes/ris.inc
 files[] = includes/bibutils.inc
 files[] = tests/endx2xml.test

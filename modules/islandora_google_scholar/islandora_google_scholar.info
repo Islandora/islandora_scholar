@@ -3,6 +3,4 @@ description = "This module provides meta tags to help indexing in Google Scholar
 dependencies[] = islandora
 version = 7.x-dev
 core = 7.x
-package = Islandora
-
-
+package = Islandora Solution Packs
