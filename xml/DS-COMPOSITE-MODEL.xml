@@ -11,7 +11,7 @@
   <dsTypeModel ID="MODS" optional="false">
     <form MIME="text/xml"></form>
   </dsTypeModel>
-  <dsTypeModel ID="PDF" optional="true">
+  <dsTypeModel ID="PDF">
     <form MIME="application/pdf"/>
   </dsTypeModel>
   <dsTypeModel ID="FULL_TEXT" optional="false">
