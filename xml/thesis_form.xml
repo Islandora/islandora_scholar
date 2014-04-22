@@ -828,115 +828,128 @@
       </element>
       <element name="subject">
         <properties>
-          <type>fieldset</type>
+          <type>tabs</type>
           <access>TRUE</access>
           <required>FALSE</required>
           <title>Subject</title>
           <tree>TRUE</tree>
-          <actions>
-            <create>
-              <path>/mods:mods</path>
-              <context>document</context>
-              <schema/>
-              <type>xml</type>
-              <prefix>NULL</prefix>
-              <value>&lt;subject authority="lcsh"/&gt;</value>
-            </create>
-            <read>
-              <path>/mods:mods/mods:subject[@authority="lcsh"]</path>
-              <context>document</context>
-            </read>
-            <update>NULL</update>
-            <delete>NULL</delete>
-          </actions>
         </properties>
         <children>
-          <element name="topic">
+          <element name="0">
             <properties>
-              <type>textfield</type>
+              <type>tabpanel</type>
               <access>TRUE</access>
               <required>FALSE</required>
-              <title>Topic</title>
               <tree>TRUE</tree>
               <actions>
                 <create>
-                  <path>self::node()</path>
-                  <context>parent</context>
+                  <path>/mods:mods</path>
+                  <context>document</context>
                   <schema/>
-                  <type>element</type>
+                  <type>xml</type>
                   <prefix>NULL</prefix>
-                  <value>topic</value>
+                  <value>&lt;name type='personal'&gt;&lt;role&gt;&lt;roleTerm
+                    authority="marcrelator" type="text"&gt;Thesis
+                    advisor&lt;/roleTerm&gt;&lt;/role&gt;&lt;/name&gt;</value>
                 </create>
                 <read>
-                  <path>mods:topic</path>
+                  <path>(mods:name[@type='personal']/mods:role[mods:roleTerm = 'Thesis
+                    advisor'])/..</path>
                   <context>document</context>
                 </read>
-                <update>
-                  <path>self::node()</path>
-                  <context>self</context>
-                </update>
+                <update>NULL</update>
                 <delete>NULL</delete>
               </actions>
             </properties>
-            <children/>
-          </element>
-          <element name="geographic">
-            <properties>
-              <type>textfield</type>
-              <access>TRUE</access>
-              <required>FALSE</required>
-              <title>Geographic</title>
-              <tree>TRUE</tree>
-              <actions>
-                <create>
-                  <path>self::node()</path>
-                  <context>parent</context>
-                  <schema/>
-                  <type>element</type>
-                  <prefix>NULL</prefix>
-                  <value>geographic</value>
-                </create>
-                <read>
-                  <path>mods:geographic</path>
-                  <context>document</context>
-                </read>
-                <update>
-                  <path>self::node()</path>
-                  <context>self</context>
-                </update>
-                <delete>NULL</delete>
-              </actions>
-            </properties>
-            <children/>
-          </element>
-          <element name="temporal">
-            <properties>
-              <type>textfield</type>
-              <access>TRUE</access>
-              <required>FALSE</required>
-              <title>Temporal</title>
-              <tree>TRUE</tree>
-              <actions>
-                <create>
-                  <path>self::node()</path>
-                  <context>parent</context>
-                  <schema/>
-                  <type>element</type>
-                  <prefix>NULL</prefix>
-                  <value>temporal</value>
-                </create>
-                <read>
-                  <path>mods:temporal</path>
-                  <context>document</context>
-                </read>
-                <update>
-                  <path>self::node()</path>
-                  <context>self</context>
-                </update>
-                <delete>NULL</delete>
-              </actions>
-            </properties>
-            <children/>
+            <children>
+              <element name="topic">
+                <properties>
+                  <type>textfield</type>
+                  <access>TRUE</access>
+                  <required>FALSE</required>
+                  <title>Topic</title>
+                  <tree>TRUE</tree>
+                  <actions>
+                    <create>
+                      <path>self::node()</path>
+                      <context>parent</context>
+                      <schema/>
+                      <type>element</type>
+                      <prefix>NULL</prefix>
+                      <value>topic</value>
+                    </create>
+                    <read>
+                      <path>mods:topic</path>
+                      <context>document</context>
+                    </read>
+                    <update>
+                      <path>self::node()</path>
+                      <context>self</context>
+                    </update>
+                    <delete>NULL</delete>
+                  </actions>
+                </properties>
+                <children/>
+              </element>
+              <element name="geographic">
+                <properties>
+                  <type>textfield</type>
+                  <access>TRUE</access>
+                  <required>FALSE</required>
+                  <title>Geographic</title>
+                  <tree>TRUE</tree>
+                  <actions>
+                    <create>
+                      <path>self::node()</path>
+                      <context>parent</context>
+                      <schema/>
+                      <type>element</type>
+                      <prefix>NULL</prefix>
+                      <value>geographic</value>
+                    </create>
+                    <read>
+                      <path>mods:geographic</path>
+                      <context>document</context>
+                    </read>
+                    <update>
+                      <path>self::node()</path>
+                      <context>self</context>
+                    </update>
+                    <delete>NULL</delete>
+                  </actions>
+                </properties>
+                <children/>
+              </element>
+              <element name="temporal">
+                <properties>
+                  <type>textfield</type>
+                  <access>TRUE</access>
+                  <required>FALSE</required>
+                  <title>Temporal</title>
+                  <tree>TRUE</tree>
+                  <actions>
+                    <create>
+                      <path>self::node()</path>
+                      <context>parent</context>
+                      <schema/>
+                      <type>element</type>
+                      <prefix>NULL</prefix>
+                      <value>temporal</value>
+                    </create>
+                    <read>
+                      <path>mods:temporal</path>
+                      <context>document</context>
+                    </read>
+                    <update>
+                      <path>self::node()</path>
+                      <context>self</context>
+                    </update>
+                    <delete>NULL</delete>
+                  </actions>
+                </properties>
+                <children/>
+              </element>
+            </children>
           </element>
         </children>
       </element>
