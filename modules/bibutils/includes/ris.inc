@@ -15,6 +15,7 @@
  */
 
 class RIS {
+
   /**
    * Specifies all the different RIS types
    *
@@ -176,10 +177,10 @@ class RIS {
    * Create a ris instance with the xpath map for RIS fields.
    */
   protected function __construct($map) {
-    $missing  = FALSE;
+    $missing = FALSE;
     foreach ($this->requiredFields as $field) {
       if (!isset($map[$field])) {
-        $missing  = TRUE;
+        $missing = TRUE;
       }
     }
     if ($missing == FALSE) {
@@ -308,14 +309,20 @@ class RIS {
     if ($this->map) {
       $mods_doc = new SimpleXMLElement($mods);
       $mods_doc->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-      $mods_records = $mods_doc->xpath('//mods:mods[1]');
+      $mods_records = $mods_doc->xpath('//mods:mods');
 
       foreach ($mods_records as $mods_record) {
         $mods_record->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
         foreach ($this->map as $field => $xpath) {
           if (array_key_exists($field, $this->allowedFields)) {
+            if ($field == "TY") {
+              $data = $mods_record->xpath($xpath);
+              $value = isset($data[0]) ? $this->getType($data[0]) : 'STD';
+              $this->text .= "$field  - $value\n";
+              continue;
+            }
             if ($field == "ER") {
-              $this->text .= "$field  - \n";
+              $this->text .= "$field  - \n\n\n";
               continue;
             }
             $data = $mods_record->xpath($xpath);
@@ -323,9 +330,6 @@ class RIS {
               $value = trim($val);
               if ($field == "AU" || $field == "ED") {
                 $this->renderName($data[$key], $field);
-              }
-              elseif ($field == "TY") {
-                $value = $this->getType($value);
               }
               elseif ($field == "DA") {
                 $value = $this->getDate($value);
@@ -348,4 +352,5 @@ class RIS {
     }
     return $this->text;
   }
+
 }
