@@ -1,6 +1,6 @@
 name = Citation Exporter
 description = Exports a collection of citations to either an RIS/RTF/PDF file.
-package = Islandora
+package = Islandora Solution Packs
 dependencies[] = citeproc
 dependencies[] = bibutils
 dependencies[] = islandora

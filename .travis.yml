@@ -7,14 +7,27 @@ branches:
     - /^7.x.*/
 env:
   - FEDORA_VERSION="3.5"
+  - FEDORA_VERSION="3.6.2"
+  - FEDORA_VERSION="3.7.0"
 before_install:
   - cd $HOME
   - git clone -b 7.x git://github.com/Islandora/islandora.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_solr_search.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_importer.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_xacml_editor.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_bookmark.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_batch.git
   - export ISLANDORA_DIR=$HOME/islandora
   - $HOME/islandora/tests/scripts/travis_setup.sh
   - cd $HOME/drupal-*
   - ln -s $TRAVIS_BUILD_DIR sites/all/modules/islandora_scholar
+  - ln -s $HOME/islandora_solr_search sites/all/modules/islandora_solr_search
+  - ln -s $HOME/islandora_importer sites/all/modules/islandora_importer
+  - ln -s $HOME/islandora_xacml_editor sites/all/modules/islandora_xacml_editor
+  - ln -s $HOME/islandora_bookmark sites/all/modules/islandora_bookmark
+  - ln -s $HOME/islandora_batch sites/all/modules/islandora_batch
   - drush cc all
+  - drush -u 1 en --yes islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
 script:
   - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
@@ -31,3 +44,4 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
+  - drush test-run --uri=http://localhost:8081 "Islandora Scholar"

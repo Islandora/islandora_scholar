@@ -7,7 +7,7 @@
 
 // Constants Permission/Menu/Theme.
 define('CSL_MANAGE_PERM', 'Manage CSL Citations');
-define('CSL_MANAGE_MENU', 'admin/islandora/csl');
+define('CSL_MANAGE_MENU', 'admin/islandora/solution_pack_config/csl');
 define('CSL_MANAGE_TABLE_THEME', 'csl_manage_table');
 
 // @codingStandardsIgnoreStart
