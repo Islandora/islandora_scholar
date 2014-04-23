@@ -10,20 +10,20 @@
  */
 function islandora_scholar_menu() {
   return array(
-    'admin/islandora/scholar' => array(
+    'admin/islandora/solution_pack_config/scholar' => array(
       'title' => 'Scholar',
-      'description' => 'Configuration the Scholar solution pack.',
+      'description' => 'Configure RoMEO and Google Search',
       'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
       'access arguments' => array('access administration pages'),
       'file' => 'includes/admin.form.inc',
     ),
-    'admin/islandora/scholar/base' => array(
+    'admin/islandora/solution_pack_config/scholar/base' => array(
       'title' => 'Basic Configuration',
       'type' => MENU_DEFAULT_LOCAL_TASK,
     ),
-    'admin/islandora/scholar/pdf' => array(
+    'admin/islandora/solution_pack_config/scholar/pdf' => array(
       'title' => 'PDF Configuration',
       'type' => MENU_LOCAL_TASK,
       'page callback' => 'drupal_get_form',
