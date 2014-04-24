@@ -341,7 +341,7 @@ class CSL_DateParser {
           continue;
         }
         // If it's cruft, make a note of it.
-        if(preg_match('/(?:mic|tri|hil|eas)/', $lc) > 0 && !in_array('season'. $suff, $thedate)) {
+        if(preg_match('/(?:mic|tri|hil|eas)/', $lc) > 0 && !array_key_exists('season'. $suff, $thedate)) {
           $note = $element;
           continue;
         }
@@ -355,7 +355,7 @@ class CSL_DateParser {
       // If at the end of the string there's cruft lying
       // around, and the season field is empty, put the
       // cruft there.
-      if (isset($note) && !in_array('season'. $suff, $thedate)) {
+      if (isset($note) && !array_key_exists('season'. $suff, $thedate)) {
         $thedate['season'. $suff] = $note;
         $note = NULL;
       }
@@ -366,16 +366,16 @@ class CSL_DateParser {
     if ($is_range) {
       //TODO:  Get CSL date part stuff...  Might have to iterate over this differently?
       foreach ($this->csl_date_parts_all as $item) {
-        if (in_array($item, $thedate) && !in_array($item .'_end', $thedate)) {
+        if (array_key_exists($item, $thedate) && !array_key_exists($item .'_end', $thedate)) {
           $thedate[$item .'_end'] = $thedate[$item];
         }
-        elseif (!in_array($item, $thedate) && in_array($item .'_end', $thedate)) {
+        elseif (!array_key_exists($item, $thedate) && array_key_exists($item .'_end', $thedate)) {
           $thedate[$item] = $thedate[$item .'_end'];
         }
       }
     }
     // If there's no year, it's a failure; pass through the literal.
-    if (!in_array('year', $thedate)) {
+    if (!array_key_exists('year', $thedate)) {
       $thedate = array('literal' => $txt);
     }
 
@@ -407,7 +407,7 @@ class CSL_DateParser {
       $start = array();
       $end = array();
       foreach ($start_parts as $part) {
-        if (!in_array($part, $thedate)) {
+        if (!array_key_exists($part, $thedate)) {
           break;
         }
         else {
@@ -415,7 +415,7 @@ class CSL_DateParser {
         }
       }
       foreach ($end_parts as $part) {
-        if (!in_array($part, $thedate)) {
+        if (!array_key_exists($part, $thedate)) {
           break;
         }
         else {
