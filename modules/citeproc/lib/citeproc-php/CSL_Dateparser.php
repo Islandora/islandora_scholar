@@ -41,11 +41,11 @@ class CSL_DateParser {
     $jiymatchstring = implode('|', $jiymatchstring);
 
     $this->jiysplitter = "/(?:". $jiymatchstring .")(?:[0-9]+)/u";
-    $this->jiymatcher = "/(?:". $jiymatchstring .")(?:[0-9]+)/u"; //Global!
+    $this->jiymatcher = "/(?:". $jiymatchstring .")(?:[0-9]+)/u";
 
-    $this->jmd = "/(\x{6708}|\x{5E74})/u"; //Global!
+    $this->jmd = "/(\x{6708}|\x{5E74})/u";
     $this->jy = "/\x{65E5}/u";
-    $this->jr = "/\x{301c}/u"; //Global!
+    $this->jr = "/\x{301c}/u";
 
     //%%NUMD%% and %%DATED%% just seem to be templates
     $yearlast = "(?:[?0-9]{1,2}%%NUMD%%){0,2}[?0-9]{4}(?![0-9])";
@@ -113,8 +113,6 @@ class CSL_DateParser {
       return;
     }
 
-    //$othermatch = array(); //Not used?
-    //$thismatch = array(); //Not used?
     $mab =& $this->mabbrevs;
 
     foreach ($lst as $key_i => $val_i) {
@@ -178,7 +176,10 @@ class CSL_DateParser {
       $txt = preg_replace($this->jmd, '-', $txt);
       $txt = preg_replace($this->jr, '/', $txt);
       $txt = preg_replace('/-\//', '/', $txt);
-      $txt = preg_replace('/-$/', '', $txt); //Might have to verify this?
+
+      //Might have to verify this?
+      $txt = preg_replace('/-$/', '', $txt);
+
       $slst = preg_split($this->jiysplitter, $txt);
       $lst = array();
       $mm = array();
@@ -263,10 +264,9 @@ class CSL_DateParser {
     foreach ($delims as $delim) {
       $date = array_slice($ret, $delim[0], $delim[1]);
       foreach ($date as $element) {
-        $lc = strtolower($element); //element.toLocaleLowerCase...
+        $lc = strtolower($element);
 
         if (strpos($element, $date_delim) !== FALSE) {
-          //TODO
           $this->parseNumericDate($thedate, $date_delim, $suff, $element);
           continue;
         }
@@ -277,7 +277,6 @@ class CSL_DateParser {
         $breakme = FALSE;
 
         foreach ($this->mrexes as $key => $mrex) {
-          //element.toLocaleLowerCase.match($mrex)
           if (preg_match($mrex, $lc) > 0) {
             $thedate['month'. $suff] = '' + ($key + 1);
             $breakme = TRUE;
@@ -364,7 +363,6 @@ class CSL_DateParser {
   }
 
   private function toArray($thedate) {
-    //dd($thedate, 'toArray');
     $toReturn = array('date-parts' => array());
 
     if (array_key_exists('literal', $thedate)) {
@@ -395,8 +393,6 @@ class CSL_DateParser {
       $toReturn['date-parts'][] = $end;
     }
 
-    //dd($toReturn, 'Fully parsed stuff...');
-    //dd($this, 'Parser object');
     return $toReturn;
   }
 
@@ -422,7 +418,8 @@ class CSL_DateParser {
       $ret['month'. $suff] = ''. $lst[0];
     }
     elseif (count($lst) === 2) {
-      if ($lst[$this->monthguess] > 12) { //FIXME:  This doesn't really work...
+      //FIXME:  This doesn't really work.
+      if ($lst[$this->monthguess] > 12) {
         $ret['month'. $suff] = ''. $lst[$this->dayguess];
         $ret['day'. $suff] = ''. $lst[$this->monthguess];
       }
