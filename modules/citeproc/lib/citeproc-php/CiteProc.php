@@ -936,11 +936,25 @@ class csl_date extends csl_format {
     $text = '';
 
     if (($var = $this->variable) && isset($data->{$var})) {
-      $date = $data->{$var}->{'date-parts'}[0];
-      foreach ($this->elements as $element) {
-        $date_parts[] = $element->render($date, $data);
+      require_once(dirname(__FILE__) .'/CSL_Dateparser.php');
+      $parser = CSL_DateParser::getInstance($this->elements);
+      $parser->returnAsArray();
+
+      $date_data =& $data->{$var};
+      $date_parts = reset($date_data->{'date-parts'});
+      // Parser wants a string, separator doesn't matter.
+      $date = $parser->parse(implode('-', $date_parts));
+
+      if (array_key_exists('literal', $date)) {
+        $text = $date['literal'];
       }
-      $text = implode('', $date_parts);
+
+      if (empty($text) && !empty($date_parts)) {
+        foreach ($this->elements as $element) {
+          $parsed_date_parts[] = $element->render($date_parts, $data);
+        }
+        $text = implode('', $parsed_date_parts);
+      }
     }
     else {
         $text = $this->citeproc->get_locale('term', 'no date');
