@@ -30,6 +30,7 @@ class CSL_DateParser {
   }
 
   private function __construct() {
+    // Japanese imperial years.
     $this->jiy = array(
       "\x{660E}\x{6CBB}" => 1867,
       "\x{5927}\x{6B63}" => 1911,
@@ -47,6 +48,7 @@ class CSL_DateParser {
     $this->jy = "/\x{65E5}/u";
     $this->jr = "/\x{301c}/u";
 
+    // Main parsing regexps.
     //%%NUMD%% and %%DATED%% just seem to be templates
     $yearlast = "(?:[?0-9]{1,2}%%NUMD%%){0,2}[?0-9]{4}(?![0-9])";
     $yearfirst = "[?0-9]{4}(?:%%NUMD%%[?0-9]{1,2}){0,2}(?![0-9])";
@@ -83,6 +85,9 @@ class CSL_DateParser {
     $this->dayguess = 1;
   }
 
+  /**
+   * Reset months to default.
+   */
   private function resetMonths() {
     $this->msets = array();
     foreach ($this->mstrings as $mstring) {
@@ -104,6 +109,11 @@ class CSL_DateParser {
     }
   }
 
+  /**
+   * Function to extend the month regexes with an additional
+   * set of month strings, extending strings as required to
+   * resolve ambiguities.
+   */
   private function addMonths($lst) {
     if (is_string($lst)) {
       $lst = preg_split('/\s+/');
@@ -121,6 +131,7 @@ class CSL_DateParser {
       $insert = 3;
       $extend = array();
       foreach ($mab as $key_j => $val_j) {
+        // Mark for skipping if same as an existing abbreviation of same month.
         if ($key_j === $key_i) {
           foreach ($mab[$key_i] as $key_k => $val_k) {
             if ($val_k === substr($val_i, 0, strlen($val_k))) {
@@ -129,16 +140,19 @@ class CSL_DateParser {
             }
           }
         }
+        // Mark for extending if same as existing abbreviation of any other month.
         else {
           foreach ($mab[$key_j] as $key_k => $val_k) {
             $abbrevlen = strlen($val_k);
             if ($val_k === substr($val_i, 0, $abbrevlen)) {
               $mset_jk =& $this->msets[$key_j][$key_k];
               while (substr($mset_jk, 0, $abbrevlen) === substr($val_i, 0, $abbrevlen)) {
+                // Abort when full length is hit, otherwise extend.
                 if ($abbrevlen > strlen($val_i) || $abbrevlen > strlen($mset_jk)) {
                   //TODO:  Throw some kinda error about month parsing...
                   break;
                 }
+                // Mark both new entry and existing abbrev for extension.
                 else {
                   $abbrevlen += 1;
                 }
@@ -212,10 +226,12 @@ class CSL_DateParser {
       $slash = strpos($txt, '/');
       $dash = strpos($txt, '-');
     }
+
+    // Drop punctuation from a.d., b.c.
     $txt = preg_replace('/([A-Za-z])\./', '$1', $txt);
+
     $number = $note = NULL;
     $thedate = array();
-    $suff = '';
 
     if (substr($txt, 0, 1) === '"' && substr($txt, -1) === '"') {
       $thedate['literal'] = substr($txt, 1, -1);
@@ -261,22 +277,26 @@ class CSL_DateParser {
       $delims[] = array(0, count($ret));
     }
 
+    // For each range divide.
+    $suff = '';
     foreach ($delims as $delim) {
       $date = array_slice($ret, $delim[0], $delim[1]);
       foreach ($date as $element) {
         $lc = strtolower($element);
 
+        // If it's a numeric date, process it.
         if (strpos($element, $date_delim) !== FALSE) {
           $this->parseNumericDate($thedate, $date_delim, $suff, $element);
           continue;
         }
+        // If it's an obvious year, record it.
         elseif (preg_match('/[0-9]{4}/', $element) > 0) {
           $thedate['year'. $suff] = preg_replace('/^0*/', '', $element);
         }
 
         $breakme = FALSE;
-
         foreach ($this->mrexes as $key => $mrex) {
+          // If it's a month, record it.
           if (preg_match($mrex, $lc) > 0) {
             $thedate['month'. $suff] = '' + ($key + 1);
             $breakme = TRUE;
@@ -285,10 +305,13 @@ class CSL_DateParser {
           elseif ($breakme) {
             continue;
           }
+          // If it's a number, note it.
           elseif (preg_match('/^[0-9]+$/', $lc)) {
             $number = intval($element);
           }
-
+          // If it's a BC or AD marker, make a year of
+          // any note.  Separate, reverse the sign of the year
+          // if it's BC.
           if ($number && preg_match('/^bc/', $element) > 0) {
             $thedate['year'. $suff] = ''. ($number * -1);
             $number = '';
@@ -300,8 +323,8 @@ class CSL_DateParser {
             continue;
           }
         }
+        // If it's a season record it.
         $breakme = FALSE;
-
         foreach ($this->seasonrexes as $key => $srex) {
           if (preg_match($srex, $lc) > 0) {
             $thedate['season'. $suff] = ''. ($key + 1);
@@ -312,25 +335,34 @@ class CSL_DateParser {
         if ($breakme) {
           continue;
         }
+        // If it's a fuzzy marker, record it.
         if ($element === '~' || $element === '?' || $element === 'c' || preg_match('/^cir/', $element) > 0) {
           $thedate['circa'] = 1;
           continue;
         }
+        // If it's cruft, make a note of it.
         if(preg_match('/(?:mic|tri|hil|eas)/', $lc) > 0 && !in_array('season'. $suff, $thedate)) {
           $note = $element;
           continue;
         }
       }
+      // If at the end of the string there's still a note
+      // hanging around, make a day of it.
       if ($number) {
         $thedate['day'. $suff] = $number;
         $number = NULL;
       }
+      // If at the end of the string there's cruft lying
+      // around, and the season field is empty, put the
+      // cruft there.
       if (isset($note) && !in_array('season'. $suff, $thedate)) {
         $thedate['season'. $suff] = $note;
         $note = NULL;
       }
       $suff = '_end';
     }
+    // update any missing elements on each side of the divide
+    // from the other
     if ($is_range) {
       //TODO:  Get CSL date part stuff...  Might have to iterate over this differently?
       foreach ($this->csl_date_parts_all as $item) {
@@ -342,6 +374,7 @@ class CSL_DateParser {
         }
       }
     }
+    // If there's no year, it's a failure; pass through the literal.
     if (!in_array('year', $thedate)) {
       $thedate = array('literal' => $txt);
     }
@@ -414,6 +447,7 @@ class CSL_DateParser {
       $val = intval($val);
     }
 
+    // Month and day parse.
     if (count($lst) === 1) {
       $ret['month'. $suff] = ''. $lst[0];
     }
