@@ -184,7 +184,6 @@ class CSL_DateParser {
   public function parse($txt) {
     $slash = $dash = FALSE;
     $range_delim = $date_delim = NULL;
-
     if (preg_match($this->jmd, $txt) > 0) {
       $txt = preg_replace($this->jy, '', $txt);
       $txt = preg_replace($this->jmd, '-', $txt);
@@ -218,21 +217,20 @@ class CSL_DateParser {
       }
 
       $txt = implode('', $lst);
-      $txt = preg_replace('/\s*-\s*$/', '', $txt);
-      $txt = preg_replace('/\s*-\s*\//', '/', $txt);
-      $txt = preg_replace('/\.\s*$/', '', $txt);
-      $txt = preg_replace('/\.(?! )/', '', $txt);
-
-      $slash = strpos($txt, '/');
-      $dash = strpos($txt, '-');
     }
+    $txt = preg_replace('/\s*-\s*$/', '', $txt);
+    $txt = preg_replace('/\s*-\s*\//', '/', $txt);
+    $txt = preg_replace('/\.\s*$/', '', $txt);
+    $txt = preg_replace('/\.(?! )/', '', $txt);
+    $slash = strpos($txt, '/');
+    $dash = strpos($txt, '-');
 
     // Drop punctuation from a.d., b.c.
     $txt = preg_replace('/([A-Za-z])\./', '$1', $txt);
 
     $number = $note = NULL;
     $thedate = array();
-
+    $matches = array();
     if (substr($txt, 0, 1) === '"' && substr($txt, -1) === '"') {
       $thedate['literal'] = substr($txt, 1, -1);
       return $thedate;
@@ -242,24 +240,27 @@ class CSL_DateParser {
       if (count($slashes) > 3) {
         $range_delim = '-';
         $date_delim = '/';
-        $lst = preg_split($this->rexslashdash, $txt);
+        preg_match_all($this->rexslashdash, $txt, $matches);
+        $lst = reset($matches);
       }
       else {
         $range_delimg = '/';
         $date_delim = '-';
-        $lst = preg_split($this->rexdashslash, $txt);
+        preg_match_all($this->rexdashslash, $txt, $matches);
+        $lst = reset($matches);
       }
     }
     else {
       $txt = preg_replace('/\//', '-', $txt);
       $range_delim = '-';
       $date_delim = '-';
-      $lst = preg_split($this->rexdash, $txt);
+      preg_match_all($this->rexdash, $txt, $matches);
+      $lst = reset($matches);
     }
 
     $ret = array();
     foreach ($lst as $val) {
-      $match = NULL;
+      $match = array();
       if (preg_match('/^\s*([\-\/]|[a-zA-Z]+|[\-~?0-9]+)\s*$/', $val, $match) > 0) {
         $ret[] = $match[1];
       }
@@ -283,7 +284,6 @@ class CSL_DateParser {
       $date = array_slice($ret, $delim[0], $delim[1]);
       foreach ($date as $element) {
         $lc = strtolower($element);
-
         // If it's a numeric date, process it.
         if (strpos($element, $date_delim) !== FALSE) {
           $this->parseNumericDate($thedate, $date_delim, $suff, $element);
@@ -297,7 +297,7 @@ class CSL_DateParser {
         $breakme = FALSE;
         foreach ($this->mrexes as $key => $mrex) {
           // If it's a month, record it.
-          if (preg_match($mrex, $lc) > 0) {
+          if (preg_match("/$mrex/", $lc) > 0) {
             $thedate['month'. $suff] = '' + ($key + 1);
             $breakme = TRUE;
             break;
@@ -430,10 +430,10 @@ class CSL_DateParser {
   }
 
   private function parseNumericDate(&$ret, $delim, $suff, $txt) {
-    $lst = preg_split($delim, $txt);
+    $lst = preg_split("/$delim/", $txt);
     foreach ($lst as $key => $val) {
-      if (strlen($val, 4)) {
-        $ret['year'. $suff] = preg_replace('/^0*/', '', $txt);
+      if (strlen($val) === 4) {
+        $ret['year'. $suff] = preg_replace('/^0*/', '', $val);
         if ($key === 0) {
           $lst = array_slice($lst, 1);
         }

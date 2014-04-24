@@ -657,8 +657,9 @@ function convert_mods_to_citeproc_json_name_role(SimpleXMLElement $name, array $
 function _try_parse_date(&$output, $date_string) {
   // FIXME:  Need a more reliable way to get the date info...
   $date_parts = explode('-', $date_string);
-  $map = create_function('$value', 'return (int)$value;');
-  $output['date-parts'] = array(array_map($map, $date_parts));
+  //$map = create_function('$value', 'return (int)$value;');
+  //$output['date-parts'] = array(array_map($map, $date_parts));
+  $output['date-parts'][] = $date_parts;
 }
 
 /**
