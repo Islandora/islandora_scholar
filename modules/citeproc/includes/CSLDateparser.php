@@ -8,11 +8,14 @@
  * @todo test ranges
  */
 
-class CSL_DateParser {
+class CSLDateParser {
+  /**
+   * Is singleton.
+   */
   static public function getInstance($csl_date_parts_all = NULL, $clean = TRUE) {
     static $instance = NULL;
     if (is_null($instance)) {
-      $instance = new CSL_DateParser();
+      $instance = new CSLDateParser();
     }
     if ($clean) {
       $instance->setOrderMonthDay();
@@ -24,9 +27,24 @@ class CSL_DateParser {
     return $instance;
   }
 
-  protected $jiy, $jiysplitter, $jiymatcher, $jmd, $jy, $jr, $rexdash,
-    $rexdashslash, $rexslashdash, $seasonrexes, $mstrings, $use_array = TRUE,
-    $monthguess, $dayguess, $msets, $mabbrevs, $mrexes, $csl_date_parts_all;
+  protected $jiy;
+  protected $jiysplitter;
+  protected $jiymatcher;
+  protected $jmd;
+  protected $jy;
+  protected $jr;
+  protected $rexdash;
+  protected $rexdashslash;
+  protected $rexslashdash;
+  protected $seasonrexes;
+  protected $mstrings;
+  protected $use_array = TRUE;
+  protected $monthguess;
+  protected $dayguess;
+  protected $msets;
+  protected $mabbrevs;
+  protected $mrexes;
+  protected $csl_date_parts_all;
 
   private function set_parts($date_parts) {
     $this->csl_date_parts_all = $date_parts;
@@ -38,21 +56,21 @@ class CSL_DateParser {
       "\x{660E}\x{6CBB}" => 1867,
       "\x{5927}\x{6B63}" => 1911,
       "\x{662D}\x{548C}" => 1925,
-      "\x{5E73}\x{6210}" => 1988
+      "\x{5E73}\x{6210}" => 1988,
     );
 
     $jiymatchstring = array_keys($this->jiy);
     $jiymatchstring = implode('|', $jiymatchstring);
 
-    $this->jiysplitter = "/(?:". $jiymatchstring .")(?:[0-9]+)/u";
-    $this->jiymatcher = "/(?:". $jiymatchstring .")(?:[0-9]+)/u";
+    $this->jiysplitter = "/(?:" . $jiymatchstring . ")(?:[0-9]+)/u";
+    $this->jiymatcher = "/(?:" . $jiymatchstring . ")(?:[0-9]+)/u";
 
     $this->jmd = "/(\x{6708}|\x{5E74})/u";
     $this->jy = "/\x{65E5}/u";
     $this->jr = "/\x{301c}/u";
 
     // Main parsing regexps.
-    //%%NUMD%% and %%DATED%% are templates that will be replaced.
+    // %%NUMD%% and %%DATED%% are templates that will be replaced.
     $yearlast = "(?:[?0-9]{1,2}%%NUMD%%){0,2}[?0-9]{4}(?![0-9])";
     $yearfirst = "[?0-9]{4}(?:%%NUMD%%[?0-9]{1,2}){0,2}(?![0-9])";
     $number = "[?0-9]{1,3}";
@@ -67,9 +85,9 @@ class CSL_DateParser {
     $seasonstrs = array();
     $this->seasonrexes = array();
 
-    foreach($seasonstrs as $season) {
-      //FIXME:  Might have to push, instead of 'enqueueing'
-      $this->seasonrexes[] = $season .'.*';
+    foreach ($seasonstrs as $season) {
+      // FIXME:  Might have to push, instead of 'enqueueing'
+      $this->seasonrexes[] = $season . '.*';
     }
 
     $this->mstrings = 'january february march april may june july august september october november december spring summer fall winter spring summer';
@@ -108,7 +126,7 @@ class CSL_DateParser {
 
     $this->mrexes = array();
     foreach ($this->mabbrevs as $i) {
-      $this->mrexes[] = "/(?:". implode('|', $i) .')/';
+      $this->mrexes[] = "/(?:" . implode('|', $i) . ')/';
     }
   }
 
@@ -121,9 +139,9 @@ class CSL_DateParser {
     if (is_string($lst)) {
       $lst = preg_split('/\s+/');
     }
-    //12 for months, 16 for months and seasons.
+    // 12 for months, 16 for months and seasons.
     if (count($lst) !== 12 && count($lst) !== 16) {
-      //TODO:  Throw some kinda error message...
+      // TODO:  Throw some kinda error message...
       return;
     }
 
@@ -153,7 +171,7 @@ class CSL_DateParser {
               while (substr($mset_jk, 0, $abbrevlen) === substr($val_i, 0, $abbrevlen)) {
                 // Abort when full length is hit, otherwise extend.
                 if ($abbrevlen > strlen($val_i) || $abbrevlen > strlen($mset_jk)) {
-                  //TODO:  Throw some kinda error about month parsing...
+                  // TODO:  Throw some kinda error about month parsing...
                   break;
                 }
                 // Mark both new entry and existing abbrev for extension.
@@ -180,7 +198,7 @@ class CSL_DateParser {
 
     $this->mrexes = array();
     foreach ($mab as $val) {
-      $this->mrexes[] = '(?:'. implode('|', $val) .')';
+      $this->mrexes[] = '(?:' . implode('|', $val) . ')';
     }
   }
 
@@ -294,14 +312,14 @@ class CSL_DateParser {
         }
         // If it's an obvious year, record it.
         elseif (preg_match('/[0-9]{4}/', $element) > 0) {
-          $thedate['year'. $suff] = preg_replace('/^0*/', '', $element);
+          $thedate['year' . $suff] = preg_replace('/^0*/', '', $element);
         }
 
         $breakme = FALSE;
         foreach ($this->mrexes as $key => $mrex) {
           // If it's a month, record it.
           if (preg_match("$mrex", $lc) > 0) {
-            $thedate['month'. $suff] = '' + ($key + 1);
+            $thedate["month$suff"] = '' + ($key + 1);
             $breakme = TRUE;
             break;
           }
@@ -316,12 +334,12 @@ class CSL_DateParser {
           // any note.  Separate, reverse the sign of the year
           // if it's BC.
           if ($number && preg_match('/^bc/', $element) > 0) {
-            $thedate['year'. $suff] = ''. ($number * -1);
+            $thedate["year$suff"] = '' . ($number * -1);
             $number = '';
             continue;
           }
           elseif ($number && preg_match('/^ad/', $element) > 0) {
-            $thedate['year'. $suff] = ''. $number;
+            $thedate["year$suff"] = '' . $number;
             $number = '';
             continue;
           }

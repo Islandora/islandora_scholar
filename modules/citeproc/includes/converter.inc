@@ -655,7 +655,7 @@ function convert_mods_to_citeproc_json_name_role(SimpleXMLElement $name, array $
  * Try to parse data.
  */
 function _try_parse_date(&$output, $date_string) {
-  $parser = CSL_DateParser::getInstance();
+  $parser = CSLDateParser::getInstance();
   $parser->returnAsArray();
   $output = $parser->parse($date_string);
 }
