@@ -225,6 +225,9 @@ class CSLDateParser {
     }
   }
 
+  /**
+  * Try to parse a string into date info.
+  */
   public function parse($txt) {
     $slash = $dash = FALSE;
     $range_delim = $date_delim = NULL;
@@ -443,6 +446,9 @@ class CSLDateParser {
     $this->useArray = FALSE;
   }
 
+  /**
+   * Turn some date data into a simplified array.
+   */
   private function toArray($thedate) {
     $to_return = array('date-parts' => array());
 
@@ -477,6 +483,9 @@ class CSLDateParser {
     return $to_return;
   }
 
+  /**
+   * Try to turn a numeric date string into a useful array.
+   */
   private function parseNumericDate(&$ret, $delim, $suff, $txt) {
     $escaped_delim = preg_quote($delim);
     $lst = preg_split("/$escaped_delim/", $txt);
