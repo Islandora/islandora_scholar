@@ -226,8 +226,8 @@ class CSLDateParser {
   }
 
   /**
-  * Try to parse a string into date info.
-  */
+   * Try to parse a string into date info.
+   */
   public function parse($txt) {
     $slash = $dash = FALSE;
     $range_delim = $date_delim = NULL;
