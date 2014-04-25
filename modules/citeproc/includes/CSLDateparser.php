@@ -88,8 +88,26 @@ class CSLDateParser {
       $this->seasonrexes[] = "/$season.*/";
     }
 
-    $this->mstrings = 'january february march april may june july august september october november december spring summer fall winter spring summer';
-    $this->mstrings = explode(' ', $this->mstrings);
+    $this->mstrings = array(
+      'january',
+      'february',
+      'march',
+      'april',
+      'may',
+      'june',
+      'july',
+      'august',
+      'september',
+      'october',
+      'november',
+      'december',
+      'spring',
+      'summer',
+      'fall',
+      'winter',
+      'spring',
+      'summer',
+    );
 
     $this->setOrderMonthDay();
   }
