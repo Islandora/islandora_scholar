@@ -94,11 +94,17 @@ class CSLDateParser {
     $this->setOrderMonthDay();
   }
 
-
+  /**
+   * Set date part order interpretation.
+   */
   private function setOrderDayMonth() {
     $this->monthguess = 1;
     $this->dayguess = 0;
   }
+
+  /**
+   * Set date part order interpretation.
+   */
   private function setOrderMonthDay() {
     $this->monthguess = 0;
     $this->dayguess = 1;
@@ -129,9 +135,10 @@ class CSLDateParser {
   }
 
   /**
-   * Function to extend the month regexes with an additional
-   * set of month strings, extending strings as required to
-   * resolve ambiguities.
+   * Extend month regexes.
+   *
+   * Extend the month regexes with an additional set of month strings,
+   * extending strings as required to resolve ambiguities.
    */
   private function addMonths($lst) {
     if (is_string($lst)) {
@@ -160,7 +167,7 @@ class CSLDateParser {
             }
           }
         }
-        // Mark for extending if same as existing abbreviation of any other month.
+        // Mark for extending if same as existing abbreviation of another month.
         else {
           foreach ($mab[$key_j] as $key_k => $val_k) {
             $abbrevlen = strlen($val_k);
@@ -382,7 +389,6 @@ class CSLDateParser {
     }
     // Update any missing elements on each side of the divide from the other.
     if ($is_range) {
-      // TODO:  Get CSL date part stuff...  Might have to iterate over this differently?
       foreach ($this->cslDateParts as $item) {
         if (array_key_exists($item, $thedate) && !array_key_exists($item . '_end', $thedate)) {
           $thedate[$item . '_end'] = $thedate[$item];
@@ -405,10 +411,16 @@ class CSLDateParser {
     }
   }
 
+  /**
+   * Simplify returns from parse to a simple array.
+   */
   public function returnAsArray() {
     $this->useArray = TRUE;
   }
 
+  /**
+   * Returns from parse give all raw date info.
+   */
   public function returnAsKeys() {
     $this->useArray = FALSE;
   }
