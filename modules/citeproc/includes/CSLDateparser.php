@@ -22,7 +22,7 @@ class CSLDateParser {
       $instance->resetMonths();
     }
     if (isset($csl_date_parts_all)) {
-      $instance->set_parts($csl_date_parts_all);
+      $instance->csl_date_parts_all($csl_date_parts_all);
     }
     return $instance;
   }
@@ -38,7 +38,7 @@ class CSLDateParser {
   protected $rexslashdash;
   protected $seasonrexes;
   protected $mstrings;
-  protected $use_array = TRUE;
+  protected $useArray = TRUE;
   protected $monthguess;
   protected $dayguess;
   protected $msets;
@@ -46,10 +46,9 @@ class CSLDateParser {
   protected $mrexes;
   protected $csl_date_parts_all;
 
-  private function set_parts($date_parts) {
-    $this->csl_date_parts_all = $date_parts;
-  }
-
+  /**
+   * Constructor.
+   */
   private function __construct() {
     // Japanese imperial years.
     $this->jiy = array(
@@ -318,7 +317,7 @@ class CSLDateParser {
         $breakme = FALSE;
         foreach ($this->mrexes as $key => $mrex) {
           // If it's a month, record it.
-          if (preg_match("$mrex", $lc) > 0) {
+          if (preg_match($mrex, $lc) > 0) {
             $thedate["month$suff"] = '' . ($key + 1);
             $breakme = TRUE;
             break;
@@ -348,7 +347,7 @@ class CSLDateParser {
         $breakme = FALSE;
         foreach ($this->seasonrexes as $key => $srex) {
           if (preg_match($srex, $lc) > 0) {
-            $thedate['season'. $suff] = ''. ($key + 1);
+            $thedate["season$suff"] = '' . ($key + 1);
             $breakme = TRUE;
             break;
           }
@@ -362,7 +361,7 @@ class CSLDateParser {
           continue;
         }
         // If it's cruft, make a note of it.
-        if(preg_match('/(?:mic|tri|hil|eas)/', $lc) > 0 && !array_key_exists('season'. $suff, $thedate)) {
+        if (preg_match('/(?:mic|tri|hil|eas)/', $lc) > 0 && !array_key_exists("season$suff", $thedate)) {
           $note = $element;
           continue;
         }
@@ -370,28 +369,27 @@ class CSLDateParser {
       // If at the end of the string there's still a note
       // hanging around, make a day of it.
       if ($number) {
-        $thedate['day'. $suff] = $number;
+        $thedate["day$suff"] = $number;
         $number = NULL;
       }
       // If at the end of the string there's cruft lying
       // around, and the season field is empty, put the
       // cruft there.
-      if (isset($note) && !array_key_exists('season'. $suff, $thedate)) {
-        $thedate['season'. $suff] = $note;
+      if (isset($note) && !array_key_exists("season$suff", $thedate)) {
+        $thedate["season$suff"] = $note;
         $note = NULL;
       }
       $suff = '_end';
     }
-    // update any missing elements on each side of the divide
-    // from the other
+    // Update any missing elements on each side of the divide from the other.
     if ($is_range) {
-      //TODO:  Get CSL date part stuff...  Might have to iterate over this differently?
+      // TODO:  Get CSL date part stuff...  Might have to iterate over this differently?
       foreach ($this->csl_date_parts_all as $item) {
-        if (array_key_exists($item, $thedate) && !array_key_exists($item .'_end', $thedate)) {
-          $thedate[$item .'_end'] = $thedate[$item];
+        if (array_key_exists($item, $thedate) && !array_key_exists($item . '_end', $thedate)) {
+          $thedate[$item . '_end'] = $thedate[$item];
         }
-        elseif (!array_key_exists($item, $thedate) && array_key_exists($item .'_end', $thedate)) {
-          $thedate[$item] = $thedate[$item .'_end'];
+        elseif (!array_key_exists($item, $thedate) && array_key_exists($item . '_end', $thedate)) {
+          $thedate[$item] = $thedate[$item . '_end'];
         }
       }
     }
@@ -400,7 +398,7 @@ class CSLDateParser {
       $thedate = array('literal' => $txt);
     }
 
-    if ($this->use_array) {
+    if ($this->useArray) {
       return $this->toArray($thedate);
     }
     else {
@@ -409,18 +407,18 @@ class CSLDateParser {
   }
 
   public function returnAsArray() {
-    $this->use_array = TRUE;
+    $this->useArray = TRUE;
   }
 
   public function returnAsKeys() {
-    $this->use_array = FALSE;
+    $this->useArray = FALSE;
   }
 
   private function toArray($thedate) {
-    $toReturn = array('date-parts' => array());
+    $to_return = array('date-parts' => array());
 
     if (array_key_exists('literal', $thedate)) {
-      $toReturn = array('literal' => $thedate['literal']);
+      $to_return = array('literal' => $thedate['literal']);
     }
     else {
       $start_parts = array('year', 'month', 'day');
@@ -443,11 +441,11 @@ class CSLDateParser {
           $end[] = $thedate[$part];
         }
       }
-      $toReturn['date-parts'][] = $start;
-      $toReturn['date-parts'][] = $end;
+      $to_return['date-parts'][] = $start;
+      $to_return['date-parts'][] = $end;
     }
 
-    return $toReturn;
+    return $to_return;
   }
 
   private function parseNumericDate(&$ret, $delim, $suff, $txt) {
@@ -455,7 +453,7 @@ class CSLDateParser {
     $lst = preg_split("/$escaped_delim/", $txt);
     foreach ($lst as $key => $val) {
       if (strlen($val) === 4) {
-        $ret['year'. $suff] = preg_replace('/^0*/', '', $val);
+        $ret["year$suff"] = preg_replace('/^0*/', '', $val);
         if ($key === 0) {
           $lst = array_slice($lst, 1);
         }
@@ -471,23 +469,22 @@ class CSLDateParser {
 
     // Month and day parse.
     if (count($lst) === 1) {
-      $ret['month'. $suff] = ''. $lst[0];
+      $ret["month$suff"] = '' . $lst[0];
     }
     elseif (count($lst) === 2) {
       // Handle months being out of bounds.
       if ($lst[$this->monthguess] > 12 && $lst[$this->dayguess] <= 12) {
-        $ret['month'. $suff] = ''. $lst[$this->dayguess];
-        $ret['day'. $suff] = ''. $lst[$this->monthguess];
+        $ret["month$suff"] = '' . $lst[$this->dayguess];
+        $ret["day$suff"] = '' . $lst[$this->monthguess];
       }
       elseif ($lst[$this->monthguess] > 12) {
-        $ret['month'. $suff] = '';
-        $ret['day'. $suff] = ''. $lst[$this->dayguess];
+        $ret["month$suff"] = '';
+        $ret["day$suff"] = '' . $lst[$this->dayguess];
       }
       else {
-        $ret['month'. $suff] = ''. $lst[$this->monthguess];
-        $ret['day'. $suff] = ''. $lst[$this->dayguess];
+        $ret["month$suff"] = '' . $lst[$this->monthguess];
+        $ret["day$suff"] = '' . $lst[$this->dayguess];
       }
     }
   }
 }
-?>
