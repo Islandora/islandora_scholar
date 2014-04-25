@@ -12,7 +12,7 @@ class CSLDateParser {
   /**
    * Is singleton.
    */
-  static public function getInstance($csl_date_parts_all = NULL, $clean = TRUE) {
+  static public function getInstance($csl_date_parts = NULL, $clean = TRUE) {
     static $instance = NULL;
     if (is_null($instance)) {
       $instance = new CSLDateParser();
@@ -21,8 +21,8 @@ class CSLDateParser {
       $instance->setOrderMonthDay();
       $instance->resetMonths();
     }
-    if (isset($csl_date_parts_all)) {
-      $instance->csl_date_parts_all($csl_date_parts_all);
+    if (isset($csl_date_parts)) {
+      $instance->cslDateParts = $csl_date_parts;
     }
     return $instance;
   }
@@ -44,7 +44,7 @@ class CSLDateParser {
   protected $msets;
   protected $mabbrevs;
   protected $mrexes;
-  protected $csl_date_parts_all;
+  protected $cslDateParts;
 
   /**
    * Constructor.
@@ -383,7 +383,7 @@ class CSLDateParser {
     // Update any missing elements on each side of the divide from the other.
     if ($is_range) {
       // TODO:  Get CSL date part stuff...  Might have to iterate over this differently?
-      foreach ($this->csl_date_parts_all as $item) {
+      foreach ($this->cslDateParts as $item) {
         if (array_key_exists($item, $thedate) && !array_key_exists($item . '_end', $thedate)) {
           $thedate[$item . '_end'] = $thedate[$item];
         }
