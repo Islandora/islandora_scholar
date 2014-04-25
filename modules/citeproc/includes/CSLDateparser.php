@@ -81,12 +81,11 @@ class CSLDateParser {
     $this->rexdashslash = preg_replace(array('/%%NUMD%%/', '/%%DATED%%/'), array('-', '\/'), $rex);
     $this->rexslashdash = preg_replace(array('/%%NUMD%%/', '/%%DATED%%/'), array('\/', '-'), $rex);
 
-    $seasonstrs = array();
+    $seasons = array('spr', 'sum', 'fal', 'win');
     $this->seasonrexes = array();
 
-    foreach ($seasonstrs as $season) {
-      // FIXME:  Might have to push, instead of 'enqueueing'
-      $this->seasonrexes[] = $season . '.*';
+    foreach ($seasons as $season) {
+      $this->seasonrexes[] = "/$season.*/";
     }
 
     $this->mstrings = 'january february march april may june july august september october november december spring summer fall winter spring summer';
