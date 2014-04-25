@@ -319,7 +319,7 @@ class CSLDateParser {
         foreach ($this->mrexes as $key => $mrex) {
           // If it's a month, record it.
           if (preg_match("$mrex", $lc) > 0) {
-            $thedate["month$suff"] = '' + ($key + 1);
+            $thedate["month$suff"] = '' . ($key + 1);
             $breakme = TRUE;
             break;
           }
