@@ -3,6 +3,9 @@
 /**
  * @file
  * Translated from citeproc.js.
+ *
+ * @todo test seasons
+ * @todo test ranges
  */
 
 class CSL_DateParser {
@@ -49,7 +52,7 @@ class CSL_DateParser {
     $this->jr = "/\x{301c}/u";
 
     // Main parsing regexps.
-    //%%NUMD%% and %%DATED%% just seem to be templates
+    //%%NUMD%% and %%DATED%% are templates that will be replaced.
     $yearlast = "(?:[?0-9]{1,2}%%NUMD%%){0,2}[?0-9]{4}(?![0-9])";
     $yearfirst = "[?0-9]{4}(?:%%NUMD%%[?0-9]{1,2}){0,2}(?![0-9])";
     $number = "[?0-9]{1,3}";
@@ -118,6 +121,7 @@ class CSL_DateParser {
     if (is_string($lst)) {
       $lst = preg_split('/\s+/');
     }
+    //12 for months, 16 for months and seasons.
     if (count($lst) !== 12 && count($lst) !== 16) {
       //TODO:  Throw some kinda error message...
       return;
@@ -163,7 +167,6 @@ class CSL_DateParser {
           }
         }
         foreach ($extend as $key_1 => $val_1) {
-          //Note: Skipped some int parsing here, shouldn't affect anything?
           foreach ($val_1 as $key_2 => $val_2) {
             $mab[$key_1][$key_2] = substr($this->msets[$key_1][$key_2], 0, $val_2);
           }
@@ -190,7 +193,7 @@ class CSL_DateParser {
       $txt = preg_replace($this->jr, '/', $txt);
       $txt = preg_replace('/-\//', '/', $txt);
 
-      //Might have to verify this?
+      // Remove trailing dashes.
       $txt = preg_replace('/-$/', '', $txt);
 
       $slst = preg_split($this->jiysplitter, $txt);
@@ -453,10 +456,14 @@ class CSL_DateParser {
       $ret['month'. $suff] = ''. $lst[0];
     }
     elseif (count($lst) === 2) {
-      //FIXME:  This doesn't really work.
-      if ($lst[$this->monthguess] > 12) {
+      // Handle months being out of bounds.
+      if ($lst[$this->monthguess] > 12 && $lst[$this->dayguess] <= 12) {
         $ret['month'. $suff] = ''. $lst[$this->dayguess];
         $ret['day'. $suff] = ''. $lst[$this->monthguess];
+      }
+      elseif ($lst[$this->monthguess] > 12) {
+        $ret['month'. $suff] = '';
+        $ret['day'. $suff] = ''. $lst[$this->dayguess];
       }
       else {
         $ret['month'. $suff] = ''. $lst[$this->monthguess];
