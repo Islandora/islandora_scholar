@@ -1,8 +1,8 @@
 ﻿<?php
 
 /**
- * Ported from citeproc.js by Adam Vessey
- * FIXME:  Needs testing!
+ * @file
+ * Translated from citeproc.js.
  */
 
 class CSL_DateParser {
@@ -105,7 +105,7 @@ class CSL_DateParser {
 
     $this->mrexes = array();
     foreach ($this->mabbrevs as $i) {
-      $this->mrexes[] = "(?:". implode('|', $i) .')';
+      $this->mrexes[] = "/(?:". implode('|', $i) .')/';
     }
   }
 
@@ -244,7 +244,7 @@ class CSL_DateParser {
         $lst = reset($matches);
       }
       else {
-        $range_delimg = '/';
+        $range_delim = '/';
         $date_delim = '-';
         preg_match_all($this->rexdashslash, $txt, $matches);
         $lst = reset($matches);
@@ -297,7 +297,7 @@ class CSL_DateParser {
         $breakme = FALSE;
         foreach ($this->mrexes as $key => $mrex) {
           // If it's a month, record it.
-          if (preg_match("/$mrex/", $lc) > 0) {
+          if (preg_match("$mrex", $lc) > 0) {
             $thedate['month'. $suff] = '' + ($key + 1);
             $breakme = TRUE;
             break;
@@ -430,7 +430,8 @@ class CSL_DateParser {
   }
 
   private function parseNumericDate(&$ret, $delim, $suff, $txt) {
-    $lst = preg_split("/$delim/", $txt);
+    $escaped_delim = preg_quote($delim);
+    $lst = preg_split("/$escaped_delim/", $txt);
     foreach ($lst as $key => $val) {
       if (strlen($val) === 4) {
         $ret['year'. $suff] = preg_replace('/^0*/', '', $val);
