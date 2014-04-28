@@ -221,17 +221,4 @@ class CSLDateParserTest extends PHPUnit_Framework_TestCase {
       $this->assertEquals("6", $res["date-parts"][1][1]);
       $this->assertEquals("3", $res["date-parts"][1][2]);
   }
-  function test_dateparse032() {
-      $res = array(
-        'year' => 2000,
-        'month' => 7,
-        'day' => 21,
-        'year_end' => 2001,
-      );
-      $res = CSLDateParser::getInstance(NULL, FALSE)->toArray($res);
-      $this->assertEquals("2000", $res["date-parts"][0][0]);
-      $this->assertEquals("7", $res["date-parts"][0][1]);
-      $this->assertEquals("21", $res["date-parts"][0][2]);
-      $this->assertEquals(1, count($res["date-parts"]));
-  }
 }

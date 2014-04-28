@@ -457,7 +457,7 @@ class CSLDateParser {
   /**
    * Turn some date data into a simplified array.
    */
-  public function toArray($thedate) {
+ private function toArray($thedate) {
     $to_return = array('date-parts' => array());
 
     if (array_key_exists('literal', $thedate)) {
