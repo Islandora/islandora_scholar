@@ -1,5 +1,5 @@
 <?php
-require_once "includes/CSLDateparser.php";
+require_once dirname(__FILE__) . '/../includes/CSLDateparser.php';
 
 class CSLDateParserTest extends PHPUnit_Framework_TestCase {
   function setUp() {
