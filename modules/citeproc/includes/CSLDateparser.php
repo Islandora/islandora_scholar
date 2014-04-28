@@ -3,9 +3,6 @@
 /**
  * @file
  * Translated from citeproc.js.
- *
- * @todo test seasons
- * @todo test ranges
  */
 
 class CSLDateParser {
@@ -168,7 +165,7 @@ class CSLDateParser {
    */
   private function addMonths($lst) {
     if (is_string($lst)) {
-      $lst = preg_split('/\s+/');
+      $lst = preg_split('/\s+/', $lst);
     }
     // 12 for months, 16 for months and seasons.
     if (count($lst) !== 12 && count($lst) !== 16) {
