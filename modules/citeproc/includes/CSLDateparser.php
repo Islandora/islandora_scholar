@@ -236,6 +236,7 @@ class CSLDateParser {
   public function parse($txt) {
     $slash = $dash = FALSE;
     $range_delim = $date_delim = NULL;
+    // Handle Japanese Imperial dates.
     if (preg_match($this->jmd, $txt) > 0) {
       $txt = preg_replace($this->jy, '', $txt);
       $txt = preg_replace($this->jmd, '-', $txt);
@@ -310,10 +311,11 @@ class CSLDateParser {
       $lst = reset($matches);
     }
 
+    // Normalize to alphanumeric values.
     $ret = array();
     foreach ($lst as $val) {
       $match = array();
-      if (preg_match('/^\s*([\-\/]|[a-zA-Z]+|[\-~?0-9]+)\s*$/', $val, $match) > 0) {
+      if (preg_match('/^\s*([\-\/]|[a-zA-Z]+|[\-~?0-9]+)\s*$/', $val, $match)) {
         $ret[] = $match[1];
       }
     }
