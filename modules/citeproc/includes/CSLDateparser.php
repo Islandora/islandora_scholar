@@ -20,6 +20,14 @@ class CSLDateParser {
     if ($clean) {
       $instance->setOrderMonthDay();
       $instance->resetMonths();
+      if (!isset($csl_date_parts)) {
+        $instance->cslDateParts = array(
+          'year',
+          'month',
+          'day',
+          'season',
+        );
+      }
     }
     if (isset($csl_date_parts)) {
       $instance->cslDateParts = $csl_date_parts;
@@ -410,7 +418,7 @@ class CSLDateParser {
     }
     // Update any missing elements on each side of the divide from the other.
     if ($is_range) {
-      foreach ($this->cslDateParts as $item) {
+      foreach ((array) $this->cslDateParts as $item) {
         if (array_key_exists($item, $thedate) && !array_key_exists($item . '_end', $thedate)) {
           $thedate[$item . '_end'] = $thedate[$item];
         }
@@ -449,7 +457,7 @@ class CSLDateParser {
   /**
    * Turn some date data into a simplified array.
    */
-  private function toArray($thedate) {
+  public function toArray($thedate) {
     $to_return = array('date-parts' => array());
 
     if (array_key_exists('literal', $thedate)) {
@@ -477,7 +485,9 @@ class CSLDateParser {
         }
       }
       $to_return['date-parts'][] = $start;
-      $to_return['date-parts'][] = $end;
+      if (count($start) === count($end)) {
+        $to_return['date-parts'][] = $end;
+      }
     }
 
     return $to_return;
