@@ -1,8 +1,6 @@
 #!/bin/bash
 
 EXCLUDE=(
-  'sites/all/modules/islandora_scholar/modules/citeproc/lib/citeproc-js/tests/fixtures/custom/style_CSLPrimer-bibliography.txt'
-  'sites/all/modules/islandora_scholar/modules/citeproc/lib/citeproc-js/tests/fixtures/custom/style_CSLPrimer-citation.txt'
   'sites/all/modules/islandora_scholar/modules/bibutils/tests/data/RIS.txt'
 )
 

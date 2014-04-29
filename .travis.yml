@@ -44,4 +44,5 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
+  - phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
   - drush test-run --uri=http://localhost:8081 "Islandora Scholar"

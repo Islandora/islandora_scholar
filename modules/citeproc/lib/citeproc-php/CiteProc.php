@@ -934,7 +934,6 @@ class csl_date extends csl_format {
     $date_parts = array();
     $date = '';
     $text = '';
-
     if (($var = $this->variable) && isset($data->{$var})) {
       $date = $data->{$var}->{'date-parts'}[0];
       foreach ($this->elements as $element) {
