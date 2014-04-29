@@ -32,12 +32,6 @@ class CSLDateParser {
     return $instance;
   }
 
-  protected $jiy;
-  protected $jiysplitter;
-  protected $jiymatcher;
-  protected $jmd;
-  protected $jy;
-  protected $jr;
   protected $rexdash;
   protected $rexdashslash;
   protected $rexslashdash;
@@ -55,24 +49,6 @@ class CSLDateParser {
    * Constructor.
    */
   protected function __construct() {
-    // Japanese Imperial years.
-    $this->jiy = array(
-      "\x{660E}\x{6CBB}" => 1867,
-      "\x{5927}\x{6B63}" => 1911,
-      "\x{662D}\x{548C}" => 1925,
-      "\x{5E73}\x{6210}" => 1988,
-    );
-
-    $jiymatchstring = array_keys($this->jiy);
-    $jiymatchstring = implode('|', $jiymatchstring);
-
-    $this->jiysplitter = "/(?:" . $jiymatchstring . ")(?:[0-9]+)/u";
-    $this->jiymatcher = "/(?:" . $jiymatchstring . ")(?:[0-9]+)/u";
-
-    $this->jmd = "/(\X6708|\X5E74)/u";
-    $this->jy = "/\X65E5/u";
-    $this->jr = "/\X301c/u";
-
     // Main parsing regexps.
     // %%NUMD%% and %%DATED%% are templates that will be replaced.
     $yearlast = "(?:[?0-9]{1,2}%%NUMD%%){0,2}[?0-9]{4}(?![0-9])";
@@ -236,41 +212,6 @@ class CSLDateParser {
   public function parse($txt) {
     $slash = $dash = FALSE;
     $range_delim = $date_delim = NULL;
-    // Handle Japanese Imperial dates.
-    if (preg_match($this->jmd, $txt) > 0) {
-      $txt = preg_replace($this->jy, '', $txt);
-      $txt = preg_replace($this->jmd, '-', $txt);
-      $txt = preg_replace($this->jr, '/', $txt);
-      $txt = preg_replace('/-\//', '/', $txt);
-
-      // Remove trailing dashes.
-      $txt = preg_replace('/-$/', '', $txt);
-
-      $slst = preg_split($this->jiysplitter, $txt);
-      $lst = array();
-      $mm = array();
-      preg_match_all($this->jiymatcher, $txt, $mm);
-      $mmx = array();
-      foreach ($mm as $match) {
-        $matches = array();
-        preg_match_all('/([^0-9]+)([0-9]+)/', $match, $matches);
-        $mmx = array_merge($mmx, array_slice($matches, 1));
-      }
-      foreach ($slst as $key => $val) {
-        $lst[] = $val;
-        if ($key !== count($slst) - 1) {
-          $mmpos = $key * 2;
-          $lst[] = $mmx[$mmpos];
-          $lst[] = $mmx[$mmpos + 1];
-        }
-      }
-      foreach ($lst as $key => $item) {
-        $lst[$key + 1] = $this->jiy[$lst[$key]] + intval($lst[$key + 1], 10);
-        $lst[$key] = '';
-      }
-
-      $txt = implode('', $lst);
-    }
     $txt = preg_replace('/\s*-\s*$/', '', $txt);
     $txt = preg_replace('/\s*-\s*\//', '/', $txt);
     $txt = preg_replace('/\.\s*$/', '', $txt);

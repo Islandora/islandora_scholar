@@ -33,17 +33,6 @@ class CSLDateParserTest extends PHPUnit_Framework_TestCase {
   /**
    * A test that does something that should be documented and not numbered.
    */
-  public function testDateparse002() {
-    $res = CSLDateParser::getInstance(NULL, FALSE)->parse("\u5e73\u621012\u5e7410\u670824\u65e5");
-    $this->assertEquals("10", $res["month"]);
-    $this->assertEquals("24", $res["day"]);
-    $this->assertEquals("2000", $res["year"]);
-    $this->assertEquals(3, count($res));
-  }
-
-  /**
-   * A test that does something that should be documented and not numbered.
-   */
   public function testDateparse003() {
     $res = CSLDateParser::getInstance(NULL, FALSE)->parse("19??-10");
     $this->assertEquals("10", $res["month"]);
@@ -307,18 +296,6 @@ class CSLDateParserTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals("8", $res["month"]);
     $this->assertEquals("2000", $res["year_end"]);
     $this->assertEquals("2000", $res["year"]);
-    $this->assertEquals(4, count($res));
-  }
-
-  /**
-   * A test that does something that should be documented and not numbered.
-   */
-  public function testDateparse028() {
-    $res = CSLDateParser::getInstance(NULL, FALSE)->parse("\u5e73\u621012\u5e748\u6708\u301c\u5e73\u621012\u5e749\u6708");
-    $this->assertEquals("9", $res["month_end"]);
-    $this->assertEquals("8", $res["month"]);
-    $this->assertEquals("2000", $res["year"]);
-    $this->assertEquals("2000", $res["year_end"]);
     $this->assertEquals(4, count($res));
   }
 
