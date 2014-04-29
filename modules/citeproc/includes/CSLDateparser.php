@@ -54,8 +54,8 @@ class CSLDateParser {
   /**
    * Constructor.
    */
-  private function __construct() {
-    // Japanese imperial years.
+  protected function __construct() {
+    // Japanese Imperial years.
     $this->jiy = array(
       "\x{660E}\x{6CBB}" => 1867,
       "\x{5927}\x{6B63}" => 1911,
@@ -69,9 +69,9 @@ class CSLDateParser {
     $this->jiysplitter = "/(?:" . $jiymatchstring . ")(?:[0-9]+)/u";
     $this->jiymatcher = "/(?:" . $jiymatchstring . ")(?:[0-9]+)/u";
 
-    $this->jmd = "/(\x{6708}|\x{5E74})/u";
-    $this->jy = "/\x{65E5}/u";
-    $this->jr = "/\x{301c}/u";
+    $this->jmd = "/(\X6708|\X5E74)/u";
+    $this->jy = "/\X65E5/u";
+    $this->jr = "/\X301c/u";
 
     // Main parsing regexps.
     // %%NUMD%% and %%DATED%% are templates that will be replaced.
@@ -120,7 +120,7 @@ class CSLDateParser {
   /**
    * Set date part order interpretation.
    */
-  private function setOrderDayMonth() {
+  protected function setOrderDayMonth() {
     $this->monthguess = 1;
     $this->dayguess = 0;
   }
@@ -128,7 +128,7 @@ class CSLDateParser {
   /**
    * Set date part order interpretation.
    */
-  private function setOrderMonthDay() {
+  protected function setOrderMonthDay() {
     $this->monthguess = 0;
     $this->dayguess = 1;
   }
@@ -136,7 +136,7 @@ class CSLDateParser {
   /**
    * Reset months to default.
    */
-  private function resetMonths() {
+  protected function resetMonths() {
     $this->msets = array();
     foreach ($this->mstrings as $mstring) {
       $this->msets[] = array($mstring);
@@ -163,7 +163,7 @@ class CSLDateParser {
    * Extend the month regexes with an additional set of month strings,
    * extending strings as required to resolve ambiguities.
    */
-  private function addMonths($lst) {
+  protected function addMonths($lst) {
     if (is_string($lst)) {
       $lst = preg_split('/\s+/', $lst);
     }
@@ -226,7 +226,7 @@ class CSLDateParser {
 
     $this->mrexes = array();
     foreach ($mab as $val) {
-      $this->mrexes[] = '(?:' . implode('|', $val) . ')';
+      $this->mrexes[] = '/(?:' . implode('|', $val) . ')/';
     }
   }
 
@@ -345,12 +345,14 @@ class CSLDateParser {
         }
         // If it's an obvious year, record it.
         elseif (preg_match('/[0-9]{4}/', $element) > 0) {
-          $thedate['year' . $suff] = preg_replace('/^0*/', '', $element);
+          $thedate["year$suff"] = preg_replace('/^0*/', '', $element);
         }
 
         $breakme = FALSE;
         foreach ($this->mrexes as $key => $mrex) {
-          // If it's a month, record it.
+          // If it's a month, record it. The last of the 16 months specified in
+          // the date string will win. Granularity can be lost. The csl system
+          // doesn't take a separate season param but maybe it should.
           if (preg_match($mrex, $lc) > 0) {
             $thedate["month$suff"] = '' . ($key + 1);
             $breakme = TRUE;
@@ -366,12 +368,12 @@ class CSLDateParser {
           // If it's a BC or AD marker, make a year of
           // any note.  Separate, reverse the sign of the year
           // if it's BC.
-          if ($number && preg_match('/^bc/', $element) > 0) {
+          if ($number && preg_match('/^bc/', $lc) > 0) {
             $thedate["year$suff"] = '' . ($number * -1);
             $number = '';
             continue;
           }
-          elseif ($number && preg_match('/^ad/', $element) > 0) {
+          elseif ($number && preg_match('/^ad/', $lc) > 0) {
             $thedate["year$suff"] = '' . $number;
             $number = '';
             continue;
@@ -399,19 +401,20 @@ class CSLDateParser {
           $note = $element;
           continue;
         }
-      }
-      // If at the end of the string there's still a note
-      // hanging around, make a day of it.
-      if ($number) {
-        $thedate["day$suff"] = $number;
-        $number = NULL;
-      }
-      // If at the end of the string there's cruft lying
-      // around, and the season field is empty, put the
-      // cruft there.
-      if (isset($note) && !array_key_exists("season$suff", $thedate)) {
-        $thedate["season$suff"] = $note;
-        $note = NULL;
+        // Try to grab a day.
+        if ($number && $number <= 31) {
+          $thedate["day$suff"] = $number;
+          $number = NULL;
+          continue;
+        }
+        // If at the end of the string there's cruft lying
+        // around, and the season field is empty, put the
+        // cruft there.
+        if (isset($note) && !array_key_exists("season$suff", $thedate)) {
+          $thedate["season$suff"] = $note;
+          $note = NULL;
+          continue;
+        }
       }
       $suff = '_end';
     }
@@ -456,7 +459,7 @@ class CSLDateParser {
   /**
    * Turn some date data into a simplified array.
    */
-  private function toArray($thedate) {
+  protected function toArray($thedate) {
     $to_return = array('date-parts' => array());
 
     if (array_key_exists('literal', $thedate)) {
@@ -495,7 +498,7 @@ class CSLDateParser {
   /**
    * Try to turn a numeric date string into a useful array.
    */
-  private function parseNumericDate(&$ret, $delim, $suff, $txt) {
+  protected function parseNumericDate(&$ret, $delim, $suff, $txt) {
     $escaped_delim = preg_quote($delim);
     $lst = preg_split("/$escaped_delim/", $txt);
     foreach ($lst as $key => $val) {
