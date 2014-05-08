@@ -310,7 +310,6 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
-                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
                   <collapsed>FALSE</collapsed>
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>
@@ -398,7 +397,6 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
-                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
                   <collapsed>FALSE</collapsed>
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>
@@ -521,7 +519,6 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
-                  <autocomplete_path>islandora/entities/autocomplete/department</autocomplete_path>
                   <collapsed>FALSE</collapsed>
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>
