@@ -1,4 +1,5 @@
 <?php
+// @codingStandardsIgnoreFile
 include './CiteProc.php';
 
 $dir_handle = opendir('./tests');

@@ -545,7 +545,6 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
       }
     }
   }
-  dsm($output, 'asdf');
   return $output;
 }
 
