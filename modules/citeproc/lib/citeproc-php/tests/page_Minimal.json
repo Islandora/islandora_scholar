@@ -1,37 +1,5 @@
-/*
- * Copyright (c) 2009 and 2010 Frank G. Bennett, Jr. All Rights Reserved.
- *
- * The contents of this file are subject to the Common Public
- * Attribution License Version 1.0 (the “License”); you may not use
- * this file except in compliance with the License. You may obtain a
- * copy of the License at:
- *
- * http://bitbucket.org/fbennett/citeproc-js/src/tip/LICENSE.
- *
- * The License is based on the Mozilla Public License Version 1.1 but
- * Sections 14 and 15 have been added to cover use of software over a
- * computer network and provide for limited attribution for the
- * Original Developer. In addition, Exhibit A has been modified to be
- * consistent with Exhibit B.
- *
- * Software distributed under the License is distributed on an “AS IS”
- * basis, WITHOUT WARRANTY OF ANY KIND, either express or implied. See
- * the License for the specific language governing rights and limitations
- * under the License.
- *
- * The Original Code is the citation formatting software known as
- * "citeproc-js" (an implementation of the Citation Style Language
- * [CSL]), including the original test fixtures and software located
- * under the ./std subdirectory of the distribution archive.
- *
- * The Original Developer is not the Initial Developer and is
- * __________. If left blank, the Original Developer is the Initial
- * Developer.
- *
- * The Initial Developer of the Original Code is Frank G. Bennett,
- * Jr. All portions of the code written by Frank G. Bennett, Jr. are
- * Copyright (c) 2009 and 2010 Frank G. Bennett, Jr. All Rights Reserved.
- */{
+{
+    "abbreviations": false, 
     "bibentries": false, 
     "bibsection": false, 
     "citation_items": [
@@ -137,7 +105,7 @@
         ]
     ], 
     "citations": false, 
-    "csl": "<style \n      xmlns=\"http://purl.org/net/xbiblio/csl\"\n      class=\"in-text\"\n      version=\"1.0\"\n      page-range-format=\"minimal\">\n  <info>\n    <id />\n    <title />\n    <updated>2009-08-10T04:49:00+09:00</updated>\n  </info>\n  <citation>\n    <layout>\n      <text variable=\"title\"/>\n      <text variable=\"page\" prefix=\", at \"/>\n    </layout>\n  </citation>\n</style>", 
+    "csl": "<style \n      xmlns=\"http://purl.org/net/xbiblio/csl\"\n      class=\"note\"\n      version=\"1.0\"\n      page-range-format=\"minimal\"><info>\n    <id />\n    <title />\n    <updated>2009-08-10T04:49:00+09:00</updated></info><citation>\n    <layout>\n      <text variable=\"title\"/>\n      <text variable=\"page\" prefix=\", at \"/>\n    </layout></citation></style>", 
     "input": [
         {
             "id": "ITEM-1", 
@@ -249,17 +217,17 @@
         }, 
         {
             "id": "ITEM-19", 
-            "page": "n11564-n1568", 
+            "page": "n11564 - n1568", 
             "title": "Example S", 
             "type": "book"
         }, 
         {
             "id": "ITEM-20", 
-            "page": "n11564-1568", 
+            "page": "n11564 - 1568", 
             "title": "Example T", 
             "type": "book"
         }
     ], 
     "mode": "citation", 
-    "result": "Example A, at 101-8\nExample B, at 3-10\nExample C, at 71-2\nExample D, at 96-117\nExample E, at 100-4\nExample F, at 600-13\nExample G, at 1100-23\nExample H, at 107-8\nExample I, at 505-17\nExample J, at 1002-6\nExample K, at 321-5\nExample L, at 415-532\nExample M, at 1536-8\nExample N, at 11564-8\nExample O, at 11564-78\nExample P, at 13792-803\nExample Q, at 1496-504\nExample R, at 2787-816\nExample S, at n11564-8\nExample T, at n11564-8"
+    "result": "Example A, at 101–8\nExample B, at 3–10\nExample C, at 71–2\nExample D, at 96–117\nExample E, at 100–4\nExample F, at 600–13\nExample G, at 1100–23\nExample H, at 107–8\nExample I, at 505–17\nExample J, at 1002–6\nExample K, at 321–5\nExample L, at 415–532\nExample M, at 1536–8\nExample N, at 11564–8\nExample O, at 11564–78\nExample P, at 13792–803\nExample Q, at 1496–504\nExample R, at 2787–816\nExample S, at n11564–8\nExample T, at n11564–8"
 }

@@ -537,7 +537,10 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
         add_mods_namespace($name);
         $role = convert_mods_to_citeproc_json_name_role($name, $valid_roles, $default_role);
         if ($role !== FALSE) {
-          $output[$role][] = convert_mods_to_citeproc_json_name($name);
+          $parsed_name = convert_mods_to_citeproc_json_name($name);
+          if ($parsed_name) {
+            $output[$role][] = $parsed_name;
+          }
         }
       }
     }
@@ -561,6 +564,7 @@ function convert_mods_to_citeproc_json_name(SimpleXMLElement $name) {
       convert_mods_to_citeproc_json_name_corporate($name);
   $output = array_map('trim', $output);
   $output = array_map('ucfirst', $output);
+  $output = array_filter($output);
   return $output;
 }
 
@@ -596,8 +600,6 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
     }
   }
 
-  // Add the citeproc-js "parse-names" flag.
-  $output['parse-names'] = "true";
   return $output;
 }
 

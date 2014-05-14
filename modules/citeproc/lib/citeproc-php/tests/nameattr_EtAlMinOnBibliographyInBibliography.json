@@ -1,9 +1,10 @@
 {
+    "abbreviations": false, 
     "bibentries": false, 
     "bibsection": false, 
     "citation_items": false, 
     "citations": false, 
-    "csl": "<style \n      xmlns=\"http://purl.org/net/xbiblio/csl\"\n      class=\"in-text\"\n      version=\"1.0\">\n  <info>\n    <id />\n    <title />\n    <updated>2009-08-10T04:49:00+09:00</updated>\n  </info>\n  <citation>\n    <layout>\n      <text value=\"Oops\"/>\n    </layout>\n  </citation>\n  <bibliography\n      et-al-min=\"2\" initialize-with=\".\" name-as-sort-order=\"first\">\n    <layout>\n      <names variable=\"author\">\n        <name et-al-use-first=\"1\"><name-part name=\"family\" text-case=\"uppercase\" />\n </name>\n      </names>\n    </layout>\n  </bibliography>\n</style>", 
+    "csl": "<style \n      xmlns=\"http://purl.org/net/xbiblio/csl\"\n      class=\"note\"\n      version=\"1.0\"><info>\n    <id />\n    <title />\n    <updated>2009-08-10T04:49:00+09:00</updated></info><citation>\n    <layout>\n      <text value=\"Oops\"/>\n    </layout></citation><bibliography\n      et-al-min=\"2\">\n    <layout>\n      <names variable=\"author\">\n        <name et-al-use-first=\"1\"/>\n      </names>\n    </layout></bibliography></style>", 
     "input": [
         {
             "author": [
@@ -21,5 +22,5 @@
         }
     ], 
     "mode": "bibliography", 
-    "result": "<div class=\"csl-bib-body\">\n  <div class=\"csl-entry\">John Doe, et al.</div>\n</div>"
+    "result": "<div class=\"csl-bib-body\"><div class=\"csl-entry\">John Doe et al.</div></div>"
 }
