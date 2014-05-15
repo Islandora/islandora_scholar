@@ -44,7 +44,7 @@ function citation_exporter_batch_combine_mods($pids_filename, $total, $mods_file
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['total'] = $total;
   }
-  list($pids, $remaining) = citation_exporter_batch_get_num_pids_from_file($pids_filename, 5);
+  list($pids, $remaining) = citation_exporter_batch_get_num_pids_from_file($pids_filename, 32);
   _citation_exporter_batch_combine_mods($mods_filename, $pids);
   $context['sandbox']['progress'] = $context['sandbox']['total'] - $remaining;
   if ($context['sandbox']['progress'] != $context['sandbox']['total']) {
