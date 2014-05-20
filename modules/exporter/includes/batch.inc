@@ -54,6 +54,9 @@ function citation_exporter_batch_export(array $pids, $style = NULL, $file_format
 
 /**
  * Store the given pids in the given file.
+ *
+ * @deprecated
+ *   Stash/grab stuff from the database.
  */
 function citation_exporter_batch_store_pids_in_file($filename, array $pids) {
   $handle = fopen($filename, 'wb');
@@ -65,6 +68,9 @@ function citation_exporter_batch_store_pids_in_file($filename, array $pids) {
 
 /**
  * Fetch the stored PIDS from the given file.
+ *
+ * @deprecated
+ *   Stash/grab stuff from the database.
  */
 function citation_exporter_batch_get_pids_from_file($filename) {
   $file = fopen($filename, 'rb');
@@ -78,6 +84,9 @@ function citation_exporter_batch_get_pids_from_file($filename) {
 
 /**
  * Get a number of PIDS from the given file.
+ *
+ * @deprecated
+ *   Stash/grab stuff from the database.
  */
 function citation_exporter_batch_get_num_pids_from_file($filename, $num = 1) {
   $remaining = 0;
@@ -102,10 +111,14 @@ function citation_exporter_batch_get_num_pids_from_file($filename, $num = 1) {
  *
  * Also deletes the file list.
  */
-function citation_exporter_batch_redirect($redirect, array $file_to_unlink, array &$context) {
+function citation_exporter_batch_redirect($redirect, array $file_to_unlink, $set_id, array &$context) {
   foreach ($file_to_unlink as $file) {
     drupal_unlink($file);
   }
+
+  module_load_include('inc', 'citation_exporter', 'includes/db');
+  citation_exporter_drop_set($set_id);
+
   $context['results']['redirect'] = $redirect;
 }
 

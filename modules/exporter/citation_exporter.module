@@ -41,3 +41,17 @@ function citation_exporter_export() {
   module_load_include('inc', 'citation_exporter', 'includes/citation.export');
   CitationExporter::Export();
 }
+
+/**
+ * Implements hook_cron().
+ */
+function citation_exporter_cron() {
+  // Delete sets which have not been touched in a day.
+  $sets = db_select('citation_exporter_sets', 's')
+    ->fields('s', array('id'))
+    ->condition('updated', time() - 86400, '<')
+    ->execute()
+    ->fetchCol();
+  module_load_include('inc', 'citation_exporter', 'includes/db');
+  array_map('citation_exporter_drop_set', $sets);
+}

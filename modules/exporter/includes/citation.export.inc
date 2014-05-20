@@ -69,26 +69,12 @@ class CitationExporter {
       self::ClearExportTable();
       if (file_exists($filepath)) {
         $file_size = filesize($filepath);
-        header("Content-type: $mime_type");
-        header("Content-length: $file_size");
-        header("Content-Disposition: attachment; filename=\"$download_filename\"");
-        header("Cache-control: protected");
-        $curl_handle = curl_init();
-        if ($curl_handle !== FALSE) {
-          $url = file_create_url($filepath);
-          curl_setopt($curl_handle, CURLOPT_SSL_VERIFYPEER, FALSE);
-          curl_setopt($curl_handle, CURLOPT_SSL_VERIFYHOST, FALSE);
-          // Fail on errors.
-          curl_setopt($curl_handle, CURLOPT_FAILONERROR, 1);
-          // Allow redirects.
-          curl_setopt($curl_handle, CURLOPT_FOLLOWLOCATION, 1);
-          curl_setopt($curl_handle, CURLOPT_USERAGENT, "Mozilla/4.0 pp(compatible; MSIE 5.01; Windows NT 5.0)");
-          // Return into a variable.
-          curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 0);
-          curl_setopt($curl_handle, CURLOPT_URL, $url);
-        }
-        curl_exec($curl_handle);
-        curl_close($curl_handle);
+        drupal_add_http_header('Content-type', $mime_type);
+        drupal_add_http_header('Content-length', $file_size);
+        drupal_add_http_header('Content-Disposition', format_string('attachment; filename="!download_filename"', array(
+          '!download_filename' => $download_filename,
+        )));
+        readfile($filepath);
       }
       else {
         drupal_goto($redirect);

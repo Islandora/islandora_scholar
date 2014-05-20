@@ -399,7 +399,7 @@ class RTF {
 
     $doc_buffer = preg_replace("/<hr(.*?)>/i", "\\brdrb\\brdrs\\brdrw30\\brsp20 \\pard\\par ", $doc_buffer);
     $doc_buffer = str_replace("<br/>", "\\par ", $doc_buffer);
-    $doc_buffer = str_replace("<br/>", "\\par ", $doc_buffer);
+    $doc_buffer = str_replace("<br />", "\\par ", $doc_buffer);
     $doc_buffer = str_replace("<tab>", "\\tab ", $doc_buffer);
 
     $doc_buffer = $this->nl2par($doc_buffer);
