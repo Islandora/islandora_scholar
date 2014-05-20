@@ -60,6 +60,10 @@ function citation_exporter_batch_combine_mods($set_id, $total, $mods_filename, a
   $context['sandbox']['progress'] += count($pids);
 
   if ($context['sandbox']['progress'] < $context['sandbox']['total']) {
+    $context['message'] = t('Gathered metadata: @progress/@total', array(
+      '@progress' => $context['sandbox']['progress'],
+      '@total' => $context['sandbox']['total'],
+    ));
     $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
   }
   else {
