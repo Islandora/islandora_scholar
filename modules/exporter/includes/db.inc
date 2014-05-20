@@ -29,7 +29,7 @@ function citation_exporter_create_set(array $pids = array()) {
  * @return string
  *   An ID to use for a queue.
  */
-function citation_exporter_get_queue_id() {
+function citation_exporter_get_queue_id($set_id) {
   global $user;
   return format_string('citation_exporter:set:!uid:!microtime', array(
     '!uid' => $user->uid,
