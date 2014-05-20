@@ -116,8 +116,8 @@ function citation_exporter_batch_redirect($redirect, array $file_to_unlink, $set
     drupal_unlink($file);
   }
 
-  module_load_include('inc', 'citation_exporter', 'includes/db');
-  citation_exporter_drop_set($set_id);
+  $queue = DrupalQueue::get($set_id, TRUE);
+  $queue->deleteQueue();
 
   $context['results']['redirect'] = $redirect;
 }

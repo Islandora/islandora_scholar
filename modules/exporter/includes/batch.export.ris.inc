@@ -47,18 +47,25 @@ function citation_exporter_batch_get_ris_operations(array $pids) {
  * Combined MODS batch operation.
  */
 function citation_exporter_batch_combine_mods($set_id, $total, $mods_filename, array &$context) {
-  module_load_include('inc', 'citation_exporter', 'includes/db');
   if (empty($context['sandbox'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['total'] = $total;
     $context['sandbox']['mods_fragment'] = file_create_filename('mods-fragment', 'temporary://');
   }
 
-  $pids = citation_exporter_get_pids($set_id);
+  $queue = DrupalQueue::get($set_id, TRUE);
+
+  $item = $queue->claimItem();
+  $pids = array($item->data);
   _citation_exporter_batch_combine_mods($context['sandbox']['mods_fragment'], $pids);
+  $queue->deleteItem($item);
   $context['sandbox']['progress'] += count($pids);
 
   if ($context['sandbox']['progress'] < $context['sandbox']['total']) {
+    $context['message'] = t('Gathered metadata: @progress/@total', array(
+      '@progress' => $context['sandbox']['progress'],
+      '@total' => $context['sandbox']['total'],
+    ));
     $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
   }
   else {

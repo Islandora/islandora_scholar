@@ -6,60 +6,6 @@
  */
 
 /**
- * Implements hook_schema().
- */
-function citation_exporter_schema() {
-  $schema = array();
-
-  $schema['citation_exporter_sets'] = array(
-    'description' => 'Sets being exported',
-    'fields' => array(
-      'id' => array(
-        'description' => 'Identifier for a set to export.',
-        'type' => 'serial',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'updated' => array(
-        'description' => 'When this set was last touched.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-    ),
-    'primary key' => array('id'),
-  );
-  $schema['citation_exporter_pids'] = array(
-    'description' => 'PIDs belonging to each set.',
-    'fields' => array(
-      'sid' => array(
-        'description' => 'Identifier of the set.',
-        'type' => 'int',
-        'unsigned' => TRUE,
-        'not null' => TRUE,
-      ),
-      'pid' => array(
-        'description' => 'A PID in the set to export.',
-        'type' => 'varchar',
-        'length' => 64,
-        'not null' => TRUE,
-      ),
-    ),
-    'indexes' => array(
-      'set_id' => array('sid'),
-    ),
-    'foreign keys' => array(
-      'set_membership' => array(
-        'table' => 'citation_exporter_sets',
-        'columns' => array('sid' => 'id'),
-      ),
-    ),
-  );
-
-  return $schema;
-}
-
-/**
  * Install tables to use instead of temporary files.
  */
 function citation_exporter_update_7100() {
@@ -111,5 +57,19 @@ function citation_exporter_update_7100() {
 
   foreach ($schema as $table_name => $structure) {
     db_create_table($table_name, $structure);
+  }
+}
+
+/**
+ * Drop tables, as we are to use the Queue API instead.
+ */
+function citation_exporter_update_7101() {
+  $tables = array(
+    'citation_exporter_sets',
+    'citation_exporter_pids',
+  );
+
+  foreach($tables as $table) {
+    db_drop_table($table);
   }
 }

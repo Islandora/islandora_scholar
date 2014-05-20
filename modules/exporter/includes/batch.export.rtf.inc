@@ -69,11 +69,13 @@ function citation_exporter_batch_append_citations_to_text_file($set_id, $total, 
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['total'] = $total;
   }
-  module_load_include('inc', 'citation_exporter', 'includes/db');
-  $pids = citation_exporter_get_pids($set_id);
+  $queue = DrupalQueue::get($set_id, TRUE);
+
+  $item = $queue->claimItem();
+  $pids = array($item->data);
   $context['sandbox']['progress'] += count($pids);
   _citation_exporter_batch_append_citations_to_text_file($pids, $text_filename, $style);
-  citation_exporter_drop_pids($set_id, $pids);
+  $queue->deleteItem($item);
 
   if ($context['sandbox']['progress'] != $context['sandbox']['total']) {
     $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
