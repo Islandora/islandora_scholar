@@ -56,6 +56,7 @@ function citation_exporter_batch_combine_mods($set_id, $total, $mods_filename, a
 
   $pids = citation_exporter_get_pids($set_id);
   _citation_exporter_batch_combine_mods($context['sandbox']['mods_fragment'], $pids);
+  citation_exporter_drop_pids($set_id, $pids);
   $context['sandbox']['progress'] += count($pids);
 
   if ($context['sandbox']['progress'] < $context['sandbox']['total']) {
