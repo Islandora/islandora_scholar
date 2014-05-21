@@ -100,7 +100,7 @@ function islandora_scholar_admin_form() {
 
   $form['islandora_scholar_use_standard_metadata_display'] = array(
     '#title' => t('Use Standard Metadata Display'),
-    '#description' => t('Check to use standard Islandora metadata display instead of Coins.'),
+    '#description' => t('Check to use standard Islandora metadata display instead of COinS.'),
     '#type' => 'checkbox',
     '#default_value' => variable_get('islandora_scholar_use_standard_metadata_display', FALSE),
   );
