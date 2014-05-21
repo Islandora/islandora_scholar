@@ -162,15 +162,15 @@ function islandora_scholar_get_derivatives() {
 }
 
 /**
- *  Will get the metadata display.
+ * Will get the metadata display.
  *
- *  @param AbstractObject $object
- *    The object to get the display for.
- *  @param int $weight
- *    The weight of the element to return.
+ * @param AbstractObject $object
+ *   The object to get the display for.
+ * @param int $weight
+ *   The weight of the element to return.
  *
- *  @return array
- *    A renderable array.
+ * @return array
+ *   A renderable array.
  */
 function islandora_scholar_get_metadata_display($object, $weight) {
   if (variable_get('islandora_scholar_use_standard_metadata_display', FALSE)) {
