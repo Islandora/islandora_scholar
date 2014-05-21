@@ -21,6 +21,11 @@ function islandora_scholar_install() {
 function islandora_scholar_uninstall() {
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   islandora_install_solution_pack('islandora_scholar', 'uninstall');
+  // @todo add rest of variables to delete at uninstall.
+  $variables = array(
+    'islandora_scholar_use_standard_metadata_display',
+  );
+  array_walk($variables, 'variable_del');
 }
 
 /**

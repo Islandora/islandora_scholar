@@ -98,6 +98,13 @@ function islandora_scholar_admin_form() {
     '#description' => t('The amount of time in days for which to maintain a copy of the markup for a given ISSN.'),
   ));
 
+  $form['islandora_scholar_use_standard_metadata_display'] = array(
+    '#title' => t('Use Standard Metadata Display'),
+    '#description' => t('Check to use standard Islandora metadata display instead of COinS.'),
+    '#type' => 'checkbox',
+    '#default_value' => variable_get('islandora_scholar_use_standard_metadata_display', FALSE),
+  );
+
   return system_settings_form($form);
 }
 

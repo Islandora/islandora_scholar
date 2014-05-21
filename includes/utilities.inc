@@ -15,8 +15,6 @@
  *   array of values to construct view
  */
 function islandora_scholar_get_view(AbstractObject $object) {
-  module_load_include('inc', 'islandora_scholar', 'includes/citation.tab');
-  module_load_include('inc', 'islandora_scholar', 'includes/coins');
   $i = 1;
   $classes = str_replace(array(':', '-', '.'), '_', implode(' ', $object->models));
   $display = array(
@@ -35,21 +33,12 @@ function islandora_scholar_get_view(AbstractObject $object) {
     'pdf_download' => array(
       '#weight' => $i++,
     ),
-    'metadata' => array(
-      '#type' => 'fieldset',
-      '#title' => t('Metadata'),
-      '#collapsible' => TRUE,
-      '#collapsed' => TRUE,
-      '#weight' => $i++,
-      'value' => islandora_scholar_details($object),
-    ),
+    'metadata' => islandora_scholar_get_metadata_display($object, $i++),
     'suffix' => array(
       '#markup' => "</div>",
       '#weight' => $i++,
     ),
   );
-  // @TODO: Let Solr metadata and other Islandora metadata viewers interact
-  // with this.
   if (isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
     $display['citation']['#markup'] = citeproc_bibliography_from_mods(
         citeproc_default_style(), $object['MODS']->content
@@ -111,7 +100,6 @@ function islandora_scholar_get_view(AbstractObject $object) {
       '#weight' => $display['pdf_download']['#weight'],
     );
   }
-
   return array('citation.tab' => $display);
 }
 
@@ -171,4 +159,42 @@ function islandora_scholar_get_derivatives() {
     );
   }
   return $derivatives;
+}
+
+/**
+ * Will get the metadata display.
+ *
+ * @param AbstractObject $object
+ *   The object to get the display for.
+ * @param int $weight
+ *   The weight of the element to return.
+ *
+ * @return array
+ *   A renderable array.
+ */
+function islandora_scholar_get_metadata_display($object, $weight) {
+  if (variable_get('islandora_scholar_use_standard_metadata_display', FALSE)) {
+    module_load_include('inc', 'islandora', 'includes/metadata');
+    // @XXX This JS should be loaded automatically.
+    drupal_add_js('misc/form.js');
+    drupal_add_js('misc/collapse.js');
+    $metadata = islandora_retrieve_metadata_markup($object);
+    $description = islandora_retrieve_description_markup($object);
+    $display = array(
+      '#weight' => $weight,
+      '#markup' => $description . $metadata,
+    );
+  }
+  else {
+    module_load_include('inc', 'islandora_scholar', 'includes/coins');
+    $display = array(
+      '#type' => 'fieldset',
+      '#title' => t('Metadata'),
+      '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#weight' => $weight,
+      'value' => islandora_scholar_details($object),
+    );
+  }
+  return $display;
 }
