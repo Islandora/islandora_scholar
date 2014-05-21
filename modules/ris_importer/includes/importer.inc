@@ -87,8 +87,13 @@ class RISImportObject extends IslandoraImportObject {
   public static function getOne(&$file) {
     $record = '';
 
+    if (!property_exists($file, 'offset')) {
+      $file->offset = 0;
+    }
+
     // Get the first Record from the RIS File.
     $fp = fopen($file->uri, 'r');
+    fseek($fp, $file->offset);
     while (($line = fgets($fp)) !== FALSE) {
       $trimed_line = trim($line);
       // Ignore blank lines.
@@ -100,18 +105,7 @@ class RISImportObject extends IslandoraImportObject {
         }
       }
     }
-
-    // Put the remaining text into a temp file.
-    $temp_filename = file_create_filename("temp.ris", file_directory_temp());
-    $temp_file = fopen($temp_filename, 'w');
-    while (!feof($fp)) {
-      fwrite($temp_file, fread($fp, 1024));
-    }
-    fclose($fp);
-    fclose($temp_file);
-
-    // Replace the RIS file with the shorter temp file.
-    file_unmanaged_move($temp_filename, $file->uri, FILE_EXISTS_REPLACE);
+    $file->offset = ftell($fp);
 
     $record = trim($record);
     return (empty($record) ? FALSE : new self($record));
