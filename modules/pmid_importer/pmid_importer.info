@@ -4,5 +4,6 @@ package = Islandora Solution Packs
 dependencies[] = islandora_importer
 dependencies[] = islandora_scholar
 files[] = includes/importer.inc
+files[] = tests/pmid_importer.test
 version = 7.x-dev
 core = 7.x
