@@ -1,0 +1,105 @@
+<?php
+
+/**
+ * @file
+ * Ingests and purges a citation and a thesis.
+ */
+
+/**
+ * Still, y'know, ingests and purges a citation and thesis.
+ */
+class CitationThesisIngestPurgeTestCase extends IslandoraScholarWebTestCase {
+
+  /**
+   * Get test information.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => "Ingest and Purge Citation and Thesis",
+      'description' => 'Ingests and purges a citation and thesis object, and checks that the content is correct.',
+      'group' => 'Islandora Scholar',
+    );
+  }
+
+  /**
+   * Set up the tests. Enables modules, creates/logs in admin user.
+   *
+   * @see IslandoraWebTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp('islandora_basic_collection', 'imagemagick');
+    $user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    $this->drupalLogin($user);
+    $this->drupalPost('admin/config/media/image-toolkit', array('image_toolkit' => 'imagemagick'), 'Save configuration');
+    // TODO: This shoud be configurable from the test configuration.
+    $this->drupalPost('admin/config/media/image-toolkit', array('imagemagick_convert' => '/usr/bin/convert'), 'Save configuration');
+  }
+
+  /**
+   * Ingests and validates a scholar or thesis object.
+   *
+   * This is the basic framework for each test; the only difference between the
+   * two is the content model.
+   *
+   * @param string $cmodel
+   *   The content model to use (will be either ir:citationCModel or
+   *   ir:thesisCModel).
+   */
+  protected function ingestAndValidateScholarObject($cmodel) {
+    // We need a collection to ingest into.
+    $collection_pid = "islandora:{$this->randomName()}";
+    $this->createTestCollection($this->randomName(), $cmodel, $collection_pid);
+
+    // Upload a PDF, and fill out the PDF upload form.
+    $edit = array(
+      'upload_pdf_checkbox' => TRUE,
+      'files[file]' => drupal_get_path('module', 'islandora_scholar') . '/tests/fixtures/test.pdf',
+      'version' => 'PRE-PUBLICATION',
+      'usage' => 'publisher',
+      'certifying[certify]' => TRUE,
+    );
+    // Ingest the object, and check the results page.
+    $this->drupalPost("islandora/object/$collection_pid/manage/overview/ingest", $edit, 'Ingest');
+    $object_pid = $this->getObjectFromPath($this->url);
+    $pid_bits = explode(':', $object_pid->id);
+    $this->assertText("\"New Object\" (ID: {$object_pid->id}) has been ingested.", 'Post-ingest page reports successful ingest.', 'Islandora');
+    $this->assertLinkByHref("islandora/object/{$pid_bits[0]}%3A{$pid_bits[1]}/datastream/PDF/view", 0, "Image link to PDF exists on the view page.", 'Islandora');
+    $this->assertLink('PDF', 0, 'Link to download PDF exists on the view page.', 'Islandora');
+
+    // Assert that expected datastreams were created.
+    $datastreams = array(
+      'RELS-EXT',
+      'DC',
+      'TN',
+      'PDF',
+      'PREVIEW',
+      'FULL_TEXT',
+    );
+    $this->assertDatastreams($object_pid, $datastreams);
+
+    // Assert that the content of datastreams is correct.
+    $datastreams = array(
+      array('TN', 'Image'),
+      array('PDF', 'PDF'),
+      array('PREVIEW', 'Image'),
+      array('FULL_TEXT', 'Text', array($this->stoppingByWoods, 1)),
+    );
+    $this->validateDatastreams($object_pid, $datastreams);
+  }
+
+  /**
+   * Runs ingestAndValidateScholarObject() with a citation object.
+   */
+  public function testIngestPurgeCitation() {
+    $this->ingestAndValidateScholarObject('ir:citationCModel');
+  }
+
+  /**
+   * Runs ingestAndValidateScholarObject() with a thesis object.
+   */
+  public function testIngestPurgeThesis() {
+    $this->ingestAndValidateScholarObject('ir:thesisCModel');
+  }
+}

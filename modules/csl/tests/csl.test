@@ -1,0 +1,147 @@
+<?php
+
+/**
+ * @file
+ * Tests for CSL module functionality.
+ */
+
+class IslandoraScholarCSLTestCase extends IslandoraScholarWebTestCase {
+
+  protected $cslPath = "admin/islandora/solution_pack_config/csl";
+
+  protected $mlaText = <<<MLA
+Author, First et al. “Test Object Title: Test Object Subtitle”. Ed. First Editor and Second Editor. Trans. First Translator and Second Translator. Test Journal 1.1 1-100. Web.
+MLA;
+
+  /**
+   * Gets the test information.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'CSL Tests',
+      'description' => 'Tests the basic functionality of the Islandora Scholar CSL module.',
+      'group' => 'Islandora Scholar',
+    );
+  }
+
+  /**
+   * Sets up the tests.
+   *
+   * @see IslandoraScholarWebTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp('csl', 'citeproc', 'islandora_bibliography');
+    $this->user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    $this->drupalLogin($this->user);
+  }
+
+  /**
+   * Replaces an object's MODS datastream with the nearly empty fixture MODS.
+   *
+   * @param IslandoraFedoraObject $object
+   *   The object to replace the datastream for.
+   */
+  protected function replaceMODSWithEmpty(AbstractObject $object) {
+    $object->purgeDatastream('MODS');
+    $edit = array(
+      'dsid' => 'MODS',
+      'label' => 'MODS Metadata',
+      'files[file]' => drupal_get_path('module', 'islandora_scholar') . '/tests/fixtures/nearly_empty_mods.xml',
+    );
+    $this->drupalPost("islandora/object/{$object->id}/manage/datastreams/add", $edit, 'Add Datastream');
+  }
+
+  /**
+   * Tests uploading and deleting a CSL file.
+   */
+  public function testUploadDeleteCSL() {
+    // For the lazy: the TRUE parameter there makes it check for errors.
+    $this->addMLACSLStyle(TRUE);
+    $this->drupalPost($this->cslPath, array(), 'Delete');
+    $this->assertText("Successfully deleted style: MLA");
+  }
+
+  /**
+   * Tests that you can't delete the last remaining CSL style in the list.
+   */
+  public function testDeleteLastStyle() {
+    $this->drupalPost($this->cslPath, array(), 'Delete');
+    $this->assertText("Can't delete the last style: APA, there must always be at least one.");
+  }
+
+  /**
+   * Tests that the form controls to set the default style work.
+   */
+  public function testSetDefaultCSL() {
+    $this->addMLACSLStyle(FALSE);
+    $this->drupalPost($this->cslPath, array(), 'Set Default');
+    cache_clear_all();
+    $this->assertText("Successfully changed default style: APA", "CSL Styles admin screen reports that the default style was successfully changed.");
+    $this->assertTrue(variable_get('csl_default_style') === 'APA', "Default CSL style variable has been set back to APA.");
+  }
+
+  /**
+   * Tests that the default CSL adjusts if the current default is deleted.
+   */
+  public function testDeleteDefaultCSL() {
+    $this->addMLACSLStyle(FALSE);
+    $this->drupalPostByID($this->cslPath, array(), 'Delete', 'edit-table-rows-1-delete');
+    $this->assertFalse(variable_get('csl_default_style') === 'MLA', "Default CSL style adjusts when current default is deleted.");
+  }
+
+  /**
+   * Checks the response from a CSL that is pre-version-1.0.1.
+   */
+  public function testUploadOutdatedCSL() {
+    $edit = array(
+      'name' => 'Outdated Test',
+      'files[file]' => drupal_get_path('module', 'islandora_scholar') . "/tests/fixtures/outdated_mla.csl",
+    );
+    $this->drupalPost($this->cslPath, $edit, 'Add');
+    $this->assertText("The Outdated Test is not valid CSL 1.0.1 file. Problems may occur.");
+  }
+
+  /**
+   * Tests that a citation object page's citation conforms to csl_default_style.
+   */
+  public function testCitationCSLOutput() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE);
+    $this->addMLACSLStyle(FALSE);
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertText($this->mlaText, "MLA-formatted text found on citation object page.");
+  }
+
+  /**
+   * Tests that a thesis object page's citation conforms to csl_default_style.
+   */
+  public function testThesisCSLOutput() {
+    $object = $this->createScholarObject('ir:thesisCModel', TRUE);
+    $this->addMLACSLStyle(FALSE);
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertText($this->mlaText, "MLA-formatted text found on thesis object page.");
+  }
+
+  /**
+   * Tests that viewing a citation with a near-empty MODS produces no errors.
+   */
+  public function testEmptyCitationMODS() {
+    $object = $this->createScholarObject(('ir:citationCModel'));
+    $this->replaceMODSWithEmpty($object);
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertNoError();
+    $this->assertNoWarning();
+  }
+
+  /**
+   * Tests that viewing a thesis with a near-empty MODS produces no errors.
+   */
+  public function testEmptyThesisMODS() {
+    $object = $this->createScholarObject(('ir:thesisCModel'));
+    $this->replaceMODSWithEmpty($object);
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertNoError();
+    $this->assertNoWarning();
+  }
+}

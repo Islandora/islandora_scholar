@@ -1,0 +1,261 @@
+<?php
+
+/**
+ * @file
+ * Tests for the unique bookmark functionality of Scholar.
+ */
+
+/**
+ * Tests for scholar bookmark functionality.
+ */
+class IslandoraScholarBookmarkTestCase extends IslandoraScholarWebTestCase {
+
+  /**
+   * This is just the expected APA-styled bookmark text for the supplied MODS.
+   *
+   * Just throwing it up here to make test readability below easier.
+   *
+   * @var string
+   */
+  protected $bookmarkAPA = "Author, F., &amp; Author, S.  Test Object Title: Test Object Subtitle. Test Journal, 1(1), 1-100. doi:Test DOI";
+
+  /**
+   * Same thing as getBookmarkAPA(), but for MLA.
+   *
+   * @var string
+   */
+  protected $bookmarkMLA = "Author, First et al. “Test Object Title: Test Object Subtitle”. Ed. First Editor and Second Editor. Trans. First Translator and Second Translator. Test Journal 1.1 1-100. Web.";
+
+  /**
+   * Gets the test info.
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Scholar Bookmark',
+      'description' => 'Tests the unique functionality of Islandora Scholar bookmarks.',
+      'group' => 'Islandora Scholar',
+    );
+  }
+
+  /**
+   * Sets up the test.
+   *
+   * @see IslandoraScholarWebTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp('csl', 'citeproc', 'islandora_bibliography', 'islandora_bookmark', 'citation_exporter');
+    $this->user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    $this->drupalLogin($this->user);
+  }
+
+  /**
+   * Adds a list and bookmark directly to the database for the given user.
+   *
+   * @param string $cmodel
+   *   Which content model we want to create an object for.
+   * @param bool $go_to_list
+   *   If this is flagged, drupalGet() will go to the list specified.
+   *
+   * @return array
+   *   An array containing the list ID of the bookmark that was created, the PID
+   *   of the object that was put in the list, and that object's label.
+   */
+  protected function addScholarObjectAndBookmark($cmodel, $go_to_list = TRUE) {
+    module_load_include('inc', 'islandora_bookmark', 'includes/bookmark');
+
+    // Create a list.
+    $list_name = $this->randomName();
+    $object = $this->createScholarObject($cmodel, TRUE);
+    $bookmark_list = Bookmark::createNewList($list_name);
+    // Configure the list, add the bookmark.
+    $bookmark_list->bookmarkOwner = $this->loggedInUser->uid;
+    $bookmark_list->addPid($object->id);
+    $list_id = $bookmark_list->getId();
+    // Go to the list page if we were asked.
+    if ($go_to_list) {
+      $this->drupalGet("islandora-bookmark/listid/$list_id");
+    }
+    // Either way, return the list/bookmark info.
+    return array(
+      'list_id' => $list_id,
+      'pid' => $object->id,
+      'label' => $object->label,
+    );
+  }
+
+  /**
+   * Attempts to export a bookmarked object and return the exported file.
+   *
+   * @param string $type
+   *   The type of file to export ('RIS', 'RDF' or 'PDF').
+   * @param string $list_id
+   *   The ID of the bookmark list to use. This is needed to load the list page.
+   * @param string $pid
+   *   The PID of the object to export. Used to tick that object's checkbox.
+   *
+   * @return string
+   *   The contents of the export file.
+   */
+  protected function exportTestBookmark($type, $list_id, $pid) {
+    $edit = array(
+      "bookmarks[fieldset][table][$pid]" => TRUE,
+      "bookmarks[fieldset][export_options]" => $type,
+    );
+    $this->drupalPost("islandora-bookmark/listid/$list_id", $edit, 'Export selected bookmarks');
+    // The actual file shows up here. Simpletest doesn't follow the redirect or
+    // download the file, sadly, so we grab the content manually.
+    $this->drupalGet('islandora/citation/export');
+    return $this->drupalGetContent();
+  }
+
+  /**
+   * Grabs the text content of a PDF (in string form) using pdftotext.
+   *
+   * PDFs have gross things in them like timestamps, so we can't just compare
+   * raw output.
+   *
+   * @param string $pdf_string
+   *   The PDF to convert, as a string.
+   *
+   * @return bool|string
+   *   The converted PDF on success, and FALSE on failure.
+   */
+  protected function getTextFromPDF($pdf_string) {
+    // This is basically mostly aped from the pdftotext converter in the PDF
+    // solution pack.
+    $temp_pdf = file_create_filename('original.pdf', 'temporary://');
+    file_unmanaged_save_data($pdf_string, $temp_pdf);
+    $source = drupal_realpath($temp_pdf);
+    $executable = variable_get('islandora_pdf_path_to_pdftotext', '/usr/bin/pdftotext');
+    $temp_txt = file_create_filename('fulltext.txt', 'temporary://');
+    $derivative_file_uri = drupal_realpath($temp_txt);
+    $command = "$executable $source $derivative_file_uri";
+    exec($command, $execout, $returncode);
+    file_unmanaged_delete($temp_pdf);
+    if ($returncode === 0) {
+      return file_get_contents($derivative_file_uri);
+    }
+    $this->fail("pdftotext failed to convert the input PDF (return code $returncode)");
+    return FALSE;
+  }
+
+  /**
+   * A quick helper function to grab the contents of test export file templates.
+   *
+   * @param string $type
+   *   The type of exported file, whether 'pdf', 'ris' or 'rtf'.
+   *
+   * @return string
+   *   The contents of the file used as an expected export template.
+   */
+  protected function expectedContentsOf($type) {
+    return file_get_contents(DRUPAL_ROOT . "/" . drupal_get_path('module', 'islandora_scholar') . "/tests/fixtures/test_export.$type");
+  }
+
+  /**
+   * Tests adding a citation bookmark.
+   */
+  public function testAddCitationBookmark() {
+    $list_info = $this->addScholarObjectAndBookmark('ir:citationCModel');
+    $this->assertLink($list_info['label']);
+  }
+
+  /**
+   * Tests adding a thesis bookmark.
+   */
+  public function testAddThesisBookmark() {
+    $list_info = $this->addScholarObjectAndBookmark('ir:thesisCModel');
+    $this->assertLink($list_info['label']);
+  }
+
+  /**
+   * Tests the content of a citation bookmark's metadata.
+   */
+  public function testCitationBookmarkMetadata() {
+    $list_info = $this->addScholarObjectAndBookmark('ir:citationCModel');
+    $this->assertText($this->bookmarkAPA, "Citation bookmark metadata contains appropriately-formatted citation metadata.", 'Islandora');
+  }
+
+  /**
+   * Tests the content of a thesis bookmark's metadata.
+   */
+  public function testThesisBookmarkMetadata() {
+    $list_info = $this->addScholarObjectAndBookmark('ir:thesisCModel');
+    $this->assertText($this->bookmarkAPA, "Thesis bookmark metadata contains appropriately-formatted citation metadata.", 'Islandora');
+  }
+
+  /**
+   * Tests the content of an RIS exported from a citation.
+   */
+  public function testCitationExportRIS() {
+    $list_info = $this->addScholarObjectAndBookmark('islandora:citationCModel', FALSE);
+    $ris = $this->exportTestBookmark('RIS', $list_info['list_id'], $list_info['pid']);
+    $this->assertEqual($ris, $this->expectedContentsOf('ris'), "RIS citation export produces expected content.", 'Islandora');
+  }
+
+  /**
+   * Tests the content of an RIS exported from a thesis.
+   */
+  public function testThesisExportRIS() {
+    $list_info = $this->addScholarObjectAndBookmark('islandora:thesisCModel', FALSE);
+    $ris = $this->exportTestBookmark('RIS', $list_info['list_id'], $list_info['pid']);
+    $this->assertEqual($ris, $this->expectedContentsOf('ris'), "RIS thesis export produces expected content.", 'Islandora');
+  }
+
+  /**
+   * Tests the content of an RTF exported from a citation.
+   */
+  public function testCitationExportRTF() {
+    $list_info = $this->addScholarObjectAndBookmark('islandora:citationCModel', FALSE);
+    $rtf = $this->exportTestBookmark('RTF', $list_info['list_id'], $list_info['pid']);
+    $this->assertEqual($rtf, $this->expectedContentsOf('rtf'), "RTF citation export produces expected content.", 'Islandora');
+  }
+
+  /**
+   * Tests the content of an RTF exported from a thesis.
+   */
+  public function testThesisExportRTF() {
+    $list_info = $this->addScholarObjectAndBookmark('islandora:thesisCModel', FALSE);
+    $rtf = $this->exportTestBookmark('RTF', $list_info['list_id'], $list_info['pid']);
+    $this->assertEqual($rtf, $this->expectedContentsOf('rtf'), "RTF thesis export produces expected content.", 'Islandora');
+  }
+
+  /**
+   * Tests the content of a PDF exported from a citation.
+   */
+  public function testCitationExportPDF() {
+    $list_info = $this->addScholarObjectAndBookmark('islandora:citationCModel', FALSE);
+    $pdf = $this->exportTestBookmark('PDF', $list_info['list_id'], $list_info['pid']);
+    $this->assertEqual($this->getTextFromPDF($pdf), $this->expectedContentsOf('pdf'), "PDF citation export produces expected content.", 'Islandora');
+  }
+
+  /**
+   * Tests the content of a PDF exported from a thesis.
+   */
+  public function testThesisExportPDF() {
+    $list_info = $this->addScholarObjectAndBookmark('islandora:thesisCModel', FALSE);
+    $pdf = $this->exportTestBookmark('PDF', $list_info['list_id'], $list_info['pid']);
+    $this->assertEqual($this->getTextFromPDF($pdf), $this->expectedContentsOf('pdf'), "PDF thesis export produces expected content.", 'Islandora');
+  }
+
+  /**
+   * Tests that the bookmark page respects csl_default_style for citations.
+   */
+  public function testCitationModifyCSL() {
+    $this->addMLACSLStyle(FALSE);
+    $list_info = $this->addScholarObjectAndBookmark('ir:citationCModel');
+    $this->assertText($this->bookmarkMLA, "Citation bookmark metadata respects the csl_default_style variable.", 'Islandora');
+  }
+
+  /**
+   * Tests that the bookmark page respects csl_default_style for theses.
+   */
+  public function testThesisModifyCSL() {
+    $this->addMLACSLStyle(FALSE);
+    $list_info = $this->addScholarObjectAndBookmark('ir:thesisCModel');
+    $this->assertText($this->bookmarkMLA, "Thesis bookmark metadata respects the csl_default_style variable.", 'Islandora');
+  }
+
+
+}

@@ -1,0 +1,425 @@
+<?php
+
+/**
+ * @file
+ * Tests for the Scholar Embargo module stuff.
+ */
+
+/**
+ * Class IslandoraScholarEmbargoTestCase.
+ */
+class IslandoraScholarEmbargoTestCase extends IslandoraScholarWebTestCase {
+
+  /**
+   * The user that gets logged in during setUp(), in case we need that info.
+   * @var object
+   */
+  protected $user;
+
+  /**
+   * Gets test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Scholar Embargo Tests',
+      'description' => 'Tests the functionality of the Islandora Scholar Embargo module.',
+      'group' => 'Islandora Scholar',
+    );
+  }
+
+  /**
+   * Sets up the test.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public function setUp() {
+    parent::setUp(array('islandora_scholar_embargo', 'imagemagick'));
+    $this->user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    $this->drupalLogin($this->user);
+    $this->drupalPost('admin/config/media/image-toolkit', array('image_toolkit' => 'imagemagick'), 'Save configuration');
+    $this->drupalPost('admin/config/media/image-toolkit', array('imagemagick_convert' => '/usr/bin/convert'), 'Save configuration');
+  }
+
+  /**
+   * Returns a formatted $edit array for drupalPost()ing to add an embargo.
+   *
+   * This just seemed easier than manually typing one out each time; this way,
+   * it's easy to keep track of what parameters are in place for the embargo
+   * management page.
+   *
+   * @param bool $pdf
+   *   Whether the embargo should be PDF-level only.
+   * @param bool $indefinite
+   *   Whether the embargo should be indefinite. If not, it creates an embargo
+   *   set to expire one year from the time the test is run.
+   * @param bool $update
+   *   Whether we're updating an existing embargo.
+   * @param bool $lift
+   *   Whether we're lifting an existing embargo.
+   *
+   * @return array
+   *   A lovely formatted array for adding an embargo.
+   */
+  protected function getEditArray($pdf = FALSE, $indefinite = TRUE, $update = FALSE, $lift = FALSE) {
+    // If we're lifting the embargo, just do that.
+    if ($lift) {
+      return array(
+        'update_options' => 'lift_embargo',
+      );
+    }
+
+    // Otherwise, assemble options from what we want.
+    $edit = array();
+    if ($pdf && !$update) {
+      $edit['dsid'] = 'PDF';
+    }
+    if ($update) {
+      $edit['update_options'] = 'update_date';
+    }
+    if ($indefinite) {
+      $edit['update_date_options'] = 'indefinite_embargo';
+    }
+    else {
+      $edit['update_date_options'] = 'change_embargo_date';
+      $edit['embargo_date[year]'] = date('Y') + 1;
+    }
+    return $edit;
+  }
+
+  /**
+   * Creates a user that can view Islandora objects and logs in as it.
+   *
+   * @return object
+   *   The created user.
+   */
+  protected function logInAsRandomUser() {
+    $random_user = $this->drupalCreateUser(array(ISLANDORA_VIEW_OBJECTS));
+    $this->drupalLogin($random_user);
+    return $random_user;
+  }
+
+  /**
+   * Returns an array of dates pertinent to an embargo set one year from today.
+   *
+   * This is called the moment it is needed, rather than being set globally
+   * during setUp(), to handle the ridiculous edge case where the test might be
+   * run just before midnight on New Year's Eve, which, if that's what you're
+   * up to right now, maybe you should head out on the street and kiss someone
+   * and have some champagne and watch the fireworks instead of sitting in front
+   * of your computer waiting for your build to finish running tests.
+   *
+   * @return array
+   *   An array containing four strings:
+   *   'label' (one year from today, formatted as 'F m, Y'),
+   *   'email_notify' (one year from today, formatted as it is received in an
+   *   expiry notification email, i.e. 'D, d/m/y - H:i'),
+   *   'iso_expire' (one year from today, formatted as 'Y-m-dT00:00:00Z'), and
+   *   'iso_notify' (one year from today minus ten days, formatted as
+   *   'Y-m-dT00:00:00Z').
+   */
+  protected function getOneYearFromToday() {
+    // Days * hours * minutes * seconds makes Unix time.
+    $next_year = time() + (365 * 24 * 60 * 60);
+    $notify_date = $next_year - (10 * 24 * 60 * 60);
+    return array(
+      'label' => gmdate('M d, Y', $next_year),
+      'email_notify' => gmdate('D, d/m/y - H:i', $next_year),
+      'iso_expire' => gmdate("Y-m-d", $next_year) . "T00:00:00Z",
+      'iso_notify' => gmdate("Y-m-d", $notify_date) . "T00:00:00Z",
+    );
+  }
+
+  /**
+   * Adds a citation-level embargo and then views it as an embargoed user.
+   */
+  public function testAddCitationObjectLevelEmbargo() {
+    // Rather than putting in comments on every test, I'm just going to put
+    // them on repeating elements. We're going to see this a few times: create
+    // an object and embargo it.
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE);
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(FALSE, FALSE), 'Update');
+    $embargo_date = $this->getOneYearFromToday();
+    $this->assertText("A object-level embargo has been set on {$object->label} ({$object->id}) until {$embargo_date['label']}.", "Embargo management page reports successful embargo addition.", 'Islandora');
+    // We're going to see this a few times too: log in as a random user and see
+    // if we can hit pages on an object.
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+    $this->drupalGet("islandora/object/{$object->id}/datastream/PDF/download/citation.pdf");
+    $this->assertResponse(403);
+    // This'll show up as well: checking the RELS for embargo stuff.
+    $expiry = $object->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $notification = $object->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+    $this->assertTrue($expiry[0]['object']['value'] === $embargo_date['iso_expire'], "Object expiry relationship date set correctly.", 'Islandora');
+    $this->assertTrue($notification[0]['object']['value'] === $embargo_date['iso_notify'], "Object expiry relationship notification date set correctly.", 'Islandora');
+  }
+
+  /**
+   * Adds a PDF-level embargo and then views it as an embargoed user.
+   */
+  public function testAddCitationPDFLevelEmbargo() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE);
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(TRUE, FALSE), 'Update');
+    $embargo_date = $this->getOneYearFromToday();
+    $this->assertText("A PDF datastream embargo has been set on {$object->label} ({$object->id}) until {$embargo_date['label']}", "Embargo management page reports successful embargo addition.", 'Islandora');
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(200);
+    $this->drupalGet("islandora/object/{$object->id}/datastream/PDF/download/citation.pdf");
+    $this->assertResponse(403);
+    // The cache needs to be reset to find anything in the RELS-INT.
+    $connection = islandora_get_tuque_connection();
+    $connection->cache->resetCache();
+    $datastream = islandora_datastream_load('PDF', $object->id);
+    $expiry = $datastream->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $notification = $datastream->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+    $this->assertTrue($expiry[0]['object']['value'] === $embargo_date['iso_expire'], "Object expiry relationship date set correctly.", 'Islandora');
+    $this->assertTrue($notification[0]['object']['value'] === $embargo_date['iso_notify'], "Object expiry relationship notification date set correctly.", 'Islandora');
+  }
+
+  /**
+   * Tests that an embargo can be added to a thesis object.
+   *
+   * Theses aren't able to be embargoed by default, so this also tests that the
+   * form controls for allowing content models to be embargoed are working.
+   */
+  public function testAddThesisEmbargo() {
+    // Add thesis as an allowed content model.
+    $edit = array(
+      'the_table[ir:thesisCModel]' => TRUE,
+    );
+    $this->drupalPost('admin/islandora/solution_pack_config/embargo', $edit, 'Configure Embargo');
+    // Then just go through the same ol' stuff.
+    $object = $this->createScholarObject('ir:thesisCModel', TRUE, TRUE);
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(), 'Update');
+    $this->assertText("A object-level embargo has been set on {$object->label} ({$object->id}) indefinitely.", "Embargo management page reports successful embargo addition.", 'Islandora');
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+    $this->drupalGet("islandora/object/{$object->id}/datastream/PDF/download/citation.pdf");
+    $this->assertResponse(403);
+    $expiry = $object->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $this->assertTrue($expiry[0]['object']['value'] === 'indefinite', "Object expiry relationship date set correctly.", 'Islandora');
+  }
+
+  /**
+   * Tests that an embargoed object can be accessed from the management list.
+   */
+  public function testManageEmbargoedItemLinks() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE);
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(), 'Update');
+    $this->drupalGet('admin/islandora/solution_pack_config/embargo/list');
+    $object_parts = explode(':', $object->id);
+    $this->assertLinkByHref("/islandora/object/{$object_parts[0]}%3A{$object_parts[1]}", 0, "Link found on the embargoed item management page leading to embargoed object view page.");
+    $this->assertLinkByHref("/islandora/object/{$object_parts[0]}%3A{$object_parts[1]}/manage/embargo", 0, "Link found on the embargoed item management page leading to embargoed object management page.");
+  }
+
+  /**
+   * Tests that changing the parameters of an embargo works.
+   */
+  public function testUpdateEmbargo() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE);
+    // First embargo is object-level and indefinite.
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(), 'Update');
+    // Second embargo is object-level but expires.
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(FALSE, FALSE, TRUE), 'Update');
+    $embargo_date = $this->getOneYearFromToday();
+    $this->assertText("A object-level embargo has been set on {$object->label} ({$object->id}) until {$embargo_date['label']}.");
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+    $expiry = $object->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $notification = $object->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+    $this->assertTrue($expiry[0]['object']['value'] === $embargo_date['iso_expire'], "Object expiry relationship date set correctly.", 'Islandora');
+    $this->assertTrue($notification[0]['object']['value'] === $embargo_date['iso_notify'], "Object expiry relationship notification date set correctly.", 'Islandora');
+  }
+
+  /**
+   * Tests that lifting an embargo works.
+   */
+  public function testLiftEmbargo() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE);
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(), 'Update');
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", array('update_options' => 'lift_embargo'), 'Update');
+    // Check that if we ask for embargo relationships, that they're gone.
+    $expiry_rels = $object->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+    $notification_rels = $object->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+    $this->assertTrue(empty($expiry_rels), "Object with lifted embargo no longer contains embargo date.", 'Islandora');
+    $this->assertTrue(empty($notification_rels), "Object with lifted embargo no longer contains embargo notification date.", 'Islandora');
+    // Check that the object's owner was sent an email.
+    $this->assertMail('to', $this->user->mail, "Embargo lift notification email sent to the object owner's email.");
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Tests that an object embargo doesn't expire if it shouldn't.
+   */
+  public function testObjectEmbargoPersists() {
+    $object = $this->createScholarObject('ir:citationCModel');
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(FALSE, FALSE), 'Update');
+
+    $this->cronRun();
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+  }
+
+  /**
+   * Tests that a PDF embargo doesn't expire if it shouldn't.
+   */
+  public function testPDFEmbargoPersists() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE, FALSE, FALSE);
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(TRUE, FALSE), 'Update');
+
+    $this->cronRun();
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(200);
+    $this->drupalGet("islandora/object/{$object->id}/datastream/PDF/download/citation.pdf");
+    $this->assertResponse(403);
+  }
+
+  /**
+   * Tests that an object embargo sends a pre-expiry notification properly.
+   */
+  public function testObjectEmbargoNotification() {
+    $object = $this->createScholarObject('ir:citationCModel');
+    $pid_parts = explode(":", $object->id);
+
+    // Fudge the expiry ahead 2 days; the notification will be ten days prior.
+    islandora_scholar_embargo_set_embargo($object, NULL, gmdate("Y-m-d\TH:i:s\Z", time() + (48 * 60 * 60)));
+    $this->cronRun();
+    $captured_emails = variable_get('drupal_test_email_collector', array());
+    $email = end($captured_emails);
+    $this->assertTrue($email['id'] == 'islandora_scholar_embargo_pre_expiry', "Email sent is of type pre-expiry.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], $object->label) !== FALSE, "Email sent contains accurate object label.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], "/islandora/object/{$pid_parts[0]}%3A{$pid_parts[1]}") !== FALSE, "Email sent contains accurate link to object.", 'Islandora');
+    $this->assertMail('to', $this->user->mail, "Embargo notification email sent to object owner.");
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+  }
+
+  /**
+   * Tests that an object embargo sends a pre-expiry notification properly.
+   */
+  public function testPDFEmbargoNotification() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE, FALSE, FALSE);
+    $pid_parts = explode(":", $object->id);
+
+    // Fudge the expiry ahead 2 days; the notification will be ten days prior.
+    islandora_scholar_embargo_set_embargo($object, 'PDF', gmdate("Y-m-d\TH:i:s\Z", time() + (48 * 60 * 60)));
+    $this->cronRun();
+    $captured_emails = variable_get('drupal_test_email_collector', array());
+    $email = end($captured_emails);
+    $this->assertTrue($email['id'] == 'islandora_scholar_embargo_pre_expiry', "Email sent is of type pre-expiry.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], $object->label) !== FALSE, "Email sent contains accurate object label.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], 'PDF') !== FALSE, "Appropriate email sent for datastream-level embargo.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], "/islandora/object/{$pid_parts[0]}%3A{$pid_parts[1]}") !== FALSE, "Email sent contains accurate link to object.", 'Islandora');
+    $this->assertMail('to', $this->user->mail, "Embargo notification email sent to object owner.");
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(200);
+    $this->drupalGet("islandora/object/{$object->id}/datastream/PDF/download/citation.pdf");
+    $this->assertResponse(403);
+  }
+
+  /**
+   * Tests that an object embargo sends an expiry notice properly.
+   */
+  public function testObjectEmbargoExpiry() {
+    $object = $this->createScholarObject('ir:citationCModel');
+    $pid_parts = explode(":", $object->id);
+
+    // Fudge the expiry date back 2 days; it should expire when cron is run.
+    islandora_scholar_embargo_set_embargo($object, NULL, gmdate("Y-m-d\TH:i:s\Z", time() - (48 * 60 * 60)));
+    drupal_cron_run();
+    $captured_emails = variable_get('drupal_test_email_collector', array());
+    $email = end($captured_emails);
+    $this->assertTrue($email['id'] == 'islandora_scholar_embargo_lifted_embargo', "Email sent is of type post-expiry.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], $object->label) !== FALSE, "Email sent contains accurate object label.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], "/islandora/object/{$pid_parts[0]}%3A{$pid_parts[1]}") !== FALSE, "Email sent contains accurate link to object.", 'Islandora');
+    $this->assertMail('to', $this->user->mail, "Embargo expiry email sent to object owner.");
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Tests that a PDF embargo sends an expiry notice properly.
+   */
+  public function testPDFEmbargoExpiry() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE, FALSE, FALSE);
+    $pid_parts = explode(":", $object->id);
+
+    // Fudge the expiry date back 2 days; it should expire when cron is run.
+    islandora_scholar_embargo_set_embargo($object, 'PDF', gmdate("Y-m-d\TH:i:s\Z", time() - (48 * 60 * 60)));
+    drupal_cron_run();
+    $captured_emails = variable_get('drupal_test_email_collector', array());
+    $email = end($captured_emails);
+    $this->assertTrue($email['id'] == 'islandora_scholar_embargo_lifted_embargo', "Email sent is of type post-expiry.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], $object->label) !== FALSE, "Email sent contains accurate object label.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], 'PDF') !== FALSE, "Appropriate email sent for datastream-level embargo.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], "/islandora/object/{$pid_parts[0]}%3A{$pid_parts[1]}") !== FALSE, "Email sent contains accurate link to object.", 'Islandora');
+    $this->assertMail('to', $this->user->mail, "Embargo expiry email sent to object owner.");
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Tests that an email is sent when an object embargo is lifted manually.
+   */
+  public function testObjectEmbargoLiftNotification() {
+    $object = $this->createScholarObject('ir:citationCModel');
+    $pid_parts = explode(":", $object->id);
+
+    // Fudge the expiry ahead 2 days and then manually remove it.
+    islandora_scholar_embargo_set_embargo($object, NULL, gmdate("Y-m-d\TH:i:s\Z", time() + (48 * 60 * 60)));
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(NULL, NULL, NULL, TRUE), 'Update');
+    $captured_emails = variable_get('drupal_test_email_collector', array());
+    $email = end($captured_emails);
+    $this->assertTrue($email['id'] == 'islandora_scholar_embargo_lifted_embargo', "Email sent is of type post-expiry.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], $object->label) !== FALSE, "Email sent contains accurate object label.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], "/islandora/object/{$pid_parts[0]}%3A{$pid_parts[1]}") !== FALSE, "Email sent contains accurate link to object.", 'Islandora');
+    $this->assertMail('to', $this->user->mail, "Embargo expiry email sent to object owner.");
+  }
+
+  /**
+   * Tests that an email is sent when a PDF embargo is lifted manually.
+   */
+  public function testPDFEmbargoLiftNotification() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE, FALSE, FALSE);
+    $pid_parts = explode(":", $object->id);
+
+    // Fudge the expiry ahead 2 days and then manually remove it.
+    islandora_scholar_embargo_set_embargo($object, 'PDF', gmdate("Y-m-d\TH:i:s\Z", time() + (48 * 60 * 60)));
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(NULL, NULL, NULL, TRUE), 'Update');
+    $captured_emails = variable_get('drupal_test_email_collector', array());
+    $email = end($captured_emails);
+    $this->assertTrue($email['id'] == 'islandora_scholar_embargo_lifted_embargo', "Email sent is of type post-expiry.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], $object->label) !== FALSE, "Email sent contains accurate object label.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], 'PDF') !== FALSE, "Appropriate email sent for datastream-level embargo.", 'Islandora');
+    $this->assertTrue(strpos($email['body'], "/islandora/object/{$pid_parts[0]}%3A{$pid_parts[1]}") !== FALSE, "Email sent contains accurate link to object.", 'Islandora');
+    $this->assertMail('to', $this->user->mail, "Embargo expiry email sent to object owner.");
+  }
+
+  /**
+   * Tests that an indefinite embargo is not lifted during the expiry cron job.
+   */
+  public function testIndefiniteEmbargoDoesntExpire() {
+    $object = $this->createScholarObject('ir:citationCModel', TRUE, TRUE);
+    $this->drupalPost("islandora/object/{$object->id}/manage/embargo", $this->getEditArray(), 'Update');
+    $this->cronRun();
+    $this->logInAsRandomUser();
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+    $this->drupalGet("islandora/object/{$object->id}/datastream/PDF/download/citation.pdf");
+    $this->assertResponse(403);
+  }
+
+}

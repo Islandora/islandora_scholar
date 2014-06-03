@@ -1,0 +1,165 @@
+<?php
+
+/**
+ * @file
+ * Permissions tests for scholar embargo.
+ */
+
+class IslandoraScholarEmbargoPermissionsTestCase extends IslandoraScholarWebTestCase {
+
+  /**
+   * Gets test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Scholar Embargo Permssions Tests',
+      'description' => 'Tests the permissions for the scholar embargo module.',
+      'group' => 'Islandora Scholar',
+    );
+  }
+
+  /**
+   * Sets up the test.
+   *
+   * @see IslandoraScholarWebTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp(array('islandora_scholar_embargo'));
+  }
+
+  /**
+   * Tests that users with permission can manage their own citation embargo.
+   */
+  public function testCanManageOwnEmbargoedCitation() {
+    $user = $this->createUserAndLogin(array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED));
+    $object = $this->createScholarObject('ir:citationCModel');
+    $object->owner = $user->name;
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+    // Can they still hit the page if the object is embargoed? Most test methods
+    // that contain 'Can' instead of 'Cant' in the name perform this check.
+    islandora_scholar_embargo_set_embargo($object);
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Tests that users with permission can manage their own citation embargo.
+   */
+  public function testCanManageOwnEmbargoedThesis() {
+    $user = $this->createUserAndLogin(array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED));
+    $object = $this->createScholarObject('ir:thesisCModel');
+    $object->owner = $user->name;
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+    islandora_scholar_embargo_set_embargo($object);
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Tests users without permission can't manage their own citation embargo.
+   */
+  public function testCantManageOwnEmbargoedCitation() {
+    $this->createUserAndLogin(array());
+    $object = $this->createScholarObject('ir:citationCModel');
+    $object->owner = $this->randomName();
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(403);
+    // Because we're messing around with the object's owner, we'll need to
+    // delete the object manually, as deleteUserCreatedObjects() won't catch it.
+    islandora_delete_object($object);
+  }
+
+  /**
+   * Tests users without permission can't manage their own thesis embargo.
+   */
+  public function testCantManageOwnEmbargoedThesis() {
+    $this->createUserAndLogin(array());
+    $object = $this->createScholarObject('ir:thesisCModel');
+    $object->owner = $this->randomName();
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(403);
+    islandora_delete_object($object);
+  }
+
+  /**
+   * Tests users with permission can only manage their own citation embargos.
+   */
+  public function testCantManageUnownedCitationEmbargo() {
+    $this->createUserAndLogin(array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED));
+    $object = $this->createScholarObject('ir:citationCModel');
+    $object->owner = $this->randomName();
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(403);
+    islandora_delete_object($object);
+  }
+
+  /**
+   * Tests users with permission can only manage their own thesis embargos.
+   */
+  public function testCantManageUnownedThesisEmbargo() {
+    $this->createUserAndLogin(array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED));
+    $object = $this->createScholarObject('ir:thesisCModel');
+    $object->owner = $this->randomName();
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(403);
+    islandora_delete_object($object);
+  }
+
+  /**
+   * Tests that users with permission can manage any citation embargo.
+   */
+  public function testCanManageAnyCitationEmbargo() {
+    $this->createUserAndLogin(array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY));
+    $object = $this->createScholarObject('ir:citationCModel');
+    $object->owner = $this->randomName();
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+    islandora_scholar_embargo_set_embargo($object);
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+    islandora_delete_object($object);
+  }
+
+  /**
+   * Tests that users with permission can manage any citation embargo.
+   */
+  public function testCanManageAnyThesisEmbargo() {
+    $this->createUserAndLogin(array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY));
+    $object = $this->createScholarObject('ir:thesisCModel');
+    $object->owner = $this->randomName();
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+    islandora_scholar_embargo_set_embargo($object);
+    $this->drupalGet("islandora/object/{$object->id}/manage/embargo");
+    $this->assertResponse(200);
+    islandora_delete_object($object);
+  }
+
+  /**
+   * Tests users without override permissions can't view embargoed citations.
+   */
+  public function testCantOverrideCitationEmbargoView() {
+    $user = $this->createUserAndLogin(array());
+    $object = $this->createScholarObject('ir:citationCModel');
+    $object->owner = $user->name;
+    islandora_scholar_embargo_set_embargo($object);
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+  }
+
+  /**
+   * Tests users without override permissions can't view embargoed theses.
+   */
+  public function testCantOverrideThesisEmbargoView() {
+    $user = $this->createUserAndLogin(array());
+    $object = $this->createScholarObject('ir:thesisCModel');
+    $object->owner = $user->name;
+    islandora_scholar_embargo_set_embargo($object);
+    $this->drupalGet("islandora/object/{$object->id}");
+    $this->assertResponse(403);
+  }
+}

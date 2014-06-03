@@ -1,0 +1,36 @@
+
+<oai_dc:dc xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.openarchives.org/OAI/2.0/oai_dc/ http://www.openarchives.org/OAI/2.0/oai_dc.xsd">
+  <dc:title>Test Object Title: Test Object Subtitle</dc:title>
+  <dc:title>Test Object Abbreviated Title</dc:title>
+  <dc:subject>Test Topic 2</dc:subject>
+  <dc:subject>Test Topic 1</dc:subject>
+  <dc:description>Test Object Abstract</dc:description>
+  <dc:description>Test Object Type of Work 2</dc:description>
+  <dc:description>Test Object Type of Work 1</dc:description>
+  <dc:description>Test Publication Status</dc:description>
+  <dc:description>Test Notes</dc:description>
+  <dc:publisher>Test Object Publisher</dc:publisher>
+  <dc:contributor>Author, First (First Author) (author)</dc:contributor>
+  <dc:contributor>Author, Second (Second Author) (author)</dc:contributor>
+  <dc:contributor>Group Author 2</dc:contributor>
+  <dc:contributor>Group Author 1</dc:contributor>
+  <dc:contributor>Editor, First (editor)</dc:contributor>
+  <dc:contributor>Editor, Second (editor)</dc:contributor>
+  <dc:contributor>Translator, First (translator)</dc:contributor>
+  <dc:contributor>Translator, Second (translator)</dc:contributor>
+  <dc:date>Date Issued</dc:date>
+  <dc:type>Test Object Publication Type</dc:type>
+  <dc:type>Text</dc:type>
+  <dc:identifier>ir:12</dc:identifier>
+  <dc:identifier>Test Object URL</dc:identifier>
+  <dc:identifier>isbn: Test ISBN</dc:identifier>
+  <dc:identifier>issn: Test ISSN</dc:identifier>
+  <dc:identifier>doi: Test DOI</dc:identifier>
+  <dc:identifier>accessnum: Test Accession Number</dc:identifier>
+  <dc:identifier>pmc: Test PMCID</dc:identifier>
+  <dc:identifier>uri: Test URI</dc:identifier>
+  <dc:identifier>citekey: Test Citation Key</dc:identifier>
+  <dc:language>eng</dc:language>
+  <dc:relation>Test Journal--Tst. Jnl.--Test Journal ISSN--Test Journal Serial Number</dc:relation>
+  <dc:rights>Test Object Copyright Information</dc:rights>
+</oai_dc:dc>

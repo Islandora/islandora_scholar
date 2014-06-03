@@ -1,0 +1,27 @@
+<?php
+/**
+ * @file
+ * RIS importer tests.
+ */
+
+class RISImporterTestCase extends IslandoraScholarImporterTestCase {
+
+  protected $moduleName = 'ris_importer';
+
+  /**
+   * Returns test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return IslandoraScholarImporterTestCase::populateGetInfo('ris_importer');
+  }
+
+  /**
+   * Attempts to import several records from an RIS file.
+   */
+  public function testImportRISUsingFile() {
+    $this->importObjects(array('files[file]' => drupal_get_path('module', 'islandora_scholar') . "/tests/fixtures/ris_import.ris"));
+    $this->assertBatchImport(2);
+  }
+}
