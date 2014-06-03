@@ -108,11 +108,11 @@ class PMIDImportObject extends IslandoraImportObject {
 
     $pubmed_url = 'http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi';
     $url = url($pubmed_url, array(
-             'query' => array(
-               'db' => 'pubmed',
-               'retmode' => 'xml',
-               'id' => $id,
-             )));
+      'query' => array(
+        'db' => 'pubmed',
+        'retmode' => 'xml',
+        'id' => $id,
+      )));
     $response = drupal_http_request($url);
     if ($response->data) {
       $pubmed_xml = simplexml_load_string($response->data);

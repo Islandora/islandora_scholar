@@ -116,12 +116,12 @@ class DOIImportObject extends IslandoraImportObject {
     $openurl = variable_get('doi_importer_openurl', 'http://www.crossref.org/openurl');
     $openurl_pid = variable_get('doi_importer_openurl_pid', 'user@example.com');
     $url = url($openurl, array(
-             'query' => array(
-               'noredirect' => 'true',
-               'pid' => $openurl_pid,
-               'format' => 'unixref',
-               'id' => ((strpos($id, 'doi:') === 0) ? $id : 'doi:' . $id),
-             )));
+      'query' => array(
+        'noredirect' => 'true',
+        'pid' => $openurl_pid,
+        'format' => 'unixref',
+        'id' => ((strpos($id, 'doi:') === 0) ? $id : 'doi:' . $id),
+      )));
 
     $response = drupal_http_request($url);
     $headers = array_change_key_case($response->headers);

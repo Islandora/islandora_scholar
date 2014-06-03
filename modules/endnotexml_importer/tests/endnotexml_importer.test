@@ -5,8 +5,9 @@
  * EndNote XML importer tests.
  */
 
-
-
+/**
+ * Class EndNoteXMLImporterTestCase.
+ */
 class EndNoteXMLImporterTestCase extends IslandoraScholarImporterTestCase {
 
   protected $moduleName = 'endnotexml_importer';
