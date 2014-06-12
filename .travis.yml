@@ -17,6 +17,7 @@ before_install:
   - git clone -b 7.x git://github.com/Islandora/islandora_xacml_editor.git
   - git clone -b 7.x git://github.com/Islandora/islandora_bookmark.git
   - git clone -b 7.x git://github.com/Islandora/islandora_batch.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_solution_pack_collection.git
   - export ISLANDORA_DIR=$HOME/islandora
   - $HOME/islandora/tests/scripts/travis_setup.sh
   - cd $HOME/drupal-*
@@ -26,6 +27,7 @@ before_install:
   - ln -s $HOME/islandora_xacml_editor sites/all/modules/islandora_xacml_editor
   - ln -s $HOME/islandora_bookmark sites/all/modules/islandora_bookmark
   - ln -s $HOME/islandora_batch sites/all/modules/islandora_batch
+  - ln -s $HOME/islandora_solution_pack_collection sites/all/modules/islandora_solution_pack_collection
   - drush cc all
   - drush -u 1 en --yes islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
 script:
