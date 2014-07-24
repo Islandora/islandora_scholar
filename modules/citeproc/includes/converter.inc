@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Convert mods data into json for citeproc-js
+ * Convert mods data into JSON for citeproc-js.
  */
 
 /**
@@ -683,7 +683,7 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
     _try_parse_date($output['issued'], $date_created);
   }
 
-  if (!empty($season) && count($output['issued']['date-parts'][0]) == 1) {
+  if (!empty($season) && isset($output['issued']['date-parts'][0]) && count($output['issued']['date-parts'][0]) == 1) {
     $seasons = array('', 'Spring', 'Summer', 'Fall', 'Winter');
     $output['issued']['season'] = (string) array_search($season, $seasons);
   }
