@@ -588,8 +588,8 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
     // If the tpye is empty, it is a combined name last, first.
     if (empty($type)) {
       $names = explode(", ", $content);
-      $output['family'] = $names[0];
-      $output['given'] = $names[1];
+      $output['family'] = isset($names[0]) ? $names[0] : '';
+      $output['given'] = isset($names[1]) ? $names[1] : '';
     }
     else {
       // Not sure why this is here...
