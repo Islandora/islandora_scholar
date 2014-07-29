@@ -120,7 +120,7 @@ class Coins {
       $date = (string) reset($created_date);
     }
 
-    if ($date) {
+    if (isset($date) && $date) {
       $this->date = $date;
     }
 
