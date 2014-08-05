@@ -1,5 +1,5 @@
 name = Bibutils
-description = Provides a PHP interface to the bibutils tools. Found here http://www.scripps.edu/~cdputnam/software/bibutils/
+description = Provides a PHP interface to the bibutils tools. Found here http://sourceforge.net/p/bibutils/home/Bibutils/
 package = Islandora Solution Packs
 files[] = includes/ris.inc
 files[] = includes/bibutils.inc
