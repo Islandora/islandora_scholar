@@ -2,6 +2,7 @@ name = Islandora Scholar
 description = Shows a list of items in a Fedora collection, specific to scholarly publications.
 dependencies[] = islandora
 dependencies[] = citeproc
+dependencies[] = csl
 dependencies[] = bibutils
 dependencies[] = islandora_solr
 dependencies[] = file

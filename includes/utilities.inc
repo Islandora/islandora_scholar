@@ -40,6 +40,10 @@ function islandora_scholar_get_view(AbstractObject $object) {
     ),
   );
   if (isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
+    if (variable_get('islandora_scholar_users_choose_display_csl', FALSE)) {
+      module_load_include('inc', 'islandora_scholar', 'includes/csl_select.form');
+      $display['citation_select'] = drupal_get_form('islandora_scholar_citation_select_form', $object->id);
+    }
     $display['citation']['#markup'] = citeproc_bibliography_from_mods(
         citeproc_default_style(), $object['MODS']->content
     );
@@ -175,7 +179,7 @@ function islandora_scholar_get_derivatives() {
 function islandora_scholar_get_metadata_display($object, $weight) {
   if (variable_get('islandora_scholar_use_standard_metadata_display', FALSE)) {
     module_load_include('inc', 'islandora', 'includes/metadata');
-    // @XXX This JS should be loaded automatically.
+    // Borrowing core JS for fieldsets.
     drupal_add_js('misc/form.js');
     drupal_add_js('misc/collapse.js');
     $metadata = islandora_retrieve_metadata_markup($object);
