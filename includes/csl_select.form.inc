@@ -30,7 +30,6 @@ function islandora_scholar_citation_select_form(array $form, array &$form_state,
       '#attached' => array(
         'js' => array(drupal_get_path('module', 'islandora_scholar') . '/js/citation_select.js'),
       ),
-      // @XXX for multiple elements use a data attribute to map to citation.
       '#attributes' => array(
         'class' => array('islandora-scholar-citation-select'),
       ),
