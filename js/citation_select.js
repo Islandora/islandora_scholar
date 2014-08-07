@@ -13,7 +13,7 @@
             url: Drupal.settings.basePath + "islandora/object/" +
               settings.islandora_scholar.pid + "/islandora_scholar_citation/",
             cache: true,
-            data: {"citation_style": encodeURIComponent(this.value)},
+            data: {"citation_style": this.value},
             context: this,
             success: function(citation_info) {
               // Only update the citation if this is the style selected.

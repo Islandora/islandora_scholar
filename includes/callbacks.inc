@@ -18,7 +18,7 @@ function islandora_scholar_get_citation(AbstractObject $object) {
   drupal_json_output(
     array(
       'citation' => citeproc_bibliography_from_mods(
-        citeproc_style(urldecode($_GET['citation_style'])),
+        citeproc_style($_GET['citation_style']),
         $object['MODS']->content
       ),
     )
