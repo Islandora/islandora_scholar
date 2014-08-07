@@ -19,7 +19,6 @@
  *   The Drupal form definition.
  */
 function islandora_scholar_citation_select_form(array $form, array &$form_state, $pid) {
-  drupal_add_js(array('islandora_scholar' => array('pid' => $pid)), 'setting');
   return array(
     'citation_select' => array(
       '#type' => 'select',
@@ -28,7 +27,13 @@ function islandora_scholar_citation_select_form(array $form, array &$form_state,
       '#title' => t('Style'),
       '#description' => t('Choose the citation style.'),
       '#attached' => array(
-        'js' => array(drupal_get_path('module', 'islandora_scholar') . '/js/citation_select.js'),
+        'js' => array(
+          drupal_get_path('module', 'islandora_scholar') . '/js/citation_select.js',
+          array(
+            'type' => 'setting',
+            'data' => array('islandora_scholar' => array('pid' => $pid)),
+          ),
+        ),
       ),
       '#attributes' => array(
         'class' => array('islandora-scholar-citation-select'),
