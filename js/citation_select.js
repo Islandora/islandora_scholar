@@ -6,7 +6,7 @@
 (function ($) {
   Drupal.behaviors.islandora_scholar_citation_ajax = {
     attach: function(context, settings) {
-      $(".islandora-scholar-citation-select").once("islandora-scholar-changei-csl", function() {
+      $(".islandora-scholar-citation-select").once("islandora-scholar-change-csl", function() {
         $(this).change(function() {
           var last_value = this.value;
           $.ajax({
