@@ -49,11 +49,11 @@ function islandora_scholar_menu() {
       'access arguments' => array(2),
       'file' => 'includes/upload.tab.inc',
     ),
-    'islandora/object/%islandora_object/islandora_scholar_citation/%' => array(
+    'islandora/object/%islandora_object/islandora_scholar_citation' => array(
       'title' => 'Citation',
       'type' => MENU_CALLBACK,
       'page callback' => 'islandora_scholar_get_citation',
-      'page arguments' => array(2, 4),
+      'page arguments' => array(2),
       'access callback' => 'islandora_scholar_citation_access',
       'access arguments' => array(2),
       'file' => 'includes/callbacks.inc',

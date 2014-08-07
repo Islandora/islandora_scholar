@@ -11,9 +11,9 @@
           var last_value = this.value;
           $.ajax({
             url: Drupal.settings.basePath + "islandora/object/" +
-              settings.islandora_scholar.pid + "/islandora_scholar_citation/" +
-              this.value,
+              settings.islandora_scholar.pid + "/islandora_scholar_citation/",
             cache: true,
+            data: {"citation_style": encodeURIComponent(this.value)},
             context: this,
             success: function(citation_info) {
               // Only update the citation if this is the style selected.
