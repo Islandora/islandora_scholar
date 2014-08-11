@@ -24,4 +24,4 @@ INSTALLATION
 Enable the module in the admin/modules page.
 
 Follow the instructions here to install Bibutils.
-Found here http://www.scripps.edu/~cdputnam/software/bibutils/
+Found here http://sourceforge.net/p/bibutils/home/Bibutils/
