@@ -154,6 +154,9 @@ function convert_mods_to_citeproc_jsons($mods_in) {
       unset($output['container-title']);
       unset($output['page']);
     }
+
+    drupal_alter('convert_mods_to_citeproc_jsons', $output, $mods);
+
     return $output;
   }
   else {
