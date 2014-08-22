@@ -7,15 +7,8 @@
 
 // Constants Permission/Menu/Theme.
 define('CSL_MANAGE_PERM', 'Manage CSL Citations');
-define('CSL_MANAGE_MENU', 'admin/islandora/solution_pack_config/csl');
+define('CSL_MANAGE_MENU', 'admin/islandora/tools/csl');
 define('CSL_MANAGE_TABLE_THEME', 'csl_manage_table');
-
-// @codingStandardsIgnoreStart
-// XXX: These should be removed at some point.
-define('PERM_CSL_MANAGE', CSL_MANAGE_PERM);
-define('MENU_CSL_MANAGE', CSL_MANAGE_MENU);
-define('THEME_CSL_MANAGE_TABLE', CSL_MANAGE_TABLE_THEME);
-// @codingStandardsIgnoreStart
 
 /**
  * Implements hook_menu().

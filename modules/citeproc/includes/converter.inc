@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Convert mods data into json for citeproc-js
+ * Convert mods data into JSON for citeproc-js.
  */
 
 /**
@@ -154,6 +154,9 @@ function convert_mods_to_citeproc_jsons($mods_in) {
       unset($output['container-title']);
       unset($output['page']);
     }
+
+    drupal_alter('convert_mods_to_citeproc_jsons', $output, $mods);
+
     return $output;
   }
   else {
@@ -588,8 +591,8 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
     // If the tpye is empty, it is a combined name last, first.
     if (empty($type)) {
       $names = explode(", ", $content);
-      $output['family'] = $names[0];
-      $output['given'] = $names[1];
+      $output['family'] = isset($names[0]) ? $names[0] : '';
+      $output['given'] = isset($names[1]) ? $names[1] : '';
     }
     else {
       // Not sure why this is here...
@@ -683,7 +686,7 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
     _try_parse_date($output['issued'], $date_created);
   }
 
-  if (!empty($season) && count($output['issued']['date-parts'][0]) == 1) {
+  if (!empty($season) && isset($output['issued']['date-parts'][0]) && count($output['issued']['date-parts'][0]) == 1) {
     $seasons = array('', 'Spring', 'Summer', 'Fall', 'Winter');
     $output['issued']['season'] = (string) array_search($season, $seasons);
   }

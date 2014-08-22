@@ -100,7 +100,7 @@ class EndNoteXMLImportObject extends IslandoraImportObject {
       $endnote->save($file->uri);
       file_save($file);
     }
-    return (empty($record) ? FALSE : new self($record));
+    return (empty($record) ? FALSE : new static($record));
   }
 
   /**

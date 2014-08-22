@@ -12,7 +12,7 @@ function islandora_scholar_menu() {
   return array(
     'admin/islandora/solution_pack_config/scholar' => array(
       'title' => 'Scholar',
-      'description' => 'Configure RoMEO and Google Search',
+      'description' => 'Configure scholar settings such as RoMEO and Google Search',
       'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
@@ -48,6 +48,15 @@ function islandora_scholar_menu() {
       'access callback' => 'islandora_scholar_upload_access',
       'access arguments' => array(2),
       'file' => 'includes/upload.tab.inc',
+    ),
+    'islandora/object/%islandora_object/islandora_scholar_citation' => array(
+      'title' => 'Citation',
+      'type' => MENU_CALLBACK,
+      'page callback' => 'islandora_scholar_get_citation',
+      'page arguments' => array(2),
+      'access callback' => 'islandora_scholar_citation_access',
+      'access arguments' => array(2),
+      'file' => 'includes/callbacks.inc',
     ),
   );
 }
@@ -200,6 +209,19 @@ function islandora_scholar_romeo_access($object) {
       in_array('ir:citationCModel', $object->models) &&
       isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS']) &&
       RomeoView::getISSN($object);
+}
+
+/**
+ * Access callback for retrieving citations.
+ *
+ * @param AbstractObject $object
+ *   The object we are trying to access.
+ */
+function islandora_scholar_citation_access($object) {
+  return variable_get('islandora_scholar_users_choose_display_csl', FALSE) &&
+    in_array('ir:citationCModel', $object->models) &&
+    isset($object['MODS']) &&
+    islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS']);
 }
 
 /**
