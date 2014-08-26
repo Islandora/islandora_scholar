@@ -588,14 +588,31 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
     $type = (string) $name_part->attributes()->type;
     $content = (string) $name_part;
 
-    // If the tpye is empty, it is a combined name last, first.
+    // If the type is empty, it is a combined name last, first.
     if (empty($type)) {
-      $names = explode(", ", $content);
-      $output['family'] = isset($names[0]) ? $names[0] : '';
-      $output['given'] = isset($names[1]) ? $names[1] : '';
+      // Filter empty things out of the output, so we may potentially replace
+      // them.
+      $output = array_filter(array_map('trim', $output));
+
+      $names = array_map('trim', explode(',', $content));
+      $exploded = array();
+      $exploded['family'] = array_shift($names);
+      $exploded['given'] = array_shift($names);
+
+      // If we appear to have a family (and potentially given) name part in our
+      // combined field and are not currently outputting them, make them get
+      // output.
+      // XXX: May combine unexpectedly in the case a "given" typed part name is
+      // specified, and our untyped field only contains a "family" name.
+      $non_empty = array_filter($exploded);
+      $parts_not_present = array_diff_key($non_empty, $output);
+      if (!empty($parts_not_present)) {
+        $output = $non_empty + $output;
+      }
     }
     else {
-      // Not sure why this is here...
+      // Throw a period after single character values, as they likely represent
+      // initials.
       $content .= (strlen($content) == 1) ? '. ' : ' ';
       $output[$type] = isset($output[$type]) ?
           $output[$type] . $content :
