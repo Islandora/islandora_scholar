@@ -380,10 +380,10 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
   if (is_null($dsid)) {
     if ($end === 'indefinite') {
       drupal_set_message(t('A object-level embargo has been set on @label (@pid) indefinitely.',
-          array(
-            '@label' => $object->label,
-            '@pid' => $pid,
-          )
+        array(
+          '@label' => $object->label,
+          '@pid' => $pid,
+        )
       ));
     }
     else {
@@ -394,7 +394,8 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
           '@label' => $object->label,
           '@pid' => $pid,
           '@duration' => $date,
-        )));
+        )
+      ));
     }
   }
   else {
@@ -404,7 +405,8 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
           '@dsid' => $dsid,
           '@label' => $object->label,
           '@pid' => $pid,
-        )));
+        )
+      ));
     }
     else {
       $date = new dateTime($end);
@@ -415,7 +417,8 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
           '@label' => $object->label,
           '@pid' => $pid,
           '@duration' => $date,
-        )));
+        )
+      ));
     }
   }
 }
