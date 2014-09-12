@@ -7,8 +7,6 @@
 
 class IslandoraScholarCSLTestCase extends IslandoraScholarWebTestCase {
 
-  protected $cslPath = "admin/islandora/solution_pack_config/csl";
-
   protected $mlaText = 'Author, First et al. “Test Object Title: Test Object Subtitle”. Ed. First Editor and Second Editor. Trans. First Translator and Second Translator. Test Journal 1.1 1-100. Web.';
 
   /**

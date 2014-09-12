@@ -65,7 +65,7 @@ class IslandoraScholarImporterTestCase extends IslandoraScholarWebTestCase {
     $edit = array(
       'importer' => $this->moduleName,
     );
-    $this->drupalPost("islandora/object/{$this->collection}/manage/collection/batch_import", $edit, "Submit");
+    $this->drupalPost("islandora/object/{$this->collection}/manage/collection/batch_import", $edit, "Next");
     $this->drupalPost(NULL, $import_edit, "Import");
   }
 

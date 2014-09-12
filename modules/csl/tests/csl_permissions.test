@@ -6,9 +6,7 @@
  */
 
 class IslandoraScholarCSLPermissionsTestCase extends IslandoraScholarWebTestCase {
-
-  const CSL_MANAGE_PAGE = 'admin/islandora/solution_pack_config/csl';
-
+  
   /**
    * Gets test info.
    *
@@ -36,7 +34,7 @@ class IslandoraScholarCSLPermissionsTestCase extends IslandoraScholarWebTestCase
    */
   public function testCanManageCSL() {
     $this->createUserAndLogin(array(CSL_MANAGE_PERM));
-    $this->drupalGet(self::CSL_MANAGE_PAGE);
+    $this->drupalGet($this->cslPath);
     $this->assertResponse(200);
   }
 
@@ -45,7 +43,7 @@ class IslandoraScholarCSLPermissionsTestCase extends IslandoraScholarWebTestCase
    */
   public function testCantManageCSL() {
     $this->createUserAndLogin(array());
-    $this->drupalGet(self::CSL_MANAGE_PAGE);
+    $this->drupalGet($this->cslPath);
     $this->assertResponse(403);
   }
 }

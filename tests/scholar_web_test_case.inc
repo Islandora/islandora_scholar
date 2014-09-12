@@ -8,6 +8,11 @@
 class IslandoraScholarWebTestCase extends IslandoraCollectionWebTestCase {
 
   /**
+   * The path to the CSL config page. Used across several tests.
+   */
+  public $cslPath = "admin/islandora/tools/csl";
+
+  /**
    * The words of Robert Frost's "Stopping By Woods On A Snowy Evening".
    *
    * This is  exact output of the FULL_TEXT datastream created when ingesting
@@ -219,7 +224,7 @@ POEM;
       'name' => 'MLA',
       'files[file]' => drupal_get_path('module', 'islandora_scholar') . "/tests/fixtures/mla.csl",
     );
-    $this->drupalPost('admin/islandora/solution_pack_config/csl', $edit, 'Add');
+    $this->drupalPost($this->cslPath, $edit, 'Add');
 
     // Verify, if we were asked.
     if ($verify) {
