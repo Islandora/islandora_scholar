@@ -10,6 +10,7 @@ env:
   - FEDORA_VERSION="3.6.2"
   - FEDORA_VERSION="3.7.0"
 before_install:
+  - sudo apt-get -y install poppler-utils ghostscript
   - cd $HOME
   - git clone -b 7.x git://github.com/Islandora/islandora.git
   - git clone -b 7.x git://github.com/Islandora/islandora_solr_search.git
