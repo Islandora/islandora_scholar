@@ -88,15 +88,9 @@ class EndNoteXMLImportObject extends IslandoraImportObject {
 
     $endnote = new DOMDocument();
     $endnote->load($file->uri);
-    $xpath = new DOMXPath($endnote);
-    $results = $xpath->query('/xml/records/record');
-    $documents = array();
-    if ($results->length >= 1) {
-      // Get Record.
-      $child = $results->item(0);
-      $record = '<xml><records>' . $endnote->saveXML($child) . '</records></xml>';
-      // Remove Record.
-      $child->parentNode->removeChild($child);
+    module_load_include('inc', 'islandora_endnotexml', 'includes/utilities');
+    $record = islandora_endnotexml_extract_first($endnote);
+    if ($record) {
       $endnote->save($file->uri);
       file_save($file);
     }
@@ -110,21 +104,8 @@ class EndNoteXMLImportObject extends IslandoraImportObject {
    */
   public function getMODS() {
     if ($this->mods === NULL) {
-      $enxml_file = file_save_data($this->source, "temporary://temp_en.xml");
-      $mods_file = drupal_tempnam('temporary://', 'temp_mods.xml');
-
-      module_load_include('inc', 'bibutils', 'includes/utilities');
-      Bibutils::Convert(
-        drupal_realpath($enxml_file->uri),
-        'EndNoteXML',
-        drupal_realpath($mods_file),
-        'MODS'
-      );
-
-      $this->mods = file_get_contents($mods_file);
-
-      file_delete($enxml_file);
-      drupal_unlink($mods_file);
+      module_load_include('inc', 'islandora_endnotexml', 'includes/utilities');
+      $this->mods = islandora_endnotexml_transform_to_mods($this->source);
     }
 
     return $this->mods;
