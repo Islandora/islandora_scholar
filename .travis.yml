@@ -57,4 +57,8 @@ script:
   - mv $HOME/tcpdf $TRAVIS_BUILD_DIR/modules/exporter/lib/
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
   - phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
-  - drush test-run --uri=http://localhost:8081 "Islandora Scholar"
+  - drush test-run --uri=http://localhost:8081 --xml=/tmp "Islandora Scholar"
+after_failure:
+  - cat /tmp/drush_webserver.log
+  - cat /tmp/*.xml
+
