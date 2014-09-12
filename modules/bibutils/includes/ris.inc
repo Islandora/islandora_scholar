@@ -138,7 +138,7 @@ class RIS {
     "NV" => "Number of Volumes",
     "OP" => "Original Publication",
     "PB" => "Publisher",
-    "PY" => "Year 20001/01// or 2011/02/01/ or 2011/02/01/<Other date info>",
+    "PY" => "Year 20001/01// or 2011/02/01/ or 2011/02/01/<\Other date info>",
     "RI" => "Reviewed Item",
     "RN" => "Research Notes",
     "RP" => "Reprint Edition",

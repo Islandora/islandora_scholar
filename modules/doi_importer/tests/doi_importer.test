@@ -1,0 +1,51 @@
+<?php
+/**
+ * @file
+ * Tests the DOI importer.
+ */
+
+class DOIImporterTestCase extends IslandoraScholarImporterTestCase {
+
+  protected $moduleName = 'doi_importer';
+
+  /**
+   * Returns test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return IslandoraScholarImporterTestCase::populateGetInfo('doi_importer');
+  }
+
+  /**
+   * Special setUp() steps to get crossref up and running.
+   *
+   * @see IslandoraScholarImporterTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp();
+    // @TODO: Some other address? It has to be a real one due to a confirmation
+    // email they send.
+    $edit = array(
+      'doi_importer_openurl' => 'http://www.crossref.org/openurl',
+      'doi_importer_openurl_pid' => 'qadan@discoverygarden.ca',
+    );
+    $this->drupalPost('admin/islandora/solution_pack_config/scholar/doi_importer', $edit, 'Save configuration');
+  }
+
+  /**
+   * Attempts to import a list of DOIs from a string.
+   */
+  public function testImportDOIUsingString() {
+    $this->importObjects(array('textarea' => '10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x'));
+    $this->assertBatchImport(3);
+  }
+
+  /**
+   * Attempts to import a list of DOIs from a .txt file.
+   */
+  public function testImportDOIUsingFile() {
+    $this->importObjects(array('files[file]' => drupal_get_path('module', 'islandora_scholar') . "/tests/fixtures/doi_import.txt"));
+    $this->assertBatchImport(3);
+  }
+}

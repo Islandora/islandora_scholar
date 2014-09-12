@@ -1,0 +1,35 @@
+<?php
+/**
+ * @file
+ * PMID importer tests.
+ */
+
+class PMIDImporterTestCase extends IslandoraScholarImporterTestCase {
+
+  protected $moduleName = 'pmid_importer';
+
+  /**
+   * Returns test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return IslandoraScholarImporterTestCase::populateGetInfo('pmid_importer');
+  }
+
+  /**
+   * Attempts to import a list of PMIDs from a string.
+   */
+  public function testImportPMIDUsingString() {
+    $this->importObjects(array('textarea' => '24763451, 24758616, 24756822'));
+    $this->assertBatchImport(3, 0, TRUE);
+  }
+
+  /**
+   * Attempts to import a list of PMIDs from a .txt file.
+   */
+  public function testImportPMIDUsingFile() {
+    $this->importObjects(array('files[file]' => drupal_get_path('module', 'islandora_scholar') . "/tests/fixtures/pmid_import.txt"));
+    $this->assertBatchImport(3, 0, TRUE);
+  }
+}

@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * EndNote XML importer tests.
+ */
+
+/**
+ * Class EndNoteXMLImporterTestCase.
+ */
+class EndNoteXMLImporterTestCase extends IslandoraScholarImporterTestCase {
+
+  protected $moduleName = 'endnotexml_importer';
+
+  /**
+   * Returns test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return IslandoraScholarImporterTestCase::populateGetInfo('endnotexml_importer');
+  }
+
+  /**
+   * Attempts to import several records from an EndNote XML file.
+   */
+  public function testImportEndNoteXMLUsingFile() {
+    $this->importObjects(array('files[file]' => drupal_get_path('module', 'islandora_scholar') . "/tests/fixtures/endnotexml_import.xml"));
+    $this->assertBatchImport(3);
+  }
+}

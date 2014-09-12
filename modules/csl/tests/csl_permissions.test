@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * @file
+ * Permissions tests for CSL. There ain't much.
+ */
+
+class IslandoraScholarCSLPermissionsTestCase extends IslandoraScholarWebTestCase {
+
+  /**
+   * Gets test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'CSL Permssions Tests',
+      'description' => 'Tests the permissions for the CSL module.',
+      'group' => 'Islandora Scholar',
+    );
+  }
+
+  /**
+   * Sets up the test.
+   *
+   * @see IslandoraScholarWebTestCase::setUp()
+   */
+  public function setUp() {
+    parent::setUp(array('csl'));
+  }
+
+  /**
+   * Tests that users with permission can manage CSL options.
+   */
+  public function testCanManageCSL() {
+    $this->createUserAndLogin(array(CSL_MANAGE_PERM));
+    $this->drupalGet($this->cslPath);
+    $this->assertResponse(200);
+  }
+
+  /**
+   * Tests that users without permission can't manage CSL options.
+   */
+  public function testCantManageCSL() {
+    $this->createUserAndLogin(array());
+    $this->drupalGet($this->cslPath);
+    $this->assertResponse(403);
+  }
+}

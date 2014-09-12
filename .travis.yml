@@ -18,6 +18,7 @@ before_install:
   - git clone -b 7.x git://github.com/Islandora/islandora_xacml_editor.git
   - git clone -b 7.x git://github.com/Islandora/islandora_bookmark.git
   - git clone -b 7.x git://github.com/Islandora/islandora_batch.git
+  - git clone -b 7.x git://github.com/Islandora/islandora_solution_pack_collection.git
   - export ISLANDORA_DIR=$HOME/islandora
   - $HOME/islandora/tests/scripts/travis_setup.sh
   - cd $HOME/drupal-*
@@ -27,8 +28,11 @@ before_install:
   - ln -s $HOME/islandora_xacml_editor sites/all/modules/islandora_xacml_editor
   - ln -s $HOME/islandora_bookmark sites/all/modules/islandora_bookmark
   - ln -s $HOME/islandora_batch sites/all/modules/islandora_batch
+  - ln -s $HOME/islandora_solution_pack_collection sites/all/modules/islandora_solution_pack_collection
   - drush cc all
-  - drush -u 1 en --yes islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
+  - drush dl imagemagick
+  - drush -u 1 en --yes islandora_basic_collection islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl imagemagick
+  - sudo apt-get -y install poppler-utils bibutils
 script:
   - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
@@ -53,4 +57,8 @@ script:
   - mv $HOME/tcpdf $TRAVIS_BUILD_DIR/modules/exporter/lib/
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
   - phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
-  - drush test-run --uri=http://localhost:8081 "Islandora Scholar"
+  - drush test-run --uri=http://localhost:8081 --xml=/tmp "Islandora Scholar"
+after_failure:
+  - cat /tmp/drush_webserver.log
+  - cat /tmp/*.xml
+

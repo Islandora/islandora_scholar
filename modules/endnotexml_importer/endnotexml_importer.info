@@ -5,5 +5,6 @@ dependencies[] = islandora_importer
 dependencies[] = islandora_scholar
 dependencies[] = bibutils
 files[] = includes/importer.inc
+files[] = tests/endnotexml_importer.test
 version = 7.x-dev
 core = 7.x

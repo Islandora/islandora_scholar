@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<mods xmlns="http://www.loc.gov/mods/v3" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <titleInfo><title>Test Object Title</title><subTitle>Test Object Subtitle</subTitle></titleInfo>
+  <titleInfo type="abbreviated">
+    <title>Test Object Abbreviated Title</title>
+  </titleInfo>
+  <genre>Test Object Publication Type</genre>
+  <abstract>Test Object Abstract</abstract>
+  <accessCondition type="useAndReproduction">Test Object Copyright Information</accessCondition>
+  <name type="personal">
+    <role>
+      <roleTerm authority="marcrelator" type="text">author</roleTerm>
+    </role>
+    <namePart type="given">First</namePart>
+    <namePart type="family">Author</namePart>
+    <displayForm>First Author</displayForm>
+    <affiliation>First Department</affiliation>
+  </name>
+  <name type="personal">
+    <role>
+      <roleTerm authority="marcrelator" type="text">author</roleTerm>
+    </role>
+    <namePart type="given">Second</namePart>
+    <namePart type="family">Author</namePart>
+    <displayForm>Second Author</displayForm>
+    <affiliation>Second Department</affiliation>
+  </name>
+  <name type="corporate">
+    <namePart>Group Author 2</namePart>
+  </name>
+  <name type="corporate">
+    <namePart>Group Author 1</namePart>
+  </name>
+  <name type="personal">
+    <role>
+      <roleTerm authority="marcrelator" type="text">editor</roleTerm>
+    </role>
+    <namePart type="given">First</namePart>
+    <namePart type="family">Editor</namePart>
+  </name>
+  <name type="personal">
+    <role>
+      <roleTerm authority="marcrelator" type="text">editor</roleTerm>
+    </role>
+    <namePart type="given">Second</namePart>
+    <namePart type="family">Editor</namePart>
+  </name>
+  <name type="personal">
+    <role>
+      <roleTerm authority="marcrelator" type="text">translator</roleTerm>
+    </role>
+    <namePart type="given">First</namePart>
+    <namePart type="family">Translator</namePart>
+  </name>
+  <name type="personal">
+    <role>
+      <roleTerm authority="marcrelator" type="text">translator</roleTerm>
+    </role>
+    <namePart type="given">Second</namePart>
+    <namePart type="family">Translator</namePart>
+  </name>
+  <originInfo><dateIssued qualifier="approximate">Date Issued</dateIssued><publisher>Test Object Publisher</publisher><place><placeTerm type="text">Test Object Place of Publication</placeTerm></place></originInfo>
+  <typeOfResource>text</typeOfResource>
+  <location><url>Test Object URL</url></location>
+  <note type="type of work">Test Object Type of Work 2</note>
+  <note type="type of work">Test Object Type of Work 1</note>
+  <subject>
+    <topic>Test Topic 2</topic>
+  </subject>
+  <subject>
+    <topic>Test Topic 1</topic>
+  </subject>
+  <note type="publication status">Test Publication Status</note>
+  <identifier type="isbn">Test ISBN</identifier>
+  <identifier type="issn">Test ISSN</identifier>
+  <identifier type="doi">Test DOI</identifier>
+  <identifier type="accessnum">Test Accession Number</identifier>
+  <identifier type="pmc">Test PMCID</identifier>
+  <identifier type="uri">Test URI</identifier>
+  <identifier type="citekey">Test Citation Key</identifier>
+  <part><date>2002-02-20</date><detail type="volume"><number>1</number></detail><detail type="issue"><number>1</number></detail><extent unit="page"><start>1</start><end>100</end></extent></part>
+  <language>
+    <languageTerm>eng</languageTerm>
+  </language>
+  <relatedItem type="host">
+    <titleInfo>
+      <title>Test Journal</title>
+    </titleInfo>
+    <titleInfo type="abbreviated">
+      <title>Tst. Jnl.</title>
+    </titleInfo>
+    <originInfo><issuance>First</issuance></originInfo>
+    <genre>Test Publication Type 2</genre>
+    <genre>Test Publication Type 1</genre>
+    <identifier type="issn">Test Journal ISSN</identifier>
+    <identifier type="serial number">Test Journal Serial Number</identifier>
+    <name type="corporate">
+      <namePart>Test Journal Author 2</namePart>
+      <role>
+        <roleTerm authority="marcrelator" type="text">author</roleTerm>
+      </role>
+    </name>
+    <name type="corporate">
+      <namePart>Test Journal Author 1</namePart>
+      <role>
+        <roleTerm authority="marcrelator" type="text">author</roleTerm>
+      </role>
+    </name>
+  </relatedItem>
+  <note>Test Notes</note>
+</mods>

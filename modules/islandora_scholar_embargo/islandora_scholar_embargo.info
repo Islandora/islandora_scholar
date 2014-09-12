@@ -3,4 +3,6 @@ dependencies[] = islandora_xacml_api
 description = Support embargo management in Islandora Scholar.
 configure = admin/islandora/solution_pack_config/embargo
 package = Islandora Solution Packs
+files[] = tests/scholar_embargo.test
+files[] = tests/scholar_embargo_permissions.test
 core = 7.x

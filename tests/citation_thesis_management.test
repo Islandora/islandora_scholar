@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Tests for citation management functionality.
+ */
+
+/**
+ * Class CitationManagementTestCase
+ */
+class CitationManagementTestCase extends IslandoraScholarWebTestCase {
+
+  /**
+   * Returns the test info.
+   *
+   * @see DrupalWebTestCase::getInfo()
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Citation and Thesis Management',
+      'description' => 'Tests that the controls for managing citations and theses work.',
+      'group' => 'Islandora Scholar',
+    );
+  }
+
+  /**
+   * Sets up the test.
+   *
+   * @see IslandoraWebTestCase::getInfo()
+   */
+  public function setUp() {
+    parent::setUp('imagemagick');
+    $user = $this->drupalCreateUser(array_keys(module_invoke_all('permission')));
+    $this->drupalLogin($user);
+    $this->drupalPost('admin/config/media/image-toolkit', array('image_toolkit' => 'imagemagick'), 'Save configuration');
+    $this->drupalPost('admin/config/media/image-toolkit', array('imagemagick_convert' => '/usr/bin/convert'), 'Save configuration');
+  }
+
+  /**
+   * Generate a scholar object, then add/delete a PDF from it.
+   *
+   * @param string $cmodel
+   *   The content model of the object to create.
+   * @param bool $full_text
+   *   Whether or not we want to create a FULL_TEXT datastream when we generate
+   *   an object.
+   */
+  protected function addDeletePDF($cmodel, $full_text = TRUE) {
+    $object = $this->createScholarObject($cmodel, TRUE, TRUE, $full_text);
+    $this->deletePDF($object);
+  }
+
+  /**
+   * Tests PDF add/delete for citation.
+   */
+  public function testAddDeleteCitationPDF() {
+    $this->addDeletePDF('ir:citationCModel');
+  }
+
+  /**
+   * Tests PDF add/delete for thesis.
+   */
+  public function testAddDeleteThesisPDF() {
+    $this->addDeletePDF('ir:thesisCModel');
+  }
+
+  /**
+   * Tests PDF add/delete for citation without a FULL_TEXT.
+   */
+  public function testAddDeleteCitationPDFNoFullText() {
+    $this->addDeletePDF('ir:citationCModel', FALSE);
+  }
+
+  /**
+   * Tests PDF add/delete for thesis without a FULL_TEXT.
+   */
+  public function testAddDeleteThesisPDFNoFullText() {
+    $this->addDeletePDF('ir:thesisCModel', FALSE);
+  }
+
+}
