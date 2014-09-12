@@ -32,8 +32,7 @@ before_install:
   - drush cc all
   - drush dl imagemagick
   - drush -u 1 en --yes islandora_basic_collection islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl imagemagick
-  - sudo apt-get -y install poppler-utils
-  - which endx2xml
+  - sudo apt-get -y install poppler-utils bibutils
 script:
   - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar

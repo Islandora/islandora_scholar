@@ -86,7 +86,6 @@ class Bibutils {
    *   TRUE if succesful FALSE otherwise.
    */
   public static function CleanModsFile($filename) {
-    debug($filename);
     $transform_filename = drupal_get_path('module', 'bibutils') . '/xsl/FixBibutilsModsOutput.xsl';
     $transform = new DOMDocument();
     $transform->load($transform_filename);
