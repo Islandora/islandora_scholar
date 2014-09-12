@@ -6,7 +6,7 @@
  */
 
 class IslandoraScholarCSLPermissionsTestCase extends IslandoraScholarWebTestCase {
-  
+
   /**
    * Gets test info.
    *
