@@ -106,14 +106,9 @@ class PMIDImportObject extends IslandoraImportObject {
   public static function getOne(&$ids) {
     $id = array_shift($ids);
 
-    $pubmed_url = 'http://www.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi';
-    $url = url($pubmed_url, array(
-             'query' => array(
-               'db' => 'pubmed',
-               'retmode' => 'xml',
-               'id' => $id,
-             )));
-    $response = drupal_http_request($url);
+    module_load_include('inc', 'islandora_pmid', 'includes/utilities');
+    $response = islandora_pmid_perform_request($id);
+
     if ($response->data) {
       $pubmed_xml = simplexml_load_string($response->data);
       if ($id == self::getPMID($pubmed_xml)) {
@@ -129,12 +124,15 @@ class PMIDImportObject extends IslandoraImportObject {
    * Get the PMID from the given PubMed Document.
    */
   protected static function getPMID(SimpleXMLElement $xml) {
-    $pmid = $xml->xpath('//PubmedArticle/MedlineCitation/PMID');
-    return (string) array_shift($pmid);
+    module_load_include('inc', 'islandora_pmid', 'includes/utilities');
+    return islandora_pmid_get_pmid($xml);
   }
 
   /**
    * Normalize some fields.
+   *
+   * This /would/ call islandora_pmid_adjust_output(), except for the
+   * overridable "normalizeDate()" call.
    */
   protected static function correctTransform(DOMDocument $doc) {
     $xpath = new DOMXPath($doc);
@@ -142,17 +140,13 @@ class PMIDImportObject extends IslandoraImportObject {
 
     // Correct dateIssued/dateCaptured
     $results = $xpath->query('//mods:dateIssued | //mods:dateCaptured');
-    $count = $results->length;
-    for ($i = 0; $i < $count; $i++) {
-      $date = $results->item($i);
+    foreach ($results as $date) {
       self::normalizeDate($date, $xpath);
     }
 
     // Add the record creation date.
     $results = $xpath->query('//mods:recordInfo/mods:recordCreationDate');
-    $count = $results->length;
-    for ($i = 0; $i < $count; $i++) {
-      $date = $results->item($i);
+    foreach ($results as $date) {
       $date->nodeValue = gmdate("Y-m-d\TH:i:s\Z");
     }
 
@@ -171,73 +165,22 @@ class PMIDImportObject extends IslandoraImportObject {
    *   The xpath used to fetch the date.
    */
   protected static function normalizeDate(DOMElement $date, DOMXPath $xpath) {
-    $months = array(
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
-      'Nov', 'Dec');
-    $iso = $xpath->evaluate('count(mods:MedlineDate) = 0', $date);
-    if ($iso) {
-      $date->setAttribute('encoding', 'iso8601');
-      $y = $xpath->evaluate('normalize-space(mods:Year/text())', $date);
-      $m = $xpath->evaluate('normalize-space(mods:Month/text())', $date);
-      $d = $xpath->evaluate('normalize-space(mods:Day/text())', $date);
-    }
-    else {
-      $string = $xpath->evaluate('normalize-space(mods:MedlineDate/text())', $date);
-      if (preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $string)) {
-        list($y, $m, $d) = explode('-', $string);
-      }
-      elseif (preg_match('/^[0-9]{4}-[0-9]{2}$/', $string)) {
-        list($y, $m) = explode('-', $string);
-      }
-      elseif (preg_match('/^[0-9]{4}$/', $string)) {
-        $y = $string;
-      }
-      elseif (preg_match('/^[0-9]{4}-[0-9]{4}$/', $string)) {
-        $y = substr($string, 0, 4);
-      }
-      elseif (preg_match('/^[0-9]{4} [A-Za-z]{3}-[A-Za-z]{3}$/', $string)) {
-        $y = substr($string, 0, 4);
-        $m = substr($string, 5, 3);
-      }
-      elseif (preg_match('/^[0-9]{4} [A-Za-z]{3}$/', $string)) {
-        $y = substr($string, 0, 4);
-        $m = substr($string, 5, 3);
-      }
-      elseif (preg_match('/^[0-9]{4}-[A-Za-z]{3}$/', $string)) {
-        $y = substr($string, 0, 4);
-        $m = substr($string, 5, 3);
-      }
-    }
-    $key = array_search(strtolower($m), array_map('strtolower', $months));
-    if ($key !== FALSE) {
-      $m = $key + 1;
-    }
-    $values = array(&$y, &$m, &$d);
-    foreach ($values as &$val) {
-      // Pad mth and day with 0.
-      $val = (strlen($val) < 2 && $val) ? str_pad($val, 2, "0", STR_PAD_LEFT) : $val;
-    }
-    if ($y) {
-      $string = $y;
-      if ($m) {
-        $string .= '-' . $m;
-        if ($d) {
-          $string .= '-' . $d;
-        }
-      }
-    }
-    $date->nodeValue = $string;
+    module_load_include('inc', 'islandora_pmid', 'includes/utilities');
+    islandora_pmid_normalize_date($date, $xpath);
   }
 
   /**
-   * Generates a MODS document repersenting the imported data.
+   * Generates a MODS document representing the imported data.
+   *
+   * This /would/ call islandora_pmid_transform_to_mods(), except for the
+   * overridable "correctTransform()" call.
    *
    * @see IslandoraImportObject::getMODS()
    */
   public function getMODS() {
     if ($this->mods === NULL) {
       $xsl = new DOMDocument();
-      $xsl->load(drupal_get_path('module', 'pmid_importer') . '/xsl/pubmed_to_mods.xslt');
+      $xsl->load(drupal_get_path('module', 'islandora_pmid') . '/xsl/pubmed_to_mods.xslt');
       $pm_xml = new DOMDocument();
       $pm_xml->loadXML($this->source);
 
