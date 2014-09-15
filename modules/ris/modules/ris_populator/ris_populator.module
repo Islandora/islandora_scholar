@@ -16,7 +16,7 @@ function ris_populator_islandora_populator() {
     'description' => t('Populate metadata from an RIS record.'),
     'type' => 'inline',
     'form' => array(
-      'doi' => array(
+      'ris' => array(
         '#type' => 'managed_file',
         '#title' => t('RIS File'),
         '#description' => t('Upload a text file containing an RIS record. If multiple are present in the given file, only the first will be used.'),

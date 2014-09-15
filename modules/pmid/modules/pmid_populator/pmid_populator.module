@@ -16,7 +16,7 @@ function pmid_populator_islandora_populator() {
     'description' => t('Performs a look-up on PubMed to populate metadata.'),
     'type' => 'inline',
     'form' => array(
-      'doi' => array(
+      'pmid' => array(
         '#type' => 'textfield',
         '#title' => t('PubMed Identifier'),
         '#description' => t('Enter an identifier for which to attempt to acquire metadata.'),
