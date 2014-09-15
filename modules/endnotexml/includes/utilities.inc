@@ -62,3 +62,22 @@ function islandora_endnotexml_extract_first(DOMDocument $endnote) {
   }
   return FALSE;
 }
+
+/**
+ * Convenience function; extract and transform from the given file.
+ *
+ * @param object $file
+ *   A Drupal file-object.
+ *
+ * @return string|bool
+ *   Either a string containing the transformed MODS or FALSE in the event of a
+ *   failure.
+ */
+function islandora_endnotexml_get_mods($file) {
+  $doc = new DOMDocument();
+  $doc->load($file->uri);
+  $endnotexml_record = islandora_endnotexml_extract_first($doc);
+  return $endnotexml_record ?
+    islandora_endnotexml_transform_to_mods($endnotexml_record) :
+    FALSE;
+}
