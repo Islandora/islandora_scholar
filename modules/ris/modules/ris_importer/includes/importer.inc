@@ -85,30 +85,9 @@ class RISImportObject extends IslandoraImportObject {
    * @see IslandoraImportObject::getOne()
    */
   public static function getOne(&$file) {
-    $record = '';
-
-    if (!property_exists($file, 'offset')) {
-      $file->offset = 0;
-    }
-
-    // Get the first Record from the RIS File.
-    $fp = fopen($file->uri, 'r');
-    fseek($fp, $file->offset);
-    while (($line = fgets($fp)) !== FALSE) {
-      $trimed_line = trim($line);
-      // Ignore blank lines.
-      if (!empty($trimed_line)) {
-        // Store the line in outgoing record.
-        $record .= $line;
-        if ($trimed_line == 'ER  -') {
-          break;
-        }
-      }
-    }
-    $file->offset = ftell($fp);
-
-    $record = trim($record);
-    return (empty($record) ? FALSE : new self($record));
+    module_load_include('inc', 'islandora_ris', 'includes/utilities');
+    $first = islandora_ris_extract_first($file);
+    return $first ? new static($first) : FALSE;
   }
 
   /**
@@ -118,17 +97,8 @@ class RISImportObject extends IslandoraImportObject {
    */
   public function getMODS() {
     if ($this->mods === NULL) {
-      $ris_file = file_create_filename('temp.ris', file_directory_temp());
-      file_put_contents($ris_file, $this->source);
-      $mods_file = file_create_filename('temp_mods.xml', file_directory_temp());
-
-      module_load_include('inc', 'bibutils', 'includes/utilities');
-      Bibutils::Convert($ris_file, 'RIS', $mods_file, 'MODS');
-
-      $this->mods = file_get_contents($mods_file);
-
-      drupal_unlink($ris_file);
-      drupal_unlink($mods_file);
+      module_load_include('inc', 'islandora_ris', 'includes/utilities');
+      $this->mods = islandora_ris_transform_to_mods($this->source);
     }
 
     return $this->mods;
