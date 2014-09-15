@@ -13,10 +13,11 @@
  */
 function ris_populator_validate_file($element, &$form_state, $form) {
   module_load_include('inc', 'islandora_ris', 'includes/utilities');
-  $mods = islandora_ris_get_mods($element['#value']);
+  $file = file_load($element['#value']);
+  $mods = islandora_ris_get_mods($file);
   if ($mods === FALSE) {
     form_error($element, t('"@value" does not appear to be a valid RIS record.', array(
-      '@value' => $element['#value'],
+      '@value' => $file->uri,
     )));
   }
   else {

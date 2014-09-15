@@ -26,6 +26,7 @@ function ris_populator_islandora_populator() {
         '#element_validate' => array(
           'ris_populator_validate_file',
         ),
+        '#islandora_plupload_do_not_alter' => TRUE,
       ),
     ),
     'output' => array(
