@@ -1,4 +1,4 @@
-name = PMOD Populator
+name = PMID Populator
 description = Populator plugin for PubMed, to create citation objects.
 package = Islandora Solution Packs
 dependencies[] = islandora_pmid
