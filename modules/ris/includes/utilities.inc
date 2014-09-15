@@ -74,3 +74,20 @@ function islandora_ris_extract_first($file) {
   $record = trim($record);
   return empty($record) ? FALSE : $record;
 }
+
+/**
+ * Convenience function; extract and transform from the given file.
+ *
+ * @param object $file
+ *   A Drupal file-object.
+ *
+ * @return string|bool
+ *   Either a string containing the transformed MODS or FALSE in the event of a
+ *   failure.
+ */
+function islandora_ris_get_mods($file) {
+  $ris_record = islandora_ris_extract_first($file);
+  return $ris_record ?
+    islandora_ris_transform_to_mods($ris_record) :
+    FALSE;
+}
