@@ -9,5 +9,5 @@
  * Enable new dependency (which should be present...).
  */
 function endnotexml_importer_update_7100() {
-  module_enable('islandora_endnotexml');
+  module_enable(array('islandora_endnotexml'));
 }

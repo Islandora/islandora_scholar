@@ -9,7 +9,7 @@
  * Deal with refactor of functions to islandora_doi.
  */
 function doi_importer_update_7100() {
-  module_enable('islandora_doi');
+  module_enable(array('islandora_doi'));
   $variables = array(
     'doi_importer_openurl' => array(
       'default' => 'http://www.crossref.org/openurl',

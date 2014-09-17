@@ -9,5 +9,5 @@
  * Add in new "islandora_pmid" dependency.
  */
 function pmid_importer_update_7100() {
-  module_enable('islandora_pmid');
+  module_enable(array('islandora_pmid'));
 }

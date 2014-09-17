@@ -9,5 +9,5 @@
  * Enable new dependency.
  */
 function ris_importer_update_7100() {
-  module_enable('islandora_ris');
+  module_enable(array('islandora_ris'));
 }
