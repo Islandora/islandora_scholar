@@ -1,0 +1,7 @@
+name = EndNote XML Populator
+description = Populator plugin for EndNote XML, to create citation objects.
+package = Islandora Solution Packs
+dependencies[] = islandora_endnotexml
+dependencies[] = islandora_populator
+version = 7.x-dev
+core = 7.x

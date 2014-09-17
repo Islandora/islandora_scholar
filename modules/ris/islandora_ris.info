@@ -1,0 +1,6 @@
+name = RIS Support Code
+description = Support code for RIS records, to create citation objects.
+package = Islandora Solution Packs
+dependencies[] = bibutils
+version = 7.x-dev
+core = 7.x
