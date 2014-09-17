@@ -29,6 +29,7 @@ function islandora_endnotexml_transform_to_mods($xml_string) {
   );
 
   $to_return = file_get_contents($mods_file);
+  module_load_include('inc', 'islandora', 'includes/utilities');
   $mods_file = islandora_temp_file_entry($mods_file, 'text/xml');
 
   file_delete($enxml_file);
