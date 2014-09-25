@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for this module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function islandora_scholar_embargo_uninstall() {
+  $variables = array(
+    'islandora_embargo_content_models',
+  )
+  array_walk($variables, 'variable_del');
+}
