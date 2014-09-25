@@ -13,12 +13,6 @@ require_once dirname(__FILE__) . '/includes/batch.inc';
 define('CITATION_EXPORTER_INDEX_SESSION', 'citation_exporter');
 define('CITATION_EXPORTER_EXPORT_MENU', 'islandora/citation/export');
 
-// @codingStandardsIgnoreStart
-// XXX: These should be removed at some point in the future.
-define('SESSION_CITATION_EXPORTER_INDEX', CITATION_EXPORTER_INDEX_SESSION);
-define('MENU_CITATION_EXPORTER_EXPORT', CITATION_EXPORTER_EXPORT_MENU);
-// @codingStandardsIgnoreEnd
-
 /**
  * Implements hook_menu().
  */
