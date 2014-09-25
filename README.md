@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Based on the UPEI scholar module.
+Based on the UPEI scholar module, Islandora Scholar is designed to implement a feature-rich Institutional Repository.
 
 ## Requirements
 
