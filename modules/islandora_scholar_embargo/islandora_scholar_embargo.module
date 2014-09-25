@@ -13,12 +13,6 @@ define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
 define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED', 'can embargo owned objects');
 define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY', 'can embargo any object');
 
-// @codingStandardsIgnoreStart
-// XXX: These should be removed at some point in the future.
-define('ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED', ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED);
-define('ISLANDORA_EMBARGO_CAN_EMBARGO_ANY', ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
-// @codingStandardsIgnoreEnd
-
 /**
  * Implements hook_menu().
  */
