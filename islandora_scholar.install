@@ -25,7 +25,6 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_use_standard_metadata_display',
     'islandora_scholar_users_choose_display_csl',
     'islandora_scholar_romeo_enable',
-    'islandora_embargo_content_models',
     'islandora_scholar_thumbnail_width',
     'islandora_scholar_thumbnail_height',
     'islandora_scholar_path_to_pdftotext',
@@ -35,9 +34,6 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_romeo_key',
     'islandora_scholar_romeo_url',
     'islandora_scholar_romeo_cache_time',
-    'islandora_scholar_google_scholar_search_enabled',
-    'islandora_scholar_google_scholar_primary_search_xpath',
-    'islandora_scholar_google_scholar_default_search_xpath',
     'islandora_scholar_create_fulltext',
   );
   array_walk($variables, 'variable_del');
