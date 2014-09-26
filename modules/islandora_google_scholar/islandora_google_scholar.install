@@ -13,6 +13,6 @@ function islandora_google_scholar_uninstall() {
     'islandora_scholar_google_scholar_search_enabled',
     'islandora_scholar_google_scholar_primary_search_xpath',
     'islandora_scholar_google_scholar_default_search_xpath',
-  )
+  );
   array_walk($variables, 'variable_del');
 }
