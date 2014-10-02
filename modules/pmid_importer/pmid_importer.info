@@ -4,5 +4,5 @@ package = Islandora Solution Packs
 dependencies[] = islandora_importer
 dependencies[] = islandora_scholar
 files[] = includes/importer.inc
-version = 7.x-dev
+version = 7.x-1.4
 core = 7.x
