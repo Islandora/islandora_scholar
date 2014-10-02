@@ -220,9 +220,15 @@ EOQ;
 
     // Send emails here.
     islandora_embargo_user_notify($key, $item, $params);
+    if (isset($params['dsid'])) {
+      rules_invoke_event('islandora_scholar_datastream_embargo_expiring', $item, $params['dsid']);
+    }
+    else {
+      rules_invoke_event('islandora_scholar_object_embargo_expiring', $item);
+    }
   }
 
-  // Lift expired embargos.
+  // Inform rules and users of expired embargos.
   $query = <<<EOQ
 PREFIX is: <$ise_uri>
 SELECT ?expired ?date
@@ -246,6 +252,12 @@ EOQ;
     $key = 'lifted_embargo';
 
     islandora_embargo_user_notify($key, $item, $params);
+    if (isset($params['dsid'])) {
+      rules_invoke_event('islandora_scholar_datastream_embargo_expired', $item, $params['dsid']);
+    }
+    else {
+      rules_invoke_event('islandora_scholar_object_embargo_expired', $item);
+    }
   }
 }
 
@@ -344,6 +356,12 @@ function islandora_scholar_embargo_lift_embargo($param, $dsid = NULL) {
     $params['expiry_date'] = $expiry;
     $key = 'lifted_embargo';
     islandora_embargo_user_notify($key, $item, $params);
+  }
+  if (isset($item[$dsid])) {
+    rules_invoke_event('islandora_scholar_datastream_embargo_lifted', $item, $item[$dsid]);
+  }
+  else {
+    rules_invoke_event('islandora_scholar_object_embargo_lifted', $item);
   }
 }
 

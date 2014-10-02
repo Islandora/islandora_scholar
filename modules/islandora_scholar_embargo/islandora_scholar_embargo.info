@@ -3,4 +3,5 @@ dependencies[] = islandora_xacml_api
 description = Support embargo management in Islandora Scholar.
 configure = admin/islandora/solution_pack_config/embargo
 package = Islandora Solution Packs
+dependencies[] = rules
 core = 7.x
