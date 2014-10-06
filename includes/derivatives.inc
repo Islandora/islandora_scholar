@@ -70,7 +70,7 @@ function islandora_scholar_add_fulltext_derivative(AbstractObject $object, $forc
     if (!isset($hook['source_dsid'])) {
       return islandora_scholar_missing_pdf_datastream($object->id);
     }
-    $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object);
+    $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
     $dsid = "FULL_TEXT";
     $source = $source = drupal_realpath($file_uri);
     $executable = variable_get('islandora_scholar_path_to_pdftotext', '/usr/bin/pdftotext');
