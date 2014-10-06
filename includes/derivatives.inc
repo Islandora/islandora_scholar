@@ -269,7 +269,7 @@ function islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $heig
   // To make use of ImageMagick 6's parenthetical command grouping we need to
   // make the $source image the first parameter and $dest the last.
   // See http://www.imagemagick.org/Usage/basics/#cmdline
-  $command = escapeshellarg($source) . ' ' . implode(' ', $args) . ' ' . escapeshellarg("jpg:$dest");
+  $command = '-density ' . variable_get('islandora_scholar_preview_density', 600) . ' ' . escapeshellarg($source) . ' ' . implode(' ', $args) . ' ' . escapeshellarg("jpg:$dest");
   $output = '';
   $ret = -1;
   if (_imagemagick_convert_exec($command, $output, $ret) !== TRUE) {

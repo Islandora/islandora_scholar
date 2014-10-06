@@ -246,6 +246,14 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
     '#default_value' => variable_get('islandora_scholar_preview_height', 700),
     '#size' => 5,
   );
+  $form['islandora_scholar_preview_fieldset']['islandora_scholar_preview_density'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Density used to generate preview'),
+    '#description' => t('The imagemagick density value used to generate the preview. Generally, higher numbers are better but require more computation time.'),
+    '#element_validate' => array('element_validate_number'),
+    '#default_value' => variable_get('islandora_scholar_preview_density', 600),
+    '#size' => 5,
+  );
   return system_settings_form($form);
 }
 
