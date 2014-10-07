@@ -97,7 +97,6 @@ EOQ;
     $dsid = NULL;
     // Assume only PDF DSs.
     if (isset($object['RELS-INT']) && isset($object['PDF'])) {
-      $rels_ints = islandora_get_audit_trail($pid, 'RELS-INT');
       foreach ($object['RELS-INT'] as $rels_int_ds) {
         $rels_int = new FedoraRelsInt($object['PDF']);
         $rels_int->datastream = $rels_int_ds;
@@ -109,7 +108,6 @@ EOQ;
       }
     }
     elseif (isset($object['RELS-EXT'])) {
-      $rels_exts = islandora_get_audit_trail($pid, 'RELS-EXT');
       foreach ($object['RELS-EXT'] as $rels_ext_ds) {
         $rels_ext = new FedoraRelsExt($object);
         $rels_ext->datastream = $rels_ext_ds;
