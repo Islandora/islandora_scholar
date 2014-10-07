@@ -35,6 +35,7 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_romeo_url',
     'islandora_scholar_romeo_cache_time',
     'islandora_scholar_create_fulltext',
+    'islandora_scholar_preview_density',
   );
   array_walk($variables, 'variable_del');
 }
