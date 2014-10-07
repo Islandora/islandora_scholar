@@ -20,7 +20,7 @@ function islandora_scholar_embargo_drush_command() {
         this script will be destructive: If an XACML policy that looks like an
         embargo has been placed on a previously embargoed obeject.  If either of
         these edge cases apply to you, you should use a manual process."),
-      'examples' => array('drush -u 1 islandora_scholar_embargo_lift_embargoes_7001'),
+      'examples' => array('drush -v -u 1 islandora_scholar_embargo_lift_embargoes_7001'),
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
       'callback' => 'islandora_scholar_embargo_lift_embargoes_update',
     ),
@@ -46,6 +46,8 @@ function islandora_scholar_embargo_lift_embargoes_update() {
 
 /**
  * Batch operation for lifting embargoes for the update.
+ *
+ * Assumes being ran in drush.
  *
  * @param array $context
  *   Context array for this batch. Used to tell batch when we're finally
@@ -121,6 +123,7 @@ EOQ;
   }
   // Remove embargoes.
   foreach ($suspects as $pid => $dsid) {
+    drush_log(dt('Clearing embargo on !pid.', array('!pid' => $pid)));
     islandora_scholar_embargo_lift_embargo($pid, $dsid);
   }
 }
