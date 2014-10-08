@@ -113,6 +113,7 @@ function islandora_scholar_embargo_rules_action_info() {
           'type' => 'islandora_datastream',
           'label' => t('Embargoed Datastream'),
           'description' => t('The object datastream to remove the embargo from.'),
+          'optional' => TRUE,
         ),
       ),
     ),
