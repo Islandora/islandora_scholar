@@ -72,6 +72,10 @@ EOQ;
   if (!isset($sandbox['total'])) {
     $sandbox['total'] = $tuque->repository->ri->countQuery($suspect_query, 'sparql');
     $sandbox['current'] = 0;
+    if ($sandbox['total'] == 0) {
+      $context['finished'] = 1;
+      return;
+    }
   }
   // Are we going to be finished this iteration?
   $limited_suspect_query = $suspect_query . "
