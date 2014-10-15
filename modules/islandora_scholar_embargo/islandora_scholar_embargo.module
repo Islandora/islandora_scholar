@@ -490,10 +490,6 @@ function islandora_embargo_user_notify($key, $item, $params) {
     case 'pre_expiry':
       $pred = ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED;
       break;
-
-    case 'lifted_embargo':
-      $pred = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
-      break;
   }
 
   foreach ($users as $user) {
@@ -503,16 +499,18 @@ function islandora_embargo_user_notify($key, $item, $params) {
     }
   }
 
-  if ($params['dsid'] === NULL) {
-    $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
-  }
-  else {
-    if (!isset($item[$params['dsid']])) {
-      $embargo_ds = $item->constructDatastream($params['dsid']);
+  if (isset($pred)) {
+    if ($params['dsid'] === NULL) {
+      $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
     }
     else {
-      $embargo_ds = $item[$params['dsid']];
+      if (!isset($item[$params['dsid']])) {
+        $embargo_ds = $item->constructDatastream($params['dsid']);
+      }
+      else {
+        $embargo_ds = $item[$params['dsid']];
+      }
+      $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
     }
-    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
   }
 }
