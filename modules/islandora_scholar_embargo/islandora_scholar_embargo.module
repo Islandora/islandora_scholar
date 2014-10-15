@@ -253,7 +253,7 @@ EOQ;
 
     islandora_embargo_user_notify($key, $item, $params);
     if (isset($params['dsid'])) {
-      rules_invoke_event('islandora_scholar_datastream_embargo_expiring', $item, $item[$params['dsid']]);
+      rules_invoke_event('islandora_scholar_datastream_embargo_expired', $item, $item[$params['dsid']]);
     }
     else {
       rules_invoke_event('islandora_scholar_object_embargo_expired', $item);
