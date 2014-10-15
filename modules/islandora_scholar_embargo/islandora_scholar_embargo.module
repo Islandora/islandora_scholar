@@ -311,14 +311,16 @@ function islandora_scholar_embargo_users_to_notify(AbstractObject $object) {
  *   Either a string containing a Fedora PID or an AbstractObject, representing
  *   either the item disembargoed, or the item in which the datastream to be
  *   embargoed exists.
- * @param mixed $dsid
- *   Either NULL--meaning the object should be disembargoed--or a string
- *   representing a datastream ID to be disembargoed.
+ * @param mixed $ds
+ *   NULL--meaning the object should be disembargoed
+ *   a string representing a datastream ID to be disembargoed
+ * ..datastream to be disembargoed
  */
-function islandora_scholar_embargo_lift_embargo($param, $dsid = NULL) {
+function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
   $item = $param instanceof AbstractObject ?
     $param :
     islandora_object_load($param);
+  $dsid = $ds instanceof AbstractDatastream ? $ds->id : $ds;
   $pid = $item->id;
   $xacml = new IslandoraXacml($item);
 
