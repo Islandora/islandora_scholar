@@ -5,7 +5,7 @@
  * Defines RISImporter.
  */
 
-class RISImporter extends ScholarBatchImporter {
+class RISImporter extends IslandoraBatchImporter {
   protected $itemClass = 'RISImportObject';
 
   /**
