@@ -5,7 +5,7 @@
  * Defines a class for importing DOI citations.
  */
 
-class DOIImporter extends ScholarBatchImporter {
+class DOIImporter extends IslandoraBatchImporter {
 
   protected $itemClass = 'DOIImportObject';
 
