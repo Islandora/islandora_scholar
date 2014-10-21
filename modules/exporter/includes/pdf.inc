@@ -29,7 +29,7 @@
  *   The location to save the generated PDF.
  */
 function citation_exporter_create_pdf($html_input, $output_filename) {
-  module_load_include('php', 'citation_exporter', '/lib/tcpdf/config/lang/eng');
+  require_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'citation_exporter') . '/lib/tcpdf/config/lang/eng.php';
   module_load_include('php', 'citation_exporter', '/lib/tcpdf/tcpdf');
 
   // Create new PDF document.
