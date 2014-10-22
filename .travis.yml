@@ -36,7 +36,6 @@ script:
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
   # XXX: Move the 3rd-party library stuff out of the way, so it doesn't
   # throw warnings from coder.
-  - mv $TRAVIS_BUILD_DIR/modules/citeproc/lib/citeproc-php $HOME
   - mv $TRAVIS_BUILD_DIR/modules/exporter/lib/tcpdf $HOME
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
@@ -51,7 +50,6 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
   # XXX: Move the 3rd-party library stuff back in, for tests.
-  - mv $HOME/citeproc-php $TRAVIS_BUILD_DIR/modules/citeproc/lib/
   - mv $HOME/tcpdf $TRAVIS_BUILD_DIR/modules/exporter/lib/
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
   - phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
