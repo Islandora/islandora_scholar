@@ -415,7 +415,6 @@
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>
                   <executes_submit_callback>FALSE</executes_submit_callback>
-                  <autocomplete_path>islandora/entities/autocomplete/last_name</autocomplete_path>
                   <multiple>FALSE</multiple>
                   <required>FALSE</required>
                   <resizable>FALSE</resizable>
@@ -454,7 +453,6 @@
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>
                   <executes_submit_callback>FALSE</executes_submit_callback>
-                  <autocomplete_path>islandora/entities/autocomplete/disambiguated</autocomplete_path>
                   <multiple>FALSE</multiple>
                   <required>FALSE</required>
                   <resizable>FALSE</resizable>
@@ -489,7 +487,6 @@
                 <properties>
                   <type>textfield</type>
                   <access>TRUE</access>
-                  <autocomplete_path>islandora/entities/autocomplete/department</autocomplete_path>
                   <collapsed>FALSE</collapsed>
                   <collapsible>FALSE</collapsible>
                   <disabled>FALSE</disabled>

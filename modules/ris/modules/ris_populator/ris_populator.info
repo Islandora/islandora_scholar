@@ -1,0 +1,7 @@
+name = RIS Populator
+description = Populator plugin for RIS, to create citation objects.
+package = Islandora Solution Packs
+dependencies[] = islandora_ris
+dependencies[] = islandora_populator
+version = 7.x-dev
+core = 7.x

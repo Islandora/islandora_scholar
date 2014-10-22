@@ -380,45 +380,45 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
   if (is_null($dsid)) {
     if ($end === 'indefinite') {
       drupal_set_message(t('A object-level embargo has been set on @label (@pid) indefinitely.',
-          array(
-            '@label' => $object->label,
-            '@pid' => $pid,
-          )
+        array(
+          '@label' => $object->label,
+          '@pid' => $pid,
+        )
       ));
     }
     else {
       $date = new dateTime($end);
       $date = $date->format('M d, Y');
       drupal_set_message(t('A object-level embargo has been set on @label (@pid) until @duration.',
-           array(
-             '@label' => $object->label,
-             '@pid' => $pid,
-             '@duration' => $date,
-           )
-       ));
+        array(
+          '@label' => $object->label,
+          '@pid' => $pid,
+          '@duration' => $date,
+        )
+      ));
     }
   }
   else {
     if ($end === 'indefinite') {
       drupal_set_message(t('A @dsid datastream embargo has been set on @label (@pid) indefinitely.',
-          array(
-            '@dsid' => $dsid,
-            '@label' => $object->label,
-            '@pid' => $pid,
-          )
+        array(
+          '@dsid' => $dsid,
+          '@label' => $object->label,
+          '@pid' => $pid,
+        )
       ));
     }
     else {
       $date = new dateTime($end);
       $date = $date->format('M d, Y');
       drupal_set_message(t('A @dsid datastream embargo has been set on @label (@pid) until @duration.',
-           array(
-             '@dsid' => $dsid,
-             '@label' => $object->label,
-             '@pid' => $pid,
-             '@duration' => $date,
-           )
-       ));
+        array(
+          '@dsid' => $dsid,
+          '@label' => $object->label,
+          '@pid' => $pid,
+          '@duration' => $date,
+        )
+      ));
     }
   }
 }

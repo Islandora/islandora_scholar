@@ -19,19 +19,29 @@
 function citation_exporter_batch_get_rtf_operations(array $pids, $style) {
   $temp_file_dir = file_directory_temp();
   $temp_text_file = file_create_filename("rtf_export.txt", $temp_file_dir);
-  $temp_pids_file = file_create_filename("pids.txt", $temp_file_dir);
-  citation_exporter_batch_store_pids_in_file($temp_pids_file, $pids);
+  module_load_include('inc', 'citation_exporter', 'includes/db');
+  $set_id = citation_exporter_create_set($pids);
   $total = count($pids);
   $operations = array();
 
   $queries = $_GET;
   unset($queries['q']);
-  $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array(
-                    $temp_pids_file, $total, $temp_text_file, $style));
-  $operations[] = array('citation_exporter_batch_convert_txt_to_rtf', array($temp_text_file));
-  $operations[] = array('citation_exporter_batch_redirect', array(
-                    url(request_path(), array('query' => $queries)),
-                    array($temp_text_file, $temp_pids_file)));
+  $operations[] = array(
+    'citation_exporter_batch_append_citations_to_text_file',
+    array($set_id, $total, $temp_text_file, $style),
+  );
+  $operations[] = array(
+    'citation_exporter_batch_convert_txt_to_rtf',
+    array($temp_text_file),
+  );
+  $operations[] = array(
+    'citation_exporter_batch_redirect',
+    array(
+      url(request_path(), array('query' => $queries)),
+      array($temp_text_file),
+      $set_id,
+    ),
+  );
   return $operations;
 }
 
@@ -47,22 +57,29 @@ function citation_exporter_batch_add_header_to_text_file($file_name, $header, ar
 /**
  * Append citations to the given textfile.
  *
- * @param string $pids_filename
- *   File containing PID.
+ * @param string $set_id
+ *   Set being built.
  * @param string $text_filename
  *   File citations will be appended to.
  * @param string $style
  *   The CSL style to use when rendering the citations.
  */
-function citation_exporter_batch_append_citations_to_text_file($pids_filename, $total, $text_filename, $style, array &$context) {
+function citation_exporter_batch_append_citations_to_text_file($set_id, $total, $text_filename, $style, array &$context) {
   if (empty($context['sandbox'])) {
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['total'] = $total;
   }
-  list($pids, $remaining) = citation_exporter_batch_get_num_pids_from_file($pids_filename, 5);
+  module_load_include('inc', 'citation_exporter', 'includes/db');
+  $pids = citation_exporter_get_pids($set_id);
+  $context['sandbox']['progress'] += count($pids);
   _citation_exporter_batch_append_citations_to_text_file($pids, $text_filename, $style);
-  $context['sandbox']['progress'] = $context['sandbox']['total'] - $remaining;
-  if ($context['sandbox']['progress'] != $context['sandbox']['total']) {
+  citation_exporter_drop_pids($set_id, $pids);
+
+  if ($context['sandbox']['progress'] < $context['sandbox']['total']) {
+    $context['message'] = t('Gathered metadata: @progress/@total', array(
+      '@progress' => $context['sandbox']['progress'],
+      '@total' => $context['sandbox']['total'],
+    ));
     $context['finished'] = $context['sandbox']['progress'] / $context['sandbox']['total'];
   }
 }
@@ -113,23 +130,17 @@ function _citation_exporter_batch_append_citations_to_text_file(array $pids, $fi
  */
 function citation_exporter_batch_convert_txt_to_rtf($filename, array &$context) {
   module_load_include('inc', 'citation_exporter', 'includes/rtf');
-  $text = '';
-  $file = fopen($filename, 'rb');
-  while (!feof($file)) {
-    $text .= fread($file, 4096);
-  }
-  fclose($file);
+  $text = file_get_contents($filename);
+  // XXX: Strip out tags.
+  $text = filter_xss($text, array('br', 'i', 'b'));
+
   $rtf = new RTF();
   $rtf->addText($text);
   /* File */
   $temp_file_dir = file_directory_temp();
   $temp_file_name = file_create_filename("export.rtf", $temp_file_dir);
-  $file = fopen($temp_file_name, 'wb');
-  if ($file !== FALSE) {
-    $document = $rtf->getDocument();
-    fwrite($file, $document);
-    fclose($file);
-  }
+  $document = $rtf->getDocument();
+  file_put_contents($temp_file_name, $document);
   /* Batch Values */
   $context['results']['filename'] = $temp_file_name;
   $context['results']['download_filename'] = 'export.rtf';

@@ -10,16 +10,18 @@
  *
  * @param AbstractObject $object
  *   The object to generate/add the deriviative datastreams to.
+ * @param string $source_dsid
+ *   The DSID we are getting the content of, defaults to PDF.
  *
  * @return string
  *   The file path to the unmanaged derivative source file.
  */
-function islandora_scholar_get_derivative_source_as_unmanaged_file(AbstractObject $object) {
+function islandora_scholar_get_derivative_source_as_unmanaged_file(AbstractObject $object, $source_dsid = 'PDF') {
   $mime_detect = new MimeDetect();
-  $ext = $mime_detect->getExtension($object['PDF']->mimeType);
+  $ext = $mime_detect->getExtension($object[$source_dsid]->mimeType);
   $file_name = str_replace(':', '-', $object->id);
-  $file_uri = file_create_filename("{$file_name}.PDF.{$ext}", 'temporary://');
-  $object['PDF']->getContent($file_uri);
+  $file_uri = file_create_filename("{$file_name}.{$source_dsid}.{$ext}", 'temporary://');
+  $object[$source_dsid]->getContent($file_uri);
   return $file_uri;
 }
 
@@ -30,17 +32,19 @@ function islandora_scholar_get_derivative_source_as_unmanaged_file(AbstractObjec
  *   The object to add the deriviative datastreams to.
  * @param bool $force
  *   Whether the derivative generation is being forced or not.
+ * @param array $hook
+ *   An array describing the hook triggering the derivative.
  *
  * @return array
  *   An array describing the outcome of the thumbnail creation.
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FALSE) {
+function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FALSE, $hook = array()) {
   $width = variable_get('islandora_scholar_thumbnail_width', 200);
   $height = variable_get('islandora_scholar_thumbnail_height', 200);
-  $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object);
-  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force);
+  $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
+  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force, $hook['source_dsid']);
   file_unmanaged_delete($file_uri);
   return $results;
 }
@@ -52,19 +56,21 @@ function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FA
  *   The object to add the deriviative datastreams to.
  * @param bool $force
  *   Whether the derivative generation is being forced or not.
+ * @param array $hook
+ *   An array describing the hook triggering the derivative. *
  *
  * @return array
  *   An array describing the outcome of the FULL_TEXT datastream creation.
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_add_fulltext_derivative(AbstractObject $object, $force = FALSE) {
+function islandora_scholar_add_fulltext_derivative(AbstractObject $object, $force = FALSE, $hook = array()) {
   module_load_include('inc', 'islandora', 'includes/utilities');
   if (!isset($object['FULL_TEXT']) || (isset($object['FULL_TEXT']) && $force === TRUE)) {
-    if (!isset($object['PDF'])) {
+    if (!isset($hook['source_dsid'])) {
       return islandora_scholar_missing_pdf_datastream($object->id);
     }
-    $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object);
+    $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
     $dsid = "FULL_TEXT";
     $source = $source = drupal_realpath($file_uri);
     $executable = variable_get('islandora_scholar_path_to_pdftotext', '/usr/bin/pdftotext');
@@ -139,17 +145,19 @@ function islandora_scholar_add_fulltext_derivative(AbstractObject $object, $forc
  *   The object to add the deriviative datastreams to.
  * @param bool $force
  *   Whether the derivative generation is being forced or not.
+ * @param array $hook
+ *   The array defining the derivative hook.
  *
  * @return array
  *   An array describing the outcome of the PREVIEW datastream creation.
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_add_preview_derivative(AbstractObject $object, $force = FALSE) {
+function islandora_scholar_add_preview_derivative(AbstractObject $object, $force = FALSE, $hook = array()) {
   $width = variable_get('islandora_scholar_preview_width', 500);
   $height = variable_get('islandora_scholar_preview_height', 700);
-  $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object);
-  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force);
+  $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
+  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force, $hook['source_dsid']);
   file_unmanaged_delete($file_uri);
   return $results;
 }
@@ -169,15 +177,17 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
  *   The height to make the derived datastream.
  * @param bool $force
  *   Whether the derivative generation is being forced or not.
+ * @param string $source_dsid
+ *   The source DSID that triggered the derivative creation.
  *
  * @return array
  *   An array describing the outcome of adding the JPG derivative.
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri, $dsid, $width, $height, $force) {
+function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri, $dsid, $width, $height, $force, $source_dsid) {
   if (!isset($object[$dsid]) || (isset($object[$dsid]) && $force === TRUE)) {
-    if (!isset($object['PDF'])) {
+    if (!isset($object[$source_dsid])) {
       return islandora_scholar_missing_pdf_datastream($object->id);
     }
     $derivative_file_uri = islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $height);
@@ -331,7 +341,7 @@ function islandora_scholar_add_datastream($object, $datastream_id, $file_uri) {
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_no_pdf_datastream($pid) {
+function islandora_scholar_missing_pdf_datastream($pid) {
   return array(
     'success' => FALSE,
     'messages' => array(

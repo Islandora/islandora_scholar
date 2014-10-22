@@ -2,6 +2,7 @@ language: php
 php:
   - 5.3.3
   - 5.4
+  - 5.5
 branches:
   only:
     - /^7.x.*/
@@ -33,6 +34,10 @@ before_install:
 script:
   - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
+  # XXX: Move the 3rd-party library stuff out of the way, so it doesn't
+  # throw warnings from coder.
+  - mv $TRAVIS_BUILD_DIR/modules/citeproc/lib/citeproc-php $HOME
+  - mv $TRAVIS_BUILD_DIR/modules/exporter/lib/tcpdf $HOME
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citation_exporter
@@ -45,6 +50,9 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty pmid_importer
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
+  # XXX: Move the 3rd-party library stuff back in, for tests.
+  - mv $HOME/citeproc-php $TRAVIS_BUILD_DIR/modules/citeproc/lib/
+  - mv $HOME/tcpdf $TRAVIS_BUILD_DIR/modules/exporter/lib/
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
   - phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
   - drush test-run --uri=http://localhost:8081 "Islandora Scholar"

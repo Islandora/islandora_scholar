@@ -20,7 +20,7 @@ function islandora_bibiliography_get_bookmark_output(AbstractObject $object) {
   if ($mods) {
     $bibliography_entry = citeproc_bibliography_from_mods($style, $mods);
   }
-  $output = l($object->label, 'islandora/object/' . $object->id) . '<br />';
+  $output = l(isset($object->label) ? $object->label : $object->id, 'islandora/object/' . $object->id) . '<br />';
   $output .= $bibliography_entry;
   return $output;
 }

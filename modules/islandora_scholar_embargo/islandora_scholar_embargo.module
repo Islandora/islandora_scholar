@@ -13,12 +13,6 @@ define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
 define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED', 'can embargo owned objects');
 define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY', 'can embargo any object');
 
-// @codingStandardsIgnoreStart
-// XXX: These should be removed at some point in the future.
-define('ISLANDORA_EMBARGO_CAN_EMBARGO_OWNED', ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED);
-define('ISLANDORA_EMBARGO_CAN_EMBARGO_ANY', ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
-// @codingStandardsIgnoreEnd
-
 /**
  * Implements hook_menu().
  */
@@ -226,9 +220,15 @@ EOQ;
 
     // Send emails here.
     islandora_embargo_user_notify($key, $item, $params);
+    if (isset($params['dsid'])) {
+      rules_invoke_event('islandora_scholar_datastream_embargo_expiring', $item, $item[$params['dsid']]);
+    }
+    else {
+      rules_invoke_event('islandora_scholar_object_embargo_expiring', $item);
+    }
   }
 
-  // Lift expired embargos.
+  // Inform rules and users of expired embargos.
   $query = <<<EOQ
 PREFIX is: <$ise_uri>
 SELECT ?expired ?date
@@ -252,6 +252,12 @@ EOQ;
     $key = 'lifted_embargo';
 
     islandora_embargo_user_notify($key, $item, $params);
+    if (isset($params['dsid'])) {
+      rules_invoke_event('islandora_scholar_datastream_embargo_expired', $item, $item[$params['dsid']]);
+    }
+    else {
+      rules_invoke_event('islandora_scholar_object_embargo_expired', $item);
+    }
   }
 }
 
@@ -301,15 +307,21 @@ function islandora_scholar_embargo_users_to_notify(AbstractObject $object) {
  *
  * The item embargoed is identified by both the pid and dsid values.
  *
- * @param string $pid
- *   A string containing a Fedora PID, which is either the item disembargoed,
- *   or the item in which the datastream to be embargoed exists.
- * @param mixed $dsid
- *   Either NULL--meaning the object should be disembargoed--or a string
- *   representing a datastream ID to be disembargoed.
+ * @param string $param
+ *   Either a string containing a Fedora PID or an AbstractObject, representing
+ *   either the item disembargoed, or the item in which the datastream to be
+ *   embargoed exists.
+ * @param mixed $ds
+ *   NULL--meaning the object should be disembargoed
+ *   a string representing a datastream ID to be disembargoed
+ * ..datastream to be disembargoed
  */
-function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
-  $item = islandora_object_load($pid);
+function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
+  $item = $param instanceof AbstractObject ?
+    $param :
+    islandora_object_load($param);
+  $dsid = $ds instanceof AbstractDatastream ? $ds->id : $ds;
+  $pid = $item->id;
   $xacml = new IslandoraXacml($item);
 
   if ($dsid === NULL) {
@@ -336,14 +348,23 @@ function islandora_scholar_embargo_lift_embargo($pid, $dsid = NULL) {
 
   $xacml->writeBackToFedora();
 
-  $expiry = $rels[0]['object']['value'];
-  // Send email notification.
-  $params['pid'] = $pid;
-  $params['item_title'] = $item->label;
-  $params['dsid'] = isset($dsid) ? $dsid : NULL;
-  $params['expiry_date'] = $expiry;
-  $key = 'lifted_embargo';
-  islandora_embargo_user_notify($key, $item, $params);
+  // Only notify if the object exists in the repository.
+  if ($item instanceof FedoraObject) {
+    $expiry = $rels[0]['object']['value'];
+    // Send email notification.
+    $params['pid'] = $pid;
+    $params['item_title'] = $item->label;
+    $params['dsid'] = isset($dsid) ? $dsid : NULL;
+    $params['expiry_date'] = $expiry;
+    $key = 'lifted_embargo';
+    islandora_embargo_user_notify($key, $item, $params);
+  }
+  if (isset($item[$dsid])) {
+    rules_invoke_event('islandora_scholar_datastream_embargo_lifted', $item, $item[$dsid]);
+  }
+  else {
+    rules_invoke_event('islandora_scholar_object_embargo_lifted', $item);
+  }
 }
 
 /**
@@ -471,10 +492,6 @@ function islandora_embargo_user_notify($key, $item, $params) {
     case 'pre_expiry':
       $pred = ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED;
       break;
-
-    case 'lifted_embargo':
-      $pred = ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED;
-      break;
   }
 
   foreach ($users as $user) {
@@ -484,16 +501,18 @@ function islandora_embargo_user_notify($key, $item, $params) {
     }
   }
 
-  if ($params['dsid'] === NULL) {
-    $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
-  }
-  else {
-    if (!isset($item[$params['dsid']])) {
-      $embargo_ds = $item->constructDatastream($params['dsid']);
+  if (isset($pred)) {
+    if ($params['dsid'] === NULL) {
+      $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
     }
     else {
-      $embargo_ds = $item[$params['dsid']];
+      if (!isset($item[$params['dsid']])) {
+        $embargo_ds = $item->constructDatastream($params['dsid']);
+      }
+      else {
+        $embargo_ds = $item[$params['dsid']];
+      }
+      $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
     }
-    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
   }
 }

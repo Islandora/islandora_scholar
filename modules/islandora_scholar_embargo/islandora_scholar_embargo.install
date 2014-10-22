@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for this module.
+ */
+
+/**
+ * Implements hook_install().
+ */
+function islandora_scholar_embargo_uninstall() {
+  $variables = array(
+    'islandora_embargo_content_models',
+  );
+  array_walk($variables, 'variable_del');
+}
+
+/**
+ * Embargo cron now lifting.
+ */
+function islandora_scholar_embargo_update_7001() {
+  return t('In this update we are changing the way embargoes that have expired
+    are handled; instead of simply notifying the user we are also lifting the
+    embargo. This is being implemented using rules and the previous
+    functionality can be restored by configuring rules. A drush command is
+    provided that can bulk lift embargoes, its use is encouraged to prevent
+    an overloading bulk embargo lifting operation during the next cron.  Cron
+    should be disable while it is ran.');
+}

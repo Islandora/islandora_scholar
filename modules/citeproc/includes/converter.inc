@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Convert mods data into json for citeproc-js
+ * Convert mods data into JSON for citeproc-js.
  */
 
 /**
@@ -154,6 +154,9 @@ function convert_mods_to_citeproc_jsons($mods_in) {
       unset($output['container-title']);
       unset($output['page']);
     }
+
+    drupal_alter('convert_mods_to_citeproc_jsons', $output, $mods);
+
     return $output;
   }
   else {
@@ -537,7 +540,10 @@ function convert_mods_to_citeproc_json_names(SimpleXMLElement $mods) {
         add_mods_namespace($name);
         $role = convert_mods_to_citeproc_json_name_role($name, $valid_roles, $default_role);
         if ($role !== FALSE) {
-          $output[$role][] = convert_mods_to_citeproc_json_name($name);
+          $parsed_name = convert_mods_to_citeproc_json_name($name);
+          if ($parsed_name) {
+            $output[$role][] = $parsed_name;
+          }
         }
       }
     }
@@ -561,6 +567,7 @@ function convert_mods_to_citeproc_json_name(SimpleXMLElement $name) {
       convert_mods_to_citeproc_json_name_corporate($name);
   $output = array_map('trim', $output);
   $output = array_map('ucfirst', $output);
+  $output = array_filter($output);
   return $output;
 }
 
@@ -581,14 +588,31 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
     $type = (string) $name_part->attributes()->type;
     $content = (string) $name_part;
 
-    // If the tpye is empty, it is a combined name last, first.
+    // If the type is empty, it is a combined name last, first.
     if (empty($type)) {
-      $names = explode(", ", $content);
-      $output['family'] = $names[0];
-      $output['given'] = $names[1];
+      // Filter empty things out of the output, so we may potentially replace
+      // them.
+      $output = array_filter(array_map('trim', $output));
+
+      $names = array_map('trim', explode(',', $content));
+      $exploded = array();
+      $exploded['family'] = array_shift($names);
+      $exploded['given'] = array_shift($names);
+
+      // If we appear to have a family (and potentially given) name part in our
+      // combined field and are not currently outputting them, make them get
+      // output.
+      // XXX: May combine unexpectedly in the case a "given" typed part name is
+      // specified, and our untyped field only contains a "family" name.
+      $non_empty = array_filter($exploded);
+      $parts_not_present = array_diff_key($non_empty, $output);
+      if (!empty($parts_not_present)) {
+        $output = $non_empty + $output;
+      }
     }
     else {
-      // Not sure why this is here...
+      // Throw a period after single character values, as they likely represent
+      // initials.
       $content .= (strlen($content) == 1) ? '. ' : ' ';
       $output[$type] = isset($output[$type]) ?
           $output[$type] . $content :
@@ -596,8 +620,6 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
     }
   }
 
-  // Add the citeproc-js "parse-names" flag.
-  $output['parse-names'] = "true";
   return $output;
 }
 
@@ -681,7 +703,7 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
     _try_parse_date($output['issued'], $date_created);
   }
 
-  if (!empty($season) && count($output['issued']['date-parts'][0]) == 1) {
+  if (!empty($season) && isset($output['issued']['date-parts'][0]) && count($output['issued']['date-parts'][0]) == 1) {
     $seasons = array('', 'Spring', 'Summer', 'Fall', 'Winter');
     $output['issued']['season'] = (string) array_search($season, $seasons);
   }

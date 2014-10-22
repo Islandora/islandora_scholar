@@ -21,19 +21,26 @@ module_load_include('inc', 'citation_exporter', 'includes/batch.export.rtf');
 function citation_exporter_batch_get_pdf_operations(array $pids, $style) {
   $temp_file_dir = file_directory_temp();
   $temp_text_file = file_create_filename("pdf_export.txt", $temp_file_dir);
-  $temp_pids_file = file_create_filename("pids.txt", $temp_file_dir);
-  citation_exporter_batch_store_pids_in_file($temp_pids_file, $pids);
+  module_load_include('inc', 'citation_exporter', 'includes/db');
+  $set_id = citation_exporter_create_set($pids);
   $total = count($pids);
   $operations = array();
 
   $queries = $_GET;
   unset($queries['q']);
-  $operations[] = array('citation_exporter_batch_append_citations_to_text_file', array(
-                    $temp_pids_file, $total, $temp_text_file, $style));
+  $operations[] = array(
+    'citation_exporter_batch_append_citations_to_text_file',
+    array($set_id, $total, $temp_text_file, $style),
+  );
   $operations[] = array('citation_exporter_batch_convert_text_to_pdf', array($temp_text_file));
-  $operations[] = array('citation_exporter_batch_redirect', array(
-                    url(request_path(), array('query' => $queries)),
-                    array($temp_text_file, $temp_pids_file)));
+  $operations[] = array(
+    'citation_exporter_batch_redirect',
+    array(
+      url(request_path(), array('query' => $queries)),
+      array($temp_text_file),
+      $set_id,
+    ),
+  );
   return $operations;
 }
 
@@ -47,12 +54,9 @@ function citation_exporter_batch_get_pdf_operations(array $pids, $style) {
  */
 function citation_exporter_batch_convert_text_to_pdf($filename, array &$context) {
   module_load_include('inc', 'citation_exporter', 'includes/pdf');
-  $text = '';
-  $file = fopen($filename, 'rb');
-  while (!feof($file)) {
-    $text .= fread($file, 4096);
-  }
-  fclose($file);
+  $text = file_get_contents($filename);
+  // XXX: Strip out tags.
+  $text = filter_xss($text, array('br', 'i', 'b'));
   $temp_file_dir = file_directory_temp();
   $temp_file = file_create_filename("pdf_export.pdf", $temp_file_dir);
   citation_exporter_create_pdf($text, $temp_file);
