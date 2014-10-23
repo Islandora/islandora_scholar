@@ -31,9 +31,11 @@
 function citation_exporter_create_pdf($html_input, $output_filename) {
   module_load_include('php', 'citation_exporter', '/lib/tcpdf/config/lang/eng');
   module_load_include('php', 'citation_exporter', '/lib/tcpdf/tcpdf');
-  
+
+  // @codingStandardsIgnoreStart
   // XXX: pull in language array defined inside of the tcpdf config lang file.
   global $l;
+  // @codingStandardsIgnoreEnd
 
   // Create new PDF document.
   $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE, FALSE);
