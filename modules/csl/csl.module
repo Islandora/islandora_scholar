@@ -18,7 +18,7 @@ function csl_menu() {
 
   $items[CSL_MANAGE_MENU] = array(
     'title' => 'CSL Styles',
-    'description' => 'List, add or remove the installed CSL 1.0 Styles.',
+    'description' => 'List, add or remove the installed CSL Styles.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('csl_manage_form'),
     'access arguments' => array(CSL_MANAGE_PERM),
