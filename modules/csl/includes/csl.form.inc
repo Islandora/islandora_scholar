@@ -56,6 +56,7 @@ function csl_manage_form(array $form, array &$form_state) {
         '#value' => 'Delete',
         '#name' => 'row-' . count($table['rows']) . '-delete',
         '#style' => $style,
+        '#access' => $default_style != $style,
         '#submit' => array('csl_manage_delete_style_submit'),
       ),
     );
