@@ -29,7 +29,6 @@
  *   The location to save the generated PDF.
  */
 function citation_exporter_create_pdf($html_input, $output_filename) {
-  module_load_include('php', 'citation_exporter', '/lib/tcpdf/config/lang/eng');
   module_load_include('php', 'citation_exporter', '/lib/tcpdf/tcpdf');
 
   // Create new PDF document.
@@ -48,9 +47,6 @@ function citation_exporter_create_pdf($html_input, $output_filename) {
 
   // Set image scale factor.
   $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-  // Set some language-dependent strings.
-  $pdf->setLanguageArray($l);
 
   // Set default font subsetting mode.
   $pdf->setFontSubsetting(TRUE);
