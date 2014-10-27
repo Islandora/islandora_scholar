@@ -128,7 +128,7 @@ function islandora_scholar_embargo_mail_tokens($params, $language) {
     $to_return = array(
       '!item' => l(
           $params['item_title'],
-          'islandora/object' . $params['pid']
+          'islandora/object/' . $params['pid']
       ),
       '%dsid' => $params['dsid'],
       '%date' => $date,
@@ -164,7 +164,7 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
         $message['body'][] = t('The embargo period for the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       else {
-        $message['body'][] = t('The embargo period for the %dsid datastream on the object !item has expired, or the embargo has been manually lifted.');
+        $message['body'][] = t('The embargo period for the %dsid datastream on the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       break;
   }
