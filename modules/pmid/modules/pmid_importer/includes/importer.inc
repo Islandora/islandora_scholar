@@ -66,7 +66,13 @@ class PMImporter extends IslandoraBatchImporter {
     $text = trim($form_state['values']['textarea']);
     $file = file_load($form_state['values']['file']);
     if ($file) {
-      $text .= ' ' . trim(file_get_contents($file->uri));
+      $file_pmids = trim(file_get_contents($file->uri));
+      if ($text) {
+        $text .= ' ' . $file_pmids;
+      }
+      else {
+        $text = $file_pmids;
+      }
       file_delete($file);
       unset($form_state['values']['file']);
     }
