@@ -42,7 +42,7 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     foreach ($mods_xml->name as $name_xml) {
       $name_parts = array();
-      $role = (string) @$name_xml->role->roleTerm;
+      $role = strtolower((string) @$name_xml->role->roleTerm);
       if ($role) {
         if ($role == 'author') {
           foreach ($name_xml->namePart as $name_part) {
@@ -55,11 +55,17 @@ function islandora_google_scholar_create_meta_tags($object) {
               if ($name_part['type'] == 'family') {
                 $name_parts['last_name'] = $np;
               }
+              if (!isset($name_part['type'])) {
+                $name_parts['no_type'] = $np;
+              }
             }
           }
         }
         if (isset($name_parts['last_name']) && isset($name_parts['first_name'])) {
           $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
+        }
+        elseif (isset($name_parts['no_type'])) {
+          $tags['citation_author'][] = $name_parts['no_type'];
         }
       }
     }
