@@ -659,18 +659,18 @@ function convert_mods_to_citeproc_json_name_corporate(SimpleXMLElement $name) {
  */
 function convert_mods_to_citeproc_json_name_role(SimpleXMLElement $name, array $valid_roles, $default_role) {
   module_load_include('inc', 'citeproc', 'includes/marcrelator_conversion');
-  $roleTerm = $name->xpath("mods:role/mods:roleTerm");
-  if (isset($roleTerm[0])) {
-    $role = (string) $roleTerm[0];
-    $roleTerm = $roleTerm[0];
+  $role_term = $name->xpath("mods:role/mods:roleTerm");
+  if (isset($role_term[0])) {
+    $role = (string) $role_term[0];
+    $role_term = $role_term[0];
   }
   else {
     $role = NULL;
   }
 
   if ($role) {
-    $role_authority = (string) $roleTerm->attributes()->authority;
-    $role_type = (string) $roleTerm->attributes()->type;
+    $role_authority = (string) $role_term->attributes()->authority;
+    $role_type = (string) $role_term->attributes()->type;
 
     if ($role_authority == 'marcrelator' && $role_type == 'code') {
       $role = marcrelator_code_to_term($role);
