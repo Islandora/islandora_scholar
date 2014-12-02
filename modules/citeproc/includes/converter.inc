@@ -305,17 +305,33 @@ function convert_mods_to_citeproc_json_page(SimpleXMLElement $mods) {
   if (empty($pages)) {
     $pages = $mods->xpath("//mods:mods[1]/mods:part/mods:extent[@unit='page']");
   }
-  if (isset($pages[0])) {
-    if (!empty($pages[0]->total)) {
-      $output = (string) $pages[0]->total;
+
+  $pages = (!empty($pages) ? $pages[0] : NULL);
+  if ($pages) {
+    add_mods_namespace($pages);
+
+    $total = $pages->xpath('mods:total');
+    $total = (!empty($total) ? (string) $total[0] : NULL);
+
+    $list = $pages->xpath('mods:list');
+    $list = (!empty($list) ? (string) $list[0] : NULL);
+
+    $start = $pages->xpath('mods:start');
+    $start = (!empty($start) ? (string) $start[0] : NULL);
+
+    $end = $pages->xpath('mods:end');
+    $end = (!empty($end) ? (string) $end[0] : NULL);
+
+    if ($total) {
+      $output = $total;
     }
-    elseif (!empty($pages[0]->list)) {
-      $output = (string) $pages[0]->list;
+    elseif ($list) {
+      $output = $list;
     }
-    elseif (!empty($pages[0]->start)) {
-      $output = (string) $pages[0]->start;
-      if (!empty($pages[0]->end)) {
-        $output .= "-" . $pages[0]->end;
+    elseif ($start) {
+      $output = $start;
+      if ($end) {
+        $output .= "-" . $end;
       }
     }
   }
