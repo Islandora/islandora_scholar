@@ -22,6 +22,10 @@ function islandora_scholar_get_view(AbstractObject $object) {
       '#markup' => "<div class='{$classes}'>",
       '#weight' => $i++,
     ),
+    'search_return_link' => array(
+      '#markup' => theme('islandora_solr_search_return_link'),
+      '#weight' => $i++,
+    ),
     'citation' => array(
       '#prefix' => '<span class="citation">',
       '#suffix' => '</span>',
