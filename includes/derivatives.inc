@@ -41,12 +41,14 @@ function islandora_scholar_get_derivative_source_as_unmanaged_file(AbstractObjec
  * @see hook_islandora_derivative()
  */
 function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FALSE, $hook = array()) {
-  $width = variable_get('islandora_scholar_thumbnail_width', 200);
-  $height = variable_get('islandora_scholar_thumbnail_height', 200);
-  $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
-  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force, $hook['source_dsid']);
-  file_unmanaged_delete($file_uri);
-  return $results;
+  if ($force || !isset($object['TN'])) {
+    $width = variable_get('islandora_scholar_thumbnail_width', 200);
+    $height = variable_get('islandora_scholar_thumbnail_height', 200);
+    $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
+    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force, $hook['source_dsid']);
+    file_unmanaged_delete($file_uri);
+    return $results;
+  }
 }
 
 /**
@@ -154,12 +156,14 @@ function islandora_scholar_add_fulltext_derivative(AbstractObject $object, $forc
  * @see hook_islandora_derivative()
  */
 function islandora_scholar_add_preview_derivative(AbstractObject $object, $force = FALSE, $hook = array()) {
-  $width = variable_get('islandora_scholar_preview_width', 500);
-  $height = variable_get('islandora_scholar_preview_height', 700);
-  $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
-  $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force, $hook['source_dsid']);
-  file_unmanaged_delete($file_uri);
-  return $results;
+  if ($force || !isset($object['PREVIEW'])) {
+    $width = variable_get('islandora_scholar_preview_width', 500);
+    $height = variable_get('islandora_scholar_preview_height', 700);
+    $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
+    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force, $hook['source_dsid']);
+    file_unmanaged_delete($file_uri);
+    return $results;
+  }
 }
 
 /**
