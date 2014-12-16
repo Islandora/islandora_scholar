@@ -35,8 +35,9 @@ function islandora_scholar_get_derivative_source_as_unmanaged_file(AbstractObjec
  * @param array $hook
  *   An array describing the hook triggering the derivative.
  *
- * @return array
- *   An array describing the outcome of the thumbnail creation.
+ * @return array|NULL
+ *   An array describing the outcome of the thumbnail creation or NULL if no
+ *   derivatives are to be created or updated.
  *
  * @see hook_islandora_derivative()
  */
@@ -61,8 +62,9 @@ function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FA
  * @param array $hook
  *   An array describing the hook triggering the derivative. *
  *
- * @return array
- *   An array describing the outcome of the FULL_TEXT datastream creation.
+ * @return array|NULL
+ *   An array describing the outcome of the FULL_TEXT datastream creation or
+ *   NULL if no derivatives are to be created or updated.
  *
  * @see hook_islandora_derivative()
  */
@@ -151,7 +153,8 @@ function islandora_scholar_add_fulltext_derivative(AbstractObject $object, $forc
  *   The array defining the derivative hook.
  *
  * @return array
- *   An array describing the outcome of the PREVIEW datastream creation.
+ *   An array describing the outcome of the PREVIEW datastream creation or NULL
+ *   if no derivatives are to be created or updated.
  *
  * @see hook_islandora_derivative()
  */
@@ -184,8 +187,9 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
  * @param string $source_dsid
  *   The source DSID that triggered the derivative creation.
  *
- * @return array
- *   An array describing the outcome of adding the JPG derivative.
+ * @return array|NULL
+ *   An array describing the outcome of adding the JPG derivative or NULL if no
+ *   derivatives are to be created or updated.
  *
  * @see hook_islandora_derivative()
  */
