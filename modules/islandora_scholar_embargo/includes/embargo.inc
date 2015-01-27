@@ -336,8 +336,14 @@ PREFIX is: <info:islandora/islandora-system:def/scholar#>
 SELECT ?obj ?date
 FROM <#ri>
 WHERE {
-  ?obj is:embargo-until ?date .
-  FILTER(REGEX(STR(?obj),'$object->id'))
+  {
+     ?obj is:embargo-until ?date .
+     FILTER(REGEX(STR(?obj),'{$object->id}$'))
+  }
+  UNION {
+    ?obj is:embargo-until ?date .
+    FILTER(REGEX(STR(?obj),'{$object->id}/'))
+  }
 }
 EOQ;
   $embargo_results = $object->repository->ri->sparqlQuery($current_embargo, 'unlimited', '0');
