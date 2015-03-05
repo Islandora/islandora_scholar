@@ -24,6 +24,8 @@ For further information on CSL, please see [CSL Documentation](http://citationst
 
 Enable the module via Administration » Islandora » Islandora Utility Modules » CSL Styles (admin/islandora/tools/csl)
 
+![CSL screenshot](https://camo.githubusercontent.com/18421c2c613b348441c64b03b97646aacb99b4da/68747470733a2f2f77696b692e6475726173706163652e6f72672f646f776e6c6f61642f6174746163686d656e74732f36383036333534372f53637265656e25323053686f74253230323031342d31302d32362532306174253230342e33372e3131253230504d2e706e673f76657273696f6e3d31266d6f64696669636174696f6e446174653d31343235333238363732323134266170693d7632)
+
 ## Troubleshooting/Issues
 
 The styles repository is currently housed at [zotero.org](https://www.zotero.org/). Note that styles in the Zotero styles repository are currently at CSL version 0.8.1. Use the tools provided by the CSL project to convert CSL 0.8.1 styles to the version 1.0 syntax supported by this processor.
