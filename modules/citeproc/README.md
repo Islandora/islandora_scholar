@@ -1,15 +1,16 @@
-# Islandora Scholar [![Build Status](https://travis-ci.org/Islandora/islandora_scholar.png?branch=7.x)](https://travis-ci.org/Islandora/islandora_scholar)
+
+# Islandora Citeproc
 
 ## Introduction
 
-Based on the UPEI scholar module, Islandora Scholar is designed to implement a feature-rich Institutional Repository.
+Provides a Drupal interface to the citeproc-php library. [Cite-Proc demo page](http://gsl-nagoya-u.net/http/pub/citeproc-demo/demo.html).
 
 ## Requirements
 
 This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
-* [Tuque](https://github.com/islandora/tuque)
+* [CSL](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/csl)
 
 ## Installation
 
@@ -17,12 +18,12 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-Islandora 7 has re-defined how we are displaying citations to the user. As such, existing citations should be updated using the provided Drush script. The command creates PDF derivatives for any existing attached PDFs as the Google PDF Viewer has been removed in favor of displaying just the PREVIEW datastream.
-
-This can be done by running: 
-`drush -u 1 islandora-scholar-update-citations`
+Enable the module via Administration » Modules (admin/modules)
 
 ## Troubleshooting/Issues
+
+The citeproc-php library has been modified, so do not just it replace with the latest version. class_rtf.php comes from the biblio drupal project, and has been modified for
+use here.
 
 Having problems or solved a problem? Check out the Islandora google groups for a solution.
 
@@ -33,7 +34,7 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 Current maintainers:
 
-* [Jordan Dukart](https://github.com/jordandukart)
+* [Joardan Dukart](https://github.com/jordandukart)
 
 ## Development
 
@@ -42,4 +43,3 @@ If you would like to contribute to this module, please check out our helpful [Do
 ## License
 
 [GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt)
-
