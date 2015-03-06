@@ -36,3 +36,7 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 Current maintainers:
 
 * [Nick Ruest](https://github.com/nruest)
+
+## License
+
+[GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt)
