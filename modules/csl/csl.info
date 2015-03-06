@@ -3,5 +3,5 @@ description = Allow for the storage/retrieval/validation of CSL 1.0.1 styles.
 package = Islandora Tools
 files[] = includes/csl.inc
 configure = admin/islandora/tools/csl
-version = 7.x-dev
+version = 7.x-1.5RC1
 core = 7.x
