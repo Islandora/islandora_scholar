@@ -108,6 +108,10 @@ function _citation_exporter_batch_append_citations_to_text_file(array $pids, $fi
       if (!empty($mods)) {
         $json = _citeproc_array_to_object(convert_mods_to_citeproc_jsons($mods));
         $text = $citeproc->render($json, 'bibliography');
+        // The text string can be altered by other modules before it is added to
+        // the export file. NOTE: This will alter will trigger during both RTF
+        // and PDF export.
+        drupal_alter(CITATION_EXPORTER_MODIFY_EXPORTING_CITATION_TEXT_HOOK, $text, $object);
         if ($file) {
           // I know the <br/> look out of place but its cause this is an
           // intermediate document and the rtf class will replace them with
