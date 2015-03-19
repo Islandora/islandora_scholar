@@ -1,15 +1,15 @@
-# Islandora Scholar [![Build Status](https://travis-ci.org/Islandora/islandora_scholar.png?branch=7.x)](https://travis-ci.org/Islandora/islandora_scholar)
+# PMID Importer
 
 ## Introduction
 
-Based on the UPEI scholar module, Islandora Scholar is designed to implement a feature-rich Institutional Repository.
+Importer plugin for Pubmed ID to create citation objects.
 
 ## Requirements
 
 This module requires the following modules/libraries:
 
-* [Islandora](https://github.com/islandora/islandora)
-* [Tuque](https://github.com/islandora/tuque)
+* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora Importer](https://github.com/Islandora/islandora_importer)
 
 ## Installation
 
@@ -17,10 +17,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-Islandora 7 has re-defined how we are displaying citations to the user. As such, existing citations should be updated using the provided Drush script. The command creates PDF derivatives for any existing attached PDFs as the Google PDF Viewer has been removed in favor of displaying just the PREVIEW datastream.
-
-This can be done by running: 
-`drush -u 1 islandora-scholar-update-citations`
+Enable the module via Administration » Modules (admin/modules)
 
 ## Troubleshooting/Issues
 
@@ -33,7 +30,7 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 Current maintainers:
 
-* [Jordan Dukart](https://github.com/jordandukart)
+* [Joardan Dukart](https://github.com/jordandukart)
 
 ## Development
 
@@ -42,4 +39,3 @@ If you would like to contribute to this module, please check out our helpful [Do
 ## License
 
 [GPLv3](http://www.gnu.org/licenses/gpl-3.0.txt)
-

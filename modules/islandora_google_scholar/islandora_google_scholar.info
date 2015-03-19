@@ -1,6 +1,6 @@
 name = Islandora Google Scholar
 description = "This module provides meta tags to help indexing in Google Scholar and Zotero"
 dependencies[] = islandora
-version = 7.x-dev
+version = 7.x-1.5RC1
 core = 7.x
 package = Islandora Solution Packs
