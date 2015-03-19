@@ -787,7 +787,7 @@
               <value>physicalDescription</value>
             </create>
             <read>
-              <path>mods:physicalDescription</path>
+              <path>mods:physicalDescription[not(@authority) or @authority != 'local']</path>
               <context>parent</context>
             </read>
             <update>NULL</update>
