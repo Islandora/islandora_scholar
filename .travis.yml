@@ -38,8 +38,10 @@ script:
   # throw warnings from coder.
   - mv $TRAVIS_BUILD_DIR/modules/citeproc/lib/citeproc-php $HOME
   - mv $TRAVIS_BUILD_DIR/modules/exporter/lib/tcpdf $HOME
-  - find $TRAVIS_BUILD_DIR -iname "*.js" -type f -exec cp --parents -v {} $JAVASCRIPT_DIR \;
-  - find $TRAVIS_BUILD_DIR -iname "*.js" -type f -exec rm {} \;
+  - find $TRAVIS_BUILD_DIR/modules/citeproc/lib -iname "*.js" -type f -exec cp --parents -v {} $JAVASCRIPT_DIR \;
+  - find $TRAVIS_BUILD_DIR/modules/pmid/xsl/exslt -iname "*.js" -type f -exec cp --parents -v {} $JAVASCRIPT_DIR \;
+  - find $TRAVIS_BUILD_DIR/modules/citeproc/lib -iname "*.js" -type f -exec rm {} \;
+  - find $TRAVIS_BUILD_DIR/modules/pmid/xsl/exslt -iname "*.js" -type f -exec rm {} \;
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citation_exporter
