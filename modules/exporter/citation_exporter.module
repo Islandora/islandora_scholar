@@ -5,6 +5,9 @@
  * Implements hooks and callbacks for this module.
  */
 
+// Hooks.
+define('CITATION_EXPORTER_MODIFY_EXPORTING_CITATION_TEXT_HOOK', 'citation_exporter_modify_exporting_citation_text');
+
 require_once dirname(__FILE__) . '/includes/batch.inc';
 
 /**
