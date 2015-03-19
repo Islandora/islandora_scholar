@@ -15,12 +15,22 @@ require_once dirname(__FILE__) . '/includes/batch.inc';
  */
 define('CITATION_EXPORTER_INDEX_SESSION', 'citation_exporter');
 define('CITATION_EXPORTER_EXPORT_MENU', 'islandora/citation/export');
+define('CITATION_EXPORTER_ADMIN_MENU', 'admin/islandora/tools/citation/export/config');
 
 /**
  * Implements hook_menu().
  */
 function citation_exporter_menu() {
   $items = array();
+  $items[CITATION_EXPORTER_ADMIN_MENU] = array(
+    'title' => 'Citation Exporter',
+    'description' => 'Configure citation exporter settings.',
+    'type' => MENU_NORMAL_ITEM,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('citation_exporter_admin_form'),
+    'access arguments' => array('access administration pages'),
+    'file' => 'includes/admin.form.inc',
+  );
   $items[CITATION_EXPORTER_EXPORT_MENU] = array(
     'page callback' => 'citation_exporter_export',
     'access arguments' => array('access content'),

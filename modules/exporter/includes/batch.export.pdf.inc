@@ -25,7 +25,14 @@ function citation_exporter_batch_get_pdf_operations(array $pids, $style) {
   $set_id = citation_exporter_create_set($pids);
   $total = count($pids);
   $operations = array();
-
+  // XXX: Current limitations with TCPDF and time limits prevent the creation of
+  // a large PDF. For now to get around this the system will check the count of
+  // objects being exported and allow continue if it's less than the max number
+  // of pids that maintain a working PDF export.
+  if ($total > variable_get('citation_export_max_objects_for_pdf_export', 1200)) {
+    drupal_set_message(t('The number of selected objects exceeds the allowable PDF export limit.'), 'error', FALSE);
+    return $operations;
+  }
   $queries = $_GET;
   unset($queries['q']);
   $operations[] = array(
