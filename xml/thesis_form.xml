@@ -807,7 +807,7 @@
               <multiple>FALSE</multiple>
               <options>
                 <index key="">select a format</index>
-                <electronc>electronic</electronc>
+                <electronic>electronic</electronic>
                 <print>print</print>
                 <microfiche>microfiche</microfiche>
                 <microfilm>microfilm</microfilm>
