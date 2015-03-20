@@ -6,11 +6,11 @@
  */
 
 /**
- * Implements hook_install().
+ * Implements hook_uninstall().
  */
 function citation_exporter_uninstall() {
   $variables = array(
-    'citation_export_max_objects_for_pdf_export',
+    'citation_exporter_max_objects_for_pdf_export',
   );
   array_walk($variables, 'variable_del');
 }
