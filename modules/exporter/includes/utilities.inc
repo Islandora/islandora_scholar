@@ -20,9 +20,6 @@ function get_count_of_exporting_objects($query_processor) {
   $qp->solrParams['fl'] = 'PID';
   $qp->solrStart = 0;
   $qp->solrLimit = 10000;
-
-  // Handle the first set separately, so we can get the total number for our
-  // loop.
   $qp->executeQuery();
   $solr_results = $qp->islandoraSolrResult;
   $result_count = $solr_results['response']['numFound'];
