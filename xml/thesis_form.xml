@@ -878,7 +878,7 @@
       <element name="physicalDescription_bad">
         <properties>
           <type>fieldset</type>
-          <access>FALSE</access>
+          <access>TRUE</access>
           <collapsed>FALSE</collapsed>
           <collapsible>FALSE</collapsible>
           <disabled>FALSE</disabled>
@@ -886,7 +886,7 @@
           <multiple>FALSE</multiple>
           <required>FALSE</required>
           <resizable>FALSE</resizable>
-          <title>Information is the field has been entered incorrectly, please move this data to the above Physical Description field or it my be deleted without warning.</title>
+          <title>If there is information in these fields. Please re-enter this data in the above Physical Description fields or it may be deleted without warning.</title>
           <tree>TRUE</tree>
           <actions>
             <create>
@@ -908,21 +908,14 @@
         <children>
           <element name="form">
             <properties>
-              <type>select</type>
-              <access>FALSE</access>
+              <type>textfield</type>
+              <access>TRUE</access>
               <collapsed>FALSE</collapsed>
               <collapsible>FALSE</collapsible>
               <description>marcform</description>
               <disabled>TRUE</disabled>
               <executes_submit_callback>FALSE</executes_submit_callback>
               <multiple>FALSE</multiple>
-              <options>
-                <index key="">select a format</index>
-                <electronc>electronic</electronc>
-                <print>print</print>
-                <microfiche>microfiche</microfiche>
-                <microfilm>microfilm</microfilm>
-              </options>
               <required>FALSE</required>
               <resizable>FALSE</resizable>
               <title>Form</title>
@@ -949,7 +942,7 @@
           <element name="extent">
             <properties>
               <type>textfield</type>
-              <access>FALSE</access>
+              <access>TRUE</access>
               <collapsed>FALSE</collapsed>
               <collapsible>FALSE</collapsible>
               <disabled>TRUE</disabled>
