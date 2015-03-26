@@ -787,7 +787,7 @@
               <value>physicalDescription</value>
             </create>
             <read>
-              <path>mods:physicalDescription[not(@authority) or @authority != 'local']</path>
+              <path>mods:physicalDescription[not(@authority = 'local')]</path>
               <context>parent</context>
             </read>
             <update>NULL</update>
@@ -868,6 +868,111 @@
                   <path>self::node()</path>
                   <context>self</context>
                 </update>
+                <delete>NULL</delete>
+              </actions>
+            </properties>
+            <children/>
+          </element>
+        </children>
+      </element>
+      <element name="physicalDescription_bad">
+        <properties>
+          <type>fieldset</type>
+          <access>FALSE</access>
+          <collapsed>FALSE</collapsed>
+          <collapsible>FALSE</collapsible>
+          <disabled>FALSE</disabled>
+          <executes_submit_callback>FALSE</executes_submit_callback>
+          <multiple>FALSE</multiple>
+          <required>FALSE</required>
+          <resizable>FALSE</resizable>
+          <title>Information is the field has been entered incorrectly, please move this data to the above Physical Description field or it my be deleted without warning.</title>
+          <tree>TRUE</tree>
+          <actions>
+            <create>
+              <path>self::node()</path>
+              <context>parent</context>
+              <schema/>
+              <type>element</type>
+              <prefix>NULL</prefix>
+              <value>physicalDescription_bad</value>
+            </create>
+            <read>
+              <path>mods:physicalDescription[@authority="local" and (string-length(mods:form/text()) > 0 or string-length(mods:extent/text()) > 0)]</path>
+              <context>parent</context>
+            </read>
+            <update>NULL</update>
+            <delete>NULL</delete>
+          </actions>
+        </properties>
+        <children>
+          <element name="form">
+            <properties>
+              <type>select</type>
+              <access>FALSE</access>
+              <collapsed>FALSE</collapsed>
+              <collapsible>FALSE</collapsible>
+              <description>marcform</description>
+              <disabled>TRUE</disabled>
+              <executes_submit_callback>FALSE</executes_submit_callback>
+              <multiple>FALSE</multiple>
+              <options>
+                <index key="">select a format</index>
+                <electronc>electronic</electronc>
+                <print>print</print>
+                <microfiche>microfiche</microfiche>
+                <microfilm>microfilm</microfilm>
+              </options>
+              <required>FALSE</required>
+              <resizable>FALSE</resizable>
+              <title>Form</title>
+              <tree>TRUE</tree>
+              <actions>
+                <create>
+                  <path>self::node()</path>
+                  <context>parent</context>
+                  <schema/>
+                  <type>xml</type>
+                  <prefix>NULL</prefix>
+                  <value>&lt;form authority="marcform"&gt;%value%&lt;/form&gt;</value>
+                </create>
+                <read>
+                  <path>mods:form[@authority="marcform"]</path>
+                  <context>parent</context>
+                </read>
+                <update/>
+                <delete>NULL</delete>
+              </actions>
+            </properties>
+            <children/>
+          </element>
+          <element name="extent">
+            <properties>
+              <type>textfield</type>
+              <access>FALSE</access>
+              <collapsed>FALSE</collapsed>
+              <collapsible>FALSE</collapsible>
+              <disabled>TRUE</disabled>
+              <executes_submit_callback>FALSE</executes_submit_callback>
+              <multiple>FALSE</multiple>
+              <required>FALSE</required>
+              <resizable>FALSE</resizable>
+              <title>Extent</title>
+              <tree>TRUE</tree>
+              <actions>
+                <create>
+                  <path>self::node()</path>
+                  <context>parent</context>
+                  <schema/>
+                  <type>element</type>
+                  <prefix>NULL</prefix>
+                  <value>extent</value>
+                </create>
+                <read>
+                  <path>mods:extent</path>
+                  <context>parent</context>
+                </read>
+                <update/>
                 <delete>NULL</delete>
               </actions>
             </properties>
