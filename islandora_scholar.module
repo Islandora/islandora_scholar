@@ -95,8 +95,19 @@ function islandora_scholar_islandora_content_model_forms_form_associations() {
       'dsid' => 'MODS',
       'title_field' => array('titleInfo', 'title'),
       'transform' => 'mods_to_dc.xsl',
+      'self_transform' => 'cleanup_thesis_form.xslt',
       'template' => FALSE,
     ),
+  );
+}
+
+/**
+ * Implements hook_islandora_xml_form_builder_get_transforms().
+ */
+function islandora_scholar_xml_form_builder_get_self_transforms() {
+  dd(NULL, "Inside hook_xml_form_builder_get_self_transforms");
+  return array(
+    'cleanup_thesis_form.xslt' => drupal_get_path('module', 'islandora_scholar') . '/xsl/cleanup_thesis_form.xslt',
   );
 }
 
