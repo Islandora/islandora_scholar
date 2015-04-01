@@ -92,7 +92,7 @@ $tbl = <<<EOD
     <tr>
        <td>COL 3 - ROW 3</td>
     </tr>
-  
+
 </table>
 EOD;
 
@@ -114,7 +114,7 @@ $tbl = <<<EOD
     <tr>
        <td>COL 3 - ROW 3</td>
     </tr>
-  
+
 </table>
 EOD;
 
@@ -136,7 +136,7 @@ $tbl = <<<EOD
     <tr>
        <td>COL 3 - ROW 3</td>
     </tr>
-  
+
 </table>
 EOD;
 
@@ -184,20 +184,20 @@ $tbl = <<<EOD
 <table border="1" cellpadding="2" cellspacing="2">
 <thead>
  <tr style="background-color:#FFFF00;color:#0000FF;">
-  <td width="30" align="center"><b>A</b></td>
-  <td width="140" align="center"><b>XXXX</b></td>
-  <td width="140" align="center"><b>XXXX</b></td>
-  <td width="80" align="center"> <b>XXXX</b></td>
-  <td width="80" align="center"><b>XXXX</b></td>
-  <td width="45" align="center"><b>XXXX</b></td>
+  <td width="30" align="center"><strong>A</strong></td>
+  <td width="140" align="center"><strong>XXXX</strong></td>
+  <td width="140" align="center"><strong>XXXX</strong></td>
+  <td width="80" align="center"> <strong>XXXX</strong></td>
+  <td width="80" align="center"><strong>XXXX</strong></td>
+  <td width="45" align="center"><strong>XXXX</strong></td>
  </tr>
  <tr style="background-color:#FF0000;color:#FFFF00;">
-  <td width="30" align="center"><b>B</b></td>
-  <td width="140" align="center"><b>XXXX</b></td>
-  <td width="140" align="center"><b>XXXX</b></td>
-  <td width="80" align="center"> <b>XXXX</b></td>
-  <td width="80" align="center"><b>XXXX</b></td>
-  <td width="45" align="center"><b>XXXX</b></td>
+  <td width="30" align="center"><strong>B</strong></td>
+  <td width="140" align="center"><strong>XXXX</strong></td>
+  <td width="140" align="center"><strong>XXXX</strong></td>
+  <td width="80" align="center"> <strong>XXXX</strong></td>
+  <td width="80" align="center"><strong>XXXX</strong></td>
+  <td width="45" align="center"><strong>XXXX</strong></td>
  </tr>
 </thead>
  <tr>
@@ -309,5 +309,5 @@ $pdf->writeHTML($tbl, true, false, false, false, '');
 $pdf->Output('example_048.pdf', 'I');
 
 //============================================================+
-// END OF FILE                                                
+// END OF FILE
 //============================================================+
