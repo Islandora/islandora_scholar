@@ -2070,7 +2070,7 @@ class TCPDF {
 	/**
 	 * Get page dimensions from format name.
 	 * @param $format (mixed) The format name. It can be: <ul>
-	 * <li><b>ISO 216 A Series + 2 SIS 014711 extensions</b></li>
+	 * <li><strong>ISO 216 A Series + 2 SIS 014711 extensions</strong></li>
 	 * <li>A0 (841x1189 mm ; 33.11x46.81 in)</li>
 	 * <li>A1 (594x841 mm ; 23.39x33.11 in)</li>
 	 * <li>A2 (420x594 mm ; 16.54x23.39 in)</li>
@@ -2084,7 +2084,7 @@ class TCPDF {
 	 * <li>A10 (26x37 mm ; 1.02x1.46 in)</li>
 	 * <li>A11 (18x26 mm ; 0.71x1.02 in)</li>
 	 * <li>A12 (13x18 mm ; 0.51x0.71 in)</li>
-	 * <li><b>ISO 216 B Series + 2 SIS 014711 extensions</b></li>
+	 * <li><strong>ISO 216 B Series + 2 SIS 014711 extensions</strong></li>
 	 * <li>B0 (1000x1414 mm ; 39.37x55.67 in)</li>
 	 * <li>B1 (707x1000 mm ; 27.83x39.37 in)</li>
 	 * <li>B2 (500x707 mm ; 19.69x27.83 in)</li>
@@ -2098,7 +2098,7 @@ class TCPDF {
 	 * <li>B10 (31x44 mm ; 1.22x1.73 in)</li>
 	 * <li>B11 (22x31 mm ; 0.87x1.22 in)</li>
 	 * <li>B12 (15x22 mm ; 0.59x0.87 in)</li>
-	 * <li><b>ISO 216 C Series + 2 SIS 014711 extensions + 2 EXTENSION</b></li>
+	 * <li><strong>ISO 216 C Series + 2 SIS 014711 extensions + 2 EXTENSION</strong></li>
 	 * <li>C0 (917x1297 mm ; 36.10x51.06 in)</li>
 	 * <li>C1 (648x917 mm ; 25.51x36.10 in)</li>
 	 * <li>C2 (458x648 mm ; 18.03x25.51 in)</li>
@@ -2114,7 +2114,7 @@ class TCPDF {
 	 * <li>C12 (14x20 mm ; 0.55x0.79 in)</li>
 	 * <li>C76 (81x162 mm ; 3.19x6.38 in)</li>
 	 * <li>DL (110x220 mm ; 4.33x8.66 in)</li>
-	 * <li><b>SIS 014711 E Series</b></li>
+	 * <li><strong>SIS 014711 E Series</strong></li>
 	 * <li>E0 (879x1241 mm ; 34.61x48.86 in)</li>
 	 * <li>E1 (620x879 mm ; 24.41x34.61 in)</li>
 	 * <li>E2 (440x620 mm ; 17.32x24.41 in)</li>
@@ -2128,7 +2128,7 @@ class TCPDF {
 	 * <li>E10 (27x39 mm ; 1.06x1.54 in)</li>
 	 * <li>E11 (19x27 mm ; 0.75x1.06 in)</li>
 	 * <li>E12 (13x19 mm ; 0.51x0.75 in)</li>
-	 * <li><b>SIS 014711 G Series</b></li>
+	 * <li><strong>SIS 014711 G Series</strong></li>
 	 * <li>G0 (958x1354 mm ; 37.72x53.31 in)</li>
 	 * <li>G1 (677x958 mm ; 26.65x37.72 in)</li>
 	 * <li>G2 (479x677 mm ; 18.86x26.65 in)</li>
@@ -2142,7 +2142,7 @@ class TCPDF {
 	 * <li>G10 (29x42 mm ; 1.14x1.65 in)</li>
 	 * <li>G11 (21x29 mm ; 0.83x1.14 in)</li>
 	 * <li>G12 (14x21 mm ; 0.55x0.83 in)</li>
-	 * <li><b>ISO Press</b></li>
+	 * <li><strong>ISO Press</strong></li>
 	 * <li>RA0 (860x1220 mm ; 33.86x48.03 in)</li>
 	 * <li>RA1 (610x860 mm ; 24.02x33.86 in)</li>
 	 * <li>RA2 (430x610 mm ; 16.93x24.02 in)</li>
@@ -2153,10 +2153,10 @@ class TCPDF {
 	 * <li>SRA2 (450x640 mm ; 17.72x25.20 in)</li>
 	 * <li>SRA3 (320x450 mm ; 12.60x17.72 in)</li>
 	 * <li>SRA4 (225x320 mm ; 8.86x12.60 in)</li>
-	 * <li><b>German DIN 476</b></li>
+	 * <li><strong>German DIN 476</strong></li>
 	 * <li>4A0 (1682x2378 mm ; 66.22x93.62 in)</li>
 	 * <li>2A0 (1189x1682 mm ; 46.81x66.22 in)</li>
-	 * <li><b>Variations on the ISO Standard</b></li>
+	 * <li><strong>Variations on the ISO Standard</strong></li>
 	 * <li>A2_EXTRA (445x619 mm ; 17.52x24.37 in)</li>
 	 * <li>A3+ (329x483 mm ; 12.95x19.02 in)</li>
 	 * <li>A3_EXTRA (322x445 mm ; 12.68x17.52 in)</li>
@@ -2169,20 +2169,20 @@ class TCPDF {
 	 * <li>F4 (210x330 mm ; 8.27x12.99 in)</li>
 	 * <li>SO_B5_EXTRA (202x276 mm ; 7.95x10.87 in)</li>
 	 * <li>A5_EXTRA (173x235 mm ; 6.81x9.25 in)</li>
-	 * <li><b>ANSI Series</b></li>
+	 * <li><strong>ANSI Series</strong></li>
 	 * <li>ANSI_E (864x1118 mm ; 34.00x44.00 in)</li>
 	 * <li>ANSI_D (559x864 mm ; 22.00x34.00 in)</li>
 	 * <li>ANSI_C (432x559 mm ; 17.00x22.00 in)</li>
 	 * <li>ANSI_B (279x432 mm ; 11.00x17.00 in)</li>
 	 * <li>ANSI_A (216x279 mm ; 8.50x11.00 in)</li>
-	 * <li><b>Traditional 'Loose' North American Paper Sizes</b></li>
+	 * <li><strong>Traditional 'Loose' North American Paper Sizes</strong></li>
 	 * <li>LEDGER, USLEDGER (432x279 mm ; 17.00x11.00 in)</li>
 	 * <li>TABLOID, USTABLOID, BIBLE, ORGANIZERK (279x432 mm ; 11.00x17.00 in)</li>
 	 * <li>LETTER, USLETTER, ORGANIZERM (216x279 mm ; 8.50x11.00 in)</li>
 	 * <li>LEGAL, USLEGAL (216x356 mm ; 8.50x14.00 in)</li>
 	 * <li>GLETTER, GOVERNMENTLETTER (203x267 mm ; 8.00x10.50 in)</li>
 	 * <li>JLEGAL, JUNIORLEGAL (203x127 mm ; 8.00x5.00 in)</li>
-	 * <li><b>Other North American Paper Sizes</b></li>
+	 * <li><strong>Other North American Paper Sizes</strong></li>
 	 * <li>QUADDEMY (889x1143 mm ; 35.00x45.00 in)</li>
 	 * <li>SUPER_B (330x483 mm ; 13.00x19.00 in)</li>
 	 * <li>QUARTO (229x279 mm ; 9.00x11.00 in)</li>
@@ -2192,28 +2192,28 @@ class TCPDF {
 	 * <li>FOOLSCAP (210x330 mm ; 8.27x13.00 in)</li>
 	 * <li>COMPACT (108x171 mm ; 4.25x6.75 in)</li>
 	 * <li>ORGANIZERJ (70x127 mm ; 2.75x5.00 in)</li>
-	 * <li><b>Canadian standard CAN 2-9.60M</b></li>
+	 * <li><strong>Canadian standard CAN 2-9.60M</strong></li>
 	 * <li>P1 (560x860 mm ; 22.05x33.86 in)</li>
 	 * <li>P2 (430x560 mm ; 16.93x22.05 in)</li>
 	 * <li>P3 (280x430 mm ; 11.02x16.93 in)</li>
 	 * <li>P4 (215x280 mm ; 8.46x11.02 in)</li>
 	 * <li>P5 (140x215 mm ; 5.51x8.46 in)</li>
 	 * <li>P6 (107x140 mm ; 4.21x5.51 in)</li>
-	 * <li><b>North American Architectural Sizes</b></li>
+	 * <li><strong>North American Architectural Sizes</strong></li>
 	 * <li>ARCH_E (914x1219 mm ; 36.00x48.00 in)</li>
 	 * <li>ARCH_E1 (762x1067 mm ; 30.00x42.00 in)</li>
 	 * <li>ARCH_D (610x914 mm ; 24.00x36.00 in)</li>
 	 * <li>ARCH_C, BROADSHEET (457x610 mm ; 18.00x24.00 in)</li>
 	 * <li>ARCH_B (305x457 mm ; 12.00x18.00 in)</li>
 	 * <li>ARCH_A (229x305 mm ; 9.00x12.00 in)</li>
-	 * <li><b>Announcement Envelopes</b></li>
+	 * <li><strong>Announcement Envelopes</strong></li>
 	 * <li>ANNENV_A2 (111x146 mm ; 4.37x5.75 in)</li>
 	 * <li>ANNENV_A6 (121x165 mm ; 4.75x6.50 in)</li>
 	 * <li>ANNENV_A7 (133x184 mm ; 5.25x7.25 in)</li>
 	 * <li>ANNENV_A8 (140x206 mm ; 5.50x8.12 in)</li>
 	 * <li>ANNENV_A10 (159x244 mm ; 6.25x9.62 in)</li>
 	 * <li>ANNENV_SLIM (98x225 mm ; 3.87x8.87 in)</li>
-	 * <li><b>Commercial Envelopes</b></li>
+	 * <li><strong>Commercial Envelopes</strong></li>
 	 * <li>COMMENV_N6_1/4 (89x152 mm ; 3.50x6.00 in)</li>
 	 * <li>COMMENV_N6_3/4 (92x165 mm ; 3.62x6.50 in)</li>
 	 * <li>COMMENV_N8 (98x191 mm ; 3.87x7.50 in)</li>
@@ -2222,7 +2222,7 @@ class TCPDF {
 	 * <li>COMMENV_N11 (114x263 mm ; 4.50x10.37 in)</li>
 	 * <li>COMMENV_N12 (121x279 mm ; 4.75x11.00 in)</li>
 	 * <li>COMMENV_N14 (127x292 mm ; 5.00x11.50 in)</li>
-	 * <li><b>Catalogue Envelopes</b></li>
+	 * <li><strong>Catalogue Envelopes</strong></li>
 	 * <li>CATENV_N1 (152x229 mm ; 6.00x9.00 in)</li>
 	 * <li>CATENV_N1_3/4 (165x241 mm ; 6.50x9.50 in)</li>
 	 * <li>CATENV_N2 (165x254 mm ; 6.50x10.00 in)</li>
@@ -2237,7 +2237,7 @@ class TCPDF {
 	 * <li>CATENV_N13_1/2 (254x330 mm ; 10.00x13.00 in)</li>
 	 * <li>CATENV_N14_1/4 (286x311 mm ; 11.25x12.25 in)</li>
 	 * <li>CATENV_N14_1/2 (292x368 mm ; 11.50x14.50 in)</li>
-	 * <li><b>Japanese (JIS P 0138-61) Standard B-Series</b></li>
+	 * <li><strong>Japanese (JIS P 0138-61) Standard B-Series</strong></li>
 	 * <li>JIS_B0 (1030x1456 mm ; 40.55x57.32 in)</li>
 	 * <li>JIS_B1 (728x1030 mm ; 28.66x40.55 in)</li>
 	 * <li>JIS_B2 (515x728 mm ; 20.28x28.66 in)</li>
@@ -2251,7 +2251,7 @@ class TCPDF {
 	 * <li>JIS_B10 (32x45 mm ; 1.26x1.77 in)</li>
 	 * <li>JIS_B11 (22x32 mm ; 0.87x1.26 in)</li>
 	 * <li>JIS_B12 (16x22 mm ; 0.63x0.87 in)</li>
-	 * <li><b>PA Series</b></li>
+	 * <li><strong>PA Series</strong></li>
 	 * <li>PA0 (840x1120 mm ; 33.07x44.09 in)</li>
 	 * <li>PA1 (560x840 mm ; 22.05x33.07 in)</li>
 	 * <li>PA2 (420x560 mm ; 16.54x22.05 in)</li>
@@ -2263,7 +2263,7 @@ class TCPDF {
 	 * <li>PA8 (52x70 mm ; 2.05x2.76 in)</li>
 	 * <li>PA9 (35x52 mm ; 1.38x2.05 in)</li>
 	 * <li>PA10 (26x35 mm ; 1.02x1.38 in)</li>
-	 * <li><b>Standard Photographic Print Sizes</b></li>
+	 * <li><strong>Standard Photographic Print Sizes</strong></li>
 	 * <li>PASSPORT_PHOTO (35x45 mm ; 1.38x1.77 in)</li>
 	 * <li>E (82x120 mm ; 3.25x4.72 in)</li>
 	 * <li>3R, L (89x127 mm ; 3.50x5.00 in)</li>
@@ -2279,11 +2279,11 @@ class TCPDF {
 	 * <li>S11R (279x432 mm ; 10.98x17.01 in)</li>
 	 * <li>12R (305x381 mm ; 12.01x15.00 in)</li>
 	 * <li>S12R (305x456 mm ; 12.01x17.95 in)</li>
-	 * <li><b>Common Newspaper Sizes</b></li>
+	 * <li><strong>Common Newspaper Sizes</strong></li>
 	 * <li>NEWSPAPER_BROADSHEET (750x600 mm ; 29.53x23.62 in)</li>
 	 * <li>NEWSPAPER_BERLINER (470x315 mm ; 18.50x12.40 in)</li>
 	 * <li>NEWSPAPER_COMPACT, NEWSPAPER_TABLOID (430x280 mm ; 16.93x11.02 in)</li>
-	 * <li><b>Business Cards</b></li>
+	 * <li><strong>Business Cards</strong></li>
 	 * <li>CREDIT_CARD, BUSINESS_CARD, BUSINESS_CARD_ISO7810 (54x86 mm ; 2.13x3.37 in)</li>
 	 * <li>BUSINESS_CARD_ISO216 (52x74 mm ; 2.05x2.91 in)</li>
 	 * <li>BUSINESS_CARD_IT, BUSINESS_CARD_UK, BUSINESS_CARD_FR, BUSINESS_CARD_DE, BUSINESS_CARD_ES (55x85 mm ; 2.17x3.35 in)</li>
@@ -2292,7 +2292,7 @@ class TCPDF {
 	 * <li>BUSINESS_CARD_HK (54x90 mm ; 2.13x3.54 in)</li>
 	 * <li>BUSINESS_CARD_AU, BUSINESS_CARD_DK, BUSINESS_CARD_SE (55x90 mm ; 2.17x3.54 in)</li>
 	 * <li>BUSINESS_CARD_RU, BUSINESS_CARD_CZ, BUSINESS_CARD_FI, BUSINESS_CARD_HU, BUSINESS_CARD_IL (50x90 mm ; 1.97x3.54 in)</li>
-	 * <li><b>Billboards</b></li>
+	 * <li><strong>Billboards</strong></li>
 	 * <li>4SHEET (1016x1524 mm ; 40.00x60.00 in)</li>
 	 * <li>6SHEET (1200x1800 mm ; 47.24x70.87 in)</li>
 	 * <li>12SHEET (3048x1524 mm ; 120.00x60.00 in)</li>
@@ -2301,7 +2301,7 @@ class TCPDF {
 	 * <li>48SHEET (6096x3048 mm ; 240.00x120.00 in)</li>
 	 * <li>64SHEET (8128x3048 mm ; 320.00x120.00 in)</li>
 	 * <li>96SHEET (12192x3048 mm ; 480.00x120.00 in)</li>
-	 * <li><b>Old Imperial English (some are still used in USA)</b></li>
+	 * <li><strong>Old Imperial English (some are still used in USA)</strong></li>
 	 * <li>EN_EMPEROR (1219x1829 mm ; 48.00x72.00 in)</li>
 	 * <li>EN_ANTIQUARIAN (787x1346 mm ; 31.00x53.00 in)</li>
 	 * <li>EN_GRAND_EAGLE (730x1067 mm ; 28.75x42.00 in)</li>
@@ -2329,7 +2329,7 @@ class TCPDF {
 	 * <li>EN_FOOLSCAP (343x432 mm ; 13.50x17.00 in)</li>
 	 * <li>EN_SMALL_FOOLSCAP (337x419 mm ; 13.25x16.50 in)</li>
 	 * <li>EN_POTT (318x381 mm ; 12.50x15.00 in)</li>
-	 * <li><b>Old Imperial Belgian</b></li>
+	 * <li><strong>Old Imperial Belgian</strong></li>
 	 * <li>BE_GRAND_AIGLE (700x1040 mm ; 27.56x40.94 in)</li>
 	 * <li>BE_COLOMBIER (620x850 mm ; 24.41x33.46 in)</li>
 	 * <li>BE_DOUBLE_CARRE (620x920 mm ; 24.41x36.22 in)</li>
@@ -2347,7 +2347,7 @@ class TCPDF {
 	 * <li>BE_LYS (317x397 mm ; 12.48x15.63 in)</li>
 	 * <li>BE_POT (307x384 mm ; 12.09x15.12 in)</li>
 	 * <li>BE_ROSETTE (270x347 mm ; 10.63x13.66 in)</li>
-	 * <li><b>Old Imperial French</b></li>
+	 * <li><strong>Old Imperial French</strong></li>
 	 * <li>FR_UNIVERS (1000x1300 mm ; 39.37x51.18 in)</li>
 	 * <li>FR_DOUBLE_COLOMBIER (900x1260 mm ; 35.43x49.61 in)</li>
 	 * <li>FR_GRANDE_MONDE (900x1260 mm ; 35.43x49.61 in)</li>
@@ -20654,7 +20654,7 @@ class TCPDF {
 		// define self-closing tags
 		$selfclosingtags = array('area','base','basefont','br','hr','input','img','link','meta');
 		// remove all unsupported tags (the line below lists all supported tags)
-		$html = strip_tags($html, '<marker/><a><b><blockquote><body><br><br/><dd><del><div><dl><dt><em><font><form><h1><h2><h3><h4><h5><h6><hr><hr/><i><img><input><label><li><ol><option><p><pre><s><select><small><span><strike><strong><sub><sup><table><tablehead><tcpdf><td><textarea><th><thead><tr><tt><u><ul>');
+		$html = strip_tags($html, '<marker/><a><strong><blockquote><body><br><br/><dd><del><div><dl><dt><em><font><form><h1><h2><h3><h4><h5><h6><hr><hr/><i><img><input><label><li><ol><option><p><pre><s><select><small><span><strike><strong><sub><sup><table><tablehead><tcpdf><td><textarea><th><thead><tr><tt><u><ul>');
 		//replace some blank characters
 		$html = preg_replace('/<pre/', '<xre', $html); // preserve pre tag
 		$html = preg_replace('/<(table|tr|td|th|tcpdf|blockquote|dd|div|dl|dt|form|h1|h2|h3|h4|h5|h6|br|hr|li|ol|ul|p)([^\>]*)>[\n\r\t]+/', '<\\1\\2>', $html);
