@@ -68,6 +68,19 @@ function islandora_scholar_embargo_islandora_object_access($op, $object, $user) 
 }
 
 /**
+ * Implements hook_islandora_datastream_access().
+ */
+function islandora_scholar_embargo_islandora_datastream_access($op, $islandora_datastream, $user) {
+  module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
+  if (($op == ISLANDORA_PURGE || $op == ISLANDORA_REPLACE_DATASTREAM_CONTENT) && $islandora_datastream->id == 'POLICY') {
+    $embargoed = islandora_scholar_embargo_get_embargoed($islandora_datastream->parent);
+    if (!empty($embargoed)) {
+      return FALSE;
+    }
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function islandora_scholar_embargo_permission() {
@@ -128,7 +141,7 @@ function islandora_scholar_embargo_mail_tokens($params, $language) {
     $to_return = array(
       '!item' => l(
           $params['item_title'],
-          'islandora/object' . $params['pid']
+          'islandora/object/' . $params['pid']
       ),
       '%dsid' => $params['dsid'],
       '%date' => $date,
@@ -164,7 +177,7 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
         $message['body'][] = t('The embargo period for the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       else {
-        $message['body'][] = t('The embargo period for the %dsid datastream on the object !item has expired, or the embargo has been manually lifted.');
+        $message['body'][] = t('The embargo period for the %dsid datastream on the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       break;
   }

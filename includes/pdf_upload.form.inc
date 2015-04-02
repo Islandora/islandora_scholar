@@ -107,10 +107,10 @@ function islandora_scholar_pdf_upload_form_submit(array $form, array &$form_stat
   if ($form_state['values']['upload_pdf_checkbox']) {
     $object = islandora_ingest_form_get_object($form_state);
     module_load_include('inc', 'islandora_scholar', 'includes/upload.tab');
-    $datastream = $object->constructDatastream('PDF', 'M');
-    $datastream->label = 'PDF Datastream';
-    $datastream->mimetype = 'application/pdf';
     $file = file_load($form_state['values']['file']);
+    $datastream = $object->constructDatastream('PDF', 'M');
+    $datastream->label = $file->filename;
+    $datastream->mimetype = 'application/pdf';
     $datastream->setContentFromFile($file->uri, FALSE);
     $object->ingestDatastream($datastream);
     islandora_scholar_add_usage_and_version_elements_to_mods($object, $form_state['values']['usage'], $form_state['values']['version']);

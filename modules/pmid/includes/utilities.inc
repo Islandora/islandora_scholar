@@ -108,9 +108,11 @@ function islandora_pmid_normalize_date(DOMElement $date, DOMXPath $xpath) {
       $m = substr($string, 5, 3);
     }
   }
-  $key = array_search(strtolower($m), array_map('strtolower', $months));
-  if ($key !== FALSE) {
-    $m = $key + 1;
+  if (isset($m)) {
+    $key = array_search(strtolower($m), array_map('strtolower', $months));
+    if ($key !== FALSE) {
+      $m = $key + 1;
+    }
   }
   $values = array(&$y, &$m, &$d);
   foreach ($values as &$val) {

@@ -67,7 +67,13 @@ class DOIImporter extends IslandoraBatchImporter {
     $text = trim($form_state['values']['textarea']);
     $file = file_load($form_state['values']['file']);
     if ($file) {
-      $text .= ' ' . trim(file_get_contents(drupal_realpath($file->uri)));
+      $file_dois = trim(file_get_contents(drupal_realpath($file->uri)));
+      if ($text) {
+        $text .= ' ' . $file_dois;
+      }
+      else {
+        $text = $file_dois;
+      }
       file_delete($file);
       unset($form_state['values']['file']);
     }
