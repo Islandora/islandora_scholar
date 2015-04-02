@@ -19,9 +19,9 @@ before_install:
   - git clone -b 7.x git://github.com/Islandora/islandora_xacml_editor.git
   - git clone -b 7.x git://github.com/Islandora/islandora_bookmark.git
   - git clone -b 7.x git://github.com/Islandora/islandora_batch.git
-  - hg clone https://bitbucket.org/rjerome/citeproc-php
+  - git clone git://github.com/Islandora/citeproc-php.git
   - export ISLANDORA_DIR=$HOME/islandora
-  - export JAVASCRIPT_DIR=$HOME/javascript 
+  - export JAVASCRIPT_DIR=$HOME/javascript
   - $HOME/islandora/tests/scripts/travis_setup.sh
   - cd $HOME/drupal-*
   - ln -s $TRAVIS_BUILD_DIR sites/all/modules/islandora_scholar
@@ -39,9 +39,7 @@ script:
   # XXX: Move the 3rd-party library stuff out of the way, so it doesn't
   # throw warnings from coder.
   - mv $TRAVIS_BUILD_DIR/modules/exporter/lib/tcpdf $HOME
-  - find $TRAVIS_BUILD_DIR/modules/citeproc/lib -iname "*.js" -type f -exec cp --parents -v {} $JAVASCRIPT_DIR \;
   - find $TRAVIS_BUILD_DIR/modules/pmid/xsl/exslt -iname "*.js" -type f -exec cp --parents -v {} $JAVASCRIPT_DIR \;
-  - find $TRAVIS_BUILD_DIR/modules/citeproc/lib -iname "*.js" -type f -exec rm {} \;
   - find $TRAVIS_BUILD_DIR/modules/pmid/xsl/exslt -iname "*.js" -type f -exec rm {} \;
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
