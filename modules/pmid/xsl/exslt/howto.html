@@ -12,7 +12,7 @@
    </p><pre>
 &lt;xsl:stylesheet version="1.0"
           xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-          <b>xmlns:math="http://exslt.org/math"</b>&gt;
+          <strong>xmlns:math="http://exslt.org/math"</strong>&gt;
 ...
 &lt;/xsl:stylesheet&gt;</pre><p>
       You can use the <a href="http://www.w3.org/TR/xslt#element-stylesheet" class="offsite"><code>extension-element-prefixes</code></a> attribute to prevent the extension namespaces from being output in the result tree:
@@ -20,7 +20,7 @@
 &lt;xsl:stylesheet version="1.0"
           xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
           xmlns:math="http://exslt.org/math"
-          <b>extension-element-prefixes="math"</b>&gt;
+          <strong>extension-element-prefixes="math"</strong>&gt;
 ...
 &lt;/xsl:stylesheet&gt;</pre><h2 id="templates">Using Named Templates</h2><p>
       When it comes down to it, nothing beats a named template for portability.  Named templates are pure <a href="http://www.w3.org/TR/xslt" class="offsite">XSLT 1.0</a>.  You don't have to worry about which XSLT processor you're using or what it supports to know that you can use named templates.
@@ -31,7 +31,7 @@
           xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
           xmlns:math="http://exslt.org/math"
           extension-element-prefixes="math"&gt;
-<b>&lt;xsl:import href="math.min.template.xsl" /&gt;</b>
+<strong>&lt;xsl:import href="math.min.template.xsl" /&gt;</strong>
 ...
 &lt;/xsl:stylesheet&gt;</pre><p>
       You can then call the named template with <a href="http://www.w3.org/TR/xslt#element-call-template" class="offsite"><code>xsl:call-template</code></a>:
@@ -53,7 +53,7 @@
           xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
           xmlns:math="http://exslt.org/math"
           extension-element-prefixes="math"&gt;
-<b>&lt;xsl:import href="math.min.function.xsl" /&gt;</b>
+<strong>&lt;xsl:import href="math.min.function.xsl" /&gt;</strong>
 ...
 &lt;/xsl:stylesheet&gt;</pre><h4 id="other-implementations">Using implementations defined in other languages</h4><p>
       The second type of implementations are those defined in other languages.  With these, you need to use <a href="http://exslt.org/func/elements/script"><code>func:script</code></a> from <a href="http://exslt.org/func/elements/script">XSLT 1.1</a>.      These implementations will only work if the XSLT processor that you use supports both <a href="http://exslt.org/func">EXSLT - Functions</a> and the language that you use to implement the function.
@@ -67,9 +67,9 @@
           xmlns:math="http://exslt.org/math"
           xmlns:func="http://exslt.org/functions"
           extension-element-prefixes="math func"&gt;
-<b>&lt;func:script implements-prefix="math" 
-      language="exslt:javascript" 
-      src="math.min.js" /&gt;</b>
+<strong>&lt;func:script implements-prefix="math"
+      language="exslt:javascript"
+      src="math.min.js" /&gt;</strong>
 ...
 &lt;/xsl:stylesheet&gt;</pre><p>
       You can use multiple <a href="http://exslt.org/func/elements/script"><code>func:script</code></a> elements to define multiple implementations of the same function in different languages.  However, you cannot use multiple <a href="http://exslt.org/func/elements/script"><code>func:script</code></a> elements to define implementations in the same language of different functions in the same module - it is an error to have multiple <a href="http://exslt.org/func/elements/script"><code>func:script</code></a> elements with the same value for <code>implements-prefix</code> and <code>language</code> in the same stylesheet.  If you want to use lots of functions from the same module, you need to merge the files and reference the result with the <code>src</code> attribute.
@@ -82,7 +82,7 @@
           xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
           xmlns:math="http://exslt.org/math"
           extension-element-prefixes="math"&gt;
-<b>&lt;xsl:import href="math.min.xsl" /&gt;</b>
+<strong>&lt;xsl:import href="math.min.xsl" /&gt;</strong>
 ...
 &lt;/xsl:stylesheet&gt;</pre><p class="note">
       This also makes any template implementation of the function available for your use.
@@ -95,7 +95,7 @@
           xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
           xmlns:math="http://exslt.org/math"
           extension-element-prefixes="math"&gt;
-<b>&lt;xsl:import href="math.xsl" /&gt;</b>
+<strong>&lt;xsl:import href="math.xsl" /&gt;</strong>
 ...
 &lt;/xsl:stylesheet&gt;</pre><h3 id="function-portability">Ensuring Portability with Extension Functions</h3><p>
       Whether the extension function you use is built into your processor or is a user-defined extension function, it's good practice to test that the function is supported before you use it.  You can test whether a function is available using the <a href="http://www.w3.org/TR/xslt#function-function-available" class="offsite function">function-available</a> function.  For example, to test whether <a href="http://exslt.org/math/functions/min" class="function">math:min</a> is available, you can use the test:

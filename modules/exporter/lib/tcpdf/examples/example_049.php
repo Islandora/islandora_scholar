@@ -80,8 +80,8 @@ If you are printing user-generated content, tcpdf tag can be unsafe.
 You can disable this tag by setting to false the K_TCPDF_CALLS_IN_HTML
 constant on TCPDF configuration file.
 
-For security reasons, the parameters for the 'params' attribute of TCPDF 
-tag must be prepared as an array and encoded with the 
+For security reasons, the parameters for the 'params' attribute of TCPDF
+tag must be prepared as an array and encoded with the
 serializeTCPDFtagParameters() method (see the example below).
 
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -90,7 +90,7 @@ serializeTCPDFtagParameters() method (see the example below).
 $html = '<h1>Test TCPDF Methods in HTML</h1>
 <h2 style="color:red;">IMPORTANT:</h2>
 <span style="color:red;">If you are printing user-generated content, tcpdf tag can be unsafe.<br />
-You can disable this tag by setting to false the <b>K_TCPDF_CALLS_IN_HTML</b> constant on TCPDF configuration file.</span>
+You can disable this tag by setting to false the <strong>K_TCPDF_CALLS_IN_HTML</strong> constant on TCPDF configuration file.</span>
 <h2>write1DBarcode method in HTML</h2>';
 
 $params = $pdf->serializeTCPDFtagParameters(array('CODE 39', 'C39', '', '', 80, 30, 0.4, array('position'=>'S', 'border'=>true, 'padding'=>4, 'fgcolor'=>array(0,0,0), 'bgcolor'=>array(255,255,255), 'text'=>true, 'font'=>'helvetica', 'fontsize'=>8, 'stretchtext'=>4), 'N'));
