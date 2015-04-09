@@ -12,6 +12,8 @@ This module requires the following modules/libraries:
 * [Islandora](https://github.com/islandora/islandora)
 * [CSL](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/csl)
 
+Additionally, it is necessary to install the [citeproc-php](https://github.com/Islandora/citeproc-php) library into the `sites/all/libraries` directory, such that the main `CiteProc.php` file is located at `sites/all/libraries/citeproc-php/CiteProc.php`.
+
 ## Installation
 
 Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
@@ -34,7 +36,7 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 Current maintainers:
 
-* [Joardan Dukart](https://github.com/jordandukart)
+* [Jordan Dukart](https://github.com/jordandukart)
 
 ## Development
 
