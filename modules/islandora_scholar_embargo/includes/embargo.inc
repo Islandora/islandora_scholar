@@ -284,7 +284,7 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
   $object = islandora_object_load($pid);
   // We are lifting an embargo from an object that already has one.
   if (isset($form_state['values']['update_options']) && $form_state['values']['update_options'] === 'lift_embargo') {
-    $dsid = array();
+    $dsids = array();
     // This will have to be re-defined if and when we decide to allow multiple
     // separate embargoing on an object likely by using this function:
     // islandora_scholar_embargo_lift_associated_except(). For now we can only
@@ -292,13 +292,13 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
     foreach ($form_state['islandora_embargo'] as $embargo_vals) {
       $type = $embargo_vals['type'];
       if ($type !== 'Object') {
-        $dsid[] = $type;
+        $dsids[] = $type;
       }
       else {
-        $dsid = NULL;
+        $dsids = NULL;
       }
     }
-    islandora_scholar_embargo_lift_embargo($pid, $dsid);
+    islandora_scholar_embargo_lift_embargo($pid, $dsids);
     drupal_set_message(t('The embargo on @label (@pid) has been lifted!', array(
       '@label' => $object->label,
       '@pid' => $pid,
@@ -317,30 +317,30 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
 
     // Object is currently embargoed and we are updating things.
     if ($embargoed) {
-      $dsid = array();
+      $dsids = array();
       foreach ($form_state['islandora_embargo'] as $embargo_vals) {
         $type = $embargo_vals['type'];
         if ($embargo_vals['type'] == 'Object') {
-          $dsid = NULL;
+          $dsids = NULL;
         }
         else {
-          $dsid[] = $type;
+          $dsids[] = $type;
         }
       }
     }
     // New embargo entry.
     else {
       if ($form_state['values']['dsid'] === 'object') {
-        $dsid = NULL;
+        $dsids = NULL;
       }
       else {
-        $dsid = array_filter($form_state['values']['ds_options']);
+        $dsids = array_filter($form_state['values']['ds_options']);
       }
     }
     // Currently we just overwrite what's already in place. In the future, for
     // multiple embargos on a single object, this will have to be adjusted.
-    islandora_scholar_embargo_set_embargo($pid, $dsid, $end);
-    islandora_scholar_embargo_set_display_message($pid, $dsid, $end);
+    islandora_scholar_embargo_set_embargo($pid, $dsids, $end);
+    islandora_scholar_embargo_set_display_message($pid, $dsids, $end);
   }
 }
 
