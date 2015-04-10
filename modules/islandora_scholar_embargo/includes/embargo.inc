@@ -18,11 +18,12 @@
  * @return array
  *   The Drupal form definition.
  */
-function islandora_scholar_embargo_form(array $form, array &$form_state, $item) {
+function islandora_scholar_embargo_form(array $form, array &$form_state, AbstractObject $item) {
+  module_load_include('inc', 'islandora_scholar_embargo', 'includes/utilities');
   $pid = $item->id;
   $options = array(
     'object' => t('Object-level embargo'),
-    'PDF' => t('PDF'),
+    'datastream' => t('Datastream'),
   );
   $embargo_results = islandora_scholar_embargo_get_embargoed($item);
 
@@ -72,7 +73,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, $item) 
    * Another hook/configuration bit? */
   $used_options = array(
     'object' => '',
-    'PDF' => '',
+    'datastream' => '',
   );
   $options = array_intersect_key($options, $used_options);
 
@@ -85,10 +86,21 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, $item) 
   );
   if (!$embargoed) {
     $form['dsid'] = array(
-      '#type' => 'select',
+      '#type' => 'radios',
       '#title' => t('Item to be embargoed'),
       '#options' => $options,
       '#default_value' => 'object',
+    );
+    $ds_options = islandora_scholar_embargo_get_embargoable_datastreams($item);
+    $form['ds_options'] = array(
+      '#type' => 'checkboxes',
+      '#title' => t('Datastreams to Embargo'),
+      '#options' => $ds_options,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="dsid"]' => array('value' => 'datastream'),
+        ),
+      ),
     );
     $date_state = array(
       ':input[name="update_date_options"]' => array('value' => 'change_embargo_date'),
@@ -252,6 +264,14 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
         form_set_error('update_date_options', t("The embargo's duration is already set indefinitely!"));
       }
     }
+    // Make sure the user has selected at least one datastream to embargo if
+    // they are embargoing datastreams.
+    if (isset($form_state['values']['dsid']) && $form_state['values']['dsid'] == 'datastream') {
+      $selected_options = array_filter($form_state['values']['ds_options']);
+      if (empty($selected_options)) {
+        form_error($form['ds_options'], t('Please select at least one datastream to embargo!'));
+      }
+    }
   }
 }
 
@@ -264,22 +284,25 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
   $object = islandora_object_load($pid);
   // We are lifting an embargo from an object that already has one.
   if (isset($form_state['values']['update_options']) && $form_state['values']['update_options'] === 'lift_embargo') {
+    $dsids = array();
     // This will have to be re-defined if and when we decide to allow multiple
     // separate embargoing on an object likely by using this function:
     // islandora_scholar_embargo_lift_associated_except(). For now we can only
     // have one embargo.
     foreach ($form_state['islandora_embargo'] as $embargo_vals) {
       $type = $embargo_vals['type'];
-      $dsid = NULL;
       if ($type !== 'Object') {
-        $dsid = $type;
+        $dsids[] = $type;
       }
-      islandora_scholar_embargo_lift_embargo($pid, $dsid);
-      drupal_set_message(t('The embargo on @label (@pid) has been lifted!', array(
-        '@label' => $object->label,
-        '@pid' => $pid,
-      )));
+      else {
+        $dsids = NULL;
+      }
     }
+    islandora_scholar_embargo_lift_embargo($pid, $dsids);
+    drupal_set_message(t('The embargo on @label (@pid) has been lifted!', array(
+      '@label' => $object->label,
+      '@pid' => $pid,
+    )));
   }
   elseif (isset($form_state['values']['update_date_options'])) {
     // Embargoed indefinitely.
@@ -294,30 +317,30 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
 
     // Object is currently embargoed and we are updating things.
     if ($embargoed) {
+      $dsids = array();
       foreach ($form_state['islandora_embargo'] as $embargo_vals) {
         $type = $embargo_vals['type'];
-        break;
-      }
-      if ($type === 'Object') {
-        $dsid = NULL;
-      }
-      else {
-        $dsid = $type;
+        if ($embargo_vals['type'] == 'Object') {
+          $dsids = NULL;
+        }
+        else {
+          $dsids[] = $type;
+        }
       }
     }
     // New embargo entry.
     else {
       if ($form_state['values']['dsid'] === 'object') {
-        $dsid = NULL;
+        $dsids = NULL;
       }
       else {
-        $dsid = $form_state['values']['dsid'];
+        $dsids = array_filter($form_state['values']['ds_options']);
       }
     }
     // Currently we just overwrite what's already in place. In the future, for
     // multiple embargos on a single object, this will have to be adjusted.
-    islandora_scholar_embargo_set_embargo($pid, $dsid, $end);
-    islandora_scholar_embargo_set_display_message($pid, $dsid, $end);
+    islandora_scholar_embargo_set_embargo($pid, $dsids, $end);
+    islandora_scholar_embargo_set_display_message($pid, $dsids, $end);
   }
 }
 
@@ -408,7 +431,7 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
     if ($end === 'indefinite') {
       drupal_set_message(t('A @dsid datastream embargo has been set on @label (@pid) indefinitely.',
         array(
-          '@dsid' => $dsid,
+          '@dsid' => implode(', ', $dsid),
           '@label' => $object->label,
           '@pid' => $pid,
         )
@@ -419,7 +442,7 @@ function islandora_scholar_embargo_set_display_message($pid, $dsid, $end) {
       $date = $date->format('M d, Y');
       drupal_set_message(t('A @dsid datastream embargo has been set on @label (@pid) until @duration.',
         array(
-          '@dsid' => $dsid,
+          '@dsid' => implode(', ', $dsid),
           '@label' => $object->label,
           '@pid' => $pid,
           '@duration' => $date,

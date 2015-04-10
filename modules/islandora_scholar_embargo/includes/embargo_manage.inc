@@ -77,5 +77,5 @@ function islandora_scholar_embargo_build_table() {
   return theme('table', array(
     'header' => $header,
     'rows' => $rows,
-    'empty' => "There are no embargoed entries"));
+    'empty' => t("There are no embargoed entries")));
 }
