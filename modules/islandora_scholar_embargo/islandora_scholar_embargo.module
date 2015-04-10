@@ -333,6 +333,8 @@ function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
     $param :
     islandora_object_load($param);
   $dsid = $ds instanceof AbstractDatastream ? $ds->id : $ds;
+  // XXX: Casting to array to support external modules calling embargo as the
+  // function signature used to accept a string for datastream id.
   $dsid = (array) $dsid;
   $pid = $item->id;
   $xacml = new IslandoraXacml($item);
@@ -439,6 +441,8 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
     }
   }
   else {
+    // XXX: Casting to array to support external modules calling embargo as the
+    // function signature used to accept a string for datastream id.
     $dsid = (array) $dsid;
     foreach ($dsid as $datastream_id) {
       // Handles the case where we are setting an embargo before adding the
