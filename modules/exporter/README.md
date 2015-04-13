@@ -9,8 +9,8 @@ Exports a collection of citations to either an RIS/RTF/PDF file.
 This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
-* [Citeproc](https://github.com/manez/islandora_scholar/tree/7.x/modules/citeproc)
-* [Bibutils](https://github.com/manez/islandora_scholar/tree/7.x/modules/bibutils)
+* [Citeproc](https://github.com/islandora/islandora_scholar/tree/7.x/modules/citeproc)
+* [Bibutils](https://github.com/islandora/islandora_scholar/tree/7.x/modules/bibutils)
 
 ## Installation
 

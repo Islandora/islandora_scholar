@@ -1,17 +1,15 @@
-
-# RIS Importer
+# Islandora Google Scholar
 
 ## Introduction
 
-Creates citation objects from RIS files
+This module maps MODS metadata fields to HTML <meta> tags on the fly to help improve indexing in Google Scholar and citation harvesting using Zotero and other citation tools.
 
 ## Requirements
 
 This module requires the following modules/libraries:
 
-* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
-* [Islandora Importer](https://github.com/Islandora/islandora_importer)
-* [Bibutils](https://github.com/islandora/islandora_scholar/tree/7.x/modules/bibutils)
+* [Islandora](https://github.com/islandora/islandora)
+* [Islandora Scholar](https://github.com/islandora/islandora_scholar)
 
 ## Installation
 
@@ -19,7 +17,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-Enable the module via Administration » Modules (admin/modules)
+Enable the Islandora Google Scholar module via Administration » Modules (admin/modules)
 
 ## Troubleshooting/Issues
 
