@@ -325,8 +325,9 @@ function islandora_scholar_add_datastream($object, $datastream_id, $file_uri) {
     else {
       $ds = $object[$datastream_id];
     }
-    if ($ds->mimetype != $mime_detector->getMimetype($file_uri)) {
-      $ds->mimetype = $mime_detector->getMimetype($file_uri);
+    $mime_detector_mime = $mime_detector->getMimetype($file_uri);
+    if ($ds->mimetype != $mime_detector_mime) {
+      $ds->mimetype = $mime_detector_mime;
     }
     $ds->setContentFromFile(drupal_realpath($file_uri), FALSE);
     if ($ingest) {
