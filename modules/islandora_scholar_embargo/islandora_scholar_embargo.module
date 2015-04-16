@@ -143,8 +143,8 @@ function islandora_scholar_embargo_mail_tokens($params, $language) {
           $params['item_title'],
           'islandora/object/' . $params['pid']
       ),
-      '%dsid' => $params['dsid'],
-      '%date' => $date,
+      '@dsid' => $params['dsid'],
+      '@date' => $date,
       '!site' => $base_url,
     );
   }
@@ -164,10 +164,10 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
     case 'pre_expiry':
       $message['subject'] = t('Notification from !site', $variables);
       if (empty($params['dsid']) && $params['dsid'] !== '0') {
-        $message['body'][] = t('The embargo period for the object !item will expire on %date.', $variables);
+        $message['body'][] = t('The embargo period for the object !item will expire on @date.', $variables);
       }
       else {
-        $message['body'][] = t('The embargo period for the %dsid datastream(s) on the object !item will expire on %date.', $variables);
+        $message['body'][] = t('The embargo period for the @dsid datastream(s) on the object !item will expire on @date.', $variables);
       }
       break;
 
@@ -177,7 +177,7 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
         $message['body'][] = t('The embargo period for the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       else {
-        $message['body'][] = t('The embargo period for the %dsid datastream(s) on the object !item has expired, or the embargo has been manually lifted.', $variables);
+        $message['body'][] = t('The embargo period for the @dsid datastream(s) on the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       break;
   }
@@ -374,12 +374,8 @@ function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
     $param :
     islandora_object_load($param);
   $dsid = $ds instanceof AbstractDatastream ? $ds->id : $ds;
-  // XXX: Casting to array to support external modules calling embargo as the
-  // function signature used to accept a string for datastream id.
-  $dsid = (array) $dsid;
   $pid = $item->id;
   $xacml = new IslandoraXacml($item);
-
   if ($dsid === NULL) {
     $rels = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
@@ -387,6 +383,9 @@ function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
     $xacml->viewingRule->clear();
   }
   else {
+    // XXX: Casting to array to support external modules calling embargo as the
+    // function signature used to accept a string for datastream id.
+    $dsid = (array) $dsid;
     foreach ($dsid as $datastream_id) {
       if (!isset($item[$datastream_id])) {
         $embargo_ds = $item->constructDatastream($datastream_id);
@@ -533,7 +532,9 @@ function islandora_scholar_embargo_send($params, $key) {
   $send = TRUE;
   // Implode the datastream IDs so we don't spam e-mails for each datastream
   // being lifted.
-  $params['dsid'] = implode(', ', $params['dsid']);
+  if ($params['dsid']) {
+    $params['dsid'] = implode(', ', $params['dsid']);
+  }
   $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
   if ($result['result'] == TRUE) {
     drupal_set_message(t('Notification has been sent to @to.', array('@to' => $to)), 'status', FALSE);
