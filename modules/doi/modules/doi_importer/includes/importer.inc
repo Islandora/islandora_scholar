@@ -127,7 +127,9 @@ class DOIImportObject extends IslandoraImportObject {
       strpos($response->data, "Malformed DOI") === FALSE) {
 
       $crossref_xml = simplexml_load_string($response->data);
-      if ($crossref_xml->doi_record->crossref->error) {
+      // Totally don't support books so let's not attempt to make records that
+      // are actually books!
+      if ($crossref_xml->doi_record->crossref->error || $crossref_xml->doi_record->crossref->book) {
         return FALSE;
       }
       else {
