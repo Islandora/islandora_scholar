@@ -403,7 +403,7 @@ function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
   $xacml->writeBackToFedora();
 
   // Only notify if the object exists in the repository.
-  if ($item instanceof FedoraObject && isset($rels)) {
+  if ($item instanceof FedoraObject && isset($rels) && !empty($rels)) {
     $expiry = $rels[0]['object']['value'];
     // Send email notification.
     $params['pid'] = $pid;
