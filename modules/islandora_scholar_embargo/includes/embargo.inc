@@ -300,7 +300,7 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
     }
   }
   if ($form_state['values']['recurse'] && $form_state['values']['recurse_options'] == 'default') {
-    form_error($form['recurse_options'], t('Please select an option to apply to recursively.'));
+    form_error($form['recurse_options'], t('Please select an option to apply recursively.'));
   }
 }
 
