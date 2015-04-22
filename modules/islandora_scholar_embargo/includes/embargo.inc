@@ -299,6 +299,9 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
       }
     }
   }
+  if ($form_state['values']['recurse'] && $form_state['values']['recurse_options'] == 'default') {
+    form_error($form['recurse_options'], t('Please select an option to apply to recursively.'));
+  }
 }
 
 /**
@@ -550,14 +553,22 @@ function islandora_scholar_embargo_append_xacml_recursion(&$form, &$form_state, 
     }
   }
   if (!empty($query_choices)) {
-    if (!$lift) {
-      // The "newchildren" option is applied automatically through ingest steps.
-      $update_options = array('newchildren' => t('New children of this object.'));
-    }
-    else {
-      $update_options = array('default' => t('-- Select --'));
-    }
-    foreach ($query_choices as $key => $query) {
+    $update_options = array('default' => t('-- Select --'));
+    foreach ($query_choices as $key => &$query) {
+      // XXX: This should be changed if/when embargo supports inheritance on
+      // ingest.
+      if ($key == 'all_children') {
+        $query['description'] = t('All children of this collection and collections within this collection.');
+      }
+      elseif ($key == 'book_pages') {
+        $query['description'] = t('All pages of this book.');
+      }
+      elseif ($key == 'newspaper_pages') {
+        $query['description'] = t('All pages of this issue.');
+      }
+      elseif ($key == 'newspaper_issues') {
+        $query['description'] = t('All newspaper issues and their pages.');
+      }
       $update_options[$key] = $query['description'];
       $form_state['query_choices'][$key] = $query;
     }
