@@ -31,12 +31,20 @@ function islandora_scholar_embargo_apply_batch_function($pid, $dsid, $end, $quer
     $context['sandbox']['progress'] = 0;
     $context['sandbox']['pids'] = $query->getPids();
     $context['sandbox']['items'] = count($context['sandbox']['pids']);
-    $context['results']['success'] = array();
+    $context['results']['success_count'] = 0;
+    $context['results']['skip_count'] = 0;
   }
   $targetpid = array_pop($context['sandbox']['pids']);
   $context['sandbox']['progress']++;
-  islandora_scholar_embargo_set_embargo($targetpid, $dsid, $end);
-  $context['results']['success'][] = $targetpid;
+  $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
+  $object = islandora_object_load($targetpid);
+  if (count(array_intersect($allowed_cmodels, $object->models)) > 0) {
+    islandora_scholar_embargo_set_embargo($targetpid, $dsid, $end);
+    $context['results']['success_count'] = $context['results']['success_count'] + 1;
+  }
+  else {
+    $context['results']['skip_count'] = $context['results']['skip_count'] + 1;
+  }
   // Make sure we don't divide by zero.
   $context['finished'] = $context['sandbox']['items'] == 0 ? 1 : $context['sandbox']['progress'] / $context['sandbox']['items'];
 }
@@ -52,7 +60,10 @@ function islandora_scholar_embargo_apply_batch_function($pid, $dsid, $end, $quer
  *   The operations array that was used in the batch.
  */
 function islandora_scholar_embargo_apply_batch_finished($success, $results, $operations) {
-  drupal_set_message(format_plural(count($results['success']), 'One embargo updated.', '@count embargoes updated.'));
+  drupal_set_message(format_plural($results['success_count'], 'One embargo updated.', '@count embargoes updated.'));
+  if ($results['skip_count'] > 0) {
+    drupal_set_message(format_plural($results['skip_count'], '@count object skipped as the content model is not configured to allow embargoes.', '@count objects skipped as their content models are not configured to allow embargoes.'));
+  }
 }
 
 /**
@@ -80,12 +91,20 @@ function islandora_scholar_embargo_lift_batch_function($pid, $ds, $query_array, 
     $context['sandbox']['pids'] = $query->getPids();
     $context['sandbox']['items'] = count($context['sandbox']['pids']);
     $context['results']['redirect'] = $pid;
-    $context['results']['success'] = array();
+    $context['results']['success_count'] = 0;
+    $context['results']['skip_count'] = 0;
   }
   $targetpid = array_pop($context['sandbox']['pids']);
   $context['sandbox']['progress']++;
-  islandora_scholar_embargo_lift_embargo($targetpid, $ds);
-  $context['results']['success'][] = $targetpid;
+  $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
+  $object = islandora_object_load($targetpid);
+  if (count(array_intersect($allowed_cmodels, $object->models)) > 0) {
+    islandora_scholar_embargo_lift_embargo($targetpid, $ds);
+    $context['results']['success_count'] = $context['results']['success_count'] + 1;
+  }
+  else {
+    $context['results']['skip_count'] = $context['results']['skip_count'] + 1;
+  }
   // Make sure we don't divide by zero.
   $context['finished'] = $context['sandbox']['items'] == 0 ? 1 : $context['sandbox']['progress'] / $context['sandbox']['items'];
 }
@@ -101,5 +120,8 @@ function islandora_scholar_embargo_lift_batch_function($pid, $ds, $query_array, 
  *   The operations array that was used in the batch.
  */
 function islandora_scholar_embargo_lift_batch_finished($success, $results, $operations) {
-  drupal_set_message(format_plural(count($results['success']), 'One embargo lifted.', '@count embargoes lifted.'));
+  drupal_set_message(format_plural($results['success_count'], 'One embargo lifted.', '@count embargoes lifted.'));
+  if ($results['skip_count'] > 0) {
+    drupal_set_message(format_plural($results['skip_count'], '@count object skipped as the content model is not configured to allow embargoes.', '@count objects skipped as their content models are not configured to allow embargoes.'));
+  }
 }
