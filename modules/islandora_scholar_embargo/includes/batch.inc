@@ -32,11 +32,19 @@ function islandora_scholar_embargo_apply_batch_function($pid, $dsid, $end, $quer
     $context['sandbox']['pids'] = $query->getPids();
     $context['sandbox']['items'] = count($context['sandbox']['pids']);
     $context['results']['success'] = array();
+    $context['results']['skip'] = array();
   }
   $targetpid = array_pop($context['sandbox']['pids']);
   $context['sandbox']['progress']++;
-  islandora_scholar_embargo_set_embargo($targetpid, $dsid, $end);
-  $context['results']['success'][] = $targetpid;
+  $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
+  $object = islandora_object_load($targetpid);
+  if (count(array_intersect($allowed_cmodels, $object->models)) > 0) {
+    islandora_scholar_embargo_set_embargo($targetpid, $dsid, $end);
+    $context['results']['success'][] = $targetpid;
+  }
+  else {
+    $context['results']['skip'][] = $targetpid;
+  }
   // Make sure we don't divide by zero.
   $context['finished'] = $context['sandbox']['items'] == 0 ? 1 : $context['sandbox']['progress'] / $context['sandbox']['items'];
 }
@@ -53,6 +61,9 @@ function islandora_scholar_embargo_apply_batch_function($pid, $dsid, $end, $quer
  */
 function islandora_scholar_embargo_apply_batch_finished($success, $results, $operations) {
   drupal_set_message(format_plural(count($results['success']), 'One embargo updated.', '@count embargoes updated.'));
+  if (count($results['skip']) > 0) {
+    drupal_set_message(format_plural(count($results['skip']), '@count object skipped as the content model is not configured to allow embargoes.', '@count objects skipped as their content models are not configured to allow embargoes.'));
+  }
 }
 
 /**
@@ -81,11 +92,19 @@ function islandora_scholar_embargo_lift_batch_function($pid, $ds, $query_array, 
     $context['sandbox']['items'] = count($context['sandbox']['pids']);
     $context['results']['redirect'] = $pid;
     $context['results']['success'] = array();
+    $context['results']['skip'] = array();
   }
   $targetpid = array_pop($context['sandbox']['pids']);
   $context['sandbox']['progress']++;
-  islandora_scholar_embargo_lift_embargo($targetpid, $ds);
-  $context['results']['success'][] = $targetpid;
+  $allowed_cmodels = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
+  $object = islandora_object_load($targetpid);
+  if (count(array_intersect($allowed_cmodels, $object->models)) > 0) {
+    islandora_scholar_embargo_lift_embargo($targetpid, $ds);
+    $context['results']['success'][] = $targetpid;
+  }
+  else {
+    $context['results']['skip'][] = $targetpid;
+  }
   // Make sure we don't divide by zero.
   $context['finished'] = $context['sandbox']['items'] == 0 ? 1 : $context['sandbox']['progress'] / $context['sandbox']['items'];
 }
@@ -102,4 +121,7 @@ function islandora_scholar_embargo_lift_batch_function($pid, $ds, $query_array, 
  */
 function islandora_scholar_embargo_lift_batch_finished($success, $results, $operations) {
   drupal_set_message(format_plural(count($results['success']), 'One embargo lifted.', '@count embargoes lifted.'));
+  if (count($results['skip']) > 0) {
+    drupal_set_message(format_plural(count($results['skip']), '@count object skipped as the content model is not configured to allow embargoes.', '@count objects skipped as their content models are not configured to allow embargoes'));
+  }
 }

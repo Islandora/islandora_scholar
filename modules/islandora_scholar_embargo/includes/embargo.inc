@@ -580,7 +580,7 @@ function islandora_scholar_embargo_append_xacml_recursion(&$form, &$form_state, 
     $form['recurse_options'] = array(
       '#type' => 'select',
       '#title' => t('What items would you like to !action?', array('!action' => $lift ? t('modify the embargo on') : t('apply this embargo to'))),
-      '#description' => t('<strong>Note:</strong> This will !action the embargo on all items underneath the current object.', array('!action' => $lift ? t('modify') : t('apply'))),
+      '#description' => t('<strong>Note:</strong> This will only !action the embargo on all items with content models configured to accept them.', array('!action' => $lift ? t('modify') : t('apply'))),
       '#default_value' => $lift ? 'default' : 'newchildren',
       '#options' => $update_options,
       '#states' => array(
