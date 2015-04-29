@@ -3,6 +3,6 @@ description = A PHP Library that leverages cite-proc-js and CSL 1.0 styes for ge
 files[] = includes/CSLDateparser.php
 package = Islandora Solution Packs
 dependencies[] = csl
-version = 7.x-1.5RC1
+version = 7.x-1.5
 core = 7.x
 php = 5.2
