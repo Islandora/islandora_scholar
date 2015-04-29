@@ -299,7 +299,7 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
       }
     }
   }
-  if ($form_state['values']['recurse'] && $form_state['values']['recurse_options'] == 'default') {
+  if (isset($form_state['values']['recurse']) && $form_state['values']['recurse'] && $form_state['values']['recurse_options'] == 'default') {
     form_error($form['recurse_options'], t('Please select an option to apply recursively.'));
   }
 }
@@ -328,7 +328,7 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
       }
     }
     // Batch down and down and down.
-    if ($form_state['values']['recurse']) {
+    if (isset($form_state['values']['recurse']) && $form_state['values']['recurse']) {
       $option = $form_state['values']['recurse_options'];
       $query_array = $form_state['query_choices'][$option];
       $batch = array(
@@ -393,7 +393,7 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
     // multiple embargos on a single object, this will have to be adjusted.
 
     // If we're recursing do those objects in a batch.
-    if ($form_state['values']['recurse'] && $form_state['values']['recurse_options'] != 'newchildren') {
+    if (isset($form_state['values']['recurse']) && $form_state['values']['recurse'] && $form_state['values']['recurse_options'] != 'newchildren') {
       $option = $form_state['values']['recurse_options'];
       $query_array = $form_state['query_choices'][$option];
       $batch = array(
