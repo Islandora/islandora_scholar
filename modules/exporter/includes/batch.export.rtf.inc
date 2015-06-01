@@ -97,8 +97,7 @@ function citation_exporter_batch_append_citations_to_text_file($set_id, $total, 
 function _citation_exporter_batch_append_citations_to_text_file(array $pids, $filename, $style) {
   module_load_include('inc', 'citeproc', 'includes/converter');
   module_load_include('inc', 'csl', 'includes/csl');
-  $style = CSL::Get($style);
-  $citeproc = citeproc_get_citeproc_php_instance($style->saveXML());
+  $citeproc = citeproc_get_citeproc_php_instance(citeproc_style($style));
   $file = fopen($filename, 'ab');
   foreach ($pids as $pid) {
     $object = islandora_object_load($pid);
