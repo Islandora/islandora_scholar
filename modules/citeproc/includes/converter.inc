@@ -730,6 +730,9 @@ function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
     $seasons = array('', 'Spring', 'Summer', 'Fall', 'Winter');
     $output['issued']['season'] = (string) array_search($season, $seasons);
   }
+  if (empty($output)) {
+    $output['issued'] = array('string-literal' => '');
+  }
   return $output;
 }
 
