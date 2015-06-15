@@ -17,11 +17,14 @@
 function islandora_bibiliography_get_bookmark_output(AbstractObject $object) {
   $style = citeproc_default_style();
   $mods = islandora_bibliography_get_mods($object->id);
+  $bibliography_entry = FALSE;
   if ($mods) {
     $bibliography_entry = citeproc_bibliography_from_mods($style, $mods);
   }
   $output = l(isset($object->label) ? $object->label : $object->id, 'islandora/object/' . $object->id) . '<br />';
-  $output .= $bibliography_entry;
+  if ($bibliography_entry) {
+    $output .= $bibliography_entry;
+  }
   return $output;
 }
 
