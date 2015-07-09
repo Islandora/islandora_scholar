@@ -43,6 +43,22 @@ function islandora_scholar_embargo_rules_event_info() {
         ),
       ),
     ),
+    'islandora_scholar_datastreams_embargo_expired' => array(
+      'group' => t('Islandora Scholar Embargo'),
+      'label' => t('Datastreams Embargo Expired'),
+      'variables' => array(
+        'object' => array(
+          'type' => 'islandora_object',
+          'label' => t('Embargoed Object'),
+          'description' => t("Object who's embargo has expired."),
+        ),
+        'datastreams' => array(
+          'type' => 'list<text>',
+          'label' => t('Embargoed Datastreams'),
+          'description' => t('The object datastreams the embargo has expired for.'),
+        ),
+      ),
+    ),
     'islandora_scholar_datastream_embargo_expiring' => array(
       'group' => t('Islandora Scholar Embargo'),
       'label' => t('Datastream Embargo Expiry Approaching'),
@@ -110,7 +126,7 @@ function islandora_scholar_embargo_rules_action_info() {
           'description' => t('The object to remove the embargo from.'),
         ),
         'datastream' => array(
-          'type' => 'islandora_datastream',
+          'type' => array('islandora_datastream', 'list<text>'),
           'label' => t('Embargoed Datastream'),
           'description' => t('The object datastream to remove the embargo from.'),
           'optional' => TRUE,
