@@ -77,7 +77,6 @@ function islandora_scholar_get_view(AbstractObject $object) {
 
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   $viewer = islandora_get_viewer(array(), 'islandora_scholar_viewers', $object);
-  dsm($viewer, 'viewer');
 
   if ($viewer) {
     $display['preview'] =  array(
