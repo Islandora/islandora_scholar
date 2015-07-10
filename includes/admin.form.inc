@@ -112,6 +112,9 @@ function islandora_scholar_admin_form() {
     '#default_value' => variable_get('islandora_scholar_users_choose_display_csl', FALSE),
   );
 
+  module_load_include('inc', 'islandora', 'includes/solution_packs');
+  $form += islandora_viewers_form('islandora_scholar_viewers', 'application/pdf');
+
   return system_settings_form($form);
 }
 
