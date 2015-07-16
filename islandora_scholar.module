@@ -77,9 +77,9 @@ function islandora_scholar_islandora_xml_form_builder_forms() {
 }
 
 /**
- * Implements hook_islandora_content_model_forms_form_associations().
+ * Implements hook_islandora_xml_form_builder_form_associations().
  */
-function islandora_scholar_islandora_content_model_forms_form_associations() {
+function islandora_scholar_islandora_xml_form_builder_form_associations() {
   return array(
     'islandora_scholar_mods_form' => array(
       'content_model' => 'ir:citationCModel',

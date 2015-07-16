@@ -17,11 +17,14 @@
 function islandora_bibiliography_get_bookmark_output(AbstractObject $object) {
   $style = citeproc_default_style();
   $mods = islandora_bibliography_get_mods($object->id);
+  $bibliography_entry = FALSE;
   if ($mods) {
     $bibliography_entry = citeproc_bibliography_from_mods($style, $mods);
   }
   $output = l(isset($object->label) ? $object->label : $object->id, 'islandora/object/' . $object->id) . '<br />';
-  $output .= $bibliography_entry;
+  if ($bibliography_entry) {
+    $output .= $bibliography_entry;
+  }
   return $output;
 }
 
@@ -71,4 +74,25 @@ function islandora_bibliography_get_rss(AbstractObject $object) {
 
   // Returns the the rss default item.
   return $rss_item;
+}
+
+/**
+ * Gets the count of exporting objects.
+ *
+ * @param object $query_processor
+ *   The query processor object.
+ *
+ * @return int
+ *   The count of pids that are apart of the results.
+ */
+function islandora_bibliography_get_count_of_exporting_objects($query_processor) {
+  $qp = $query_processor;
+  $old_params = $qp->solrParams;
+  $qp->solrParams['fl'] = 'PID';
+  $qp->solrStart = 0;
+  $qp->solrLimit = 10000;
+  $qp->executeQuery();
+  $solr_results = $qp->islandoraSolrResult;
+  $result_count = $solr_results['response']['numFound'];
+  return $result_count;
 }

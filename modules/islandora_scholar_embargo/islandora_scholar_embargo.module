@@ -68,6 +68,19 @@ function islandora_scholar_embargo_islandora_object_access($op, $object, $user) 
 }
 
 /**
+ * Implements hook_islandora_datastream_access().
+ */
+function islandora_scholar_embargo_islandora_datastream_access($op, $islandora_datastream, $user) {
+  module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
+  if (($op == ISLANDORA_PURGE || $op == ISLANDORA_REPLACE_DATASTREAM_CONTENT) && $islandora_datastream->id == 'POLICY') {
+    $embargoed = islandora_scholar_embargo_get_embargoed($islandora_datastream->parent);
+    if (!empty($embargoed)) {
+      return FALSE;
+    }
+  }
+}
+
+/**
  * Implements hook_permission().
  */
 function islandora_scholar_embargo_permission() {
@@ -130,8 +143,8 @@ function islandora_scholar_embargo_mail_tokens($params, $language) {
           $params['item_title'],
           'islandora/object/' . $params['pid']
       ),
-      '%dsid' => $params['dsid'],
-      '%date' => $date,
+      '@dsid' => $params['dsid'],
+      '@date' => $date,
       '!site' => $base_url,
     );
   }
@@ -151,10 +164,10 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
     case 'pre_expiry':
       $message['subject'] = t('Notification from !site', $variables);
       if (empty($params['dsid']) && $params['dsid'] !== '0') {
-        $message['body'][] = t('The embargo period for the object !item will expire on %date.', $variables);
+        $message['body'][] = t('The embargo period for the object !item will expire on @date.', $variables);
       }
       else {
-        $message['body'][] = t('The embargo period for the %dsid datastream on the object !item will expire on %date.', $variables);
+        $message['body'][] = t('The embargo period for the @dsid datastream(s) on the object !item will expire on @date.', $variables);
       }
       break;
 
@@ -164,7 +177,7 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
         $message['body'][] = t('The embargo period for the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       else {
-        $message['body'][] = t('The embargo period for the %dsid datastream on the object !item has expired, or the embargo has been manually lifted.', $variables);
+        $message['body'][] = t('The embargo period for the @dsid datastream(s) on the object !item has expired, or the embargo has been manually lifted.', $variables);
       }
       break;
   }
@@ -177,7 +190,7 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
  * to lift.
  */
 function islandora_scholar_embargo_cron() {
-  // Detect embargos expiring son, send out notification.
+  // Detect embargos expiring soon, send out notification.
   $now = time();
   $tomorrow = gmdate("Y-m-d\TH:i:s\Z", strtotime("+1DAYS", $now));
   $yesterday = gmdate("Y-m-d\TH:i:s\Z", strtotime("-1DAYS", $now));
@@ -205,27 +218,48 @@ WHERE {
 EOQ;
 
   $results = $repository->repository->ri->sparqlQuery($query);
-
+  $expiry_emails = array();
   foreach ($results as $result) {
-
     $full_pid = $result['embargoed']['value'];
     $pid_parts = explode('/', $full_pid);
     $params['pid'] = $pid_parts[0];
+    $params['dsid'] = array();
     $item = islandora_object_load($pid_parts[0]);
     $params['item_title'] = $item->label;
-    $params['dsid'] = isset($pid_parts[1]) ? $pid_parts[1] : NULL;
+    if (isset($pid_parts[1])) {
+      $dsid = $pid_parts[1];
+      $params['dsid'][] = $pid_parts[1];
+    }
+    else {
+      $dsid = NULL;
+      $params['dsid'] = NULL;
+    }
     $params['expiry_date'] = $result['date']['value'];
     $params['notification_date'] = isset($result['notify']['value']) ? $result['notify']['value'] : NULL;
     $key = isset($result['notify']['value']) ? 'pre_expiry' : 'lifted_embargo';
+    if (!isset($expiry_emails[$params['pid']])) {
+      $expiry_emails[$params['pid']] = array(
+        'pid' => $params['pid'],
+        'key' => $key,
+        'params' => $params,
+      );
+    }
+    else {
+      $expiry_emails[$params['pid']]['params']['dsid'] = array_merge($expiry_emails[$params['pid']]['params']['dsid'], $params['dsid']);
+    }
 
-    // Send emails here.
-    islandora_embargo_user_notify($key, $item, $params);
-    if (isset($params['dsid'])) {
-      rules_invoke_event('islandora_scholar_datastream_embargo_expiring', $item, $item[$params['dsid']]);
+    if (isset($params['dsid']) && isset($item[$dsid])) {
+      rules_invoke_event('islandora_scholar_datastream_embargo_expiring', $item, $item[$dsid]);
     }
     else {
       rules_invoke_event('islandora_scholar_object_embargo_expiring', $item);
     }
+  }
+
+  foreach ($expiry_emails as $notification) {
+    // Send emails here.
+    $item = islandora_object_load($notification['pid']);
+    islandora_embargo_user_notify($notification['key'], $item, $notification['params']);
   }
 
   // Inform rules and users of expired embargos.
@@ -239,25 +273,49 @@ WHERE {
 }
 EOQ;
   $results = $repository->repository->ri->sparqlQuery($query);
+  $expired_emails = array();
   foreach ($results as $result) {
     $params = array();
     $full_pid = $result['expired']['value'];
     $pid_parts = explode('/', $full_pid);
     $params['pid'] = $pid_parts[0];
+    $params['dsid'] = array();
     $item = islandora_object_load($pid_parts[0]);
     $params['item_title'] = $item->label;
-    $params['dsid'] = isset($pid_parts[1]) ? $pid_parts[1] : NULL;
+    if (isset($pid_parts[1])) {
+      $dsid = $pid_parts[1];
+      $params['dsid'][] = $pid_parts[1];
+    }
+    else {
+      $dsid = NULL;
+      $params['dsid'] = NULL;
+    }
     $params['expiry_date'] = $result['date']['value'];
     $params['notification_date'] = isset($result['notify']['value']) ? $result['notify']['value'] : NULL;
     $key = 'lifted_embargo';
-
-    islandora_embargo_user_notify($key, $item, $params);
-    if (isset($params['dsid'])) {
-      rules_invoke_event('islandora_scholar_datastream_embargo_expired', $item, $item[$params['dsid']]);
+    if (!isset($expired_emails[$params['pid']])) {
+      $expired_emails[$params['pid']] = array(
+        'pid' => $params['pid'],
+        'key' => $key,
+        'params' => $params,
+      );
+    }
+    else {
+      $expired_emails[$params['pid']]['params']['dsid'] = array_merge($expired_emails[$params['pid']]['params']['dsid'], $params['dsid']);
+    }
+    // XXX: This needs to be removed as it is no longer shipped with the module
+    // and is considered deprecated of 7.x-1.6.
+    if (isset($params['dsid']) && isset($item[$dsid])) {
+      rules_invoke_event('islandora_scholar_datastream_embargo_expired', $item, $item[$dsid]);
     }
     else {
       rules_invoke_event('islandora_scholar_object_embargo_expired', $item);
     }
+  }
+  foreach ($expired_emails as $notification) {
+    // Send emails here.
+    $item = islandora_object_load($notification['pid']);
+    rules_invoke_event('islandora_scholar_datastreams_embargo_expired', $item, $notification['params']['dsid']);
   }
 }
 
@@ -286,20 +344,16 @@ function islandora_scholar_embargo_islandora_scholar_embargo_users_to_notify(Abs
  *   An array of user objects to notify.
  */
 function islandora_scholar_embargo_users_to_notify(AbstractObject $object) {
-  $unique_users = function($user) {
-    $seen = &drupal_static('islandora_scholar_embargo_users_to_notify_unique_users');
-    if (isset($seen[$user->uid])) {
-      return FALSE;
-    }
-    $seen[$user->uid] = TRUE;
-    return TRUE;
-  };
   $users = module_invoke_all('islandora_scholar_embargo_users_to_notify', $object);
-  $users = array_filter($users, $unique_users);
   drupal_alter('islandora_scholar_embargo_users_to_notify', $users, $object);
-  drupal_static_reset('islandora_scholar_embargo_users_to_notify_unique_users');
-  $users = array_filter($users, $unique_users);
-  return $users;
+  $unique_users = array();
+  // Filter down the users so we don't send multiple e-mails potentially.
+  foreach ($users as $user) {
+    if (!isset($unique_users[$user->uid])) {
+      $unique_users[$user->uid] = $user;
+    }
+  }
+  return $unique_users;
 }
 
 /**
@@ -313,8 +367,7 @@ function islandora_scholar_embargo_users_to_notify(AbstractObject $object) {
  *   embargoed exists.
  * @param mixed $ds
  *   NULL--meaning the object should be disembargoed
- *   a string representing a datastream ID to be disembargoed
- * ..datastream to be disembargoed
+ *   An array representing a list of datastream IDs to be disembargoed.
  */
 function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
   $item = $param instanceof AbstractObject ?
@@ -323,33 +376,34 @@ function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
   $dsid = $ds instanceof AbstractDatastream ? $ds->id : $ds;
   $pid = $item->id;
   $xacml = new IslandoraXacml($item);
-
   if ($dsid === NULL) {
-    // TODO Remove embargo statement from RELS-EXT (and POLICY stream).
     $rels = $item->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
     $xacml->viewingRule->clear();
   }
   else {
-    /* TODO Remove embargo statement from RELS-INT
-     * (and POLICY stream) for the given datastream. */
-    if (!isset($item[$dsid])) {
-      $embargo_ds = $item->constructDatastream($dsid);
+    // XXX: Casting to array to support external modules calling embargo as the
+    // function signature used to accept a string for datastream id.
+    $dsid = (array) $dsid;
+    foreach ($dsid as $datastream_id) {
+      if (!isset($item[$datastream_id])) {
+        $embargo_ds = $item->constructDatastream($datastream_id);
+      }
+      else {
+        $embargo_ds = $item[$datastream_id];
+      }
+      $rels = $embargo_ds->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+      $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+      $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+      $xacml->datastreamRule->removeDsid($datastream_id);
     }
-    else {
-      $embargo_ds = $item[$dsid];
-    }
-    $rels = $embargo_ds->relationships->get(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
-    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
-    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
-    $xacml->datastreamRule->removeDsid($dsid);
   }
 
   $xacml->writeBackToFedora();
 
   // Only notify if the object exists in the repository.
-  if ($item instanceof FedoraObject) {
+  if ($item instanceof FedoraObject && isset($rels) && !empty($rels)) {
     $expiry = $rels[0]['object']['value'];
     // Send email notification.
     $params['pid'] = $pid;
@@ -359,8 +413,12 @@ function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
     $key = 'lifted_embargo';
     islandora_embargo_user_notify($key, $item, $params);
   }
-  if (isset($item[$dsid])) {
-    rules_invoke_event('islandora_scholar_datastream_embargo_lifted', $item, $item[$dsid]);
+  if (isset($dsid)) {
+    foreach ($dsid as $ds) {
+      if (isset($item[$ds])) {
+        rules_invoke_event('islandora_scholar_datastream_embargo_lifted', $item, $item[$ds]);
+      }
+    }
   }
   else {
     rules_invoke_event('islandora_scholar_object_embargo_lifted', $item);
@@ -378,8 +436,8 @@ function islandora_scholar_embargo_lift_embargo($param, $ds = NULL) {
  *   item to be embargoed, or the item in which the datastream to be embargoed
  *   exists.
  * @param mixed $dsid
- *   Either NULL--meaning the object should be embargoed--or a string
- *   representing a datastream ID to be embargoed.
+ *   Either NULL--meaning the object should be embargoed--or an array
+ *   representing a group of datastream IDs to be embargoed.
  * @param string $end
  *   Either an xsd:dateTime compliant string for when to lift the embargo, or
  *   the string 'indefinite' to require it to be manually lifted.
@@ -423,28 +481,33 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
     }
   }
   else {
-    // Handles the case where we are setting an embargo before adding the
-    // embargoed datastream to the object.
-    if (!isset($item[$dsid])) {
-      $embargo_ds = $item->constructDatastream($dsid);
-    }
-    else {
-      $embargo_ds = $item[$dsid];
-    }
-    $embargo_ds->relationships->registerNamespace('islandora-embargo', ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
-    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
-    $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
-
-    $embargo_ds->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, $type);
-
-    if ($end !== NULL) {
-      if ($notification !== NULL) {
-        $embargo_ds->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
+    // XXX: Casting to array to support external modules calling embargo as the
+    // function signature used to accept a string for datastream id.
+    $dsid = (array) $dsid;
+    foreach ($dsid as $datastream_id) {
+      // Handles the case where we are setting an embargo before adding the
+      // embargoed datastream to the object.
+      if (!isset($item[$datastream_id])) {
+        $embargo_ds = $item->constructDatastream($datastream_id);
       }
-      $xacml->datastreamRule->addDsid($dsid);
-      $xacml_changed = TRUE;
-      foreach ($users as $user) {
-        $xacml->datastreamRule->addUser($user->name);
+      else {
+        $embargo_ds = $item[$datastream_id];
+      }
+      $embargo_ds->relationships->registerNamespace('islandora-embargo', ISLANDORA_SCHOLAR_EMBARGO_RELS_URI);
+      $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
+      $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
+
+      $embargo_ds->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED, $end, $type);
+
+      if ($end !== NULL) {
+        if ($notification !== NULL) {
+          $embargo_ds->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
+        }
+        $xacml->datastreamRule->addDsid($datastream_id);
+        $xacml_changed = TRUE;
+        foreach ($users as $user) {
+          $xacml->datastreamRule->addUser($user->name);
+        }
       }
     }
   }
@@ -467,6 +530,11 @@ function islandora_scholar_embargo_send($params, $key) {
   $from = variable_get('site_mail', 'admin@example.com');
   $language = language_default();
   $send = TRUE;
+  // Implode the datastream IDs so we don't spam e-mails for each datastream
+  // being lifted.
+  if ($params['dsid']) {
+    $params['dsid'] = implode(', ', $params['dsid']);
+  }
   $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
   if ($result['result'] == TRUE) {
     drupal_set_message(t('Notification has been sent to @to.', array('@to' => $to)), 'status', FALSE);
@@ -506,13 +574,15 @@ function islandora_embargo_user_notify($key, $item, $params) {
       $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
     }
     else {
-      if (!isset($item[$params['dsid']])) {
-        $embargo_ds = $item->constructDatastream($params['dsid']);
+      foreach ($params['dsid'] as $dsid) {
+        if (!isset($item[$dsid])) {
+          $embargo_ds = $item->constructDatastream($dsid);
+        }
+        else {
+          $embargo_ds = $item[$dsid];
+        }
+        $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
       }
-      else {
-        $embargo_ds = $item[$params['dsid']];
-      }
-      $embargo_ds->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, $pred);
     }
   }
 }

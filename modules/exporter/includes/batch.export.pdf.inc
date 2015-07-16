@@ -25,7 +25,6 @@ function citation_exporter_batch_get_pdf_operations(array $pids, $style) {
   $set_id = citation_exporter_create_set($pids);
   $total = count($pids);
   $operations = array();
-
   $queries = $_GET;
   unset($queries['q']);
   $operations[] = array(

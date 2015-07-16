@@ -75,7 +75,16 @@ function islandora_scholar_get_view(AbstractObject $object) {
     $display['citation']['#markup'] = t('Unable to load MODS.');
   }
 
-  if (isset($object['PREVIEW']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PREVIEW'])) {
+  module_load_include('inc', 'islandora', 'includes/solution_packs');
+  $viewer = islandora_get_viewer(array(), 'islandora_scholar_viewers', $object);
+
+  if ($viewer) {
+    $display['preview'] =  array(
+      '#markup' => $viewer,
+      '#weight' => $display['preview']['#weight'],
+    );
+  }
+  elseif (isset($object['PREVIEW']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PREVIEW'])) {
     $image = theme('image', array(
       'path' => "islandora/object/$object->id/datastream/PREVIEW/view",
     ));

@@ -37,15 +37,14 @@ function islandora_google_scholar_create_meta_tags($object) {
     else {
       return FALSE;
     }
-
-    $authors = array();
-
-    foreach ($mods_xml->name as $name_xml) {
+    foreach ($mods_xml->xpath('mods:name') as $name_xml) {
       $name_parts = array();
-      $role = strtolower((string) @$name_xml->role->roleTerm);
+      $name_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
+      $roles = $name_xml->xpath('mods:role/mods:roleTerm');
+      $role = strtolower((string) reset($roles));
       if ($role) {
         if ($role == 'author') {
-          foreach ($name_xml->namePart as $name_part) {
+          foreach ($name_xml->xpath('mods:namePart') as $name_part) {
             if ((string) $name_part != '') {
               // Strip periods off the end.
               $np = (string) rtrim($name_part, '.');

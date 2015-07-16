@@ -73,8 +73,9 @@ function citeproc_get_id() {
 function citeproc_get_citeproc_php_instance($style) {
   $citeprocs = &drupal_static(__FUNCTION__, array());
 
-  if (!array_key_exists($style['name'], $citeprocs)) {
-    module_load_include('php', 'citeproc', 'lib/citeproc-php/CiteProc');
+  if (!array_key_exists($style['name'], $citeprocs) && $citeproc_php_path = libraries_get_path('citeproc-php')) {
+    require_once "$citeproc_php_path/CiteProc.php";
+
     global $language;
 
     $citeprocs[$style['name']] = new CiteProc($style['data'], $language->language);

@@ -12,16 +12,20 @@ env:
   - FEDORA_VERSION="3.7.0"
 before_install:
   - cd $HOME
+  - mkdir javascript
   - git clone -b 7.x git://github.com/Islandora/islandora.git
   - git clone -b 7.x git://github.com/Islandora/islandora_solr_search.git
   - git clone -b 7.x git://github.com/Islandora/islandora_importer.git
   - git clone -b 7.x git://github.com/Islandora/islandora_xacml_editor.git
   - git clone -b 7.x git://github.com/Islandora/islandora_bookmark.git
   - git clone -b 7.x git://github.com/Islandora/islandora_batch.git
+  - git clone git://github.com/Islandora/citeproc-php.git
   - export ISLANDORA_DIR=$HOME/islandora
+  - export JAVASCRIPT_DIR=$HOME/javascript
   - $HOME/islandora/tests/scripts/travis_setup.sh
   - cd $HOME/drupal-*
   - ln -s $TRAVIS_BUILD_DIR sites/all/modules/islandora_scholar
+  - ln -s $HOME/citeproc-php sites/all/libraries/citeproc-php
   - ln -s $HOME/islandora_solr_search sites/all/modules/islandora_solr_search
   - ln -s $HOME/islandora_importer sites/all/modules/islandora_importer
   - ln -s $HOME/islandora_xacml_editor sites/all/modules/islandora_xacml_editor
@@ -34,8 +38,9 @@ script:
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
   # XXX: Move the 3rd-party library stuff out of the way, so it doesn't
   # throw warnings from coder.
-  - mv $TRAVIS_BUILD_DIR/modules/citeproc/lib/citeproc-php $HOME
   - mv $TRAVIS_BUILD_DIR/modules/exporter/lib/tcpdf $HOME
+  - find $TRAVIS_BUILD_DIR/modules/pmid/xsl/exslt -iname "*.js" -type f -exec cp --parents -v {} $JAVASCRIPT_DIR \;
+  - find $TRAVIS_BUILD_DIR/modules/pmid/xsl/exslt -iname "*.js" -type f -exec rm {} \;
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citation_exporter
@@ -49,8 +54,8 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
   # XXX: Move the 3rd-party library stuff back in, for tests.
-  - mv $HOME/citeproc-php $TRAVIS_BUILD_DIR/modules/citeproc/lib/
   - mv $HOME/tcpdf $TRAVIS_BUILD_DIR/modules/exporter/lib/
+  - cp -Rv $JAVASCRIPT_DIR/* $TRAVIS_BUILD_DIR
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
   - phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
   - drush test-run --uri=http://localhost:8081 "Islandora Scholar"
