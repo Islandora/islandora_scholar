@@ -192,8 +192,6 @@ function islandora_scholar_embargo_mail($key, &$message, $params) {
 function islandora_scholar_embargo_cron() {
   // Detect embargos expiring soon, send out notification.
   $now = time();
-  $tomorrow = gmdate("Y-m-d\TH:i:s\Z", strtotime("+1DAYS", $now));
-  $yesterday = gmdate("Y-m-d\TH:i:s\Z", strtotime("-1DAYS", $now));
   $pre_expiry = strtotime("-10DAYS", $now);
   $now = gmdate("Y-m-d\TH:i:s\Z", $now);
   $pre_expiry = gmdate("Y-m-d\TH:i:s\Z", $pre_expiry);
@@ -269,7 +267,7 @@ SELECT ?expired ?date
 FROM <#ri>
 WHERE {
   ?expired is:$eu ?date .
-  FILTER(?date < '$tomorrow'^^xsd:dateTime) .
+  FILTER(?date < '$now'^^xsd:dateTime) .
 }
 EOQ;
   $results = $repository->repository->ri->sparqlQuery($query);
