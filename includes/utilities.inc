@@ -79,7 +79,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
   $viewer = islandora_get_viewer(array(), 'islandora_scholar_viewers', $object);
 
   if ($viewer) {
-    $display['preview'] =  array(
+    $display['preview'] = array(
       '#markup' => $viewer,
       '#weight' => $display['preview']['#weight'],
     );
