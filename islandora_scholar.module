@@ -175,16 +175,16 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
 function islandora_scholar_theme($existing, $type, $theme, $path) {
   return array(
     'citation_display' => array(
-      'path' => drupal_get_path('module', 'islandora_scholar').'/theme',
+      'path' => drupal_get_path('module', 'islandora_scholar') . '/theme',
       'template' => 'islandora-citation',
       'variables' => array('islandora_object' => NULL, 'display' => NULL),
     ),
     'thesis_display' => array(
-      'path' => drupal_get_path('module', 'islandora_scholar').'/theme',
+      'path' => drupal_get_path('module', 'islandora_scholar') . '/theme',
       'template' => 'islandora-thesis',
       'variables' => array('islandora_object' => NULL, 'display' => NULL),
     ),
-  ); 
+  );
 }
 
 /**
@@ -241,7 +241,7 @@ function islandora_scholar_romeo_access($object) {
  */
 function islandora_scholar_citation_access($object) {
   return variable_get('islandora_scholar_users_choose_display_csl', FALSE) &&
-    (in_array('ir:citationCModel', $object->models) || in_array('ir:thesisCModel', $object->models)) &&
+    in_array('ir:citationCModel', $object->models) &&
     isset($object['MODS']) &&
     islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS']);
 }
