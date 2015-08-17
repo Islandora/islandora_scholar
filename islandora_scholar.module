@@ -170,11 +170,31 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
 }
 
 /**
+ * Implements hook_theme().
+ */
+function islandora_scholar_theme($existing, $type, $theme, $path) {
+  return array(
+    'citation_display' => array(
+      'path' => drupal_get_path('module', 'islandora_scholar').'/theme',
+      'template' => 'islandora-citation', //see islandora-citation.tpl.php
+      'variables' => array('islandora_object' => NULL, 'display' => NULL),
+    ),
+    'thesis_display' => array(
+      'path' => drupal_get_path('module', 'islandora_scholar').'/theme',
+      'template' => 'islandora-thesis', //see islandora-thesis.tpl.php
+      'variables' => array('islandora_object' => NULL, 'display' => NULL),
+    ),
+  ); 
+}
+
+/**
  * Implements hook_CMODEL_PID_islandora_view_object().
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
-  return islandora_scholar_get_view($object);
+  $display = islandora_scholar_get_view($object);
+  $output = theme('citation_display', array('islandora_object' => $object, 'display' => $display));
+  return array('' => $output);
 }
 
 /**
@@ -182,7 +202,9 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
  */
 function islandora_scholar_ir_thesisCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
-  return islandora_scholar_get_view($object);
+  $display = islandora_scholar_get_view($object);
+  $output = theme('thesis_display', array('islandora_object' => $object, 'display' => $display));
+  return array('' => $output);
 }
 
 /**
@@ -219,7 +241,7 @@ function islandora_scholar_romeo_access($object) {
  */
 function islandora_scholar_citation_access($object) {
   return variable_get('islandora_scholar_users_choose_display_csl', FALSE) &&
-    in_array('ir:citationCModel', $object->models) &&
+    (in_array('ir:citationCModel', $object->models) || in_array('ir:thesisCModel', $object->models)) &&
     isset($object['MODS']) &&
     islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS']);
 }
