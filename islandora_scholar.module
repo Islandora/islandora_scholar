@@ -219,7 +219,7 @@ function islandora_scholar_romeo_access($object) {
  */
 function islandora_scholar_citation_access($object) {
   return variable_get('islandora_scholar_users_choose_display_csl', FALSE) &&
-    in_array(('ir:citationCModel' || 'ir:thesisCModel'), $object->models) &&
+    array_intersect(array('ir:citationCModel', 'ir:thesisCModel'), $object->models) &&
     isset($object['MODS']) &&
     islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS']);
 }
