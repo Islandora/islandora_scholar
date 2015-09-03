@@ -40,12 +40,10 @@ function islandora_scholar_get_view(AbstractObject $object) {
     ),
   );
   if (isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
-    if (variable_get('islandora_scholar_users_choose_display_csl', FALSE)) {
-      module_load_include('inc', 'islandora_scholar', 'includes/csl_select.form');
-      $display['citation_select'] = drupal_get_form('islandora_scholar_citation_select_form', $object->id);
-    }
+    module_load_include('inc', 'islandora_scholar', 'includes/csl_select.form');
+    $display['citation_select'] = drupal_get_form('islandora_scholar_citation_select_form', $object->id);
     $display['citation']['#markup'] = citeproc_bibliography_from_mods(
-        citeproc_default_style(), $object['MODS']->content
+      citeproc_default_style(), $object['MODS']->content
     );
 
     if (variable_get('islandora_scholar_google_scholar_search_enabled', FALSE)) {
