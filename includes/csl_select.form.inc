@@ -19,25 +19,27 @@
  *   The Drupal form definition.
  */
 function islandora_scholar_citation_select_form(array $form, array &$form_state, $pid) {
-  return array(
-    'citation_select' => array(
-      '#type' => 'select',
-      '#options' => CSL::GetNames(),
-      '#default_value' => CSL::GetDefaultName(),
-      '#title' => t('Style'),
-      '#description' => t('Choose the citation style.'),
-      '#attached' => array(
-        'js' => array(
-          drupal_get_path('module', 'islandora_scholar') . '/js/citation_select.js',
-          array(
-            'type' => 'setting',
-            'data' => array('islandora_scholar' => array('pid' => $pid)),
+  if (variable_get('islandora_scholar_users_choose_display_csl', FALSE)) {
+    return array(
+      'citation_select' => array(
+        '#type' => 'select',
+        '#options' => CSL::GetNames(),
+        '#default_value' => CSL::GetDefaultName(),
+        '#title' => t('Style'),
+        '#description' => t('Choose the citation style.'),
+        '#attached' => array(
+          'js' => array(
+            drupal_get_path('module', 'islandora_scholar') . '/js/citation_select.js',
+            array(
+              'type' => 'setting',
+              'data' => array('islandora_scholar' => array('pid' => $pid)),
+            ),
           ),
         ),
+        '#attributes' => array(
+          'class' => array('islandora-scholar-citation-select'),
+        ),
       ),
-      '#attributes' => array(
-        'class' => array('islandora-scholar-citation-select'),
-      ),
-    ),
-  );
+    );
+  }
 }
