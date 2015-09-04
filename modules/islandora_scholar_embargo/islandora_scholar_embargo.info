@@ -5,3 +5,4 @@ configure = admin/islandora/solution_pack_config/embargo
 package = Islandora Solution Packs
 dependencies[] = rules
 core = 7.x
+version = 7.x-dev
