@@ -14,7 +14,7 @@
  * @return array
  *   array of values to construct view
  */
-function islandora_scholar_get_view(AbstractObject$object) {
+function islandora_scholar_get_view(AbstractObject $object) {
   $i = 1;
   $classes = str_replace(array(':', '-', '.'), '_', implode(' ', $object->models));
   $display = array(
@@ -209,4 +209,3 @@ function islandora_scholar_get_metadata_display($object, $weight) {
   }
   return $display;
 }
-

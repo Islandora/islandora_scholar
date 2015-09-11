@@ -18,7 +18,7 @@
  * @return array
  *   The Drupal form definition.
  */
-function islandora_scholar_citation_select_form(array$form, array & $form_state, $pid) {
+function islandora_scholar_citation_select_form(array $form, array & $form_state, $pid) {
   if (variable_get('islandora_scholar_users_choose_display_csl', FALSE)) {
     return array(
       'citation_select' => array(
@@ -43,4 +43,3 @@ function islandora_scholar_citation_select_form(array$form, array & $form_state,
     );
   }
 }
-
