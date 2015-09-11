@@ -56,7 +56,7 @@ function islandora_scholar_update_7100(&$sandbox) {
  * Print and log a message about possible lost physicalDescription data.
  */
 function islandora_scholar_update_7101(&$sandbox) {
-    drupal_set_message(filter_xss(t('Existing mods:physicalDescription fields with an @authority="local" may become hidden with this update. Please consult the !url for further information.',
+  drupal_set_message(filter_xss(t('Existing mods:physicalDescription fields with an @authority="local" may become hidden with this update. Please consult the !url for further information.',
     array(
       '!url' => l(t('ticket'), 'https://jira.duraspace.org/browse/ISLANDORA-1350', array('absolute' => TRUE)),
     )
