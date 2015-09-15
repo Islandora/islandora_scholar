@@ -51,3 +51,15 @@ function islandora_scholar_update_7100(&$sandbox) {
   )));
   watchdog('islandora_scholar', 'Existing citations with PDF datastreams should have derivatives created for them via Drush.', array(), WATCHDOG_NOTICE, l(t('README'), 'https://github.com/discoverygarden/islandora_scholar/blob/7.x/README.txt', array('external' => TRUE)));
 }
+
+/**
+ * Print and log a message about possible lost physicalDescription data.
+ */
+function islandora_scholar_update_7101(&$sandbox) {
+  drupal_set_message(filter_xss(t('Existing mods:physicalDescription fields with an @authority="local" may become hidden with this update. Please consult the !url for further information.',
+    array(
+      '!url' => l(t('ticket'), 'https://jira.duraspace.org/browse/ISLANDORA-1350', array('absolute' => TRUE)),
+    )
+  )));
+  watchdog('islandora_scholar', 'Existing mods:physicalDescription fields with an @authority="local" may become hidden with this update.', array(), WATCHDOG_NOTICE, l(t('ISLANDORA-1350'), 'https://jira.duraspace.org/browse/ISLANDORA-1350', array('external' => TRUE)));
+}
