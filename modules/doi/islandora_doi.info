@@ -1,5 +1,5 @@
 name = Islandora DOI
 description = Support code for Digital Object Identifiers, to create citation objects.
 package = Islandora Solution Packs
-version = 7.x-1.6-RC1
+version = 7.x-1.6
 core = 7.x
