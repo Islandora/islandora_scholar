@@ -6,25 +6,23 @@
  */
 
 /**
- * Get the CrossRef for the given url.
+ * Get the DOI name for the given url.
  *
- * @param string $url
- *   A DOI url, or a DOI number with or without the "doi:" prefix. If the $url
+ * @param string $doi_url
+ *   A DOI url, or a DOI name with or without the "doi:" prefix. If the $url
  *   is a CrossRef ID passed in as doi:10.1016/j.tiv.2011.10.017 or
  *   10.1111/eve.12339 it will not get changed by running it through parse_url.
  *
  * @return string
- *   CrossRef ID string.
+ *   A string containing the DOI name.
  */
-function islandora_doi_get_crossref_id_from_url($url) {
+function islandora_doi_get_doi_name_from_url($doi_url) {
   // Allows for DOI to be entered in the following formats: 10.1111/eva.12339,
   // http://dx.doi.org/10.1111/eva.12339, http://doi.org/10.1111/eva.12339,
-  // or doi:10.1111/eva.12339.
-  $doi_url = parse_url(trim($url));
-  // Remove "/" from the path if it's the first or last character in the path.
-  $doi_url['path'] = rtrim($doi_url['path'], '/');
-  $doi_url['path'] = ltrim($doi_url['path'], '/');
-  return $doi_url['path'];
+  // or doi:10.1111/eva.12339. Removing whitespace before parsing the url and
+  // then removing any trailing "/" from the returned path.
+  $doi_name = trim(parse_url(trim($doi_url), PHP_URL_PATH), '/');
+  return $doi_name;
 }
 
 /**
@@ -38,8 +36,8 @@ function islandora_doi_get_crossref_id_from_url($url) {
  *   An object as provided by drupal_http_request().
  */
 function islandora_doi_perform_request($id_or_url) {
-  // Allows for $id to pass a DOI url string or the Crossref ID.
-  $id = islandora_doi_get_crossref_id_from_url($id_or_url);
+  // Allows for $id to pass a DOI url string or the DOI name.
+  $id = islandora_doi_get_doi_name_from_url($id_or_url);
   $openurl = variable_get('islandora_doi_openurl', 'http://www.crossref.org/openurl');
   $openurl_pid = variable_get('islandora_doi_openurl_pid', 'user@example.com');
   $url = url($openurl, array(
