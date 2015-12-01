@@ -6,15 +6,38 @@
  */
 
 /**
+ * Get the DOI name for the given url.
+ *
+ * @param string $doi_url
+ *   A DOI url, or a DOI name with or without the "doi:" prefix. If the $url
+ *   is a CrossRef ID passed in as doi:10.1016/j.tiv.2011.10.017 or
+ *   10.1111/eve.12339 it will not get changed by running it through parse_url.
+ *
+ * @return string
+ *   A string containing the DOI name.
+ */
+function islandora_doi_get_doi_name_from_url($doi_url) {
+  // Allows for DOI to be entered in the following formats: 10.1111/eva.12339,
+  // http://dx.doi.org/10.1111/eva.12339, http://doi.org/10.1111/eva.12339,
+  // or doi:10.1111/eva.12339. Removing whitespace before parsing the url and
+  // then removing any trailing "/" from the returned path.
+  $doi_name = trim(parse_url(trim($doi_url), PHP_URL_PATH), '/');
+  return $doi_name;
+}
+
+/**
  * Perform a request to CrossRef for the given ID.
  *
- * @param string $id
- *   A DOI to lookop. May be provided with or without the "doi:" prefix.
+ * @param string $id_or_url
+ *   A DOI to lookop. May be provided with or without the "doi:" prefix. Can
+ *   also pass a full DOI url (i.e, http://doi.org/10.1111/eva.12339 ).
  *
  * @return object
  *   An object as provided by drupal_http_request().
  */
-function islandora_doi_perform_request($id) {
+function islandora_doi_perform_request($id_or_url) {
+  // Allows for $id to pass a DOI url string or the DOI name.
+  $id = islandora_doi_get_doi_name_from_url($id_or_url);
   $openurl = variable_get('islandora_doi_openurl', 'http://www.crossref.org/openurl');
   $openurl_pid = variable_get('islandora_doi_openurl_pid', 'user@example.com');
   $url = url($openurl, array(

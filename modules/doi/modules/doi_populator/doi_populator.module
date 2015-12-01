@@ -19,7 +19,7 @@ function doi_populator_islandora_populator() {
       'doi' => array(
         '#type' => 'textfield',
         '#title' => t('Digital Object Identifier'),
-        '#description' => t('Enter an identifier for which to attempt to acquire metadata, such as: 10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x'),
+        '#description' => t('Enter an identifier for which to attempt to acquire metadata, such as: 10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x, http://dx.doi.org/10.1111/eva.12339, or http://doi.org/10.1111/eva.12340'),
         '#element_validate' => array('doi_populator_validate_id'),
       ),
     ),
