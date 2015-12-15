@@ -46,7 +46,8 @@ class RomeoView {
       if (!$issn) {
         // Try to get the ISSN from a MODS stream.
         if (!$issn && isset($object['MODS'])) {
-          $mods_doc = DOMDocument::loadXML($object['MODS']->content);
+          $mods_doc = new DOMDocument();
+          $mods_doc->loadXML($object['MODS']->content);
           $mods_xpath = new DOMXPath($mods_doc);
           $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
 
