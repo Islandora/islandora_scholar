@@ -112,6 +112,44 @@ function islandora_scholar_admin_form() {
     '#default_value' => variable_get('islandora_scholar_users_choose_display_csl', FALSE),
   );
 
+  $form['islandora_scholar_specify_document_versions'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Specify Document Versions'),
+    '#description' => t('Use your own document versions when uploading a PDF'),
+    '#default_value' => variable_get('islandora_scholar_specify_document_versions', FALSE),
+  );
+
+  $form['islandora_scholar_document_versions'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Document Versions'),
+    '#description' => t('Enter the document versions you would like to choose from. Enter one choice per line.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_specify_document_versions"]' => array('checked' => TRUE),
+      ),
+    ),
+    '#default_value' => variable_get('islandora_scholar_document_versions', "Author's Original\nSubmitted Manuscript Under Review\nAccepted Manuscript\nProof\nVersion of Record\nCorrected Version of Record\nEnhanced Version of Record"),
+  );
+
+  $form['islandora_scholar_specify_use_permissions'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Specify Use Permissions'),
+    '#description' => t('Use your own use permissions when uploading a PDF'),
+    '#default_value' => variable_get('islandora_scholar_specify_use_permissions', FALSE),
+  );
+
+  $form['islandora_scholar_use_permissions'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Use Permissions'),
+    '#description' => t('Enter the use permissions you would like to choose from. Enter one choice per line.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_specify_use_permissions"]' => array('checked' => TRUE),
+      ),
+    ),
+    '#default_value' => variable_get('islandora_scholar_use_permissions', "Publisher\nAuthor"),
+  );
+
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   $form += islandora_viewers_form('islandora_scholar_viewers', 'application/pdf');
 

@@ -18,6 +18,33 @@
  */
 function islandora_scholar_pdf_upload_form(array $form, array &$form_state) {
   $upload_size = min((int) ini_get('post_max_size'), (int) ini_get('upload_max_filesize'));
+
+  // pull document versions from the module settings if available
+  if (variable_get('islandora_scholar_specify_document_versions', FALSE)) {
+    $document_version_names = array_map('trim', explode("\n", variable_get('islandora_scholar_document_versions', "Author's Original\nSubmitted Manuscript Under Review\nAccepted Manuscript\nProof\nVersion of Record\nCorrected Version of Record\nEnhanced Version of Record")));
+    $document_versions = array_combine($document_version_names, $document_version_names);
+  }
+  else {
+    $document_versions = array(
+      'PRE-PUBLICATION' => t('Pre-Publication'),
+      'PUBLISHED' => t('Published'),
+      'POST-PUBLICATION' => t('Post-Publication'),
+      'OTHER' => t('Other'),
+    );
+  }
+
+  // pull use permissions from the module settings if available
+  if (variable_get('islandora_scholar_specify_use_permissions', FALSE)) {
+    $use_permission_names = array_map('trim', explode("\n", variable_get('islandora_scholar_use_permissions', "Publisher\nAuthor")));
+    $use_permissions = array_combine($use_permission_names, $use_permission_names);
+  }
+  else {
+    $use_permissions = array(
+      'publisher' => t('Contact Publisher (I do not hold copyright).'),
+      'author' => t('Contact Author (I hold the copyright and wish to retain all rights).'),
+    );
+  }
+
   $form['upload_pdf_checkbox'] = array(
     '#type' => 'checkbox',
     '#title' => t('Would you like to include a PDF document for this citation?'),
@@ -43,20 +70,12 @@ function islandora_scholar_pdf_upload_form(array $form, array &$form_state) {
   $form['upload_document']['version'] = array(
     '#type' => 'radios',
     '#title' => t('Document Version'),
-    '#options' => array(
-      'PRE-PUBLICATION' => t('Pre-Publication'),
-      'PUBLISHED' => t('Published'),
-      'POST-PUBLICATION' => t('Post-Publication'),
-      'OTHER' => t('Other'),
-    ),
+    '#options' => $document_versions,
   );
   $form['upload_document']['usage'] = array(
     '#type' => 'radios',
     '#title' => t('Use Permission'),
-    '#options' => array(
-      'publisher' => t('Contact Publisher (I do not hold copyright).'),
-      'author' => t('Contact Author (I hold the copyright and wish to retain all rights).'),
-    ),
+    '#options' => $use_permissions,
   );
   $form['upload_document']['certifying'] = array(
     '#type' => 'checkboxes',
