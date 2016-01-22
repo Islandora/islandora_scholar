@@ -211,8 +211,7 @@ function islandora_scholar_get_metadata_display($object, $weight) {
 }
 
 /**
- * Get a list of document versions for PDF upload either from the module
- * settings or, if not set, a default list.
+ * Get a list of document versions for PDF upload either from the module settings or, if not set, a default list.
  *
  * @return array
  *   document versions to choose from during document ingest
@@ -233,8 +232,7 @@ function get_document_versions() {
 }
 
 /**
- * Get a list of use permissions for PDF upload from the module settings or, if
- * not set, a default list.
+ * Get a list of use permissions for PDF upload from the module settings or, if not set, a default list.
  *
  * @return array
  *   use permissions to choose from during document ingest
