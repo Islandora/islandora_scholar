@@ -20,30 +20,10 @@ function islandora_scholar_pdf_upload_form(array $form, array &$form_state) {
   $upload_size = min((int) ini_get('post_max_size'), (int) ini_get('upload_max_filesize'));
 
   // Pull document versions from the module settings if available.
-  if (variable_get('islandora_scholar_specify_document_versions', FALSE)) {
-    $document_version_names = array_map('trim', explode("\n", variable_get('islandora_scholar_document_versions', "Author's Original\nSubmitted Manuscript Under Review\nAccepted Manuscript\nProof\nVersion of Record\nCorrected Version of Record\nEnhanced Version of Record")));
-    $document_versions = array_combine($document_version_names, $document_version_names);
-  }
-  else {
-    $document_versions = array(
-      'PRE-PUBLICATION' => t('Pre-Publication'),
-      'PUBLISHED' => t('Published'),
-      'POST-PUBLICATION' => t('Post-Publication'),
-      'OTHER' => t('Other'),
-    );
-  }
+  $document_versions = get_document_versions();
 
   // Pull use permissions from the module settings if available.
-  if (variable_get('islandora_scholar_specify_use_permissions', FALSE)) {
-    $use_permission_names = array_map('trim', explode("\n", variable_get('islandora_scholar_use_permissions', "Publisher\nAuthor")));
-    $use_permissions = array_combine($use_permission_names, $use_permission_names);
-  }
-  else {
-    $use_permissions = array(
-      'publisher' => t('Contact Publisher (I do not hold copyright).'),
-      'author' => t('Contact Author (I hold the copyright and wish to retain all rights).'),
-    );
-  }
+  $use_permissions = get_use_permissions();
 
   $form['upload_pdf_checkbox'] = array(
     '#type' => 'checkbox',
