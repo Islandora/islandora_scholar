@@ -213,6 +213,9 @@ function islandora_scholar_get_metadata_display($object, $weight) {
 /**
  * Get a list of document versions for PDF upload either from the module
  * settings or, if not set, a default list.
+ *
+ * @return array
+ *   document versions to choose from during document ingest
  */
 function get_document_versions() {
   if (variable_get('islandora_scholar_specify_document_versions', FALSE)) {
@@ -232,6 +235,9 @@ function get_document_versions() {
 /**
  * Get a list of use permissions for PDF upload from the module settings or, if
  * not set, a default list.
+ *
+ * @return array
+ *   use permissions to choose from during document ingest
  */
 function get_use_permissions() {
   if (variable_get('islandora_scholar_specify_use_permissions', FALSE)) {
