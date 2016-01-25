@@ -80,7 +80,7 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
             switch ((string) $name) {
               case 'full_title':
                 $titleinfo = $relateditem->addChild('titleInfo');
-                $titleinfo->addChild('title', (string) $item);
+                $titleinfo->addChild('title', htmlspecialchars((string) $item));
                 break;
 
               case 'abbrev_title':
