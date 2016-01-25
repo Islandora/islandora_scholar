@@ -73,7 +73,7 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
           foreach ($metadata->attributes() as $name => $item) {
             switch ((string) $name) {
               case 'language':
-                $language = (string) $item[0];
+                $language = htmlspecialchars((string) $item[0]);
             }
           }
           foreach ($metadata->children() as $name => $item) {
@@ -86,11 +86,11 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
               case 'abbrev_title':
                 $titleinfo = $relateditem->addChild('titleInfo');
                 $titleinfo->addAttribute('type', 'abbreviated');
-                $titleinfo->addChild('title', (string) $item);
+                $titleinfo->addChild('title', htmlspecialchars((string) $item));
                 break;
 
               case 'issn':
-                $issn = $relateditem->addChild('identifier', (string) $item);
+                $issn = $relateditem->addChild('identifier', htmlspecialchars((string) $item));
                 $issn->addAttribute('type', 'issn');
                 break;
 
@@ -110,17 +110,17 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
                 break;
 
               case 'publication_date':
-                $pubdate_year = (string) $item[0]->year[0];
-                $pubdate_month = (string) $item[0]->month[0];
-                $pubdate_day = (string) $item[0]->day[0];
+                $pubdate_year = htmlspecialchars((string) $item[0]->year[0]);
+                $pubdate_month = htmlspecialchars((string) $item[0]->month[0]);
+                $pubdate_day = htmlspecialchars((string) $item[0]->day[0]);
                 break;
 
               case 'journal_volume':
-                $volume_number = (string) $item[0]->volume[0];
+                $volume_number = htmlspecialchars((string) $item[0]->volume[0]);
                 break;
 
               case 'issue':
-                $issue_number = (string) $item[0];
+                $issue_number = htmlspecialchars((string) $item[0]);
                 break;
 
               case 'special_numbering':
@@ -142,7 +142,7 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
 
               case 'language':
                 $language = $mods->addChild('language');
-                $languageterm = $language->addChild('languageTerm', (string) $item[0]);
+                $languageterm = $language->addChild('languageTerm', htmlspecialchars((string) $item[0]));
                 if (strlen((string) $item[0]) == 2) {
                   $languageterm->addAttribute('type', 'code');
                   $languageterm->addAttribute('authority', 'rfc4646');
@@ -155,9 +155,9 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
             switch ((string) $name) {
               case 'titles':
                 $title_info = $mods->addChild('titleInfo');
-                $title_info->addChild('title', (string) $item->title[0]);
+                $title_info->addChild('title', htmlspecialchars((string) $item->title[0]));
                 if ($item->subtitle) {
-                  $title_info->addChild('subTitle', (string) $item->subtitle[0]);
+                  $title_info->addChild('subTitle', htmlspecialchars((string) $item->subtitle[0]));
                 }
                 if ($item->original_language_title) {
                   // XXX: doesn't seem to actually add the original language
@@ -165,7 +165,7 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
                   // content?
                   $title_info_translated = $mods->addChild('titleInfo');
                   $title_info_translated->addAttribute('type', 'translated');
-                  $title_info_translated->addAttribute('lang', (string) $item->original_language_title['language']);
+                  $title_info_translated->addAttribute('lang', htmlspecialchars((string) $item->original_language_title['language']));
                 }
                 break;
 
@@ -173,12 +173,12 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
                 foreach ($item->children() as $type => $contributor) {
                   switch ((string) $type) {
                     case 'person_name':
-                      $role = strtolower((string) $contributor['contributor_role']);
-                      $sequence = (string) $contributor['sequence'];
-                      $given_name = (string) $contributor->given_name;
-                      $surname = (string) $contributor->surname;
-                      $suffix = (string) $contributor->suffix;
-                      $affiliation = (string) $contributor->affiliation;
+                      $role = strtolower(htmlspecialchars((string) $contributor['contributor_role']));
+                      $sequence = htmlspecialchars((string) $contributor['sequence']);
+                      $given_name = htmlspecialchars((string) $contributor->given_name);
+                      $surname = htmlspecialchars((string) $contributor->surname);
+                      $suffix = htmlspecialchars((string) $contributor->suffix);
+                      $affiliation = htmlspecialchars((string) $contributor->affiliation);
 
                       $mods_name = $mods->addChild('name');
                       $mods_name->addAttribute('type', 'personal');
@@ -214,11 +214,11 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
                       break;
 
                     case 'organization':
-                      $role = strtolower((string) $contributor['contributor_role']);
-                      $sequence = (string) $contributor['sequence'];
+                      $role = strtolower(htmlspecialchars((string) $contributor['contributor_role']));
+                      $sequence = htmlspecialchars((string) $contributor['sequence']);
                       $mods_name = $mods->addChild('name');
                       $mods_name->addAttribute('type', 'corporate');
-                      $mods_name->addChild('namePart', (string) $contributor);
+                      $mods_name->addChild('namePart', htmlspecialchars((string) $contributor));
                       break;
 
                   }
@@ -236,15 +236,15 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
                 break;
 
               case 'publication_date':
-                $pubdate_year = (string) $item[0]->year[0];
-                $pubdate_month = (string) $item[0]->month[0];
-                $pubdate_day = (string) $item[0]->day[0];
+                $pubdate_year = htmlspecialchars((string) $item[0]->year[0]);
+                $pubdate_month = htmlspecialchars((string) $item[0]->month[0]);
+                $pubdate_day = htmlspecialchars((string) $item[0]->day[0]);
                 break;
 
               case 'pages':
-                $first_page = (string) $item[0]->first_page[0];
-                $last_page = (string) $item[0]->last_page[0];
-                $other_pages = (string) $item[0]->other_pages[0];
+                $first_page = htmlspecialchars((string) $item[0]->first_page[0]);
+                $last_page = htmlspecialchars((string) $item[0]->last_page[0]);
+                $other_pages = htmlspecialchars((string) $item[0]->other_pages[0]);
                 break;
 
               case 'publisher_item':
@@ -257,12 +257,12 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
 
               case 'doi_data':
                 foreach ($item->doi as $doi) {
-                  $mods_identifier = $mods->addChild('identifier', (string) $doi);
+                  $mods_identifier = $mods->addChild('identifier', htmlspecialchars((string) $doi));
                   $mods_identifier->addAttribute('type', 'doi');
                 }
                 foreach ($item->resource as $resource) {
                   $mods_identifier = $mods->addChild('identifier');
-                  $mods_identifier->{0} = (string) $resource;
+                  $mods_identifier->{0} = htmlspecialchars((string) $resource);
                   $mods_identifier->addAttribute('type', 'uri');
                 }
                 break;
