@@ -209,3 +209,43 @@ function islandora_scholar_get_metadata_display($object, $weight) {
   }
   return $display;
 }
+
+/**
+ * Get a list of document versions for PDF upload.
+ *
+ * @return array
+ *   document versions to choose from during document ingest
+ */
+function get_document_versions() {
+  if (variable_get('islandora_scholar_specify_document_versions', FALSE)) {
+    $document_version_names = array_map('trim', explode("\n", variable_get('islandora_scholar_document_versions', "Author's Original\nSubmitted Manuscript Under Review\nAccepted Manuscript\nProof\nVersion of Record\nCorrected Version of Record\nEnhanced Version of Record")));
+    return array_combine($document_version_names, $document_version_names);
+  }
+  else {
+    return array(
+      'PRE-PUBLICATION' => t('Pre-Publication'),
+      'PUBLISHED' => t('Published'),
+      'POST-PUBLICATION' => t('Post-Publication'),
+      'OTHER' => t('Other'),
+    );
+  }
+}
+
+/**
+ * Get a list of use permissions for PDF upload.
+ *
+ * @return array
+ *   use permissions to choose from during document ingest
+ */
+function get_use_permissions() {
+  if (variable_get('islandora_scholar_specify_use_permissions', FALSE)) {
+    $use_permission_names = array_map('trim', explode("\n", variable_get('islandora_scholar_use_permissions', "Publisher\nAuthor")));
+    return array_combine($use_permission_names, $use_permission_names);
+  }
+  else {
+    return array(
+      'publisher' => t('Contact Publisher (I do not hold copyright).'),
+      'author' => t('Contact Author (I hold the copyright and wish to retain all rights).'),
+    );
+  }
+}

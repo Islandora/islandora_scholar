@@ -18,6 +18,13 @@
  */
 function islandora_scholar_pdf_upload_form(array $form, array &$form_state) {
   $upload_size = min((int) ini_get('post_max_size'), (int) ini_get('upload_max_filesize'));
+
+  // Pull document versions from the module settings if available.
+  $document_versions = get_document_versions();
+
+  // Pull use permissions from the module settings if available.
+  $use_permissions = get_use_permissions();
+
   $form['upload_pdf_checkbox'] = array(
     '#type' => 'checkbox',
     '#title' => t('Would you like to include a PDF document for this citation?'),
@@ -43,20 +50,12 @@ function islandora_scholar_pdf_upload_form(array $form, array &$form_state) {
   $form['upload_document']['version'] = array(
     '#type' => 'radios',
     '#title' => t('Document Version'),
-    '#options' => array(
-      'PRE-PUBLICATION' => t('Pre-Publication'),
-      'PUBLISHED' => t('Published'),
-      'POST-PUBLICATION' => t('Post-Publication'),
-      'OTHER' => t('Other'),
-    ),
+    '#options' => $document_versions,
   );
   $form['upload_document']['usage'] = array(
     '#type' => 'radios',
     '#title' => t('Use Permission'),
-    '#options' => array(
-      'publisher' => t('Contact Publisher (I do not hold copyright).'),
-      'author' => t('Contact Author (I hold the copyright and wish to retain all rights).'),
-    ),
+    '#options' => $use_permissions,
   );
   $form['upload_document']['certifying'] = array(
     '#type' => 'checkboxes',
