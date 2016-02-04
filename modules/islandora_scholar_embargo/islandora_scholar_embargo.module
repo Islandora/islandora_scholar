@@ -479,8 +479,8 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
       foreach ($users as $user) {
         $xacml->viewingRule->addUser($user->name);
       }
-      foreach ($roles as $key => $name) {
-        $xacml->viewingRule->addRole($name);
+      foreach ($roles as $key => $role) {
+        $xacml->viewingRule->addRole($role);
       }
     }
   }
@@ -512,8 +512,8 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
         foreach ($users as $user) {
           $xacml->datastreamRule->addUser($user->name);
         }
-        foreach ($roles as $key => $name) {
-          $xacml->datastreamRule->addRole($name);
+        foreach ($roles as $key => $role) {
+          $xacml->datastreamRule->addRole($role);
         }
       }
     }
