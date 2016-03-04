@@ -15,7 +15,7 @@ This module requires the following modules/libraries:
 * CSL (included in /modules)
 * Bibutils (included in /modules)
 
-Additionally, as this module requires the Citeproc moudle, it is necessary to install the [citeproc-php](https://github.com/Islandora/citeproc-php) library into the `sites/all/libraries` directory, such that the main `CiteProc.php` file is located at `sites/all/libraries/citeproc-php/CiteProc.php`. More information is available in Citeproc's README.md file.
+Additionally, as this module requires the Citeproc moudle, it is necessary to install the [citeproc-php](https://github.com/Islandora/citeproc-php) library into the `sites/all/libraries` directory, such that the main `CiteProc.php` file is located at `sites/all/libraries/citeproc-php/CiteProc.php`. More information is available in [Citeproc's README.md file](https://github.com/Islandora/islandora_scholar/blob/7.x/modules/citeproc/README.md).
 
 ## Installation
 
