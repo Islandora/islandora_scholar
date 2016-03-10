@@ -183,8 +183,7 @@ function islandora_google_scholar_parse_date_foryear($date) {
       return $date_string;
     }
     else {
-      $date_string = $date;
-      return $date_string;
+      return $date;
     }
   }
   catch (Exception $e) {
