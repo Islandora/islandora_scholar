@@ -62,52 +62,6 @@ function islandora_scholar_menu() {
 }
 
 /**
- * Implements hook_islandora_xml_form_builder_forms().
- */
-function islandora_scholar_islandora_xml_form_builder_forms() {
-  $message = islandora_deprecated('7.x-1.8', t('Use xml_form_builder_forms instead.'));
-  trigger_error(filter_xss($message), E_USER_DEPRECATED);
-  $module_path = drupal_get_path('module', 'islandora_scholar');
-  return array(
-    'Citation MODS form' => array(
-      'form_file' => "$module_path/xml/citation_form.xml",
-    ),
-    'Thesis MODS form' => array(
-      'form_file' => "$module_path/xml/thesis_form.xml",
-    ),
-    'Thesis MODS recovery form' => array(
-      'form_file' => "$module_path/xml/thesis_form_ISLANDORA1350.xml",
-    ),
-  );
-}
-
-/**
- * Implements hook_islandora_xml_form_builder_form_associations().
- */
-function islandora_scholar_islandora_xml_form_builder_form_associations() {
-  $message = islandora_deprecated('7.x-1.8', t('Use xml_form_builder_form_associations instead.'));
-  trigger_error(filter_xss($message), E_USER_DEPRECATED);
-  return array(
-    'islandora_scholar_mods_form' => array(
-      'content_model' => 'ir:citationCModel',
-      'form_name' => 'Citation MODS form',
-      'dsid' => 'MODS',
-      'title_field' => array('titleInfo', 'title'),
-      'transform' => 'mods_to_dc.xsl',
-      'template' => FALSE,
-    ),
-    'islandora_thesis_mods_form' => array(
-      'content_model' => 'ir:thesisCModel',
-      'form_name' => 'Thesis MODS form',
-      'dsid' => 'MODS',
-      'title_field' => array('titleInfo', 'title'),
-      'transform' => 'mods_to_dc.xsl',
-      'template' => FALSE,
-    ),
-  );
-}
-
-/**
  * Implements hook_xml_form_builder_forms().
  */
 function islandora_scholar_xml_form_builder_forms() {
