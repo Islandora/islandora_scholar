@@ -125,3 +125,62 @@ function islandora_scholar_embargo_lift_batch_finished($success, $results, $oper
     drupal_set_message(format_plural($results['skip_count'], '@count object skipped as the content model is not configured to allow embargoes.', '@count objects skipped as their content models are not configured to allow embargoes.'));
   }
 }
+
+/**
+ * Batch definition for re-applying embargos to embargoed objects.
+ *
+ * @return array
+ *   The batch definition.
+ */
+function islandora_scholar_embargo_reapply_embargos_batch() {
+  return array(
+    'title' => t('Re-Apply Embargos to Embargoed Objects'),
+    'error_message' => t('An error has occurred and the embargos may not have all been re-applied.'),
+    'init_message' => t('Preparing to re-apply embargos to embargoed objects.'),
+    'progress_message' => t('Time elapsed: @elapsed <br/>Estimated time remaining: @estimate.'),
+    'file' => drupal_get_path('module', 'islandora_scholar_embargo') . '/includes/batch.inc',
+    'operations' => array(
+      array('islandora_scholar_embargo_reapply_embargos_batch_operation', array()),
+    ),
+  );
+}
+
+/**
+ * Batch operation for re-applying embargos to embargoed objects.
+ *
+ * @param array $context
+ *   The batch context.
+ */
+function islandora_scholar_embargo_reapply_embargos_batch_operation(&$context) {
+  module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
+  $sandbox =& $context['sandbox'];
+  if (empty($sandbox)) {
+    $sandbox['total'] = islandora_scholar_embargo_get_all_embargoed(TRUE);
+    $sandbox['completed'] = 0;
+  }
+
+  // Iterate through a set.
+  $set = islandora_scholar_embargo_get_embargoed_items_subset($sandbox['completed']);
+  if (!empty($set)) {
+    foreach ($set as $embargoed_item) {
+      $id_parts = explode('/', $embargoed_item['obj']['value']);
+      $pid = array_shift($id_parts);
+      $dsid = array_shift($id_parts);
+      $dsids = is_null($dsid) ? $dsid : array($dsid);
+      islandora_scholar_embargo_lift_embargo($pid, $dsids);
+      islandora_scholar_embargo_set_embargo($pid, $dsids, $embargoed_item['date']['value']);
+      $sandbox['completed']++;
+      $context['message'] = t('Re-applied embargo to @item of @pid.', array(
+        '@item' => is_null($dsid) ? t('entire object') : $dsid,
+        '@pid' => $pid,
+      ));
+    }
+  }
+
+  $context['finished'] = $sandbox['completed'] / $sandbox['total'];
+  if ($context['finished'] == 1) {
+    drupal_set_message(t('Re-applied embargos to @total objects.', array(
+      '@total' => $sandbox['completed'],
+    )));
+  }
+}

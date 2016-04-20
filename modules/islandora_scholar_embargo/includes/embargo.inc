@@ -445,24 +445,60 @@ EOQ;
 }
 
 /**
- * Retrieve all embargoed items from an object.
+ * Gets the base SPARQL for a query requesting all embargoed items.
  *
- * @return array
- *   An array containing the list of embargoed items on an object
+ * @return string
+ *   A SPARQL query that can be used to get all embargoed items.
  */
-function islandora_scholar_embargo_get_all_embargoed() {
-  $current_embargo = <<<EOQ
+function islandora_scholar_embargo_get_embargoed_items_query() {
+  return <<<EOQ
 PREFIX is: <info:islandora/islandora-system:def/scholar#>
 SELECT ?obj ?date
 FROM <#ri>
 WHERE {
   ?obj is:embargo-until ?date
 }
+EOQ;
+}
+
+/**
+ * Retrieve all embargoed items.
+ *
+ * @param bool $count
+ *   Whether or not to just return the total count.
+ *
+ * @return array
+ *   An array containing the list of embargoed items.
+ */
+function islandora_scholar_embargo_get_all_embargoed($count = FALSE) {
+  $current_embargo = islandora_scholar_embargo_get_embargoed_items_query();
+  if (!$count) {
+    $current_embargo .= <<<EOQ
 ORDER BY ?obj
 EOQ;
+  }
   $connection = islandora_get_tuque_connection();
-  $embargo_results = $connection->repository->ri->sparqlQuery($current_embargo, 'unlimited', '0');
-  return $embargo_results;
+  $ri = $connection->repository->ri;
+  return $count ? $ri->countQuery($current_embargo, 'sparql') : $ri->sparqlQuery($current_embargo, 'unlimited', '0');
+}
+
+/**
+ * Gets a subset of all embargoed items.
+ *
+ * @param int $offset
+ *   An offset to start from.
+ * @param int $limit
+ *   The number of items to return in the subset.
+ *
+ * @return array
+ *   An array containing a subset of embargoed items.
+ */
+function islandora_scholar_embargo_get_embargoed_items_subset($offset = 0, $limit = 10) {
+  $current_embargo = islandora_scholar_embargo_get_embargoed_items_query() . <<<EOQ
+OFFSET $offset
+EOQ;
+  $connection = islandora_get_tuque_connection();
+  return $connection->repository->ri->sparqlQuery($current_embargo, $limit);
 }
 
 /**

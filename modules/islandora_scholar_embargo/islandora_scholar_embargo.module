@@ -10,8 +10,9 @@
 define('ISLANDORA_SCHOLAR_EMBARGO_RELS_URI', 'info:islandora/islandora-system:def/scholar#');
 define('ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED', 'embargo-expiry-notification-date');
 define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
+define('ISLANDORA_SCHOLAR_EMBARGO_NAMESPACE_ROLE_PREFIX', 'islandora_scholar_embargo_namespace_roles');
 define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED', 'can embargo owned objects');
-define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY', 'can embargo any object');
+define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY', 'can embargo or manage any object');
 
 /**
  * Implements hook_menu().
@@ -48,6 +49,14 @@ function islandora_scholar_embargo_menu() {
     'file' => 'includes/embargo_manage.inc',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_scholar_embargo_manage_form'),
+    'type' => MENU_LOCAL_TASK,
+    'access arguments' => array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY),
+  );
+  $items['admin/islandora/solution_pack_config/embargo/roles'] = array(
+    'title' => 'Manage Embargo Roles',
+    'file' => 'includes/embargo_roles_manage.inc',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('islandora_scholar_embargo_manage_roles_admin_form'),
     'type' => MENU_LOCAL_TASK,
     'access arguments' => array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY),
   );
@@ -91,7 +100,7 @@ function islandora_scholar_embargo_permission() {
     ),
     ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY => array(
       'title' => t('Manage embargo on any objects'),
-      'description' => t("User can add or remove embargo on any object in repository."),
+      'description' => t("User can add or remove embargo on any object in repository. Note that XACML policies can override this setting; use the <a href='/admin/islandora/solution_pack_config/embargo/roles'>Islandora Scholar Embargo roles configuration page</a> to establish trusted roles to write to embargoed objects."),
     ),
   );
 }
@@ -459,9 +468,10 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
   }
 
   $xacml = new IslandoraXacml($item);
-  $xacml_changed = FALSE;
 
   $users = islandora_scholar_embargo_users_to_notify($item);
+  $roles = variable_get('islandora_scholar_embargo_whitelisted_roles', array());
+
   if ($dsid === NULL) {
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
@@ -474,7 +484,10 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
       }
       foreach ($users as $user) {
         $xacml->viewingRule->addUser($user->name);
-        $xacml_changed = TRUE;
+      }
+      foreach ($roles as $role) {
+        $xacml->viewingRule->addRole($role);
+        $xacml->managementRule->addRole($role);
       }
     }
   }
@@ -502,14 +515,15 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
           $embargo_ds->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
         }
         $xacml->datastreamRule->addDsid($datastream_id);
-        $xacml_changed = TRUE;
         foreach ($users as $user) {
           $xacml->datastreamRule->addUser($user->name);
         }
       }
     }
   }
-  if ($xacml_changed) {
+  // If we had to add users, roles or DSIDs, commit the changes and update the
+  // POLICY.
+  if (!empty($users) || !empty($roles) || !is_null($dsid)) {
     $xacml->writeBackToFedora();
   }
 }
