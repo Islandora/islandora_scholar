@@ -12,7 +12,7 @@ define('ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED', 'embargo-expiry-notificati
 define('ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED', 'embargo-until');
 define('ISLANDORA_SCHOLAR_EMBARGO_NAMESPACE_ROLE_PREFIX', 'islandora_scholar_embargo_namespace_roles');
 define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_OWNED', 'can embargo owned objects');
-define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY', 'can embargo or manage any object');
+define('ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY', 'can embargo any object');
 
 /**
  * Implements hook_menu().
