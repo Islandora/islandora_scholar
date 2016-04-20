@@ -30,7 +30,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, Abstrac
   // Table seems somewhat of overkill for now, but as the embargo offering
   // grows more robust this sort of formatting for the UI will make sense.
   $rows = array();
-  $current_embargos = array();
+  $current_embargoes = array();
   $date = '';
   foreach ($embargo_results as $result) {
     if ($result['obj']['value'] == $item->id) {
@@ -52,12 +52,12 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, Abstrac
       $type,
       $date,
     );
-    $current_embargos[] = array(
+    $current_embargoes[] = array(
       'type' => $type,
       'date' => $date,
     );
   }
-  $form_state['islandora_embargo'] = $current_embargos;
+  $form_state['islandora_embargo'] = $current_embargoes;
   $embargoed = TRUE;
   if (empty($embargo_results)) {
     $embargoed = FALSE;
@@ -150,7 +150,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, Abstrac
     '#title' => check_plain($embargoed ? t('Update Options') : t('Embargo Options')),
     '#options' => array(
       'change_embargo_date' => $embargoed ? t('Change the embargo date') : t('Set the embargo date'),
-      'indefinite_embargo' => t('Embargo indefinitely (Indefinite embargos must be lifted manually).'),
+      'indefinite_embargo' => t('Embargo indefinitely (Indefinite embargoes must be lifted manually).'),
     ),
     '#default_value' => ($date === 'Indefinite') ? 'indefinite_embargo' : 'change_embargo_date',
     '#states' => array(
@@ -265,7 +265,7 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
       $parsed = strtotime($parsed_date);
       if ($embargoed) {
         // This will need to be updated in the future to handle multiple
-        // embargos on a single object.
+        // embargoes on a single object.
         foreach ($form_state['islandora_embargo'] as $embargo_vals) {
           $embargo_date = $embargo_vals['date'];
           break;
@@ -279,7 +279,7 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
       }
     }
     elseif ($form_state['values']['update_date_options'] === 'indefinite_embargo') {
-      // This will need to be updated in the future to handle multiple embargos
+      // This will need to be updated in the future to handle multiple embargoes
       // on a single object.
       $embargo_date = '';
       foreach ($form_state['islandora_embargo'] as $embargo_vals) {
@@ -390,7 +390,7 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
       }
     }
     // Currently we just overwrite what's already in place. In the future, for
-    // multiple embargos on a single object, this will have to be adjusted.
+    // multiple embargoes on a single object, this will have to be adjusted.
 
     // If we're recursing do those objects in a batch.
     if (isset($form_state['values']['recurse']) && $form_state['values']['recurse'] && $form_state['values']['recurse_options'] != 'newchildren') {

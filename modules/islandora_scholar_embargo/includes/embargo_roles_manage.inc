@@ -70,6 +70,6 @@ function islandora_scholar_embargo_manage_roles_admin_form_submit($form, &$form_
   // Kick off the batch if we were asked.
   if ($form_state['triggering_element']['#name'] == 'save_and_apply') {
     module_load_include('inc', 'islandora_scholar_embargo', 'includes/batch');
-    batch_set(islandora_scholar_embargo_reapply_embargos_batch());
+    batch_set(islandora_scholar_embargo_reapply_embargoes_batch());
   }
 }

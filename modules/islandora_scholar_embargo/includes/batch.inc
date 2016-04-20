@@ -127,31 +127,31 @@ function islandora_scholar_embargo_lift_batch_finished($success, $results, $oper
 }
 
 /**
- * Batch definition for re-applying embargos to embargoed objects.
+ * Batch definition for re-applying embargoes to embargoed objects.
  *
  * @return array
  *   The batch definition.
  */
-function islandora_scholar_embargo_reapply_embargos_batch() {
+function islandora_scholar_embargo_reapply_embargoes_batch() {
   return array(
     'title' => t('Re-Apply Embargos to Embargoed Objects'),
-    'error_message' => t('An error has occurred and the embargos may not have all been re-applied.'),
-    'init_message' => t('Preparing to re-apply embargos to embargoed objects.'),
+    'error_message' => t('An error has occurred and the embargoes may not have all been re-applied.'),
+    'init_message' => t('Preparing to re-apply embargoes to embargoed objects.'),
     'progress_message' => t('Time elapsed: @elapsed <br/>Estimated time remaining: @estimate.'),
     'file' => drupal_get_path('module', 'islandora_scholar_embargo') . '/includes/batch.inc',
     'operations' => array(
-      array('islandora_scholar_embargo_reapply_embargos_batch_operation', array()),
+      array('islandora_scholar_embargo_reapply_embargoes_batch_operation', array()),
     ),
   );
 }
 
 /**
- * Batch operation for re-applying embargos to embargoed objects.
+ * Batch operation for re-applying embargoes to embargoed objects.
  *
  * @param array $context
  *   The batch context.
  */
-function islandora_scholar_embargo_reapply_embargos_batch_operation(&$context) {
+function islandora_scholar_embargo_reapply_embargoes_batch_operation(&$context) {
   module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
   $sandbox =& $context['sandbox'];
   if (empty($sandbox)) {
@@ -179,7 +179,7 @@ function islandora_scholar_embargo_reapply_embargos_batch_operation(&$context) {
 
   $context['finished'] = $sandbox['completed'] / $sandbox['total'];
   if ($context['finished'] == 1) {
-    drupal_set_message(t('Re-applied embargos to @total objects.', array(
+    drupal_set_message(t('Re-applied embargoes to @total objects.', array(
       '@total' => $sandbox['completed'],
     )));
   }

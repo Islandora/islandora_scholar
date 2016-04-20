@@ -24,12 +24,12 @@ function islandora_scholar_embargo_drush_command() {
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
       'callback' => 'islandora_scholar_embargo_lift_embargoes_update',
     ),
-    'islandora_scholar_embargo_reapply_embargos' => array(
+    'islandora_scholar_embargo_reapply_embargoes' => array(
       'description' => dt('Applies the list of roles that can administer embargoes to all embargoed objects in the repository.'),
       'examples' => array('drush -v -u 1 islandora_scholar_embargo_apply_roles_to_embargoed_objects'),
       'aliases' => array('ise-roles'),
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
-      'callback' => 'islandora_scholar_embargo_reapply_embargos',
+      'callback' => 'islandora_scholar_embargo_reapply_embargoes',
     ),
   );
 }
@@ -54,9 +54,9 @@ function islandora_scholar_embargo_lift_embargoes_update() {
 /**
  * Runs the batch to apply whitelisted roles to embargoed objects.
  */
-function islandora_scholar_embargo_reapply_embargos() {
+function islandora_scholar_embargo_reapply_embargoes() {
   module_load_include('inc', 'islandora_scholar_embargo', 'includes/batch');
-  batch_set(islandora_scholar_embargo_reapply_embargos_batch());
+  batch_set(islandora_scholar_embargo_reapply_embargoes_batch());
   drush_backend_batch_process();
 }
 
