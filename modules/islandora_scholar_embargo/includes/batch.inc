@@ -155,32 +155,45 @@ function islandora_scholar_embargo_reapply_embargoes_batch_operation(&$context) 
   module_load_include('inc', 'islandora_scholar_embargo', 'includes/embargo');
   $sandbox =& $context['sandbox'];
   if (empty($sandbox)) {
-    $sandbox['total'] = islandora_scholar_embargo_get_all_embargoed(TRUE);
     $sandbox['completed'] = 0;
+    $sandbox['offset'] = '1900-01-01T00:00:00.000Z';
   }
 
-  // Iterate through a set.
-  $set = islandora_scholar_embargo_get_embargoed_items_subset($sandbox['completed']);
-  if (!empty($set)) {
-    foreach ($set as $embargoed_item) {
-      $id_parts = explode('/', $embargoed_item['obj']['value']);
-      $pid = array_shift($id_parts);
-      $dsid = array_shift($id_parts);
-      $dsids = is_null($dsid) ? $dsid : array($dsid);
-      islandora_scholar_embargo_lift_embargo($pid, $dsids);
-      islandora_scholar_embargo_set_embargo($pid, $dsids, $embargoed_item['date']['value']);
-      $sandbox['completed']++;
-      $context['message'] = t('Re-applied embargo to @item of @pid.', array(
-        '@item' => is_null($dsid) ? t('entire object') : $dsid,
-        '@pid' => $pid,
-      ));
+  // It's possible for this number to change during the batch (e.g., if an
+  // embargo expires or a datastream is modified), so re-grabbing is safest to
+  // prevent items from being skipped.
+  $sandbox['total'] = islandora_scholar_embargo_get_all_embargoed(TRUE);
+  if (!$sandbox['total']) {
+    $context['message'] = t('No items to embargo found, or embargoed items set was reduced to zero at some point during the batch.');
+    return;
+  }
+  else {
+    // Iterate through a set.
+    $set = islandora_scholar_embargo_get_embargoed_items_subset($sandbox['offset']);
+    if (!empty($set)) {
+      foreach ($set as $embargoed_item) {
+        $id_parts = explode('/', $embargoed_item['obj']['value']);
+        $pid = array_shift($id_parts);
+        $dsid = array_shift($id_parts);
+        $dsids = is_null($dsid) ? $dsid : array($dsid);
+        islandora_scholar_embargo_lift_embargo($pid, $dsids);
+        islandora_scholar_embargo_set_embargo($pid, $dsids, $embargoed_item['expiry']['value']);
+        $sandbox['completed']++;
+        $sandbox['offset'] = $embargoed_item['date']['value'];
+        $context['message'] = t('@count/@total: Re-applied embargo to @item of @pid.', array(
+          '@count' => $sandbox['completed'],
+          '@total' => $sandbox['total'],
+          '@item' => is_null($dsid) ? t('entire object') : $dsid,
+          '@pid' => $pid,
+        ));
+      }
+      // If the set was empty, $context['finished'] will be 1 anyway.
+      $context['finished'] == $sandbox['completed'] / $sandbox['total'];
     }
-  }
-
-  $context['finished'] = $sandbox['completed'] / $sandbox['total'];
-  if ($context['finished'] == 1) {
-    drupal_set_message(t('Re-applied embargoes to @total objects.', array(
-      '@total' => $sandbox['completed'],
-    )));
+    if ($context['finished'] >= 1) {
+      drupal_set_message(t('Re-applied embargoes to @total objects.', array(
+        '@total' => $sandbox['completed'],
+      )));
+    }
   }
 }

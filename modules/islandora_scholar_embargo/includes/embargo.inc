@@ -445,23 +445,6 @@ EOQ;
 }
 
 /**
- * Gets the base SPARQL for a query requesting all embargoed items.
- *
- * @return string
- *   A SPARQL query that can be used to get all embargoed items.
- */
-function islandora_scholar_embargo_get_embargoed_items_query() {
-  return <<<EOQ
-PREFIX is: <info:islandora/islandora-system:def/scholar#>
-SELECT ?obj ?date
-FROM <#ri>
-WHERE {
-  ?obj is:embargo-until ?date
-}
-EOQ;
-}
-
-/**
  * Retrieve all embargoed items.
  *
  * @param bool $count
@@ -471,8 +454,15 @@ EOQ;
  *   An array containing the list of embargoed items.
  */
 function islandora_scholar_embargo_get_all_embargoed($count = FALSE) {
-  $current_embargo = islandora_scholar_embargo_get_embargoed_items_query();
-  if (!$count) {
+  $current_embargo = <<<EOQ
+PREFIX is: <info:islandora/islandora-system:def/scholar#>
+SELECT ?obj ?date
+FROM <#ri>
+WHERE {
+  ?obj is:embargo-until ?date
+}
+EOQ;
+  if ($count) {
     $current_embargo .= <<<EOQ
 ORDER BY ?obj
 EOQ;
@@ -485,17 +475,30 @@ EOQ;
 /**
  * Gets a subset of all embargoed items.
  *
- * @param int $offset
- *   An offset to start from.
+ * @param string $offset
+ *   An offset ISO8601 date string to filter results before.
  * @param int $limit
  *   The number of items to return in the subset.
  *
  * @return array
- *   An array containing a subset of embargoed items.
+ *   A SPARQL query results array containing a subset of embargoed items,
+ *   including 'obj' as the object ID, 'expiry' as the expiry date, and 'date'
+ *   as the item's created or last modified date.
  */
-function islandora_scholar_embargo_get_embargoed_items_subset($offset = 0, $limit = 10) {
-  $current_embargo = islandora_scholar_embargo_get_embargoed_items_query() . <<<EOQ
-OFFSET $offset
+function islandora_scholar_embargo_get_embargoed_items_subset($offset = '1900-01-01T00:00:00.000Z', $limit = 10) {
+  $current_embargo = <<<EOQ
+PREFIX is: <info:islandora/islandora-system:def/scholar#>
+SELECT DISTINCT ?obj ?expiry ?date
+FROM <#ri>
+WHERE {
+  ?obj is:embargo-until ?expiry ;
+  { ?obj <fedora-model:createdDate> ?date } UNION
+  { ?obj <fedora-view:lastModifiedDate> ?date ;
+         <fedora-view:disseminationType> ?dsid
+  }
+  FILTER(?date > "$offset"^^<http://www.w3.org/2001/XMLSchema#dateTime>)
+}
+ORDER BY ASC(?date)
 EOQ;
   $connection = islandora_get_tuque_connection();
   return $connection->repository->ri->sparqlQuery($current_embargo, $limit);

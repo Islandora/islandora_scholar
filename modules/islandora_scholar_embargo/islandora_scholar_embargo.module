@@ -486,7 +486,6 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
       }
       foreach ($roles as $role) {
         $xacml->viewingRule->addRole($role);
-        $xacml->managementRule->addRole($role);
       }
     }
   }

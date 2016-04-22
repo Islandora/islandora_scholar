@@ -26,8 +26,8 @@ function islandora_scholar_embargo_drush_command() {
     ),
     'islandora_scholar_embargo_reapply_embargoes' => array(
       'description' => dt('Applies the list of roles that can administer embargoes to all embargoed objects in the repository.'),
-      'examples' => array('drush -v -u 1 islandora_scholar_embargo_apply_roles_to_embargoed_objects'),
-      'aliases' => array('ise-roles'),
+      'examples' => array('drush -v -u 1 islandora_scholar_embargo_reapply_embargoes'),
+      'aliases' => array('ise-reapply'),
       'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
       'callback' => 'islandora_scholar_embargo_reapply_embargoes',
     ),

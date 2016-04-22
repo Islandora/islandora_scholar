@@ -31,12 +31,12 @@ function islandora_scholar_embargo_manage_roles_admin_form($form, $form_state) {
       ),
     ),
     'note' => array(
-      '#markup' => t('Saving and applying will initiate a batch to modify the XACML policies of all embargoed objects. Bear in mind that this can take a long time to execute depending on the number of items to be embargoed, and that it may be more prudent to run the Drush command <code>islandora_scholar_embargo_apply_roles_to_embargoed_objects</code> instead. Number of objects to be embargoed: <strong>@number</strong>', array(
+      '#markup' => t('Saving and applying will initiate a batch to modify the XACML policies of all embargoed objects. Bear in mind that this can take a long time to execute depending on the number of items to be embargoed, and that it may be more prudent to run the Drush command <code>islandora_scholar_embargo_apply_roles_to_embargoed_objects</code> instead. Number of embargoed objects at time of page load: <strong>@number</strong>', array(
         '@number' => number_format(islandora_scholar_embargo_get_all_embargoed(TRUE)),
       )),
     ),
     'submit_buttons' => array(
-      '#type' => 'item',
+      '#type' => 'actions',
       'save' => array(
         '#type' => 'submit',
         '#value' => t('Save Without Applying'),
