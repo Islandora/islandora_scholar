@@ -156,8 +156,7 @@ function islandora_scholar_embargo_reapply_embargoes_batch_operation(&$context) 
   $sandbox =& $context['sandbox'];
   if (empty($sandbox)) {
     $sandbox['completed'] = 0;
-    $sandbox['date_offset'] = '1900-01-01T00:00:00.000Z';
-    $sandbox['pid_offset'] = NULL;
+    $sandbox['slice'] = array();
   }
 
   // It's possible for this number to change during the batch (e.g., if an
@@ -170,7 +169,7 @@ function islandora_scholar_embargo_reapply_embargoes_batch_operation(&$context) 
   }
   else {
     // Iterate through a set.
-    $set = islandora_scholar_embargo_get_embargoed_items_subset($sandbox['date_offset'], $sandbox['pid_offset']);
+    $set = islandora_scholar_embargo_get_embargoed_items_subset($sandbox['slice']);
     if (!empty($set)) {
       foreach ($set as $embargoed_item) {
         $id_parts = explode('/', $embargoed_item['obj']['value']);
@@ -180,8 +179,8 @@ function islandora_scholar_embargo_reapply_embargoes_batch_operation(&$context) 
         islandora_scholar_embargo_lift_embargo($pid, $dsids);
         islandora_scholar_embargo_set_embargo($pid, $dsids, $embargoed_item['expiry']['value']);
         $sandbox['completed']++;
-        $sandbox['date_offset'] = $embargoed_item['date']['value'];
-        $sandbox['pid_offset'] = $pid;
+        $sandbox['slice']['offset_date'] = $embargoed_item['date']['value'];
+        $sandbox['slice']['offset_pid'] = $pid;
         $context['message'] = t('@count/@total: Re-applied embargo to @item of @pid.', array(
           '@count' => $sandbox['completed'],
           '@total' => $sandbox['total'],
