@@ -493,9 +493,6 @@ function islandora_scholar_embargo_get_embargoed_items_subset($offset_date = '19
   $filter = is_null($offset_pid) ?
     "FILTER(?date > \"$offset_date\"^^<http://www.w3.org/2001/XMLSchema#dateTime>)" :
     "FILTER(?date > \"$offset_date\"^^<http://www.w3.org/2001/XMLSchema#dateTime> || (?date = \"$offset_date\"^^<http://www.w3.org/2001/XMLSchema#dateTime> && str(?obj) > \"$offset_pid\"))";
-  $order_by = is_null($offset_pid) ?
-    "ORDER BY ASC(?date)" :
-    "ORDER BY ASC(?date), ASC(?obj)";
 
   // Build the query.
   $current_embargo = <<<EOQ
@@ -510,7 +507,7 @@ WHERE {
   }
   $filter
 }
-$order_by
+ORDER BY ASC(?date), ASC(?obj)
 EOQ;
 
   // Use the query.
