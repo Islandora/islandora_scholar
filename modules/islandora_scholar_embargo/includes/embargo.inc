@@ -475,8 +475,11 @@ EOQ;
 /**
  * Gets a subset of all embargoed items.
  *
- * @param string $offset
+ * @param string $offset_date
  *   An offset ISO8601 date string to filter results before.
+ * @param string|null $offset_pid
+ *   A PID offset to use in the case where there is a tie for dates. Use NULL
+ *   to ignore this case.
  * @param int $limit
  *   The number of items to return in the subset.
  *
@@ -485,7 +488,16 @@ EOQ;
  *   including 'obj' as the object ID, 'expiry' as the expiry date, and 'date'
  *   as the item's created or last modified date.
  */
-function islandora_scholar_embargo_get_embargoed_items_subset($offset = '1900-01-01T00:00:00.000Z', $limit = 10) {
+function islandora_scholar_embargo_get_embargoed_items_subset($offset_date = '1900-01-01T00:00:00.000Z', $offset_pid = NULL, $limit = 10) {
+  // Establish some parameters for the query.
+  $filter = is_null($offset_pid) ?
+    "FILTER(?date > \"$offset_date\"^^<http://www.w3.org/2001/XMLSchema#dateTime>)" :
+    "FILTER(?date > \"$offset_date\"^^<http://www.w3.org/2001/XMLSchema#dateTime> || (?date = \"$offset_date\"^^<http://www.w3.org/2001/XMLSchema#dateTime> && str(?obj) > \"$offset_pid\"))";
+  $order_by = is_null($offset_pid) ?
+    "ORDER BY ASC(?date)" :
+    "ORDER BY ASC(?date), ASC(?obj)";
+
+  // Build the query.
   $current_embargo = <<<EOQ
 PREFIX is: <info:islandora/islandora-system:def/scholar#>
 SELECT DISTINCT ?obj ?expiry ?date
@@ -496,10 +508,12 @@ WHERE {
   { ?obj <fedora-view:lastModifiedDate> ?date ;
          <fedora-view:disseminationType> ?dsid
   }
-  FILTER(?date > "$offset"^^<http://www.w3.org/2001/XMLSchema#dateTime>)
+  $filter
 }
-ORDER BY ASC(?date)
+$order_by
 EOQ;
+
+  // Use the query.
   $connection = islandora_get_tuque_connection();
   return $connection->repository->ri->sparqlQuery($current_embargo, $limit);
 }
