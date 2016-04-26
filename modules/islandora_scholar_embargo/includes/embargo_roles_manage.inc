@@ -62,7 +62,7 @@ function islandora_scholar_embargo_manage_roles_admin_form($form, $form_state) {
 function islandora_scholar_embargo_manage_roles_admin_form_submit($form, &$form_state) {
   // Attach role names to role IDs to make it more useful as a variable.
   $whitelist = array();
-  foreach ($form_state['values']['islandora_scholar_embargo_whitelisted_roles'] as $rid) {
+  foreach (array_filter($form_state['values']['islandora_scholar_embargo_whitelisted_roles']) as $rid => $checked) {
     $whitelist[$rid] = $form['roles_wrapper']['islandora_scholar_embargo_whitelisted_roles']['#options'][$rid];
   }
   variable_set('islandora_scholar_embargo_whitelisted_roles', $whitelist);
