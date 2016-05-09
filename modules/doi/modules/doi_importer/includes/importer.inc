@@ -129,7 +129,11 @@ class DOIImportObject extends IslandoraImportObject {
       $crossref_xml = simplexml_load_string($response->data);
       // Totally don't support books so let's not attempt to make records that
       // are actually books!
-      if ($crossref_xml->doi_record->crossref->error || $crossref_xml->doi_record->crossref->book) {
+      if ($crossref_xml->doi_record->crossref->error) {
+        return FALSE;
+      }
+      elseif (!$crossref_xml->doi_record->crossref->journal) {
+        drupal_set_message(t("Only the 'Journal' type is currently supported for DOI importing."), 'error');
         return FALSE;
       }
       else {
