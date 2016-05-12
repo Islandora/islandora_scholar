@@ -51,15 +51,19 @@ function islandora_scholar_get_view(AbstractObject $object) {
       $mods_xml = simplexml_load_string($object['MODS']->content);
       $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
 
-      // Search for doi for search term.  If exists use it instead of default.
-      $primary_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_primary_search_xpath', NULL));
+      // Search for primary search term (usually DOI).
+      $search_term = NULL;
+      $primary_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_primary_search_xpath', '//mods:identifier[@type="doi"]'));
       if ($primary_search) {
         $search_term = (string) reset($primary_search);
       }
-      else {
-        // Default search term is the title of the citation.
-        $default_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_default_search_xpath', "$object->label"));
+      if (!$search_term) {
+        // Search for default search term (usually title).
+        $default_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_default_search_xpath', '//mods:title'));
         $search_term = (string) reset($default_search);
+      }
+      if (!$search_term) {
+        $search_term = $object->label;
       }
 
       $display['google_scholar_search'] = array(
