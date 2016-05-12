@@ -91,7 +91,7 @@ function islandora_scholar_embargo_permission() {
     ),
     ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY => array(
       'title' => t('Manage embargo on any objects'),
-      'description' => t("User can add or remove embargo on any object in repository."),
+      'description' => t("User can add or remove embargo on any object in repository. Note: Fedora XACML security policies may override this permission."),
     ),
   );
 }
