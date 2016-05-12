@@ -462,6 +462,8 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
   $xacml_changed = FALSE;
 
   $users = islandora_scholar_embargo_users_to_notify($item);
+  $roles = user_roles(FALSE, ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY);
+
   if ($dsid === NULL) {
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_EXPIRY_PRED);
     $item->relationships->remove(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED);
@@ -472,9 +474,12 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
       if ($notification !== NULL) {
         $item->relationships->add(ISLANDORA_SCHOLAR_EMBARGO_RELS_URI, ISLANDORA_SCHOLAR_EMBARGO_NOTIFICATION_PRED, $notification, $type);
       }
+      $xacml_changed = TRUE;
       foreach ($users as $user) {
         $xacml->viewingRule->addUser($user->name);
-        $xacml_changed = TRUE;
+      }
+      foreach ($roles as $key => $role) {
+        $xacml->viewingRule->addRole($role);
       }
     }
   }
@@ -505,6 +510,9 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
         $xacml_changed = TRUE;
         foreach ($users as $user) {
           $xacml->datastreamRule->addUser($user->name);
+        }
+        foreach ($roles as $key => $role) {
+          $xacml->datastreamRule->addRole($role);
         }
       }
     }
