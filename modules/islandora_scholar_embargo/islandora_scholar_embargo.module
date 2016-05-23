@@ -516,6 +516,9 @@ function islandora_scholar_embargo_set_embargo($param, $dsid = NULL, $end = 'ind
         foreach ($users as $user) {
           $xacml->datastreamRule->addUser($user->name);
         }
+        foreach ($roles as $role) {
+          $xacml->datastreamRule->addRole($role);
+        }
       }
     }
   }
