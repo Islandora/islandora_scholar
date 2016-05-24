@@ -176,9 +176,15 @@ function islandora_google_scholar_parse_date_foryear($date) {
     $date = (string) reset($date);
   }
   try {
-    $date_obj = new DateTime($date);
-    $date_string = date_format($date_obj, 'Y');
-    return $date_string;
+    // Check if date is currently just a year.
+    if (!(DateTime::createFromFormat('Y', $date))) {
+      $date_obj = new DateTime($date);
+      $date_string = date_format($date_obj, 'Y');
+      return $date_string;
+    }
+    else {
+      return $date;
+    }
   }
   catch (Exception $e) {
     // TODO: should we log this?
@@ -193,16 +199,21 @@ function islandora_google_scholar_parse_date_foryear($date) {
  *   An associate array containing the name => content of the meta tags.
  */
 function islandora_google_scholar_embed_tags($tags) {
+  $weight = 1000;
   if ($tags != FALSE) {
     foreach ($tags as $name => $content) {
       if (is_array($content)) {
         foreach ($content as $key => $nested_val) {
+          if ($name == 'citation_author') {
+            $weight++;
+          }
           $element = array(
             '#tag' => 'meta',
             '#attributes' => array(
               'name' => $name,
               'content' => htmlspecialchars($nested_val),
             ),
+            '#weight' => $weight,
           );
           drupal_add_html_head($element, $key . '_' . $nested_val);
         }

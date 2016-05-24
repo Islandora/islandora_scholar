@@ -30,7 +30,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, Abstrac
   // Table seems somewhat of overkill for now, but as the embargo offering
   // grows more robust this sort of formatting for the UI will make sense.
   $rows = array();
-  $current_embargos = array();
+  $current_embargoes = array();
   $date = '';
   foreach ($embargo_results as $result) {
     if ($result['obj']['value'] == $item->id) {
@@ -52,12 +52,12 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, Abstrac
       $type,
       $date,
     );
-    $current_embargos[] = array(
+    $current_embargoes[] = array(
       'type' => $type,
       'date' => $date,
     );
   }
-  $form_state['islandora_embargo'] = $current_embargos;
+  $form_state['islandora_embargo'] = $current_embargoes;
   $embargoed = TRUE;
   if (empty($embargo_results)) {
     $embargoed = FALSE;
@@ -150,7 +150,7 @@ function islandora_scholar_embargo_form(array $form, array &$form_state, Abstrac
     '#title' => check_plain($embargoed ? t('Update Options') : t('Embargo Options')),
     '#options' => array(
       'change_embargo_date' => $embargoed ? t('Change the embargo date') : t('Set the embargo date'),
-      'indefinite_embargo' => t('Embargo indefinitely (Indefinite embargos must be lifted manually).'),
+      'indefinite_embargo' => t('Embargo indefinitely (Indefinite embargoes must be lifted manually).'),
     ),
     '#default_value' => ($date === 'Indefinite') ? 'indefinite_embargo' : 'change_embargo_date',
     '#states' => array(
@@ -265,7 +265,7 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
       $parsed = strtotime($parsed_date);
       if ($embargoed) {
         // This will need to be updated in the future to handle multiple
-        // embargos on a single object.
+        // embargoes on a single object.
         foreach ($form_state['islandora_embargo'] as $embargo_vals) {
           $embargo_date = $embargo_vals['date'];
           break;
@@ -279,7 +279,7 @@ function islandora_scholar_embargo_form_validate(array $form, array &$form_state
       }
     }
     elseif ($form_state['values']['update_date_options'] === 'indefinite_embargo') {
-      // This will need to be updated in the future to handle multiple embargos
+      // This will need to be updated in the future to handle multiple embargoes
       // on a single object.
       $embargo_date = '';
       foreach ($form_state['islandora_embargo'] as $embargo_vals) {
@@ -390,7 +390,7 @@ function islandora_scholar_embargo_form_submit(array $form, array &$form_state) 
       }
     }
     // Currently we just overwrite what's already in place. In the future, for
-    // multiple embargos on a single object, this will have to be adjusted.
+    // multiple embargoes on a single object, this will have to be adjusted.
 
     // If we're recursing do those objects in a batch.
     if (isset($form_state['values']['recurse']) && $form_state['values']['recurse'] && $form_state['values']['recurse_options'] != 'newchildren') {
@@ -445,12 +445,15 @@ EOQ;
 }
 
 /**
- * Retrieve all embargoed items from an object.
+ * Retrieve all embargoed items.
+ *
+ * @param bool $count
+ *   Whether or not to just return the total count.
  *
  * @return array
- *   An array containing the list of embargoed items on an object
+ *   An array containing the list of embargoed items.
  */
-function islandora_scholar_embargo_get_all_embargoed() {
+function islandora_scholar_embargo_get_all_embargoed($count = FALSE) {
   $current_embargo = <<<EOQ
 PREFIX is: <info:islandora/islandora-system:def/scholar#>
 SELECT ?obj ?date
@@ -458,11 +461,58 @@ FROM <#ri>
 WHERE {
   ?obj is:embargo-until ?date
 }
+EOQ;
+  if ($count) {
+    $current_embargo .= <<<EOQ
 ORDER BY ?obj
 EOQ;
+  }
   $connection = islandora_get_tuque_connection();
-  $embargo_results = $connection->repository->ri->sparqlQuery($current_embargo, 'unlimited', '0');
-  return $embargo_results;
+  $ri = $connection->repository->ri;
+  return $count ? $ri->countQuery($current_embargo, 'sparql') : $ri->sparqlQuery($current_embargo, 'unlimited', '0');
+}
+
+/**
+ * Gets a subset of all embargoed items.
+ *
+ * @param array $slice_params
+ *   An associative array containing:
+ *   'offset_date': an ISO8601 datetime to filter items before
+ *   'offset_pid': a PID to filter on when a date match is found.
+ * @param int $limit
+ *   The number of items to return in the subset.
+ *
+ * @return array
+ *   A SPARQL query results array containing a subset of embargoed items,
+ *   including 'obj' as the object ID, 'expiry' as the expiry date, and 'date'
+ *   as the item's created or last modified date.
+ */
+function islandora_scholar_embargo_get_embargoed_items_subset($slice_params = array(), $limit = 10) {
+  // Build the query.
+  $current_embargo = <<<EOQ
+PREFIX is: <info:islandora/islandora-system:def/scholar#>
+PREFIX xs: <xml-schema:>
+SELECT DISTINCT ?obj ?expiry ?date
+FROM <#ri>
+WHERE {
+  ?obj is:embargo-until ?expiry ;
+  { ?obj <fedora-model:createdDate> ?date } UNION
+  { ?obj <fedora-view:lastModifiedDate> ?date ;
+         <fedora-view:disseminationType> ?dsid
+  }
+EOQ;
+  // Offset if asked.
+  if ($slice_params) {
+    $current_embargo .= "FILTER(?date > '{$slice_params['offset_date']}'^^xs:dateTime || (?date = '{$slice_params['offset_date']}'^^xs:dateTime && xs:string(?obj) > xs:string('info:fedora/{$slice_params['offset_date']}')))";
+  }
+  $current_embargo .= <<<EOQ
+}
+ORDER BY ASC(?date) ASC(?obj)
+EOQ;
+
+  // Use the query.
+  $connection = islandora_get_tuque_connection();
+  return $connection->repository->ri->sparqlQuery($current_embargo, $limit);
 }
 
 /**
