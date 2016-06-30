@@ -63,7 +63,7 @@ function islandora_doi_perform_request($id_or_url) {
  *   A DOMDocument containing the constructed MODS, or FALSE on failure.
  */
 function islandora_doi_transform_to_mods($doi_xml) {
-  // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it 
+  // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it
   // is a SimpleXMLElement, convert it.
   if ($doi_xml instanceof SimpleXMLElement) {
     // Warning message: Converting from SimpleXMLElement.
@@ -365,7 +365,7 @@ function islandora_doi_transform_to_mods($doi_xml) {
               break;
 
             case 'publication_date':
-              // Note that this overwrites the publication date that came 
+              // Note that this overwrites the publication date that came
               // from the journal metadata above.
               if ($child->hasChildNodes()) {
                 foreach ($child->childNodes as $date_part) {
