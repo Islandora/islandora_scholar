@@ -55,18 +55,20 @@ function islandora_doi_perform_request($id_or_url) {
 /**
  * Produce MODS from the given CrossRef XML.
  *
- * @param $doi_xml
- *   XML containing the parsed response from CrossRef. Should be passed as a DOMDocument.
+ * @param mixed $doi_xml
+ *   XML containing the parsed response from CrossRef. Should be passed as a 
+ *   DOMDocument, but also works with a SimpleXMLElement.
  *
  * @return DOMDocument|bool
  *   A DOMDocument containing the constructed MODS, or FALSE on failure.
  */
 function islandora_doi_transform_to_mods($doi_xml) {
-  // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it is a SimpleXMLElement, convert it.
+  // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it 
+  // is a SimpleXMLElement, convert it.
   if ($doi_xml instanceof SimpleXMLElement) {
     // Warning message: Converting from SimpleXMLElement.
     drupal_set_message(t('islandora_doi_transform_to_mods should take a DOMDocument but recieved a SimpleXMLElement. Attempting to convert.'), 'warning');
-    $dom_xml = new DOMDocument;
+    $dom_xml = new DOMDocument();
     if (!$dom_xml->loadXML($doi_xml->asXML())) {
       // Error message: Failed to convert from SimpleXMLElement.
       drupal_set_message(t('Failed to convert SimpleXMLElement to DOMDocument'), 'error');
@@ -151,9 +153,11 @@ function islandora_doi_transform_to_mods($doi_xml) {
                     case 'month':
                       $pubdate_month = $date_part->nodeValue;
                       break;
+
                     case 'year':
                       $pubdate_year = $date_part->nodeValue;
                       break;
+
                     case 'day':
                       $pubdate_day = $date_part->nodeValue;
                       break;
@@ -167,8 +171,9 @@ function islandora_doi_transform_to_mods($doi_xml) {
                 foreach ($child->childNodes as $volume) {
                   switch ($volume->nodeName) {
                     case 'volume':
-                      if (!is_null($volume->firstChild))
+                      if (!is_null($volume->firstChild)) {
                         $volume_number = $mods->importNode($volume->firstChild);
+                      }
                       break;
                   }
                 }
@@ -176,8 +181,9 @@ function islandora_doi_transform_to_mods($doi_xml) {
               break;
 
             case 'issue':
-              if (!is_null($child->firstChild))
+              if (!is_null($child->firstChild)) {
                 $issue_number = $mods->importNode($child->firstChild);
+              }
               break;
           }
         }
@@ -243,7 +249,7 @@ function islandora_doi_transform_to_mods($doi_xml) {
                           break;
                       }
                     }
-                  
+
                     $translated_title = $mods->createElement('title');
                     $translated_titleinfo->appendChild($translated_title);
                     if (!is_null($grandchild->firstChild)) {
@@ -254,7 +260,7 @@ function islandora_doi_transform_to_mods($doi_xml) {
                 }
               }
               break;
-              
+
             case 'contributors':
               foreach ($child->getElementsByTagName('organization') as $organization) {
                 $name = $mods->createElement('name');
@@ -302,7 +308,7 @@ function islandora_doi_transform_to_mods($doi_xml) {
                         $namepart->appendChild($surname_part);
                       }
                       break;
-                  
+
                     case 'suffix':
                       $terms_of_address = $mods->createElement('namePart');
                       $name->appendChild($terms_of_address);
@@ -357,18 +363,21 @@ function islandora_doi_transform_to_mods($doi_xml) {
                 }
               }
               break;
-              
+
             case 'publication_date':
-              // Note that this overwrites the publication date that came from the journal metadata above.
+              // Note that this overwrites the publication date that came 
+              // from the journal metadata above.
               if ($child->hasChildNodes()) {
                 foreach ($child->childNodes as $date_part) {
                   switch ($date_part->nodeName) {
                     case 'month':
                       $pubdate_month = $date_part->nodeValue;
                       break;
+
                     case 'year':
                       $pubdate_year = $date_part->nodeValue;
                       break;
+
                     case 'day':
                       $pubdate_day = $date_part->nodeValue;
                       break;
@@ -382,16 +391,21 @@ function islandora_doi_transform_to_mods($doi_xml) {
                 foreach ($child->childNodes as $page_part) {
                   switch ($page_part->nodeName) {
                     case 'first_page':
-                      if (!is_null($page_part->firstChild))
+                      if (!is_null($page_part->firstChild)) {
                         $first_page = $mods->importNode($page_part->firstChild);
+                      }
                       break;
+
                     case 'last_page':
-                      if (!is_null($page_part->firstChild))
+                      if (!is_null($page_part->firstChild)) {
                         $last_page = $mods->importNode($page_part->firstChild);
+                      }
                       break;
+
                     case 'other_pages':
-                      if (!is_null($page_part->firstChild))
+                      if (!is_null($page_part->firstChild)) {
                         $other_pages = $mods->importNode($page_part->firstChild);
+                      }
                       break;
                   }
                 }
@@ -452,7 +466,7 @@ function islandora_doi_transform_to_mods($doi_xml) {
     // Add the publication date if it was read in one of the two places above.
     $origininfo = $mods->createElement('originInfo');
     $mods->firstChild->appendChild($origininfo);
-    
+
     if (!empty($pubdate_year)) {
       $date_value = $pubdate_year;
       if (!empty($pubdate_month)) {
