@@ -146,7 +146,7 @@ class DOIImportObject extends IslandoraImportObject {
   }
 
   /**
-   * Generates a MODS document repersenting the imported data.
+   * Generates a MODS document representing the imported data.
    *
    * @see IslandoraImportObject::getMODS()
    */
@@ -154,8 +154,9 @@ class DOIImportObject extends IslandoraImportObject {
     if ($this->mods === NULL) {
       // @todo Implement book support.
       module_load_include('inc', 'islandora_doi', 'includes/utilities');
-      $doi_xml = simplexml_load_string($this->source);
-      $this->mods = islandora_doi_transform_to_mods($doi_xml)->asXML();
+      $doi_xml = new DOMDocument('1.0');
+      $doi_xml->loadXML($this->source);
+      $this->mods = islandora_doi_transform_to_mods($doi_xml)->saveXML();
     }
 
     return $this->mods;
