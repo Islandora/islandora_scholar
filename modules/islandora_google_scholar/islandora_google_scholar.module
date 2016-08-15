@@ -113,9 +113,11 @@ function islandora_google_scholar_create_meta_tags($object) {
       case 'book chapter':
         $host_tag = 'citation_book_title';
         break;
+
       case 'conference proceeding':
         $host_tag = 'citation_conference_title';
         break;
+
       default:
         $host_tag = 'citation_journal_title';
         break;
