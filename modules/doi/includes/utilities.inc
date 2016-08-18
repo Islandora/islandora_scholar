@@ -73,20 +73,18 @@ function islandora_doi_transform_to_mods($doi_xml) {
   // is a SimpleXMLElement, convert it.
   if ($doi_xml instanceof SimpleXMLElement) {
     // Warning message: Converting from SimpleXMLElement.
-    watchdog('Islandora DOI', t('islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.'));
+    watchdog('Islandora DOI', 'islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.');
     trigger_error(t('islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.'));
     $dom_xml = new DOMDocument();
     if (!$dom_xml = dom_import_simplexml($doi_xml)) {
       // Error message: Failed to convert from SimpleXMLElement.
       throw new Exception('Failed to convert SimpleXMLElement to DOMDocument');
-      return FALSE;
     }
     $doi_xml = $dom_xml;
   }
   elseif (!($doi_xml instanceof DOMDocument)) {
     // Error message: Not supplied with a DOMDocument.
     throw new InvalidArgumentException('islandora_doi_transform_to_mods should take a DOMDocument');
-    return FALSE;
   }
 
   // Create MODS XML.
