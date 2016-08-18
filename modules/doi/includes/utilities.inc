@@ -61,24 +61,31 @@ function islandora_doi_perform_request($id_or_url) {
  *
  * @return DOMDocument|bool
  *   A DOMDocument containing the constructed MODS, or FALSE on failure.
+ *
+ * @throws Exception
+ *   If passed a SimpleXMLElement that can't be converted to DOMDocument.
+ *
+ * @throws InvalidArgumentException
+ *   If passed something other than DOMDocument or SimpleXMLElement.
  */
 function islandora_doi_transform_to_mods($doi_xml) {
   // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it
   // is a SimpleXMLElement, convert it.
   if ($doi_xml instanceof SimpleXMLElement) {
     // Warning message: Converting from SimpleXMLElement.
-    drupal_set_message(t('islandora_doi_transform_to_mods should take a DOMDocument but recieved a SimpleXMLElement. Attempting to convert.'), 'warning');
+    watchdog('Islandora DOI', t('islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.'));
+    trigger_error(t('islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.'));
     $dom_xml = new DOMDocument();
-    if (!$dom_xml->loadXML($doi_xml->asXML())) {
+    if (!$dom_xml = dom_import_simplexml($doi_xml)) {
       // Error message: Failed to convert from SimpleXMLElement.
-      drupal_set_message(t('Failed to convert SimpleXMLElement to DOMDocument'), 'error');
+      throw new Exception('Failed to convert SimpleXMLElement to DOMDocument');
       return FALSE;
     }
     $doi_xml = $dom_xml;
   }
   elseif (!($doi_xml instanceof DOMDocument)) {
     // Error message: Not supplied with a DOMDocument.
-    drupal_set_message(t('islandora_doi_transform_to_mods should take a DOMDocument'), 'error');
+    throw new InvalidArgumentException('islandora_doi_transform_to_mods should take a DOMDocument');
     return FALSE;
   }
 
@@ -565,7 +572,6 @@ function islandora_doi_get_mods($id) {
   if ($response->data &&
     strpos($headers['content-type'], 'text/html') === FALSE &&
     strpos($response->data, "Malformed DOI") === FALSE) {
-
     $crossref_xml = new DOMDocument('1.0');
     if (!$crossref_xml->loadXML($response->data)) {
       return FALSE;
