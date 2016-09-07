@@ -37,7 +37,7 @@ function hook_islandora_scholar_embargo_users_to_notify_alter(array &$users, Abs
   // Example: don't notify the anonymous user if the object is a citation.
   if (in_array('ir:citationCModel', $object->models)) {
     $filter_anonymous = function($user) {
-      return user->name !== 'anonymous';
+      return $user->name !== 'anonymous';
     };
     $users = array_filter($users, $filter_anonymous);
   }
