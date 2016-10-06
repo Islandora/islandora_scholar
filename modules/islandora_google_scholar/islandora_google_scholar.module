@@ -106,9 +106,24 @@ function islandora_google_scholar_create_meta_tags($object) {
       }
     }
 
-    $journal_title = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
-    if ($journal_title) {
-      $tags['citation_journal_title'] = (string) reset($journal_title);
+    $host_title = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
+    $genre = strtolower((string) reset($mods_xml->xpath('//mods:genre')));
+    switch ($genre) {
+      case 'book section':
+      case 'book chapter':
+        $host_tag = 'citation_book_title';
+        break;
+
+      case 'conference proceeding':
+        $host_tag = 'citation_conference_title';
+        break;
+
+      default:
+        $host_tag = 'citation_journal_title';
+        break;
+    }
+    if ($host_title) {
+      $tags[$host_tag] = (string) reset($host_title);
     }
 
     $volume = $mods_xml->xpath('//mods:part/mods:detail[@type="volume"]/mods:number');
@@ -124,6 +139,11 @@ function islandora_google_scholar_create_meta_tags($object) {
           (string) reset($issn));
     }
 
+    $isbn = $mods_xml->xpath('//mods:identifier[@type="isbn"]');
+    if ($isbn) {
+      $tags['citation_isbn'] = (string) reset($isbn);
+    }
+
     $issue = $mods_xml->xpath('//mods:part/mods:detail[@type="issue"]/mods:number');
     if ($issue) {
       $tags['citation_issue'] = (string) reset($issue);
@@ -136,7 +156,7 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     $end_page = $mods_xml->xpath('//mods:extent[@unit="page"]/mods:end');
     if ($end_page) {
-      $tags['citation_endpage'] = (string) reset($end_page);
+      $tags['citation_lastpage'] = (string) reset($end_page);
     }
 
     $online_date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationDate');
@@ -150,6 +170,11 @@ function islandora_google_scholar_create_meta_tags($object) {
     $doi = $mods_xml->xpath('//mods:identifier[@type="doi"]');
     if ($doi) {
       $tags['citation_doi'] = (string) reset($doi);
+    }
+
+    $degree_grantor = $mods_xml->xpath('//mods:mods/mods:name[@type="corporate"][mods:role/mods:roleTerm = "Degree grantor"]/mods:namePart');
+    if ($degree_grantor) {
+      $tags['citation_dissertation_institution'] = (string) reset($degree_grantor);
     }
 
     if ($object['PDF']) {
