@@ -25,7 +25,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 Set the path for `Sherpa/RoMEO` in Administration » Islandora » Solution pack configuation » Scholar (admin/islandora/solution_pack_config/scholar).
 
-![image](https://cloud.githubusercontent.com/assets/2371345/9771917/750f6e88-570f-11e5-9804-23b561bc1dfa.png)
+![image](https://cloud.githubusercontent.com/assets/2738244/19038481/b1391c48-8949-11e6-9db9-3f681380c65f.png)
 
 Islandora 7 has re-defined how we are displaying citations to the user. As such, existing citations should be updated using the provided Drush script. The command creates PDF derivatives for any existing attached PDFs as the Google PDF Viewer has been removed in favor of displaying just the PREVIEW datastream.
 
