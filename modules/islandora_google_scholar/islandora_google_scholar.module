@@ -107,7 +107,8 @@ function islandora_google_scholar_create_meta_tags($object) {
     }
 
     $host_title = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
-    $genre = strtolower((string) reset($mods_xml->xpath('//mods:genre')));
+    $genre = $mods_xml->xpath('//mods:genre');
+    $genre = strtolower((string) reset($genre));
     switch ($genre) {
       case 'book section':
       case 'book chapter':
