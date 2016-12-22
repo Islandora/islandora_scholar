@@ -262,7 +262,7 @@ function islandora_doi_transform_to_mods(SimpleXMLElement $doi_xml) {
                 }
                 foreach ($item->resource as $resource) {
                   $mods_identifier = $mods->addChild('identifier');
-                  $mods_identifier->{0} = (string) $resource;
+                  $mods_identifier[0] = (string) $resource;
                   $mods_identifier->addAttribute('type', 'uri');
                 }
                 break;
