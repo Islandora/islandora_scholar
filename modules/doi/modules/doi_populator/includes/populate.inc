@@ -21,7 +21,7 @@ function doi_populator_validate_id($element, &$form_state, $form) {
   }
   else {
     $storage =& islandora_ingest_form_get_step_storage($form_state);
-    $storage['doi_populator']['file'] = file_save_data($mods->asXML(), 'temporary://mods.xml');
+    $storage['doi_populator']['file'] = file_save_data($mods->saveXML(), 'temporary://mods.xml');
     $storage['doi_populator']['file']->status &= ~FILE_STATUS_PERMANENT;
     file_save($storage['doi_populator']['file']);
   }
