@@ -5,6 +5,7 @@
  * This is a mapping for translation from mods to json.
  */
 
+global $_ir_citation_marcrelator_codes;
 $_ir_citation_marcrelator_codes = array(
   "acp" => "art copyist",
   "act" => "actor",
