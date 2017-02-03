@@ -59,7 +59,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
       }
       if (!$search_term) {
         // Search for default search term (usually title).
-        $default_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_default_search_xpath', '//mods:title'));
+        $default_search = $mods_xml->xpath("" . variable_get('islandora_scholar_google_scholar_default_search_xpath', '//mods:mods[1]/mods:titleInfo/mods:title'));
         $search_term = (string) reset($default_search);
       }
       if (!$search_term) {
