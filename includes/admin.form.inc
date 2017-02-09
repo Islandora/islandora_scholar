@@ -66,7 +66,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:title", array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:mods[1]/mods:titleInfo/mods:title", array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Default Search XPath'),
     '#description' => t('The default xpath you want to use to search'),
