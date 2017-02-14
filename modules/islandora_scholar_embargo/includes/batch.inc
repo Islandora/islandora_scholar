@@ -189,7 +189,7 @@ function islandora_scholar_embargo_reapply_embargoes_batch_operation(&$context) 
         ));
       }
       // If the set was empty, $context['finished'] will be 1 anyway.
-      $context['finished'] == $sandbox['completed'] / $sandbox['total'];
+      $context['finished'] = $sandbox['completed'] / $sandbox['total'];
     }
     if ($context['finished'] >= 1) {
       drupal_set_message(t('Re-applied embargoes to @total objects.', array(

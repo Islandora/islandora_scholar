@@ -503,7 +503,7 @@ WHERE {
 EOQ;
   // Offset if asked.
   if ($slice_params) {
-    $current_embargo .= "FILTER(?date > '{$slice_params['offset_date']}'^^xs:dateTime || (?date = '{$slice_params['offset_date']}'^^xs:dateTime && xs:string(?obj) > xs:string('info:fedora/{$slice_params['offset_date']}')))";
+    $current_embargo .= "FILTER(?date > '{$slice_params['offset_date']}'^^xs:dateTime || (?date = '{$slice_params['offset_date']}'^^xs:dateTime && xs:string(?obj) > xs:string('info:fedora/{$slice_params['offset_pid']}')))";
   }
   $current_embargo .= <<<EOQ
 }
