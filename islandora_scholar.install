@@ -50,7 +50,7 @@ function islandora_scholar_uninstall() {
 function islandora_scholar_update_7100(&$sandbox) {
   drupal_set_message(filter_xss(t('Existing citations with PDF datastreams should have derivatives created for them via Drush. Please consult the !url for further information.',
     array(
-      '!url' => l(t('README'), 'https://github.com/discoverygarden/islandora_scholar/blob/7.x/README.txt', array('absolute' => TRUE)),
+      '!url' => l(t('README'), 'https://github.com/discoverygarden/islandora_scholar/blob/7.x/README.md', array('absolute' => TRUE)),
     )
   )));
   watchdog('islandora_scholar', 'Existing citations with PDF datastreams should have derivatives created for them via Drush.', array(), WATCHDOG_NOTICE, l(t('README'), 'https://github.com/discoverygarden/islandora_scholar/blob/7.x/README.txt', array('external' => TRUE)));
