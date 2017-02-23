@@ -52,7 +52,7 @@ class RomeoView {
           $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
 
           $issn_results = $mods_xpath->query('//m:identifier[@type="issn" and normalize-space(text())]');
-          if (count($issn_results) > 0) {
+          if ($issn_results->length > 0) {
             $issn = $issn_results->item(0)->textContent;
           }
         }
