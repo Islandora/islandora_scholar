@@ -27,7 +27,7 @@ class DOIImporter extends IslandoraBatchImporter {
   public static function getForm(array & $form_state) {
     $openurl_pid = variable_get('islandora_doi_openurl_pid', 'user@example.com');
     if ($openurl_pid == 'user@example.com') {
-      drupal_set_message(t('OpenURL PID email address has not been configured, please enter a valid email address in the <a href="@doi-admin-page">Scholar DOI configuration form</a>.', array('@doi-admin-page' => '/admin/islandora/solution_pack_config/scholar/islandora_doi',)), 'error');
+      drupal_set_message(t('OpenURL PID email address has not been configured, please enter a valid email address in the <a href="@doi-admin-page">Scholar DOI configuration form</a>.', array('@doi-admin-page' => '/admin/islandora/solution_pack_config/scholar/islandora_doi')), 'error');
     }
     else {
       return array(
