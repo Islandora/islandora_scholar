@@ -4,6 +4,7 @@
  * @file
  * Defines a class for importing DOI citations.
  */
+
 class DOIImporter extends IslandoraBatchImporter {
 
   protected $itemClass = 'DOIImportObject';
@@ -68,7 +69,7 @@ class DOIImporter extends IslandoraBatchImporter {
    *
    * @see IslandoraBatchImporter::readyForBatch()
    */
-  public static function readyForBatch(array & $form_state) {
+  public static function readyForBatch(array &$form_state) {
     $text = trim($form_state['values']['textarea']);
     $file = file_load($form_state['values']['file']);
     if ($file) {
@@ -95,7 +96,7 @@ class DOIImporter extends IslandoraBatchImporter {
    *
    * @see IslandoraBatchImporter::getBatchInfo()
    */
-  public static function getBatchInfo(array & $form_state) {
+  public static function getBatchInfo(array &$form_state) {
     $ids = $form_state['values']['ids'];
     return $ids;
   }
@@ -129,8 +130,7 @@ class DOIImportObject extends IslandoraImportObject {
     $headers = array_change_key_case($response->headers);
     if ($response->data &&
       strpos($headers['content-type'], 'text/html') === FALSE &&
-      strpos($response->data, "Malformed DOI") === FALSE
-    ) {
+      strpos($response->data, "Malformed DOI") === FALSE) {
 
       $crossref_xml = simplexml_load_string($response->data);
       // Totally don't support books so let's not attempt to make records that
@@ -168,4 +168,3 @@ class DOIImportObject extends IslandoraImportObject {
     return $this->mods;
   }
 }
-
