@@ -24,38 +24,44 @@ class DOIImporter extends IslandoraBatchImporter {
    *
    * @see IslandoraBatchImporter::getForm()
    */
-  public static function getForm(array &$form_state) {
-    return array(
-      'fs' => array(
-        '#type' => 'fieldset',
-        '#title' => t('DOI Batch Journal Importer'),
-        '#description' => t('Provide either a list of Digital Object Identifiers in a file, or enter DOIs in the textarea below. In either case, the DOIs in the list should be separated by either whitespace or commas (or some combination thereof). NOTE: Presently, only journal (articles) are supported.'),
-        'file' => array(
-          '#type' => 'managed_file',
-          '#title' => t('File of DOIs'),
-          '#description' => t('A file listing Digital Object Identifiers (with ".txt" extension).'),
-          '#upload_validators' => array(
-            'file_validate_extensions' => array('txt'),
+  public static function getForm(array & $form_state) {
+    $openurl_pid = variable_get('islandora_doi_openurl_pid', 'user@example.com');
+    if ($openurl_pid == 'user@example.com') {
+      drupal_set_message(t('OpenURL PID email address has not been configured, please enter a valid email address in the <a href="@doi-admin-page">Scholar DOI configuration form</a>.', array('@doi-admin-page' => '/admin/islandora/solution_pack_config/scholar/islandora_doi')), 'error');
+    }
+    else {
+      return array(
+        'fs' => array(
+          '#type' => 'fieldset',
+          '#title' => t('DOI Batch Journal Importer'),
+          '#description' => t('Provide either a list of Digital Object Identifiers in a file, or enter DOIs in the textarea below. In either case, the DOIs in the list should be separated by either whitespace or commas (or some combination thereof). NOTE: Presently, only journal (articles) are supported.'),
+          'file' => array(
+            '#type' => 'managed_file',
+            '#title' => t('File of DOIs'),
+            '#description' => t('A file listing Digital Object Identifiers (with ".txt" extension).'),
+            '#upload_validators' => array(
+              'file_validate_extensions' => array('txt'),
+            ),
+          ),
+          'textarea' => array(
+            '#type' => 'textarea',
+            '#title' => t('DOIs'),
+            '#description' => t('Provide a list Digital Object Identifiers (DOI) - eg. 10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x'),
+          ),
+          'ids' => array(
+            '#type' => 'value',
+            '#value' => array(),
+          ),
+          'submit' => array(
+            '#type' => 'submit',
+            '#value' => t('Import'),
           ),
         ),
-        'textarea' => array(
-          '#type' => 'textarea',
-          '#title' => t('DOIs'),
-          '#description' => t('Provide a list Digital Object Identifiers (DOI) - eg. 10.1016/j.jorganchem.2011.11.018, 10.1016/j.tiv.2011.10.017, 10.1111/j.1540-4560.2012.01733.x'),
+        '#attributes' => array(
+          'enctype' => 'multipart/form-data',
         ),
-        'ids' => array(
-          '#type' => 'value',
-          '#value' => array(),
-        ),
-        'submit' => array(
-          '#type' => 'submit',
-          '#value' => t('Import'),
-        ),
-      ),
-      '#attributes' => array(
-        'enctype' => 'multipart/form-data',
-      ),
-    );
+      );
+    }
   }
 
   /**
