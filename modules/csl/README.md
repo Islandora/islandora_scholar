@@ -39,7 +39,8 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 Current maintainers:
 
-* [Joardan Dukart](https://github.com/jordandukart)
+* [Bryan Brown](https://github.com/bryjbrown)
+* [Don Richards](https://github.com/DonRichards)
 
 ## Development
 
