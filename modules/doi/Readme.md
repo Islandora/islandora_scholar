@@ -16,7 +16,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-Set the value for OpenURL PID at admin/islandora/scholar/doi_importer as CrossRef does not allow guest searching.
+See admin/islandora/solution_pack_config/scholar/islandora_doi for setting CrossREF URL and registered email.
 
 ## Maintainers/Sponsors
 
