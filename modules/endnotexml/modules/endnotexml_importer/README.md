@@ -1,4 +1,4 @@
-# EndnoteXML Importer
+# EndNoteXML Importer
 
 ## Introduction
 
@@ -9,8 +9,9 @@ Allows users to import EndnoteXML files and creates citation objects.
 This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
-* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
 * [Islandora Importer](https://github.com/Islandora/islandora_importer)
+* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora EndNote XML](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/endnotexml)
 * [Bibutils](https://github.com/manez/islandora_scholar/tree/7.x/modules/bibutils)
 
 ## Installation
@@ -32,7 +33,8 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 Current maintainers:
 
-* [Joardan Dukart](https://github.com/jordandukart)
+* [Bryan Brown](https://github.com/bryjbrown)
+* [Don Richards](https://github.com/DonRichards)
 
 ## Development
 

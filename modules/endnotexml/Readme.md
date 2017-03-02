@@ -9,7 +9,9 @@ Support code for EndNote XML, to create citation objects.
 
 This module requires the following modules/libraries:
 
-* Bibutils (included in /modules)
+* [Islandora](https://github.com/islandora/islandora)
+* [Islandora Scholar](https://github.com/islandora/islandora_scholar)
+* [Bibutils](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/bibutils)
 
 ## Installation
 

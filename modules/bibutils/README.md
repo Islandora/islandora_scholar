@@ -10,6 +10,7 @@ Provides a PHP interface to the bibutils tools.
 This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
+* [Islandora Scholar](https://github.com/islandora/islandora_scholar)
 
 ## Installation
 

@@ -9,9 +9,11 @@ Populator plugin for RIS, to create citation objects.
 
 This module requires the following modules/libraries:
 
-* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora](https://github.com/Islandora/islandora)
 * [Islandora Populator](https://github.com/Islandora/islandora_populator)
-* [RIS Support Code](https://github.com/Islandora/islandora_scholar/modules/ris)
+* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora RIS](https://github.com/Islandora/islandora_scholar/modules/ris)
+* [Bibutils](https://github.com/islandora/islandora_scholar/tree/7.x/modules/bibutils)
 
 ## Installation
 

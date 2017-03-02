@@ -10,6 +10,7 @@ Provides a Drupal interface to the citeproc-php library. [Cite-Proc demo page](h
 This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
+* [Islandora Scholar](https://github.com/islandora/islandora_scholar)
 * [CSL](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/csl)
 
 Additionally, it is necessary to install the [citeproc-php](https://github.com/Islandora/citeproc-php) library into the `sites/all/libraries` directory, such that the main `CiteProc.php` file is located at `sites/all/libraries/citeproc-php/CiteProc.php`.
