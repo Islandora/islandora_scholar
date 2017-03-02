@@ -1,9 +1,8 @@
-
-# Islandora DOI
+# Islandora RIS 
 
 ## Introduction
 
-Support code for Digital Object Identifiers, to create citation objects.
+Support code for RIS records, to create citation objects.
 
 ## Requirements
 
@@ -11,6 +10,7 @@ This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
 * [Islandora Scholar](https://github.com/islandora/islandora_scholar)
+* [Bibutils](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/ris)
 
 ## Installation
 
@@ -18,7 +18,14 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-See admin/islandora/solution_pack_config/scholar/islandora_doi for setting CrossREF URL and registered email.
+Enable the module via Administration » Modules (admin/modules)
+
+## Troubleshooting/Issues
+
+Having problems or solved a problem? Check out the Islandora google groups for a solution.
+
+* [Islandora Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora)
+* [Islandora Dev Group](https://groups.google.com/forum/?hl=en&fromgroups#!forum/islandora-dev)
 
 ## Maintainers/Sponsors
 
@@ -26,6 +33,7 @@ Current maintainers:
 
 * [Bryan Brown](https://github.com/bryjbrown)
 * [Don Richards](https://github.com/DonRichards)
+
 
 ## Development
 

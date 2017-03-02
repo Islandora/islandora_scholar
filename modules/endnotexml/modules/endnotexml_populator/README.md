@@ -1,15 +1,18 @@
-# Islandora PMID 
+# EndNoteXML Populator
 
 ## Introduction
 
-Support code for Pubmed IDs, to create citation objects.
+Plugin to populate MODS from EndNote XML.
 
 ## Requirements
 
 This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
-* [Islandora Scholar](https://github.com/islandora/islandora_scholar)
+* [Islandora Populator](https://github.com/Islandora/islandora_populator)
+* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora EndNote XML](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/endnotexml)
+* [Bibutils](https://github.com/manez/islandora_scholar/tree/7.x/modules/bibutils)
 
 ## Installation
 
@@ -30,8 +33,7 @@ Having problems or solved a problem? Check out the Islandora google groups for a
 
 Current maintainers:
 
-* [Bryan Brown](https://github.com/bryjbrown)
-* [Don Richards](https://github.com/DonRichards)
+* [Joardan Dukart](https://github.com/jordandukart)
 
 ## Development
 

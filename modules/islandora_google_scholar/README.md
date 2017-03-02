@@ -2,10 +2,11 @@
 
 ## Introduction
 
-This module maps MODS metadata fields to HTML <meta> tags on the fly to help improve indexing in Google Scholar and citation harvesting using citation tools like Zotero.
+This module maps MODS metadata fields to HTML `<meta>` tags on the fly to help improve indexing in Google Scholar and citation harvesting using citation tools like Zotero.
 This module embeds meta tags in the HEAD element for use in indexing.
-##### Note: Requires MODS 3.1
-<br/>
+
+**Note: Requires MODS 3.1**
+
 Islandora Google Scholar creates meta tags to be placed in the head of the HTML by information stored in the MODS fields. Requires to have at least title, full name of at least one author, and publication year.
 
 Tags are built starting with Citation author. The title is pulled from mods[1] > titleInfo > title

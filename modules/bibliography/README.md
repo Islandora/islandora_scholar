@@ -9,7 +9,8 @@ Allows users to maintain/export their own bibliography of citations.
 This module requires the following modules/libraries:
 
 * [Islandora](https://github.com/islandora/islandora)
-* [Islandora Bookmark](https://github.com/Islandora/islandora_bookmark)
+* [Islandora Bookmark](https://github.com/islandora/islandora_bookmark)
+* [Islandora Scholar](https://github.com/islandora/islandora_scholar)
 * [CSL](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/csl)
 * [Citeproc](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/citeproc)
 

@@ -9,8 +9,10 @@ Creates citation objects from RIS files
 
 This module requires the following modules/libraries:
 
-* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora](https://github.com/Islandora/islandora)
 * [Islandora Importer](https://github.com/Islandora/islandora_importer)
+* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora RIS](https://github.com/Islandora/islandora_scholar/modules/ris)
 * [Bibutils](https://github.com/islandora/islandora_scholar/tree/7.x/modules/bibutils)
 
 ## Installation

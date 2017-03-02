@@ -8,7 +8,9 @@ Support embargo management in Islandora Scholar.
 
 The following Drupal modules are required:
 
- * [Islandora XACML API](https://github.com/Islandora/islandora_xacml_editor/tree/7.x/api)
+ * [Islandora](https://github.com/islandora/islandora)
+ * [Islandora_Scholar](https://github.com/islandora/islandora_scholar)
+ * [Islandora XACML API](https://github.com/islandora/islandora_xacml_editor/tree/7.x/api)
  * [Rules](https://www.drupal.org/project/rules)
 
 ## Installation

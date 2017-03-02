@@ -8,10 +8,10 @@ Populator plugin for PubMed, to create citation objects.
 
 This module requires the following modules/libraries:
 
-* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
-* [Islandora Importer](https://github.com/Islandora/islandora_importer)
-* [Pubmed Support Code](https://github.com/Islandora/islandora_scholar/modules/pmid)
+* [Islandora](https://github.com/Islandora/islandora)
 * [Islandora Populator](https://github.com/Islandora/islandora_populator)
+* [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
+* [Islandora PMID](https://github.com/Islandora/islandora_scholar/modules/pmid)
 
 ## Installation
 
