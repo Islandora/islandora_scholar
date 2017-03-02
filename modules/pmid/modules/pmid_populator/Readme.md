@@ -11,7 +11,7 @@ This module requires the following modules/libraries:
 * [Islandora](https://github.com/Islandora/islandora)
 * [Islandora Populator](https://github.com/Islandora/islandora_populator)
 * [Islandora Scholar](https://github.com/Islandora/islandora_scholar)
-* [Islandora PMID](https://github.com/Islandora/islandora_scholar/modules/pmid)
+* [Islandora PMID](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/pmid)
 
 ## Installation
 
