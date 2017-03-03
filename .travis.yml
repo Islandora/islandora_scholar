@@ -66,4 +66,3 @@ script:
   - cp -Rv $JAVASCRIPT_DIR/* $TRAVIS_BUILD_DIR
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
   - phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
-  - php scripts/run-tests.sh --php `phpenv which php` --url http://localhost:8081 --verbose "Islandora Scholar"
