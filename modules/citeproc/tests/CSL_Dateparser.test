@@ -3,7 +3,13 @@
  * @file
  * Tests for CSLDateParser. Translated from citeproc-js.
  */
-use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
+
+if (version_compare(phpversion(), '7.0.0') >= 0) {
+  $phpUnitClass = PHPUnit\Framework\TestCase;
+}
+else {
+  $phpUnitClass = PHPUnit_Framework_TestCase;
+}
 
 require_once dirname(__FILE__) . '/../includes/CSLDateparser.php';
 
@@ -12,7 +18,7 @@ require_once dirname(__FILE__) . '/../includes/CSLDateparser.php';
  * @todo check out what the toArray test was testing and make a test using the
  * class interface.
  */
-class CSLDateParserTest extends PHPUnit_Framework_TestCase {
+class CSLDateParserTest extends $phpUnitClass {
   /**
    * Clean up and set default used in tests.
    */
