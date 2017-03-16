@@ -6,6 +6,10 @@
 
 require_once dirname(__FILE__) . '/../includes/CSLDateparser.php';
 
+if (!class_exists(PHPUnit_Framework_TestCase)) {
+    class PHPUnit_Framework_TestCase extends \PHPUnit\Framework\TestCase {}
+}
+
 /**
  * Tests for CSLDateParser.
  * @todo check out what the toArray test was testing and make a test using the
