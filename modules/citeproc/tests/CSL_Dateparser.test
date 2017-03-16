@@ -3,6 +3,7 @@
  * @file
  * Tests for CSLDateParser. Translated from citeproc-js.
  */
+use PHPUnit\Framework\TestCase as PHPUnit_Framework_TestCase;
 
 require_once dirname(__FILE__) . '/../includes/CSLDateparser.php';
 
