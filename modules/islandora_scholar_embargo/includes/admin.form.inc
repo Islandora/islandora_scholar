@@ -37,6 +37,12 @@ function islandora_embargo_admin(array $form, array &$form_state) {
     'title' => array('data' => t('Content Model')),
   );
   $form = array();
+  $form['email'] = array(
+    '#type' => 'checkbox',
+    '#title' => 'Use default email notifications for embargoes',
+    '#description' => 'Uncheck if you would like to manually set up notifications using rules, or by implementing hook_islandora_scholar_embargo_users_to_notify()',
+    '#default_value' => variable_get('islandora_scholar_embargo_default_emails', TRUE),
+  );
   $form['intro'] = array(
     '#type' => 'item',
     '#title' => 'Select Content Models for objects to be embargoed',
@@ -77,10 +83,12 @@ function islandora_embargo_admin_submit(array $form, array &$form_state) {
   switch ($op) {
     case 'Reset to default':
       variable_del('islandora_embargo_content_models');
+      variable_del('islandora_scholar_embargo_default_emails');
       break;
 
     default:
       $enabled = array_filter($form_state['values']['the_table']);
       variable_set('islandora_embargo_content_models', $enabled);
+      variable_set('islandora_scholar_embargo_default_emails', $form_state['values']['email']);
   }
 }
