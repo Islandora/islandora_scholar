@@ -182,9 +182,39 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
 }
 
 /**
+ * Implements hook_theme().
+ */
+function islandora_scholar_theme($existing, $type, $theme, $path) {
+  return array(
+    'islandora_thesis' => array(
+      'file' => 'theme/theme.inc',
+      'template' => 'theme/islandora-thesis',
+      'pattern' => 'islandora_thesis__',
+      'variables' => array('islandora_object' => NULL),
+    ),
+    'islandora_citation' => array(
+      'file' => 'theme/theme.inc',
+      'template' => 'theme/islandora-citation',
+      'pattern' => 'islandora_citation__',
+      'variables' => array('islandora_object' => NULL),
+    ),
+  );
+}
+
+/**
  * Implements hook_CMODEL_PID_islandora_view_object().
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
+  if (module_exists('islandora_solr_metadata')) {
+    module_load_include('inc', 'islandora_solr_metadata', 'includes/db');
+    if (
+      function_exists('islandora_solr_metadata_get_associations_by_cmodels') &&
+      count(islandora_solr_metadata_get_associations_by_cmodels(array('ir:citationCModel'))) > 0
+    ) {
+      $output = theme('islandora_citation', array('object' => $object));
+      return array('' => $output);
+    }
+  }
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
   return islandora_scholar_get_view($object);
 }
@@ -193,6 +223,16 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
  * Implements hook_CMODEL_PID_islandora_view_object().
  */
 function islandora_scholar_ir_thesisCModel_islandora_view_object($object) {
+  if (module_exists('islandora_solr_metadata')) {
+    module_load_include('inc', 'islandora_solr_metadata', 'includes/db');
+    if (
+      function_exists('islandora_solr_metadata_get_associations_by_cmodels') &&
+      count(islandora_solr_metadata_get_associations_by_cmodels(array('ir:thesisCModel'))) > 0
+    ) {
+      $output = theme('islandora_thesis', array('object' => $object));
+      return array('' => $output);
+    }
+  }
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
   return islandora_scholar_get_view($object);
 }
