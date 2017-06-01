@@ -12,7 +12,7 @@ function islandora_scholar_embargo_uninstall() {
   $variables = array(
     'islandora_embargo_content_models',
     'islandora_scholar_embargo_whitelisted_roles',
-    'islandora_scholar_embargo_default_emails',
+    'islandora_scholar_embargo_suppress_default_emails',
   );
   array_walk($variables, 'variable_del');
 }
