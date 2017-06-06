@@ -182,11 +182,31 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
 }
 
 /**
+ * Implements hook_theme().
+ */
+function islandora_scholar_theme($existing, $type, $theme, $path) {
+  return array(
+    'islandora_scholar_citation' => array(
+      'path' => drupal_get_path('module', 'islandora_scholar') . '/theme',
+      'template' => 'islandora-scholar-citation',
+      'variables' => array('islandora_object' => NULL, 'display' => NULL),
+    ),
+    'islandora_scholar_thesis' => array(
+      'path' => drupal_get_path('module', 'islandora_scholar') . '/theme',
+      'template' => 'islandora-scholar-thesis',
+      'variables' => array('islandora_object' => NULL, 'display' => NULL),
+    ),
+  );
+}
+
+/**
  * Implements hook_CMODEL_PID_islandora_view_object().
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
-  return islandora_scholar_get_view($object);
+  $display = islandora_scholar_get_view($object);
+  $output = theme('islandora_scholar_citation', array('islandora_object' => $object, 'display' => $display));
+  return array('' => $output);
 }
 
 /**
@@ -194,7 +214,9 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
  */
 function islandora_scholar_ir_thesisCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
-  return islandora_scholar_get_view($object);
+  $display = islandora_scholar_get_view($object);
+  $output = theme('islandora_scholar_thesis', array('islandora_object' => $object, 'display' => $display));
+  return array('' => $output);
 }
 
 /**
