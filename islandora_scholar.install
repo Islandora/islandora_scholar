@@ -67,3 +67,10 @@ function islandora_scholar_update_7101(&$sandbox) {
   )));
   watchdog('islandora_scholar', 'Existing mods:physicalDescription fields with an @authority="local" may become hidden with this update.', array(), WATCHDOG_NOTICE, l(t('ISLANDORA-1350'), 'https://jira.duraspace.org/browse/ISLANDORA-1350', array('external' => TRUE)));
 }
+
+/**
+ * Print out a message informing about the change in permissions.
+ */
+function islandora_scholar_update_7102(&$sandbox) {
+  return t('The permission to administer the Islandora Scholar module has been changed to "Administer site configuration"; roles that could previously access Islandora Scholar management pages via the "Use the administration pages and help" permission will no longer be able to do so. Permissions may need to be reviewed.');
+}
