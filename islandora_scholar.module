@@ -16,7 +16,7 @@ function islandora_scholar_menu() {
       'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),
-      'access arguments' => array('access administration pages'),
+      'access arguments' => array('administer site configuration'),
       'file' => 'includes/admin.form.inc',
     ),
     'admin/islandora/solution_pack_config/scholar/base' => array(
@@ -28,7 +28,7 @@ function islandora_scholar_menu() {
       'type' => MENU_LOCAL_TASK,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_pdf_form'),
-      'access arguments' => array('access administration pages'),
+      'access arguments' => array('administer site configuration'),
       'file' => 'includes/admin.form.inc',
     ),
     'islandora/object/%islandora_object/islandora_scholar_romeo' => array(
