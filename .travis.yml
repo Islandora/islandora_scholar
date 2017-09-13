@@ -34,7 +34,7 @@ branches:
     - /^7.x/
 before_install:
   - composer self-update
-  - if [[ "$TRAVIS_PHP_VERSION" = "5.3.3" ]]; then composer config -g -- disable-tls true | composer config -g -- secure-http false; fi
+  - if [[ $(phpenv version-name) = "5.3.3" ]]; then composer config -g -- disable-tls true && composer config -g -- secure-http false && ; fi
   - cd $HOME
   - mkdir javascript
   - git clone -b 7.x git://github.com/Islandora/islandora.git
