@@ -32,9 +32,8 @@ env:
 branches:
   only:
     - /^7.x/
-before_install:
-  - composer self-update
-  - if [[ $(phpenv version-name) = "5.3.3" ]]; then composer config -g -- disable-tls true && composer config -g -- secure-http false; fi
+before_install: 
+  - if [[ $(phpenv version-name) = "5.3.3" ]]; then composer config -g -- disable-tls true && composer config -g -- secure-http false; fi;
   - cd $HOME
   - mkdir javascript
   - git clone -b 7.x git://github.com/Islandora/islandora.git
@@ -60,8 +59,9 @@ before_install:
 before_script:
   # Mysql might time out for long tests, increase the wait timeout.
   - mysql -e 'SET @@GLOBAL.wait_timeout=1200'
+  - composer self-update
   - composer require phpunit/phpunit '>=4.8.35|>=5.4.3.,<=5.0'
-  - composer install
+  - if [[ $(phpenv version-name) = "5.3.3" ]]; composer --prefer-source install; else composer install; fi;
 script:
   - ant -buildfile sites/all/modules/islandora_scholar/build.xml lint
   - sites/all/modules/islandora_scholar/tests/scripts/line_endings.sh sites/all/modules/islandora_scholar
