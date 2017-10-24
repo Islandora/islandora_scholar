@@ -87,10 +87,10 @@ function islandora_scholar_admin_form() {
     '#title' => t('Render Library Catalog Search link'),
     '#description' => t('Enable Searching in your library discovery layer.'),
   ));
-  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_search_URL', 'https://american.summon.serialssolutions.com', array(
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_search_URL', '', array(
     '#type' => 'textfield',
     '#title' => t('Library Catalog Location'),
-    '#description' => t('The search URL for your library discovery layer.'),
+    '#description' => t('The search URL for your library discovery layer. Example: https://yoursite.discoveryservice.serviceprovider.com'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_library_catalog_search_enabled"]' => array('checked' => TRUE),
