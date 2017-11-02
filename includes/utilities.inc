@@ -77,10 +77,10 @@ function islandora_scholar_get_view(AbstractObject $object) {
       // Library Catalog Search.
       $mods_xml = simplexml_load_string($object['MODS']->content);
       $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-      // Search for library search URL
+      // Search for library search URL.
       $search_url = NULL;
       $search_url = variable_get('islandora_scholar_library_catalog_search_URL', 'https://american.summon.serialssolutions.com');
-      // Search for library search parameters
+      // Search for library search parameters.
       $search_params = NULL;
       $search_params = variable_get('islandora_scholar_library_catalog_search_params', '/search?s.q=');
       // Search for primary search term (usually DOI).
