@@ -5,5 +5,5 @@ dependencies[] = islandora
 dependencies[] = islandora_scholar
 files[] = includes/csl.inc
 configure = admin/islandora/tools/csl
-version = 7.x-1.10RC2
+version = 7.x-1.10
 core = 7.x

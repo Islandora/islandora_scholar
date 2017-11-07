@@ -5,5 +5,5 @@ dependencies[] = islandora
 dependencies[] = islandora_populator
 dependencies[] = islandora_scholar
 dependencies[] = islandora_ris
-version = 7.x-1.10RC2
+version = 7.x-1.10
 core = 7.x
