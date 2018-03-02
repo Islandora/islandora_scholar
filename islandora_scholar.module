@@ -12,7 +12,7 @@ function islandora_scholar_menu() {
   return array(
     'admin/islandora/solution_pack_config/scholar' => array(
       'title' => 'Scholar',
-      'description' => 'Configure scholar settings such as RoMEO and Google Search',
+      'description' => 'Configure Islandora Scholar settings such as RoMEO and Google Search',
       'type' => MENU_NORMAL_ITEM,
       'page callback' => 'drupal_get_form',
       'page arguments' => array('islandora_scholar_admin_form'),

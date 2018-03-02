@@ -27,8 +27,8 @@ function islandora_scholar_embargo_menu() {
     'file' => 'includes/embargo.inc',
   );
   $items['admin/islandora/solution_pack_config/embargo'] = array(
-    'title' => 'Islandora Scholar Embargo',
-    'description' => 'Configure the Embargo module.',
+    'title' => 'Scholar Embargo',
+    'description' => 'Configure the Islandora Scholar Embargo module.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('islandora_embargo_admin'),
     'access arguments' => array(ISLANDORA_SCHOLAR_EMBARGO_CAN_EMBARGO_ANY),
