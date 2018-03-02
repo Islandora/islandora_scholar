@@ -108,10 +108,11 @@ function islandora_scholar_get_view(AbstractObject $object) {
   }
 
   if (isset($object['PDF']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PDF'])) {
+    $filename = str_replace(":", "_", $object->id);
     $display['pdf_download'] = array(
       '#type' => 'item',
       '#title' => t('Download'),
-      '#markup' => l(t('PDF'), "islandora/object/$object->id/datastream/PDF/download/citation.pdf"),
+      '#markup' => l(t('PDF'), "islandora/object/$object->id/datastream/PDF/download/$filename.pdf"),
       '#weight' => $display['pdf_download']['#weight'],
     );
   }
