@@ -72,7 +72,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:title", array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:mods[1]/mods:titleInfo/mods:title", array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Default Search XPath'),
     '#description' => t('The default xpath you want to use to search'),
@@ -135,7 +135,7 @@ function islandora_scholar_admin_form() {
   ));
   $form['romeo'] += _islandora_scholar_add_variable('islandora_scholar_romeo_url', 'http://www.sherpa.ac.uk/romeo/api29.php', array(
     '#title' => t('Sherpa/RoMEO URL'),
-    '#description' => t('The URL to which to make requests.'),
+    '#description' => t('The URL to which to make requests. Default is http://www.sherpa.ac.uk/romeo/api29.php'),
   ));
   $form['romeo'] += _islandora_scholar_add_variable('islandora_scholar_romeo_key', '', array(
     '#title' => t('Sherpa/RoMEO API Key'),
