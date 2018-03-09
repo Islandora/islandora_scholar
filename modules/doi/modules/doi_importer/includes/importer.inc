@@ -123,7 +123,7 @@ class DOIImportObject extends IslandoraImportObject {
    *
    * @var string
    */
-  protected $source_content_type;
+  protected $sourceContentType;
 
   /**
    * Get an item from the source.
@@ -143,7 +143,7 @@ class DOIImportObject extends IslandoraImportObject {
     $content_type = array_shift($content_types);
     $source_string = $source_array[$content_type];
     $toreturn = new self($source_string);
-    $toreturn->source_content_type = $content_type;
+    $toreturn->sourceContentType = $content_type;
     return $toreturn;
   }
 
@@ -158,7 +158,7 @@ class DOIImportObject extends IslandoraImportObject {
       module_load_include('inc', 'islandora_doi', 'includes/utilities');
       $doi_xml = new DOMDocument('1.0');
       $doi_xml->loadXML($this->source);
-      $this->mods = islandora_doi_transform_to_mods($doi_xml, $this->source_content_type)->saveXML();
+      $this->mods = islandora_doi_transform_to_mods($doi_xml, $this->sourceContentType)->saveXML();
     }
 
     return $this->mods;

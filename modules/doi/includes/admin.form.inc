@@ -21,7 +21,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     'islandora_doi_use_legacy_mode' => array(
       '#type' => 'checkbox',
       '#title' => t('Use legacy retrieval mode'),
-      '#description' => t('Keep fetching metadata directly from CrossREF\'s OpenURL (account required!). If unchecked, use content negociation as explained by https://www.crosscite.org.'),
+      '#description' => t("Keep fetching metadata directly from CrossREF's OpenURL (account required!). If unchecked, use content negociation as explained by https://www.crosscite.org."),
       '#default_value' => variable_get('islandora_doi_use_legacy_mode', variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT) !== ISLANDORA_DOI_OPENURL_PID_DEFAULT),
     ),
     'islandora_doi_url_config' => array(
@@ -35,7 +35,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     'islandora_doi_doiurl' => array(
       '#type' => 'textfield',
       '#title' => t('DOI URL supporting content negociation'),
-      '#description' => t('The URL which we will query in non-legacy mode to obtain our metadata (it is probably not recommended to change this from the default value \'@url\').', array(
+      '#description' => t("The URL which we will query in non-legacy mode to obtain our metadata (it is probably not recommended to change this from the default value '@url').", array(
         '@url' => ISLANDORA_DOI_DOIURL_DEFAULT,
       )),
       '#default_value' => variable_get('islandora_doi_doiurl', ISLANDORA_DOI_DOIURL_DEFAULT),

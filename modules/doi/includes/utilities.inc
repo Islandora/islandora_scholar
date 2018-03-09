@@ -590,7 +590,7 @@ function islandora_doi_crossref_translator($crossref_xml) {
  *
  * @param string $id
  *   A DOI.
- * @param string $data
+ * @param string $crossref_data
  *   A string containing the data returned by CrossRef for the DOI.
  *
  * @return bool
@@ -642,21 +642,20 @@ function islandora_doi_transform_to_mods($doi_xml, $content_type = 'application/
   global $_islandora_doi_content_translators;
   if (!array_key_exists($content_type, $_islandora_doi_content_translators)) {
     // Warning message: Translator not yet implemented.
-    $err_msg = 'The requested translator for content \'@content_type\' has not yet been implemented. Returning FALSE...';
-    $err_msg_vars = array(
+    watchdog('Islandora DOI', "The requested translator for content '@content_type' has not yet been implemented. Returning FALSE...", array(
       '@content_type' => $content_type,
-    );
-    watchdog('Islandora DOI', $err_msg, $err_msg_vars);
-    trigger_error(t($err_msg, $err_msg_vars));
+    ));
+    trigger_error(t("The requested translator for content '@content_type' has not yet been implemented. Returning FALSE...", array(
+      '@content_type' => check_plain($content_type),
+    )));
     return FALSE;
   }
   // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it
   // is a SimpleXMLElement, convert it.
   if ($doi_xml instanceof SimpleXMLElement) {
     // Warning message: Converting from SimpleXMLElement.
-    $err_msg = 'islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.';
-    watchdog('Islandora DOI', $err_msg);
-    trigger_error(t($err_msg));
+    watchdog('Islandora DOI', 'islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.');
+    trigger_error(t('islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.'));
     $dom_xml = new DOMDocument();
     if (!$dom_xml = dom_import_simplexml($doi_xml)) {
       // Error message: Failed to convert from SimpleXMLElement.
@@ -694,7 +693,7 @@ function islandora_doi_get_source($id) {
     if (!$response->data ||
       strpos($headers['content-type'], 'text/html') !== FALSE ||
       strpos($response->data, "Malformed DOI") !== FALSE) {
-      drupal_set_message(t('\'@doi\' does not seem to be a valid CrossREF DOI.', array(
+      drupal_set_message(t("'@doi' does not seem to be a valid CrossREF DOI.", array(
         '@doi' => islandora_doi_get_doi_name_from_url($id),
       )), 'error');
       return FALSE;
@@ -707,39 +706,42 @@ function islandora_doi_get_source($id) {
     if (!$response->data ||
       !isset($response->code) || $response->code != 200 || isset($response->error) ||
       !array_key_exists($headers['content-type'], $_islandora_doi_content_translators)) {
-      $err_406_msg = 'It seems that the metadata provider for \'@doi\' has no content we can handle.';
       if (isset($response->error)) {
         if (isset($response->code) && $response->code == 406) {
           // We should always find ourselves here when the DOI exists but we
           // requested content types the metadata provider does not support.
           // Unfortunately, not all providers behave as expected, which
           // explains the slightly more convoluted construction below.
-          $err_msg = $err_406_msg;
+          drupal_set_message(t("It seems that the metadata provider for '@doi' has no content we can handle.", array(
+            '@doi' => islandora_doi_get_doi_name_from_url($id),
+          )), 'error');
         }
         elseif (isset($response->code) && $response->code == 404) {
           // We would expect this to be the response for invalid DOIs only,
           // but this is not the case...
-          $err_msg = '\'@doi\' does not appear to be a valid DOI';
-          // We know that, e.g., DataCite will return 404 if the first content
-          // type in the Accept header differs from
-          // 'application/vnd.datacite.datacite+xml'. It seems that truly invalid
-          // DOIs get redirected to https://www.doi.org when https://doi.org is
-          // queried.
           if (isset($response->redirect_url) &&
             preg_match('/^https?:\/\/www.doi.org/', $response->redirect_url) !== 1) {
-            $err_msg .= ' (or the metadata provider for this DOI has no content we can handle)';
+            // We know that, e.g., DataCite will return 404 if the first content
+            // type in the Accept header differs from
+            // 'application/vnd.datacite.datacite+xml'. It seems that truly
+            // invalid DOIs get redirected to https://www.doi.org when
+            // https://doi.org is queried.
+            drupal_set_message(t("'@doi' does not appear to be a valid DOI (or the metadata provider for this DOI has no content we can handle).", array(
+              '@doi' => islandora_doi_get_doi_name_from_url($id),
+            )), 'error');
           }
-          $err_msg .= '.';
+          else {
+            drupal_set_message(t("'@doi' does not appear to be a valid DOI.", array(
+              '@doi' => islandora_doi_get_doi_name_from_url($id),
+            )), 'error');
+          }
         }
       }
       elseif (isset($response->code) && $response->code >= 300 && $response->code <= 308 &&
         isset($response->redirect_url)) {
         // The metadata provider tries to redirect us, in all likelyhood to
         // the publisher's website. We treat this the same as 406 above.
-        $err_msg = $err_406_msg;
-      }
-      if (isset($err_msg)) {
-        drupal_set_message(t($err_msg, array(
+        drupal_set_message(t("It seems that the metadata provider for '@doi' has no content we can handle.", array(
           '@doi' => islandora_doi_get_doi_name_from_url($id),
         )), 'error');
       }
