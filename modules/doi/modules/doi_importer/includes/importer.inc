@@ -25,16 +25,17 @@ class DOIImporter extends IslandoraBatchImporter {
    * @see IslandoraBatchImporter::getForm()
    */
   public static function getForm(array & $form_state) {
-    $openurl_pid = variable_get('islandora_doi_openurl_pid', 'user@example.com');
-    if ($openurl_pid == 'user@example.com') {
-      drupal_set_message(t('OpenURL PID email address has not been configured, please enter a valid email address in the <a href="@doi-admin-page">Scholar DOI configuration form</a>.', array('@doi-admin-page' => '/admin/islandora/solution_pack_config/scholar/islandora_doi')), 'error');
+    $openurl_pid = variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT);
+    $legacy_mode = variable_get('islandora_doi_use_legacy_mode', $openurl_pid !== ISLANDORA_DOI_OPENURL_PID_DEFAULT);
+    if ($legacy_mode && $openurl_pid == ISLANDORA_DOI_OPENURL_PID_DEFAULT) {
+      drupal_set_message(t('OpenURL PID email address has not been configured, please enter a valid email address in the <a href="@doi-admin-page">Scholar DOI configuration form</a> or use the non-legacy mode.', array('@doi-admin-page' => '/admin/islandora/solution_pack_config/scholar/islandora_doi')), 'error');
     }
     else {
       return array(
         'fs' => array(
           '#type' => 'fieldset',
           '#title' => t('DOI Batch Journal Importer'),
-          '#description' => t('Provide either a list of Digital Object Identifiers in a file, or enter DOIs in the textarea below. In either case, the DOIs in the list should be separated by either whitespace or commas (or some combination thereof). NOTE: Presently, only journal (articles) are supported.'),
+          '#description' => t('Provide either a list of Digital Object Identifiers in a file, or enter DOIs in the textarea below. In either case, the DOIs in the list should be separated by either whitespace or commas (or some combination thereof). NOTE: Presently, only journal (articles) from CrossREF are supported.'),
           'file' => array(
             '#type' => 'managed_file',
             '#title' => t('File of DOIs'),
@@ -118,6 +119,13 @@ class DOIImportObject extends IslandoraImportObject {
   protected $mods;
 
   /**
+   * Source content type.
+   *
+   * @var string
+   */
+  protected $source_content_type;
+
+  /**
    * Get an item from the source.
    *
    * @see IslandoraImportObject::getOne()
@@ -126,29 +134,17 @@ class DOIImportObject extends IslandoraImportObject {
     $id = array_shift($ids);
 
     module_load_include('inc', 'islandora_doi', 'includes/utilities');
-    $response = islandora_doi_perform_request($id);
-    $headers = array_change_key_case($response->headers);
-    if ($response->data &&
-      strpos($headers['content-type'], 'text/html') === FALSE &&
-      strpos($response->data, "Malformed DOI") === FALSE) {
-
-      $crossref_xml = simplexml_load_string($response->data);
-      // Totally don't support books so let's not attempt to make records that
-      // are actually books!
-      if ($crossref_xml->doi_record->crossref->error) {
-        return FALSE;
-      }
-      elseif (!$crossref_xml->doi_record->crossref->journal) {
-        drupal_set_message(t("Only the 'Journal' type is currently supported for DOI importing."), 'error');
-        return FALSE;
-      }
-      else {
-        return new self($response->data);
-      }
-    }
-    else {
+    $source_array = islandora_doi_get_source($id);
+    if ($source_array === FALSE) {
       return FALSE;
     }
+    $content_types = array_keys($source_array);
+    // There should be only one, but just take the first to be sure.
+    $content_type = array_shift($content_types);
+    $source_string = $source_array[$content_type];
+    $toreturn = new self($source_string);
+    $toreturn->source_content_type = $content_type;
+    return $toreturn;
   }
 
   /**
@@ -162,7 +158,7 @@ class DOIImportObject extends IslandoraImportObject {
       module_load_include('inc', 'islandora_doi', 'includes/utilities');
       $doi_xml = new DOMDocument('1.0');
       $doi_xml->loadXML($this->source);
-      $this->mods = islandora_doi_transform_to_mods($doi_xml)->saveXML();
+      $this->mods = islandora_doi_transform_to_mods($doi_xml, $this->source_content_type)->saveXML();
     }
 
     return $this->mods;

@@ -6,6 +6,48 @@
  */
 
 /**
+ * Global variable containing an array, where the keys are acceptable content
+ * types and their values are handler function names for those types. The
+ * functions are supposed to translate the returned XML data into MODS.
+ *
+ * Note: At the time of writing, @link https//doi.org doi.org @endlink was able
+ * to perform the content negociation as explained on
+ * @link https://www.crosscite.org/docs.html crosscite.org. @endlink Since we
+ * are using the array keys to construct the Accept header of the HTTP request,
+ * their order plays a role. So far, the requests alone were tested
+ * simultaneously for @link https://www.crossref.org CrossRef, @endlink
+ * @link https://datacite.org DataCite @endlink and
+ * @link https://www.medra.org mEDRA. @endlink (content types
+ * 'application/vnd.crossref.unixref+xml',
+ * 'application/vnd.datacite.datacite+xml' and
+ * 'application/vnd.medra.onixdoi+xml', respectively). It was noticed that:
+ * - qvalues are not supported (see
+ *   https://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html)
+ * - DataCite will only deliver if its content type comes first.
+ * You may want to take into account those findings when extending this
+ * module to support other metadata providers.
+ */
+global $_islandora_doi_content_translators;
+$_islandora_doi_content_translators = array(
+  'application/vnd.crossref.unixref+xml' => 'islandora_doi_crossref_translator',
+);
+
+/**
+ * Global variable containing an array, where the keys are acceptable content
+ * types and their values are validator function names for those types. The
+ * functions are supposed to validate the string data returned by the metadata
+ * provider, returning TRUE if the content is valid, FALSE otherwise.
+ *
+ * To improve error messages, the function's first argument should be the DOI
+ * of the item to be ingested. For content types that need no validation, just
+ * omit their keys here.
+ */
+global $_islandora_doi_content_validators;
+$_islandora_doi_content_validators = array(
+  'application/vnd.crossref.unixref+xml' => 'islandora_doi_crossref_validator',
+);
+
+/**
  * Get the DOI name for the given url.
  *
  * @param string $doi_url
@@ -26,7 +68,7 @@ function islandora_doi_get_doi_name_from_url($doi_url) {
 }
 
 /**
- * Perform a request to CrossRef for the given ID.
+ * Perform a request to a metadata provider for the given ID.
  *
  * @param string $id_or_url
  *   A DOI to lookop. May be provided with or without the "doi:" prefix. Can
@@ -36,57 +78,46 @@ function islandora_doi_get_doi_name_from_url($doi_url) {
  *   An object as provided by drupal_http_request().
  */
 function islandora_doi_perform_request($id_or_url) {
+  global $_islandora_doi_content_translators;
   // Allows for $id to pass a DOI url string or the DOI name.
   $id = islandora_doi_get_doi_name_from_url($id_or_url);
-  $openurl = variable_get('islandora_doi_openurl', 'http://www.crossref.org/openurl');
-  $openurl_pid = variable_get('islandora_doi_openurl_pid', 'user@example.com');
-  $url = url($openurl, array(
-           'query' => array(
-             'noredirect' => 'true',
-             'pid' => $openurl_pid,
-             'format' => 'unixref',
-             'id' => ((strpos($id, 'doi:') === 0) ? $id : 'doi:' . $id),
-           ),
-  ));
+  $options = array();
+  if (variable_get('islandora_doi_use_legacy_mode', variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT) !== ISLANDORA_DOI_OPENURL_PID_DEFAULT) === TRUE) {
+    $openurl = variable_get('islandora_doi_openurl', ISLANDORA_DOI_OPENURL_DEFAULT);
+    $openurl_pid = variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT);
+    $url = url($openurl, array(
+             'query' => array(
+               'noredirect' => 'true',
+               'pid' => $openurl_pid,
+               'format' => 'unixref',
+               'id' => ((strpos($id, 'doi:') === 0) ? $id : 'doi:' . $id),
+             ),
+    ));
+  }
+  else {
+    $doiurl = variable_get('islandora_doi_doiurl', ISLANDORA_DOI_DOIURL_DEFAULT);
+    $url = url($doiurl . '/' . $id);
+    $options = array(
+      'headers' => array(
+        'Accept' => implode(', ', array_keys($_islandora_doi_content_translators)),
+      ),
+      'max_redirects' => 1,
+    );
+  }
 
-  return drupal_http_request($url);
+  return drupal_http_request($url, $options);
 }
 
 /**
  * Produce MODS from the given CrossRef XML.
  *
- * @param mixed $doi_xml
- *   XML containing the parsed response from CrossRef. Should be passed as a 
- *   DOMDocument, but also works with a SimpleXMLElement.
+ * @param DOMDocument $crossref_xml
+ *   DOMDocument containing the parsed response from CrossRef.
  *
  * @return DOMDocument|bool
  *   A DOMDocument containing the constructed MODS, or FALSE on failure.
- *
- * @throws Exception
- *   If passed a SimpleXMLElement that can't be converted to DOMDocument.
- *
- * @throws InvalidArgumentException
- *   If passed something other than DOMDocument or SimpleXMLElement.
  */
-function islandora_doi_transform_to_mods($doi_xml) {
-  // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it
-  // is a SimpleXMLElement, convert it.
-  if ($doi_xml instanceof SimpleXMLElement) {
-    // Warning message: Converting from SimpleXMLElement.
-    watchdog('Islandora DOI', 'islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.');
-    trigger_error(t('islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.'));
-    $dom_xml = new DOMDocument();
-    if (!$dom_xml = dom_import_simplexml($doi_xml)) {
-      // Error message: Failed to convert from SimpleXMLElement.
-      throw new Exception('Failed to convert SimpleXMLElement to DOMDocument');
-    }
-    $doi_xml = $dom_xml;
-  }
-  elseif (!($doi_xml instanceof DOMDocument)) {
-    // Error message: Not supplied with a DOMDocument.
-    throw new InvalidArgumentException('islandora_doi_transform_to_mods should take a DOMDocument');
-  }
-
+function islandora_doi_crossref_translator($crossref_xml) {
   // Create MODS XML.
   $mods = new DOMDocument('1.0');
   $mods->loadXML('<mods xmlns="http://www.loc.gov/mods/v3" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink"/>');
@@ -94,7 +125,7 @@ function islandora_doi_transform_to_mods($doi_xml) {
   // @todo Implement book support.
 
   // Add metadata for journal articles.
-  foreach ($doi_xml->getElementsByTagName('journal') as $journal) {
+  foreach ($crossref_xml->getElementsByTagName('journal') as $journal) {
     $genre = $mods->createElement('genre');
     $genre->nodeValue = 'article';
     $mods->firstChild->appendChild($genre);
@@ -555,30 +586,200 @@ function islandora_doi_transform_to_mods($doi_xml) {
 }
 
 /**
+ * Validate CrossRef data.
+ *
+ * @param string $id
+ *   A DOI.
+ * @param string $data
+ *   A string containing the data returned by CrossRef for the DOI.
+ *
+ * @return bool
+ *   TRUE, if the content is valid and should be transformed to MODS, FALSE
+ *   otherwise.
+ */
+function islandora_doi_crossref_validator($id, $crossref_data) {
+  $doi = islandora_doi_get_doi_name_from_url($id);
+  $crossref_xml = simplexml_load_string($crossref_data);
+  if ($crossref_xml->doi_record->crossref->error) {
+    // This should only occur in legacy mode.
+    drupal_set_message(t("CrossREF reports the DOI '@doi' as erroneous.", array(
+        '@doi' => $doi,
+      )), 'error');
+    return FALSE;
+  }
+  // Totally don't support books so let's not attempt to make records that
+  // are actually books!
+  if (!$crossref_xml->doi_record->crossref->journal) {
+    drupal_set_message(t("Only the 'Journal' type is currently supported for DOI importing (offending DOI: '@doi').", array(
+        '@doi' => $doi,
+      )), 'error');
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * Produce MODS from the given metadata provider XML.
+ *
+ * @param mixed $doi_xml
+ *   XML containing the parsed response from the metadata provider. Should be
+ *   passed as a DOMDocument, but also works with a SimpleXMLElement.
+ * @param string $content_type
+ *   Optional parameter specifying the content type to translate (defaults to
+ *   'application/vnd.crossref.unixref+xml', i.e. CrossRef data).
+ *
+ * @return DOMDocument|bool
+ *   A DOMDocument containing the constructed MODS, or FALSE on failure.
+ *
+ * @throws Exception
+ *   If passed a SimpleXMLElement that can't be converted to DOMDocument.
+ *
+ * @throws InvalidArgumentException
+ *   If passed something other than DOMDocument or SimpleXMLElement.
+ */
+function islandora_doi_transform_to_mods($doi_xml, $content_type = 'application/vnd.crossref.unixref+xml') {
+  global $_islandora_doi_content_translators;
+  if (!array_key_exists($content_type, $_islandora_doi_content_translators)) {
+    // Warning message: Translator not yet implemented.
+    $err_msg = 'The requested translator for content \'@content_type\' has not yet been implemented. Returning FALSE...';
+    $err_msg_vars = array(
+      '@content_type' => $content_type,
+    );
+    watchdog('Islandora DOI', $err_msg, $err_msg_vars);
+    trigger_error(t($err_msg, $err_msg_vars));
+    return FALSE;
+  }
+  // Make sure doi_xml is a DOMDocument. Otherwise show a warning and, if it
+  // is a SimpleXMLElement, convert it.
+  if ($doi_xml instanceof SimpleXMLElement) {
+    // Warning message: Converting from SimpleXMLElement.
+    $err_msg = 'islandora_doi_transform_to_mods should be passed a DOMDocument but received a SimpleXMLElement. Attempting to convert the SimpleXMLElement to a DOMDocument. Code should be updated to call islandora_doi_transform_to_mods with a DOMDocument instead.';
+    watchdog('Islandora DOI', $err_msg);
+    trigger_error(t($err_msg));
+    $dom_xml = new DOMDocument();
+    if (!$dom_xml = dom_import_simplexml($doi_xml)) {
+      // Error message: Failed to convert from SimpleXMLElement.
+      throw new Exception('Failed to convert SimpleXMLElement to DOMDocument');
+    }
+    $doi_xml = $dom_xml;
+  }
+  elseif (!($doi_xml instanceof DOMDocument)) {
+    // Error message: Not supplied with a DOMDocument.
+    throw new InvalidArgumentException('islandora_doi_transform_to_mods should take a DOMDocument');
+  }
+
+  return $_islandora_doi_content_translators[$content_type]($doi_xml);
+}
+
+/**
+ * Get the content type and source string for the given DOI.
+ *
+ * @param string $id
+ *   A DOI.
+ *
+ * @return array|bool
+ *   A single-valued array, where the key is the content type and the value is
+ *   the source data string as returned by the metadata provider, or FALSE if
+ *   either an error occured or the source data is invalid according to the
+ *   validator.
+ */
+function islandora_doi_get_source($id) {
+  global $_islandora_doi_content_translators;
+  global $_islandora_doi_content_validators;
+  $response = islandora_doi_perform_request($id);
+  $headers = array_change_key_case($response->headers);
+  if (variable_get('islandora_doi_use_legacy_mode', variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT) !== ISLANDORA_DOI_OPENURL_PID_DEFAULT) === TRUE) {
+    // In legacy mode, we only queried CrossRef.
+    if (!$response->data ||
+      strpos($headers['content-type'], 'text/html') !== FALSE ||
+      strpos($response->data, "Malformed DOI") !== FALSE) {
+      drupal_set_message(t('\'@doi\' does not seem to be a valid CrossREF DOI.', array(
+        '@doi' => islandora_doi_get_doi_name_from_url($id),
+      )), 'error');
+      return FALSE;
+    }
+    $content_type = 'application/vnd.crossref.unixref+xml';
+  }
+  else {
+    // In non-legacy mode, the response may come from any metadata provider
+    // or @link https://doi.org doi.org @endlink itself.
+    if (!$response->data ||
+      !isset($response->code) || $response->code != 200 || isset($response->error) ||
+      !array_key_exists($headers['content-type'], $_islandora_doi_content_translators)) {
+      $err_406_msg = 'It seems that the metadata provider for \'@doi\' has no content we can handle.';
+      if (isset($response->error)) {
+        if (isset($response->code) && $response->code == 406) {
+          // We should always find ourselves here when the DOI exists but we
+          // requested content types the metadata provider does not support.
+          // Unfortunately, not all providers behave as expected, which
+          // explains the slightly more convoluted construction below.
+          $err_msg = $err_406_msg;
+        }
+        elseif (isset($response->code) && $response->code == 404) {
+          // We would expect this to be the response for invalid DOIs only,
+          // but this is not the case...
+          $err_msg = '\'@doi\' does not appear to be a valid DOI';
+          // We know that, e.g., DataCite will return 404 if the first content
+          // type in the Accept header differs from
+          // 'application/vnd.datacite.datacite+xml'. It seems that truly invalid
+          // DOIs get redirected to https://www.doi.org when https://doi.org is
+          // queried.
+          if (isset($response->redirect_url) &&
+            preg_match('/^https?:\/\/www.doi.org/', $response->redirect_url) !== 1) {
+            $err_msg .= ' (or the metadata provider for this DOI has no content we can handle)';
+          }
+          $err_msg .= '.';
+        }
+      }
+      elseif (isset($response->code) && $response->code >= 300 && $response->code <= 308 &&
+        isset($response->redirect_url)) {
+        // The metadata provider tries to redirect us, in all likelyhood to
+        // the publisher's website. We treat this the same as 406 above.
+        $err_msg = $err_406_msg;
+      }
+      if (isset($err_msg)) {
+        drupal_set_message(t($err_msg, array(
+          '@doi' => islandora_doi_get_doi_name_from_url($id),
+        )), 'error');
+      }
+      return FALSE;
+    }
+    $content_type = $headers['content-type'];
+  }
+  if (array_key_exists($content_type, $_islandora_doi_content_validators) &&
+    $_islandora_doi_content_validators[$content_type]($id, $response->data) !== TRUE) {
+    // No error message here, since the validator should take care of that.
+    return FALSE;
+  }
+
+  return array($content_type => $response->data);
+}
+
+/**
  * Get MODS for the given DOI.
  *
  * @param string $id
  *   A DOI.
  *
- * @return SimpleXMLElement|bool
- *   A SimpleXMLElement containing a MODS document, or FALSE if either an error
+ * @return DOMDocument|bool
+ *   A DOMDocument containing a MODS document, or FALSE if either an error
  *   occured or nothing could be transformed.
  */
 function islandora_doi_get_mods($id) {
-  $response = islandora_doi_perform_request($id);
-  $headers = array_change_key_case($response->headers);
-  if ($response->data &&
-    strpos($headers['content-type'], 'text/html') === FALSE &&
-    strpos($response->data, "Malformed DOI") === FALSE) {
-    $crossref_xml = new DOMDocument('1.0');
-    if (!$crossref_xml->loadXML($response->data)) {
-      return FALSE;
-    }
-    else {
-      return islandora_doi_transform_to_mods($crossref_xml);
-    }
-  }
-  else {
+  global $_islandora_doi_content_translators;
+  $source_array = islandora_doi_get_source($id);
+  if ($source_array === FALSE) {
     return FALSE;
   }
+  $content_types = array_keys($source_array);
+  // There should be only one, but just take the first to be sure.
+  $content_type = array_shift($content_types);
+  $source_string = $source_array[$content_type];
+  $xml = new DOMDocument('1.0');
+  if (!$xml->loadXML($source_string)) {
+    return FALSE;
+  }
+
+  return islandora_doi_transform_to_mods($xml, $content_type);
 }

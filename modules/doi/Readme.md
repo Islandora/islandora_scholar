@@ -18,7 +18,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-See admin/islandora/solution_pack_config/scholar/islandora_doi for setting CrossREF URL and registered email.
+See admin/islandora/solution_pack_config/scholar/islandora_doi for setting DOI URL, CrossREF URL and registered email.
 
 ## Maintainers/Sponsors
 
