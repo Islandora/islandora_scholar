@@ -40,6 +40,14 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_romeo_cache_time',
     'islandora_scholar_create_fulltext',
     'islandora_scholar_preview_density',
+    'islandora_scholar_google_scholar_search_enabled',
+    'islandora_scholar_google_scholar_primary_search_xpath',
+    'islandora_scholar_google_scholar_default_search_xpath',
+    'islandora_scholar_library_catalog_search_enabled',
+    'islandora_scholar_library_catalog_search_URL',
+    'islandora_scholar_library_catalog_search_params',
+    'islandora_scholar_library_catalog_primary_search_xpath',
+    'islandora_scholar_library_catalog_default_search_xpath',
   );
   array_walk($variables, 'variable_del');
 }
