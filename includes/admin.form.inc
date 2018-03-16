@@ -49,6 +49,12 @@ function islandora_scholar_admin_form() {
       '#description' => t('Various parameters used by Google Scholar Search'),
       '#collapsible' => TRUE,
     ),
+    'library_catalog_search' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Library Catalog Search configuration'),
+      '#description' => t('Various parameters used by your Library Catalog'),
+      '#collapsible' => TRUE,
+    ),
   );
 
   $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search_enabled', FALSE, array(
@@ -76,6 +82,52 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_search_enabled', FALSE, array(
+    '#type' => 'checkbox',
+    '#title' => t('Render Library Catalog Search link'),
+    '#description' => t('Enable Searching in your library discovery layer.'),
+  ));
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_search_URL', '', array(
+    '#type' => 'textfield',
+    '#title' => t('Library Catalog Location'),
+    '#description' => t('The search URL for your library discovery layer. Example: https://yoursite.discoveryservice.serviceprovider.com'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_library_catalog_search_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_search_params', '/search?s.q=', array(
+    '#type' => 'textfield',
+    '#title' => t('Library Search Parameters'),
+    '#description' => t('The search parameters for your library discovery layer. Default configuration for Summon discovery layer is shown.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_library_catalog_search_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_primary_search_xpath', "//mods:identifier[@type=\"doi\"]", array(
+    '#type' => 'textfield',
+    '#title' => t('Library Catalog Primary Search XPath'),
+    '#description' => t('The primary xpath you want to use to search.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_library_catalog_search_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_default_search_xpath', "//mods:title", array(
+    '#type' => 'textfield',
+    '#title' => t('Library Catalog Default Search XPath'),
+    '#description' => t('The default xpath you want to use to search'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_library_catalog_search_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+
   $form['romeo'] += _islandora_scholar_add_variable('islandora_scholar_romeo_enable', FALSE, array(
     '#type' => 'checkbox',
     '#title' => t('Enable RoMEO attempts.'),
@@ -83,7 +135,7 @@ function islandora_scholar_admin_form() {
   ));
   $form['romeo'] += _islandora_scholar_add_variable('islandora_scholar_romeo_url', 'http://www.sherpa.ac.uk/romeo/api29.php', array(
     '#title' => t('Sherpa/RoMEO URL'),
-    '#description' => t('The URL to which to make requests.'),
+    '#description' => t('The URL to which to make requests. Default is http://www.sherpa.ac.uk/romeo/api29.php'),
   ));
   $form['romeo'] += _islandora_scholar_add_variable('islandora_scholar_romeo_key', '', array(
     '#title' => t('Sherpa/RoMEO API Key'),

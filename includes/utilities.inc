@@ -72,6 +72,38 @@ function islandora_scholar_get_view(AbstractObject $object) {
         '#weight' => 0,
       );
     }
+
+    if (variable_get('islandora_scholar_library_catalog_search_enabled', FALSE)) {
+      // Library Catalog Search.
+      $mods_xml = simplexml_load_string($object['MODS']->content);
+      $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
+      // Search for library search URL.
+      $search_url = NULL;
+      $search_url = variable_get('islandora_scholar_library_catalog_search_URL', 'https://american.summon.serialssolutions.com');
+      // Search for library search parameters.
+      $search_params = NULL;
+      $search_params = variable_get('islandora_scholar_library_catalog_search_params', '/search?s.q=');
+      // Search for primary search term (usually DOI).
+      $search_term = NULL;
+      $primary_search = $mods_xml->xpath("" . variable_get('islandora_scholar_library_catalog_primary_search_xpath', '//mods:identifier[@type="doi"]'));
+      if ($primary_search) {
+        $search_term = (string) reset($primary_search);
+      }
+      if (!$search_term) {
+        // Search for default search term (usually title).
+        $default_search = $mods_xml->xpath("" . variable_get('islandora_scholar_library_catalog_default_search_xpath', '//mods:title'));
+        $search_term = (string) reset($default_search);
+      }
+      if (!$search_term) {
+        $search_term = $object->label;
+      }
+
+      $display['library_catalog_search'] = array(
+        '#type' => 'item',
+        '#markup' => l(t('Search for this publication in your library discovery service'), "$search_url$search_params\"$search_term\""),
+        '#weight' => 0,
+      );
+    }
   }
   else {
     $display['citation']['#markup'] = t('Unable to load MODS.');
