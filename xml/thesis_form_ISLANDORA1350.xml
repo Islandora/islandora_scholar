@@ -466,13 +466,16 @@
                   <schema/>
                   <type>xml</type>
                   <prefix>NULL</prefix>
-                  <value>&lt;name type='corporate' authority='lcnaf'&gt;&lt;role&gt;&lt;roleTerm authority="marcrelator" type="text"&gt;Degree granting institution&lt;/roleTerm&gt;&lt;/role&gt;&lt;/name&gt;</value>
+                  <value>&lt;name type='corporate' authority='lcnaf'&gt;%value%&lt;/name&gt;</value>
                 </create>
                 <read>
                   <path>mods:name[@type='corporate' and @authority='lcnaf']/mods:role[mods:roleTerm = 'Degree grantor']/.. |  mods:name[@type='corporate' and @authority='lcnaf']/mods:role[mods:roleTerm = 'Degree granting institution']/..</path>
                   <context>parent</context>
                 </read>
-                <update>NULL</update>
+                <update>
+                  <path>self::node()</path>
+                  <context>self</context>
+                </update>
                 <delete>
                   <path>self::node()</path>
                   <context>self</context>
@@ -480,6 +483,42 @@
               </actions>
             </properties>
             <children>
+              <element name="role-roleterm">
+                <properties>
+                  <type>hidden</type>
+                  <access>TRUE</access>
+                  <collapsed>FALSE</collapsed>
+                  <collapsible>FALSE</collapsible>
+                  <description>A hidden field for the role "Degree granting institution" which will update instances of "Degree grantor".  The value 'Degree granting institution' is hard-coded under Advanced Form Controls. </description>
+                  <disabled>FALSE</disabled>
+                  <executes_submit_callback>FALSE</executes_submit_callback>
+                  <multiple>FALSE</multiple>
+                  <required>FALSE</required>
+                  <resizable>FALSE</resizable>
+                  <tree>TRUE</tree>
+                  <value>Degree granting institution</value>
+                  <actions>
+                    <create>
+                      <path>self::node()</path>
+                      <context>parent</context>
+                      <schema/>
+                      <type>xml</type>
+                      <prefix>NULL</prefix>
+                      <value>&lt;role&gt;&lt;roleTerm authority="marcrelator" type="text"&gt;%value%&lt;/roleTerm&gt;&lt;/role&gt;</value>
+                    </create>
+                    <read>
+                      <path>mods:role[mods:roleTerm = 'Degree grantor'] | mods:role[mods:roleTerm = 'Degree granting institution']</path>
+                      <context>parent</context>
+                    </read>
+                    <update>
+                      <path>mods:role/mods:roleTerm</path>
+                      <context>parent</context>
+                    </update>
+                    <delete>NULL</delete>
+                  </actions>
+                </properties>
+                <children/>
+              </element>
               <element name="institution">
                 <properties>
                   <type>textfield</type>
