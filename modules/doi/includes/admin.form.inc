@@ -17,12 +17,13 @@
  *   The Drupal form definition.
  */
 function islandora_doi_admin_form(array $form, array &$form_state) {
+  form_load_include($form_state, 'inc', 'islandora_doi', 'includes/utilities');
   $form += array(
     'islandora_doi_use_legacy_mode' => array(
       '#type' => 'checkbox',
       '#title' => t('Use legacy retrieval mode'),
-      '#description' => t("Keep fetching metadata directly from CrossREF's OpenURL (account required!). If unchecked, use content negociation as explained by https://www.crosscite.org."),
-      '#default_value' => variable_get('islandora_doi_use_legacy_mode', variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT) !== ISLANDORA_DOI_OPENURL_PID_DEFAULT),
+      '#description' => t("Keep fetching metadata directly from CrossREF's OpenURL (account required!). If unchecked, use content negotiation as explained by https://www.crosscite.org."),
+      '#default_value' => islandora_doi_use_legacy_mode(),
     ),
     'islandora_doi_url_config' => array(
       '#type' => 'fieldset',
@@ -34,7 +35,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
   $form['islandora_doi_url_config'] += array(
     'islandora_doi_doiurl' => array(
       '#type' => 'textfield',
-      '#title' => t('DOI URL supporting content negociation'),
+      '#title' => t('DOI URL supporting content negotiation'),
       '#description' => t("The URL which we will query in non-legacy mode to obtain our metadata (it is probably not recommended to change this from the default value '@url').", array(
         '@url' => ISLANDORA_DOI_DOIURL_DEFAULT,
       )),

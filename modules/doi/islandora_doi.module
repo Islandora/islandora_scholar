@@ -5,9 +5,9 @@
  * Support code to harvest records, given DOIs.
  */
 
-define('ISLANDORA_DOI_OPENURL_DEFAULT', 'http://www.crossref.org/openurl');
-define('ISLANDORA_DOI_OPENURL_PID_DEFAULT', 'user@example.com');
-define('ISLANDORA_DOI_DOIURL_DEFAULT', 'https://doi.org');
+const ISLANDORA_DOI_OPENURL_DEFAULT = 'http://www.crossref.org/openurl';
+const ISLANDORA_DOI_OPENURL_PID_DEFAULT = 'user@example.com';
+const ISLANDORA_DOI_DOIURL_DEFAULT = 'https://doi.org';
 
 /**
  * Implements hook_menu().
