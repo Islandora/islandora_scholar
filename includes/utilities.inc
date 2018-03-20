@@ -204,7 +204,7 @@ function islandora_scholar_get_metadata_display($object, $weight) {
     module_load_include('inc', 'islandora_scholar', 'includes/coins');
     $display = array(
       '#type' => 'fieldset',
-      '#title' => t('Metadata'),
+      '#title' => t('Details'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#weight' => $weight,
