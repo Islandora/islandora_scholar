@@ -26,6 +26,37 @@ function islandora_doi_get_doi_name_from_url($doi_url) {
 }
 
 /**
+ * Check to see if supplied OpenURL PID email works.
+ *
+ * @param string $email
+ *   An email to test
+ *
+ * @return bool 
+ *   TRUE if email is valid, FALSE if invalid.
+ */
+function islandora_doi_openurl_pid_valid($email) {
+  $id = islandora_doi_get_doi_name_from_url('10.5555/12345678');
+  $openurl = variable_get('islandora_doi_openurl', 'http://www.crossref.org/openurl');
+  $url = url($openurl, array(
+           'query' => array(
+             'noredirect' => 'true',
+             'pid' => $email,
+             'format' => 'unixref',
+             'id' => 'doi:10.5555/12345678',
+           ),
+  ));
+
+  $response = drupal_http_request($url);
+  $response_content_type = $response->headers['content-type'];
+  if ($response_content_type == 'text/xml;charset=UTF-8') {
+    return TRUE; 
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
  * Perform a request to CrossRef for the given ID.
  *
  * @param string $id_or_url
