@@ -31,7 +31,7 @@ function islandora_doi_get_doi_name_from_url($doi_url) {
  * @param string $email
  *   An email to test
  *
- * @return bool 
+ * @return bool
  *   TRUE if email is valid, FALSE if invalid.
  */
 function islandora_doi_openurl_pid_valid($email) {
@@ -49,7 +49,7 @@ function islandora_doi_openurl_pid_valid($email) {
   $response = drupal_http_request($url);
   $response_content_type = $response->headers['content-type'];
   if ($response_content_type == 'text/xml;charset=UTF-8') {
-    return TRUE; 
+    return TRUE;
   }
   else {
     return FALSE;
