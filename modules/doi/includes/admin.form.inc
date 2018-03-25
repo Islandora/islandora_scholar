@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Handles the display/submission of the admin settings form for the Islandora DOI module.
+ * Handles the display/submission of the admin settings form for Islandora DOI.
  */
 
 /**
