@@ -13,7 +13,17 @@
  *   otherwise.
  */
 function islandora_doi_use_legacy_mode() {
-  return (variable_get('islandora_doi_use_legacy_mode', variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT) !== ISLANDORA_DOI_OPENURL_PID_DEFAULT) === TRUE);
+  // Get current OpenURL PID.
+  $openurl_pid = variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT);
+  // Define the default for 'islandora_doi_use_legacy_mode' in dependence
+  // of whether or not the OpenURL PID is set. This is not to force upgraders
+  // to use the new mode.
+  // Note that we do not use booleans, since checkboxes return integers.
+  $use_legacy_mode_default = ($openurl_pid !== ISLANDORA_DOI_OPENURL_PID_DEFAULT) ? 1 : 0;
+  // Get the legacy mode status.
+  $use_legacy_mode = variable_get('islandora_doi_use_legacy_mode', $use_legacy_mode_default);
+  // Return the appropriate boolean.
+  return ($use_legacy_mode === 1);
 }
 
 /**

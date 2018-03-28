@@ -23,7 +23,9 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
       '#type' => 'checkbox',
       '#title' => t('Use legacy retrieval mode'),
       '#description' => t("Keep fetching metadata directly from CrossREF's OpenURL (account required!). If unchecked, use content negotiation as explained by https://www.crosscite.org."),
-      '#default_value' => islandora_doi_use_legacy_mode(),
+      '#default_value' => (islandora_doi_use_legacy_mode() === TRUE ? 1 : 0),
+      // Ensure correct return value if selected (although 1 is the default).
+      '#return_value' => 1,
     ),
     'islandora_doi_url_config' => array(
       '#type' => 'fieldset',
