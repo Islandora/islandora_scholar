@@ -52,7 +52,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     'islandora_doi_openurl_pid' => array(
       '#type' => 'textfield',
       '#title' => t('OpenURL PID'),
-      '#description' => t('An identifier to call yourself, for the OpenURL endpoint. To use this service you first need to register for an account here: http://www.crossref.org/requestaccount/'),
+      '#description' => t('An identifier to call yourself, for the OpenURL endpoint. To use this service you first need to register for an account here: https://www.crossref.org/requestaccount/'),
       '#default_value' => variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT),
     ),
   );
