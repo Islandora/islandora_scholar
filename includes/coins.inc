@@ -350,9 +350,7 @@ function islandora_scholar_details($object) {
     extract($coins->renderView());
     return array(
       '#type' => 'item',
-      '#title' => t('MODS Metadata'),
       '#markup' => theme('table', array(
-        'header' => $headers,
         'rows' => $rows,
       )),
     );

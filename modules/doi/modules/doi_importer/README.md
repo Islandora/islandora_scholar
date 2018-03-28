@@ -19,7 +19,7 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-Set the value for `OpenURL PID` at `admin/islandora/scholar/doi_importer` as CrossRef does not allow guest searching.
+Set the value for "OpenURL PID" at `admin/islandora/scholar/doi_importer` as CrossRef does not allow guest searching, or just use the new content negotiation based metadata retrieval.
 
 ## Troubleshooting/Issues
 
