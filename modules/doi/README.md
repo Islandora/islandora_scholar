@@ -18,7 +18,11 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 
 ## Configuration
 
-See admin/islandora/solution_pack_config/scholar/islandora_doi for setting CrossREF URL and registered email.
+By default, no configuration is required.
+
+If you wish to use the legacy CrossREF OpenURL endpoint, you must enable it and enter your "OpenURL PID" at `admin/islandora/solution_pack_config/scholar/islandora_doi`.
+
+It is possible to change the URL against which content negotiation requests are made by changing the "DOI URL supporting content negotiation" URL at `admin/islandora/solution_pack_config/scholar/islandora_doi`.
 
 ## Maintainers/Sponsors
 
