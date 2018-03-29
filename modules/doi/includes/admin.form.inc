@@ -69,18 +69,16 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
  *   The Drupal form state.
  */
 function islandora_doi_admin_form_validate($form, &$form_state) {
-  $use_legacy_mode = ($form_state['values']['islandora_doi_use_legacy_mode'] === 1);
-  $openurl_pid = $form_state['values']['islandora_doi_openurl_pid'];
-  if ($use_legacy_mode) {
-    if ($openurl_pid == ISLANDORA_DOI_OPENURL_PID_DEFAULT) {
-      form_set_error('islandora_doi_openurl_pid', t("Please update the OpenURL PID; the default '@pid' is not valid in legacy mode.", array(
+  if ($form_state['values']['islandora_doi_use_legacy_mode'] === 1) {
+    if ($form_state['values']['islandora_doi_openurl_pid'] == ISLANDORA_DOI_OPENURL_PID_DEFAULT) {
+      form_set_error('islandora_doi_openurl_pid', t("Cannot use legacy mode, the default '@pid' is not a valid OpenURL PID. Please change it.", array(
         '@pid' => ISLANDORA_DOI_OPENURL_PID_DEFAULT,
       )));
     }
 
     form_load_include($form_state, 'inc', 'islandora_doi', 'includes/utilities');
-    if (!islandora_doi_openurl_pid_valid($openurl_pid)) {
-      form_set_error('islandora_doi_openurl_pid', t("Cannot use legacy mode, since there is an error with the provided OpenURL PID; is this identifier registered properly?"));
+    if (!islandora_doi_openurl_pid_valid($form_state['values']['islandora_doi_openurl_pid'])) {
+      form_set_error('islandora_doi_openurl_pid', t("Cannot use legacy mode, there is an error with the provided OpenURL PID. Is this identifier registered properly?"));
     }
   }
 }
