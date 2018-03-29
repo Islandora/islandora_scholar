@@ -13,7 +13,17 @@
  *   otherwise.
  */
 function islandora_doi_use_legacy_mode() {
-  return (variable_get('islandora_doi_use_legacy_mode', variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT) !== ISLANDORA_DOI_OPENURL_PID_DEFAULT) === TRUE);
+  // Get current OpenURL PID.
+  $openurl_pid = variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT);
+  // Define the default for 'islandora_doi_use_legacy_mode' in dependence
+  // of whether or not the OpenURL PID is set. This is not to force upgraders
+  // to use the new mode.
+  // Note that we do not use booleans, since checkboxes return integers.
+  $use_legacy_mode_default = ($openurl_pid !== ISLANDORA_DOI_OPENURL_PID_DEFAULT) ? 1 : 0;
+  // Get the legacy mode status.
+  $use_legacy_mode = variable_get('islandora_doi_use_legacy_mode', $use_legacy_mode_default);
+  // Return the appropriate boolean.
+  return ($use_legacy_mode === 1);
 }
 
 /**
@@ -88,34 +98,34 @@ function islandora_doi_get_doi_name_from_url($doi_url) {
 }
 
 /**
- * Check to see if supplied OpenURL PID email works.
+ * Check to see if supplied OpenURL PID works.
  *
- * @param string $email
- *   An email to test
+ * @param string $identifier
+ *   An identifier to test
  *
  * @return bool
- *   TRUE if email is valid, FALSE if invalid.
+ *   TRUE if identifier is valid, FALSE if invalid.
  */
-function islandora_doi_openurl_pid_valid($email) {
-  $id = islandora_doi_get_doi_name_from_url('10.5555/12345678');
-  $openurl = variable_get('islandora_doi_openurl', 'http://www.crossref.org/openurl');
+function islandora_doi_openurl_pid_valid($identifier) {
+  $openurl = variable_get('islandora_doi_openurl', ISLANDORA_DOI_OPENURL_DEFAULT);
   $url = url($openurl, array(
            'query' => array(
              'noredirect' => 'true',
-             'pid' => $email,
+             'pid' => $identifier,
              'format' => 'unixref',
+             // DOI recommended by CrossRef for testing.
              'id' => 'doi:10.5555/12345678',
            ),
   ));
 
   $response = drupal_http_request($url);
-  $response_content_type = $response->headers['content-type'];
+  $headers = array_change_key_case($response->headers);
+  $response_content_type = $headers['content-type'];
   if ($response_content_type == 'text/xml;charset=UTF-8') {
     return TRUE;
   }
-  else {
-    return FALSE;
-  }
+
+  return FALSE;
 }
 
 /**

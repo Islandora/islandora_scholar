@@ -23,7 +23,9 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
       '#type' => 'checkbox',
       '#title' => t('Use legacy retrieval mode'),
       '#description' => t("Keep fetching metadata directly from CrossREF's OpenURL (account required!). If unchecked, use content negotiation as explained by https://www.crosscite.org."),
-      '#default_value' => islandora_doi_use_legacy_mode(),
+      '#default_value' => (islandora_doi_use_legacy_mode() === TRUE ? 1 : 0),
+      // Ensure correct return value if selected (although 1 is the default).
+      '#return_value' => 1,
     ),
     'islandora_doi_url_config' => array(
       '#type' => 'fieldset',
@@ -50,7 +52,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     'islandora_doi_openurl_pid' => array(
       '#type' => 'textfield',
       '#title' => t('OpenURL PID'),
-      '#description' => t('An identifier to call yourself, for the OpenURL endpoint. To use this service you first need to register for an account here: http://www.crossref.org/requestaccount/'),
+      '#description' => t('An identifier to call yourself, for the OpenURL endpoint. To use this service you first need to register for an account here: https://www.crossref.org/requestaccount/'),
       '#default_value' => variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT),
     ),
   );
@@ -67,13 +69,18 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
  *   The Drupal form state.
  */
 function islandora_doi_admin_form_validate($form, &$form_state) {
+  $use_legacy_mode = ($form_state['values']['islandora_doi_use_legacy_mode'] === 1);
   $openurl_pid = $form_state['values']['islandora_doi_openurl_pid'];
-  if ($openurl_pid == 'user@example.com') {
-    form_set_error('islandora_doi_openurl_pid', t("Please update the OpenURL PID, 'user@example.org' isn't valid."));
-  }
+  if ($use_legacy_mode) {
+    if ($openurl_pid == ISLANDORA_DOI_OPENURL_PID_DEFAULT) {
+      form_set_error('islandora_doi_openurl_pid', t("Please update the OpenURL PID; the default '@pid' is not valid in legacy mode.", array(
+        '@pid' => ISLANDORA_DOI_OPENURL_PID_DEFAULT,
+      )));
+    }
 
-  module_load_include('inc', 'islandora_doi', 'includes/utilities');
-  if (!islandora_doi_openurl_pid_valid($openurl_pid)) {
-    form_set_error('islandora_doi_openurl_pid', t("Error with provided OpenURL PID; is this email registered properly?"));
+    form_load_include($form_state, 'inc', 'islandora_doi', 'includes/utilities');
+    if (!islandora_doi_openurl_pid_valid($openurl_pid)) {
+      form_set_error('islandora_doi_openurl_pid', t("Cannot use legacy mode, since there is an error with the provided OpenURL PID; is this identifier registered properly?"));
+    }
   }
 }
