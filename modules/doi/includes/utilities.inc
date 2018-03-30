@@ -129,7 +129,7 @@ function islandora_doi_openurl_pid_valid($identifier) {
 }
 
 /**
- * Perform a request to CrossRef for the given ID.
+ * Perform a request to metadata provider for the given ID.
  *
  * @param string $id_or_url
  *   A DOI to lookop. May be provided with or without the "doi:" prefix. Can
