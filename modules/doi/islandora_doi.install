@@ -28,7 +28,7 @@ function islandora_doi_update_7100() {
       'new_default' => ISLANDORA_DOI_OPENURL_DEFAULT,
     ),
     'islandora_doi_openurl_pid' => array(
-      'old_default' => 'user@example.org',
+      'old_default' => 'user@example.com',
       'new_default' => ISLANDORA_DOI_OPENURL_PID_DEFAULT,
     ),
   );
