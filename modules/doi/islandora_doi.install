@@ -25,11 +25,7 @@ function islandora_doi_update_7100() {
   $variables = array(
     'islandora_doi_openurl' => array(
       'old_default' => 'http://www.crossref.org/openurl',
-      'new_default' => ISLANDORA_DOI_OPENURL_DEFAULT,
-    ),
-    'islandora_doi_openurl_pid' => array(
-      'old_default' => 'user@example.com',
-      'new_default' => ISLANDORA_DOI_OPENURL_PID_DEFAULT,
+      'new_default' => 'https://www.crossref.org/openurl',
     ),
   );
   foreach ($variables as $variable => $info) {
