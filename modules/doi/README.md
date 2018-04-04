@@ -29,7 +29,6 @@ It is possible to change the URL against which content negotiation requests are 
 Current maintainers:
 
 * [Bryan Brown](https://github.com/bryjbrown)
-* [Don Richards](https://github.com/DonRichards)
 
 ## Development
 
