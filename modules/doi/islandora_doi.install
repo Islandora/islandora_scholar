@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * @file
+ * Install and update hook implementations.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function islandora_doi_uninstall() {
+  $variables = array(
+    'islandora_doi_doiurl',
+    'islandora_doi_openurl',
+    'islandora_doi_openurl_pid',
+    'islandora_doi_use_legacy_mode',
+  );
+  array_walk($variables, 'variable_del');
+}
+
+/**
+ * Update variable defaults.
+ */
+function islandora_doi_update_7100() {
+  $variables = array(
+    'islandora_doi_openurl' => array(
+      'old_default' => 'http://www.crossref.org/openurl',
+      'new_default' => 'https://www.crossref.org/openurl',
+    ),
+  );
+  foreach ($variables as $variable => $info) {
+    $value = variable_get($variable, $info['new_default']);
+    if ($value == $info['old_default']) {
+      variable_set($variable, $info['new_default']);
+    }
+  }
+}
