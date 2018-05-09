@@ -92,7 +92,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
       'image',
       array(
         'path' => "islandora/object/$object->id/datastream/PREVIEW/view",
-        'alt' => t('Preview Datastream'),
+        'alt' => t('PREVIEW Datastream'),
       )
     );
     if (isset($object['PDF']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PDF'])) {
