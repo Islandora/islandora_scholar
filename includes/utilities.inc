@@ -77,7 +77,6 @@ function islandora_scholar_get_view(AbstractObject $object) {
   else {
     $display['citation']['#markup'] = t('Unable to load MODS.');
   }
-
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   $viewer = islandora_get_viewer(array(), 'islandora_scholar_viewers', $object);
 
@@ -101,7 +100,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
           array(
             'html' => TRUE,
             'attributes' => array(
-              'alt' => t('PDF Datastream'),
+              'title' => t('PDF Datastream'),
             ),
           )
         ),
