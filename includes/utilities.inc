@@ -39,6 +39,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
       '#weight' => $i++,
     ),
   );
+
   if (isset($object['MODS']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
     module_load_include('inc', 'islandora_scholar', 'includes/csl_select.form');
     $display['citation_select'] = drupal_get_form('islandora_scholar_citation_select_form', $object->id);
@@ -108,7 +109,6 @@ function islandora_scholar_get_view(AbstractObject $object) {
   else {
     $display['citation']['#markup'] = t('Unable to load MODS.');
   }
-
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   $viewer = islandora_get_viewer(array(), 'islandora_scholar_viewers', $object);
 
@@ -119,20 +119,32 @@ function islandora_scholar_get_view(AbstractObject $object) {
     );
   }
   elseif (isset($object['PREVIEW']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PREVIEW'])) {
-    $image = theme('image', array(
+    $image = theme(
+      'image',
+      array(
         'path' => "islandora/object/$object->id/datastream/PREVIEW/view",
-      ));
+        'alt' => t('PREVIEW Datastream'),
+      )
+    );
     if (isset($object['PDF']) && islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['PDF'])) {
       $display['preview'] = array(
-        '#markup' => l($image, "islandora/object/$object->id/datastream/PDF/view", array(
+        '#markup' => l($image, "islandora/object/$object->id/datastream/PDF/view",
+          array(
             'html' => TRUE,
-          )),
+            'attributes' => array(
+              'title' => t('PDF Datastream'),
+            ),
+          )
+        ),
         '#weight' => $display['preview']['#weight'],
       );
     }
     else {
       $display['preview'] = array(
         '#theme' => 'image',
+        '#attributes' => array(
+          'alt' => t('PDF Preview'),
+        ),
         '#path' => "islandora/object/$object/datastream/PREVIEW/view",
         '#weight' => $display['preview']['#weight'],
       );
