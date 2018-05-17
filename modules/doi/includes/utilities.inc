@@ -319,7 +319,7 @@ function islandora_doi_crossref_translator($crossref_data) {
               foreach ($child->childNodes as $grandchild) {
                 switch ($grandchild->nodeName) {
                   case 'title':
-                    $article_title = $mods->importNode($grandchild, TRUE);
+                    $article_title = islandora_doi_create_html_stripped_element($mods, $crossref_xml, $grandchild, "title");
                     $titleinfo->appendChild($article_title);
                     break;
 
@@ -863,4 +863,33 @@ function islandora_doi_get_mods($id) {
   list($source_string, $content_type) = $source_array;
 
   return islandora_doi_translate($source_string, $content_type);
+}
+
+/**
+ * Strip HTML tags from imported XML metadata.
+ *
+ * @param DOMDocument $mods_domdoc
+ *   The DOMDocument representing the MODS record being built
+ *
+ * @param DOMDocument $doi_domdoc
+ *   DOMDocument representing the DOI metadata returned from Crossref
+ *
+ * @param DOMElement $doi_child_node
+ *   DOMElement representing a node of the $doi_domdoc being iterated through
+ *
+ * @param string $element_name
+ *   The name of the element being stripped and rebuilt
+ *
+ * @return DOMElement 
+ *   DOMElement newly created for inclusion in $mods_domdoc
+ */
+function islandora_doi_create_html_stripped_element($mods_domdoc, $doi_domdoc, $doi_child_node, $element_name) {
+  $element_text = $doi_domdoc->saveXML($doi_child_node);
+  $element_text = str_replace("<{$element_name}>", '', $element_text);
+  $element_text = str_replace("</{$element_name}>", '', $element_text);
+  $element_text = str_replace('<', '&lt;', $element_text);
+  $element_text = str_replace('>', '&gt;', $element_text);
+  $element_text = preg_replace('/\s+/', ' ', $element_text);
+  $element_node = $mods_domdoc->createElement($element_name, $element_text);
+  return $element_node;
 }
