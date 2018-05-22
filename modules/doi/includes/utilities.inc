@@ -879,24 +879,30 @@ function islandora_doi_get_mods($id) {
  *   The name of the element being stripped and rebuilt (optional)
  *
  * @return string 
- *   String filtered according to value of $islandora_doi_handle_improted_metadata 
+ *   String filtered using value of $islandora_doi_handle_improted_metadata 
  */
 function islandora_doi_filter_html($doi_domdoc, $doi_child_node, $element_name = FALSE) {
   $element_text = $doi_domdoc->saveXML($doi_child_node);
   $element_text = preg_replace('/\s+/', ' ', $element_text);
+
   if ($element_name) {
     $element_text = str_replace("<{$element_name}>", '', $element_text);
     $element_text = str_replace("</{$element_name}>", '', $element_text);
   }
+
   switch (variable_get('islandora_doi_handle_imported_metadata', 'strip')) {
     case 'strip':
       $element_text = strip_tags($element_text);
       break;
+
     case 'encode':
       $element_text = htmlspecialchars($element_text);
       break;
+
     default:
       break;
+
   }
+
   return $element_text;
 }
