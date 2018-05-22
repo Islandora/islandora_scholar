@@ -888,7 +888,7 @@ function islandora_doi_filter_html($doi_domdoc, $doi_child_node, $element_name =
     $element_text = str_replace("<{$element_name}>", '', $element_text);
     $element_text = str_replace("</{$element_name}>", '', $element_text);
   }
-  switch (variable_get('islandora_doi_handle_imported_metadata')) {
+  switch (variable_get('islandora_doi_handle_imported_metadata', 'strip')) {
     case 'strip':
       $element_text = strip_tags($element_text);
       break;

@@ -35,7 +35,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
         'strip' => t('Strip embedded HTML tags'),
         'encode' => t('Encode embedded HTML tags'),
       ),
-      '#default_value' => variable_get('islandora_doi_handle_imported_metadata'),
+      '#default_value' => variable_get('islandora_doi_handle_imported_metadata', 'strip'),
     ),
 
     'islandora_doi_url_config' => array(
