@@ -871,7 +871,6 @@ function islandora_doi_filter_html($text, $removals = FALSE) {
     $text = "";
   }
   else {
-
     if ($removals) {
       foreach ($removals as $removal) {
         $text = str_replace($removal, '', $text);
@@ -888,7 +887,7 @@ function islandora_doi_filter_html($text, $removals = FALSE) {
         break;
 
       default:
-        drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => variable_get('islandora_doi_handle_imported_metadata', 'strip'))), 'error'); 
+        drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => variable_get('islandora_doi_handle_imported_metadata', 'strip'))), 'error');
         break;
 
     }
