@@ -149,13 +149,13 @@ function drush_islandora_scholar_fix_doi_html_in_mods() {
   }
   $warnings = dt("WARNING: You are about to irrevocably alter datastream " .
   "content in place. Backups of modified datastreams, pre-alterations, " .
-  "will be stored in Drupal's temporary:// directory. ");
+  "will be stored in Drupal's temporary:// directory. \n");
   $warnings .= ($action == 'strip') ?
-  dt("You have chosen to strip errant HTML tags - this will result in data loss.") :
-  dt("You have chosen to encode errant HTML tags - this will by default result in unencoded tags being displayed to the user.");
-  $warnings .= dt(" Are you sure you wish to continue? ");
+  dt("You have chosen to strip errant HTML tags - this will result in data loss.\n") :
+  dt("You have chosen to encode errant HTML tags - this will by default result in unencoded tags being displayed to the user.\n");
+  $warnings .= dt("Are you sure you wish to continue? \n");
 
-  if (drush_confirm($warnings)) {
+  if (drush_confirm($warnings, 2)) {
     batch_set(islandora_scholar_fix_doi_html_in_mods_create_batch($action));
     drush_backend_batch_process();
   }
