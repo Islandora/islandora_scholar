@@ -141,14 +141,28 @@ EOQ;
  */
 function drush_islandora_scholar_fix_doi_html_in_mods() {
   $action = drush_get_option('action', variable_get('islandora_doi_handle_imported_metadata', FALSE));
-  if (!$action) {
+  if (!in_array($action, array('strip','encode'))) {
     drush_print("This function requires an option, since the GUI variable of how
      to handle DOI imports is not set. Please use `--action=encode` or
      `--action=strip`. For more information use `drush help islandora-scholar-fix-doi-html-in-mods`.");
     exit;
   }
-  batch_set(islandora_scholar_fix_doi_html_in_mods_create_batch($action));
-  drush_backend_batch_process();
+  $warnings = dt("WARNING: You are about to irrevocably alter datastream " .
+  "content in place. Backups of modified datastreams, pre-alterations, " .
+  "will be stored in Drupal's temporary:// directory. ");
+  $warnings .= ($action == 'strip') ?
+  dt("You have chosen to strip errant HTML tags - this will result in data loss.") :
+  dt("You have chosen to encode errant HTML tags - this will by default result in unencoded tags being displayed to the user.");
+  $warnings .= dt(" Are you sure you wish to continue? ");
+
+  if (drush_confirm($warnings)) {
+    batch_set(islandora_scholar_fix_doi_html_in_mods_create_batch($action));
+    drush_backend_batch_process();
+  }
+  else {
+    drush_user_abort(dt('Exiting, no datastreams changed.'));
+    exit;
+  }
 }
 
 function islandora_scholar_fix_doi_html_in_mods_create_batch($action) {
