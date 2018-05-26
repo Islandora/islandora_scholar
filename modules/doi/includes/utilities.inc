@@ -205,7 +205,7 @@ function islandora_doi_crossref_translator($crossref_data) {
             if (!is_null($child->firstChild)) {
               $titleinfo = $mods->createElement('titleInfo');
               $relateditem->appendChild($titleinfo);
-              $title_text = islandora_doi_filter_html($crossref_xml->saveXML($child->firstChild));
+              $title_text = islandora_doi_filter_html($child);
               $title = $mods->createElement('title', $title_text);
               $titleinfo->appendChild($title);
             }
@@ -218,7 +218,7 @@ function islandora_doi_crossref_translator($crossref_data) {
               $titleinfo_attribute->value = 'abbreviated';
               $titleinfo->appendChild($titleinfo_attribute);
               $relateditem->appendChild($titleinfo);
-              $title_text = islandora_doi_filter_html($crossref_xml->saveXML($child->firstChild));
+              $title_text = islandora_doi_filter_html($child);
               $title = $mods->createElement('title', $title_text);
               $titleinfo->appendChild($title);
             }
@@ -226,7 +226,7 @@ function islandora_doi_crossref_translator($crossref_data) {
 
           case 'issn':
             if (!is_null($child->firstChild)) {
-              $identifier_text = islandora_doi_filter_html($crossref_xml->saveXML($child->firstChild));
+              $identifier_text = islandora_doi_filter_html($child);
               $identifier = $mods->createElement('identifier', $identifier_text);
               $identifier_attribute = $mods->createAttribute('type');
               $identifier_attribute->value = 'issn';
@@ -246,15 +246,15 @@ function islandora_doi_crossref_translator($crossref_data) {
                 foreach ($child->childNodes as $date_part) {
                   switch ($date_part->nodeName) {
                     case 'month':
-                      $pubdate_month = islandora_doi_filter_html($date_part->nodeValue);
+                      $pubdate_month = islandora_doi_filter_html($date_part);
                       break;
 
                     case 'year':
-                      $pubdate_year = islandora_doi_filter_html($date_part->nodeValue);
+                      $pubdate_year = islandora_doi_filter_html($date_part);
                       break;
 
                     case 'day':
-                      $pubdate_day = islandora_doi_filter_html($date_part->nodeValue);
+                      $pubdate_day = islandora_doi_filter_html($date_part);
                       break;
                   }
                 }
@@ -317,7 +317,7 @@ function islandora_doi_crossref_translator($crossref_data) {
                 switch ($grandchild->nodeName) {
                   case 'title':
                     if (!is_null($grandchild)) {
-                      $article_title_text = islandora_doi_filter_html($crossref_xml->saveXML($grandchild), array('<title>', '</title>'));
+                      $article_title_text = islandora_doi_filter_html($grandchild);
                       $article_title = $mods->createElement('title', $article_title_text);
                       $titleinfo->appendChild($article_title);
                     }
@@ -325,7 +325,7 @@ function islandora_doi_crossref_translator($crossref_data) {
 
                   case 'subtitle':
                     if (!is_null($grandchild->firstChild)) {
-                      $article_subtitle_text = islandora_doi_filter_html($crossref_xml->saveXML($grandchild->firstChild));
+                      $article_subtitle_text = islandora_doi_filter_html($grandchild);
                       $article_subtitle = $mods->createElement('subTitle', $article_subtitle_text);
                       $titleinfo->appendChild($article_subtitle);
                     }
@@ -347,7 +347,7 @@ function islandora_doi_crossref_translator($crossref_data) {
                       }
                     }
                     if (!is_null($grandchild->firstChild)) {
-                      $translated_title_text = islandora_doi_filter_html($crossref_xml->saveXML($grandchild->firstChild));
+                      $translated_title_text = islandora_doi_filter_html($grandchild);
                       $translated_title = $mods->createElement('title', $translated_title_text);
                       $translated_titleinfo->appendChild($translated_title);
                     }
@@ -381,7 +381,7 @@ function islandora_doi_crossref_translator($crossref_data) {
                   switch ($person_part->nodeName) {
                     case 'given_name':
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($crossref_xml->saveXML($person_part->firstChild));
+                        $name_text = islandora_doi_filter_html($person_part);
                         $namepart = $mods->createElement('namePart', $name_text);
                         $name->appendChild($namepart);
                         $namepart_attribute = $mods->createAttribute('type');
@@ -392,7 +392,7 @@ function islandora_doi_crossref_translator($crossref_data) {
 
                     case 'surname':
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($crossref_xml->saveXML($person_part->firstChild));
+                        $name_text = islandora_doi_filter_html($person_part);
                         $namepart = $mods->createElement('namePart', $name_text);
                         $name->appendChild($namepart);
                         $namepart_attribute = $mods->createAttribute('type');
@@ -403,7 +403,7 @@ function islandora_doi_crossref_translator($crossref_data) {
 
                     case 'suffix':
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($crossref_xml->saveXML($person_part->firstChild));
+                        $name_text = islandora_doi_filter_html($person_part);
                         $terms_of_address = $mods->createElement('namePart', $name_text);
                         $name->appendChild($terms_of_address);
                         $terms_of_address_attribute = $mods->createAttribute('type');
@@ -414,7 +414,7 @@ function islandora_doi_crossref_translator($crossref_data) {
 
                     case 'affiliation':
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($crossref_xml->saveXML($person_part->firstChild));
+                        $name_text = islandora_doi_filter_html($person_part);
                         $affiliation = $mods->createElement('affiliation', $name_text);
                         $name->appendChild($affiliation);
                       }
@@ -427,7 +427,7 @@ function islandora_doi_crossref_translator($crossref_data) {
                     case 'contributor_role':
                       $role = $mods->createElement('role');
                       $name->appendChild($role);
-                      $roleterm_text = strtolower(islandora_doi_filter_html($att->nodeValue));
+                      $roleterm_text = strtolower(islandora_doi_filter_html($att));
                       $roleterm = $mods->createElement('roleTerm', $roleterm_text);
                       $role->appendChild($roleterm);
 
@@ -460,15 +460,15 @@ function islandora_doi_crossref_translator($crossref_data) {
                 foreach ($child->childNodes as $date_part) {
                   switch ($date_part->nodeName) {
                     case 'month':
-                      $pubdate_month = islandora_doi_filter_html($date_part->nodeValue);
+                      $pubdate_month = islandora_doi_filter_html($date_part);
                       break;
 
                     case 'year':
-                      $pubdate_year = islandora_doi_filter_html($date_part->nodeValue);
+                      $pubdate_year = islandora_doi_filter_html($date_part);
                       break;
 
                     case 'day':
-                      $pubdate_day = islandora_doi_filter_html($date_part->nodeValue);
+                      $pubdate_day = islandora_doi_filter_html($date_part);
                       break;
                   }
                 }
@@ -515,7 +515,7 @@ function islandora_doi_crossref_translator($crossref_data) {
                   switch ($identifier->nodeName) {
                     case 'doi':
                       if (!is_null($identifier->firstChild)) {
-                        $doi_text = islandora_doi_filter_html($identifier->firstChild);
+                        $doi_text = islandora_doi_filter_html($identifier);
                         $doi = $mods->createElement('identifier', $doi_text);
                         $mods->firstChild->appendChild($doi);
                         $doi_attribute = $mods->createAttribute('type');
@@ -526,7 +526,7 @@ function islandora_doi_crossref_translator($crossref_data) {
 
                     case 'resource':
                       if (!is_null($identifier->firstChild)) {
-                        $uri_text = islandora_doi_filter_html($identifier->firstChild);
+                        $uri_text = islandora_doi_filter_html($identifier);
                         $uri = $mods->createElement('identifier', $uri_text);
                         $mods->firstChild->appendChild($uri);
                         $uri_attribute = $mods->createAttribute('type');
@@ -632,7 +632,6 @@ function islandora_doi_crossref_translator($crossref_data) {
     // Return after first instance.
     return $mods;
   }
-
   return FALSE;
 }
 
@@ -842,7 +841,7 @@ function islandora_doi_get_source($id) {
  *
  * @return DOMDocument|bool
  *   A DOMDocument containing a MODS document, or FALSE if either an error
- *   occured or nothing could be transformed.
+ *   occurred or nothing could be transformed.
  */
 function islandora_doi_get_mods($id) {
   $source_array = islandora_doi_get_source($id);
@@ -857,27 +856,29 @@ function islandora_doi_get_mods($id) {
 /**
  * Filter HTML tags from imported XML metadata.
  *
- * @param string $text
- *   The text of the metadata to be filtered 
- *
- * @param array $removals
- *   An array of strings to be removed from $text prior to filtering
+ * @param DOMNode $node
+ *   The node containing metadata that should be converted into a string,
+ *   possibly containing markup.
  *
  * @return string 
- *   String filtered using value of $islandora_doi_handle_improted_metadata 
+ *   The node's inner content with markup escaped or stripped.
  */
-function islandora_doi_filter_html($text, $removals = FALSE) {
-  if (!$text) {
-    $text = "";
+function islandora_doi_filter_html($node, $action = NULL) {
+  if (!$node) {
+    return "";
   }
   else {
-    if ($removals) {
-      foreach ($removals as $removal) {
-        $text = str_replace($removal, '', $text);
-      }
+    $text  = '';
+    foreach ($node->childNodes as $child) {
+      $text .= $child->ownerDocument->saveXML($child);
     }
 
-    switch (variable_get('islandora_doi_handle_imported_metadata', 'strip')) {
+    $text = preg_replace('/\n\s+/', ' ', $text);
+
+    if (!$action) {
+      $action = variable_get('islandora_doi_handle_imported_metadata', 'strip');
+    }
+    switch ($action) {
       case 'strip':
         $text = strip_tags($text);
         break;
@@ -887,7 +888,7 @@ function islandora_doi_filter_html($text, $removals = FALSE) {
         break;
 
       default:
-        drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => variable_get('islandora_doi_handle_imported_metadata', 'strip'))), 'error');
+        drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => $action)), 'error');
         break;
 
     }
