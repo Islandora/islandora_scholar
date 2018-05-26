@@ -364,7 +364,7 @@ function islandora_doi_crossref_translator($crossref_data) {
                   $name_attribute = $mods->createAttribute('type');
                   $name_attribute->value = 'corporate';
                   $name->appendChild($name_attribute);
-                  $namepart_text = islandora_doi_filter_html($crossref_xml->saveXML($organization->firstChild));
+                  $namepart_text = islandora_doi_filter_html($organization);
                   $namepart = $mods->createElement('namePart');
                   $name->appendChild($namepart);
                 }
