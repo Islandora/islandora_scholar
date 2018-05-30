@@ -13,7 +13,7 @@ This module requires the following modules/libraries:
 * [Islandora Scholar](https://github.com/islandora/islandora_scholar)
 * [CSL](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/csl)
 
-Additionally, it is necessary to install the [citeproc-php](https://github.com/Islandora/citeproc-php) library into the `sites/all/libraries` directory, such that the main `CiteProc.php` file is located at `sites/all/libraries/citeproc-php/CiteProc.php`.
+Additionally, it is necessary to install the [citeproc-php](https://github.com/seboettg/citeproc-php) library using composer. This can be done by running the `composer install` command from the citeproc module folder.
 
 ## Installation
 
