@@ -141,7 +141,7 @@ EOQ;
  */
 function drush_islandora_scholar_fix_doi_html_in_mods() {
   $action = drush_get_option('action', variable_get('islandora_doi_handle_imported_metadata', FALSE));
-  if (!in_array($action, array('strip','encode'))) {
+  if (!in_array($action, array('strip', 'encode'))) {
     drush_print("This function requires an option, since the GUI variable of how
      to handle DOI imports is not set. Please use `--action=encode` or
      `--action=strip`. For more information use `drush help islandora-scholar-fix-doi-html-in-mods`.");
@@ -165,6 +165,9 @@ function drush_islandora_scholar_fix_doi_html_in_mods() {
   }
 }
 
+/**
+ * Batch info for drush command to update citations with HTML in MODS.
+ */
 function islandora_scholar_fix_doi_html_in_mods_create_batch($action) {
   return array(
     'operations' => array(
@@ -178,6 +181,9 @@ function islandora_scholar_fix_doi_html_in_mods_create_batch($action) {
   );
 }
 
+/**
+ * Batch operations for drush command to update citations with HTML in MODS.
+ */
 function islandora_scholar_fix_doi_html_in_mods_batch_operation($action, &$context) {
   $batch_size = 10;
   /* The islandora_doi_crossref_translator, which introduced the bug that this
@@ -226,8 +232,8 @@ EOQ;
     $doc->loadXML($object['MODS']->content);
     $needs_work = FALSE;
     /* The crossref metadata spec dictates that 'Face markup' can only be
-    present in title, subtitle, original_language_title, and unstructured_citation
-    (not implemented in the doi translator).
+    present in title, subtitle, original_language_title, and
+    unstructured_citation (not implemented in the doi translator).
     src: https://support.crossref.org/hc/en-us/articles/214532023
     */
     foreach (array('title', 'subtitle') as $local_name) {
@@ -240,7 +246,7 @@ EOQ;
     }
     if ($needs_work) {
       // Dump the original MODS to a backup file.
-      $filename = 'MODS-' . str_replace(':','_',$object->id) . '-' . format_date(time(), 'custom','Y-m-d-His') . '.xml';
+      $filename = 'MODS-' . str_replace(':', '_', $object->id) . '-' . format_date(time(), 'custom', 'Y-m-d-His') . '.xml';
       $mods_file = file_save_data($doc->saveXML(), "temporary://$filename");
       $mods_file->status &= ~FILE_STATUS_PERMANENT;
       file_save($mods_file);
