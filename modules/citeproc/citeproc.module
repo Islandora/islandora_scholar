@@ -5,6 +5,9 @@
  * Implements hooks and callbacks for this module.
  */
 
+include "vendor/autoload.php";
+use Seboettg\CiteProc\CiteProc;
+
 /**
  * Get the default style.
  *
@@ -73,12 +76,10 @@ function citeproc_get_id() {
 function citeproc_get_citeproc_php_instance($style) {
   $citeprocs = &drupal_static(__FUNCTION__, array());
 
-  if (!array_key_exists($style['name'], $citeprocs) && $citeproc_php_path = libraries_get_path('citeproc-php')) {
-    require_once "$citeproc_php_path/CiteProc.php";
-
+  if (!array_key_exists($style['name'], $citeprocs)) {
     global $language;
-
-    $citeprocs[$style['name']] = new CiteProc($style['data'], $language->language);
+    //$citeprocs[$style['name']] = new CiteProc($style['data'], $language->language);
+    $citeprocs[$style['name']] = new CiteProc($style['data'], 'en-US');
   }
 
   return $citeprocs[$style['name']];
@@ -102,7 +103,7 @@ function citeproc_get_citeproc_php_instance($style) {
 function citeproc_bibliography_from_object($style, $raw) {
   $citeproc = citeproc_get_citeproc_php_instance($style);
 
-  return $citeproc->render($raw, 'bibliography');
+  return $citeproc->render(array($raw), 'bibliography');
 }
 
 /**
@@ -123,7 +124,7 @@ function citeproc_bibliography_from_object($style, $raw) {
 function citeproc_citation_from_object($style, $raw) {
   $citeproc = citeproc_get_citeproc_php_instance($style);
 
-  return $citeproc->render($raw, 'citation');
+  return $citeproc->render(array($raw), 'citation');
 }
 
 /**

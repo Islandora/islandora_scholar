@@ -1,0 +1,20 @@
+{
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "citation-style-language/locales",
+                "version":"1.0.0",
+                "source": {
+                    "type": "git",
+                    "url": "https://github.com/citation-style-language/locales.git",
+                    "reference": "master"
+                }
+            }
+        }
+    ],
+    "require": {
+        "citation-style-language/locales":"@dev",
+        "seboettg/citeproc-php": "^2.1"
+    }
+}
