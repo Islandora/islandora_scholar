@@ -28,6 +28,22 @@ function islandora_scholar_drush_command() {
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
   );
+  $commands['islandora-scholar-fix-doi-html-in-mods'] = array(
+    'description' => dt('Update existing citations with bad MODS caused by DOI importer failing to deal with embedded markup.'),
+    'drupal dependencies' => array(
+      'islandora',
+      'islandora_scholar',
+    ),
+    'options' => array(
+      'action' => array(
+        'description' => 'Whether to strip (remove tags) or encode (into &lt; and &gt;) HTML entities. Can be "strip" or "encode".',
+      ),
+    ),
+    'examples' => array(
+      'drush -u 1 --action=strip islandora-scholar-fix-doi-html-in-mods' => dt('Strip html elements from citation objects\' title elements.'),
+    ),
+    'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
+  );
   return $commands;
 }
 
@@ -116,5 +132,143 @@ EOQ;
     }
   }
   $sandbox['offset'] += $citation_update;
+  $context['finished'] = $sandbox['offset'] / $sandbox['total'];
+}
+
+
+/**
+ * Command callback to update citations with HTML in MODS.
+ */
+function drush_islandora_scholar_fix_doi_html_in_mods() {
+  $action = drush_get_option('action', variable_get('islandora_doi_handle_imported_metadata', FALSE));
+  if (!in_array($action, array('strip','encode'))) {
+    drush_print("This function requires an option, since the GUI variable of how
+     to handle DOI imports is not set. Please use `--action=encode` or
+     `--action=strip`. For more information use `drush help islandora-scholar-fix-doi-html-in-mods`.");
+    exit;
+  }
+  $warnings = dt("WARNING: You are about to irrevocably alter datastream " .
+  "content in place. Backups of modified datastreams, pre-alterations, " .
+  "will be stored in Drupal's temporary:// directory. \n");
+  $warnings .= ($action == 'strip') ?
+  dt("You have chosen to strip errant HTML tags - this will result in data loss.\n") :
+  dt("You have chosen to encode errant HTML tags - this will by default result in unencoded tags being displayed to the user.\n");
+  $warnings .= dt("Are you sure you wish to continue? \n");
+
+  if (drush_confirm($warnings, 2)) {
+    batch_set(islandora_scholar_fix_doi_html_in_mods_create_batch($action));
+    drush_backend_batch_process();
+  }
+  else {
+    drush_user_abort(dt('Exiting, no datastreams changed.'));
+    exit;
+  }
+}
+
+function islandora_scholar_fix_doi_html_in_mods_create_batch($action) {
+  return array(
+    'operations' => array(
+      array('islandora_scholar_fix_doi_html_in_mods_batch_operation', array($action)),
+    ),
+    'title' => t('Updating MODS for citations...'),
+    'init_message' => t('Preparing to update MODS.'),
+    'progress_message' => t('Time elapsed: @elapsed <br/>Estimated time remaining @estimate.'),
+    'error_message' => t('An error has occurred.'),
+    'file' => drupal_get_path('module', 'islandora_scholar') . '/islandora_scholar.drush.inc',
+  );
+}
+
+function islandora_scholar_fix_doi_html_in_mods_batch_operation($action, &$context) {
+  $batch_size = 10;
+  /* The islandora_doi_crossref_translator, which introduced the bug that this
+  fixes, is part of the DOI importer, which is hard-coded to
+  import only ir:citationCModel objects. If the repository manager has
+  changed the content models of imported objects, they are responsible for
+  finding and fixing any objects that need it.
+  */
+  $query = <<<EOQ
+SELECT ?pid FROM <#ri>
+WHERE {
+  ?pid <fedora-model:hasModel> <info:fedora/ir:citationCModel> ;
+       <fedora-view:disseminates> ?ds .
+  ?ds <fedora-view:disseminationType> <info:fedora/*/MODS> .
+}
+ORDER BY ?pid
+EOQ;
+  $connection = islandora_get_tuque_connection();
+
+  $sandbox = &$context['sandbox'];
+  if (!isset($sandbox['offset'])) {
+    $sparql_count = $connection->repository->ri->countQuery($query, 'sparql');
+    $sandbox['offset'] = 0;
+    $sandbox['total'] = $sparql_count;
+    if ($sandbox['total'] === 0) {
+      return;
+    }
+  }
+
+  $context['message'] = t('Processing results @start to @end.', array(
+    '@start' => $sandbox['offset'],
+    '@end' => min($sandbox['offset'] + $batch_size, $sandbox['total']),
+  ));
+
+  $offset_start = $sandbox['offset'];
+  $query .= "
+  LIMIT $batch_size
+  OFFSET $offset_start
+  ";
+  $results = $connection->repository->ri->sparqlQuery($query);
+  module_load_include('inc', 'islandora_doi', 'includes/utilities');
+  foreach ($results as $result) {
+    $object = islandora_object_load($result['pid']['value']);
+    $namespace = 'http://www.loc.gov/mods/v3';
+    $doc = new DOMDocument();
+    $doc->loadXML($object['MODS']->content);
+    $needs_work = FALSE;
+    /* The crossref metadata spec dictates that 'Face markup' can only be
+    present in title, subtitle, original_language_title, and unstructured_citation
+    (not implemented in the doi translator).
+    src: https://support.crossref.org/hc/en-us/articles/214532023
+    */
+    foreach (array('title', 'subtitle') as $local_name) {
+      $dubious_nodes = $doc->getElementsByTagNameNS($namespace, $local_name);
+      foreach ($dubious_nodes as $node) {
+        if ($node->childNodes->length > 1) {
+          $needs_work = TRUE;
+        }
+      }
+    }
+    if ($needs_work) {
+      // Dump the original MODS to a backup file.
+      $filename = 'MODS-' . str_replace(':','_',$object->id) . '-' . format_date(time(), 'custom','Y-m-d-His') . '.xml';
+      $mods_file = file_save_data($doc->saveXML(), "temporary://$filename");
+      $mods_file->status &= ~FILE_STATUS_PERMANENT;
+      file_save($mods_file);
+      drush_print("\n=========== Fixing {$object->id}. ========================================\n");
+      drush_print("Old MODS datastream saved to temporary://$filename");
+      module_load_include('inc', 'islandora_doi', 'includes/utilities');
+      foreach (array('title', 'subtitle') as $local_name) {
+        $dubious_nodes = $doc->getElementsByTagNameNS($namespace, $local_name);
+        foreach ($dubious_nodes as $node) {
+          $child_count = $node->childNodes->length;
+          if ($child_count > 1) {
+            $old_value = $node->ownerDocument->saveXML($node);
+            $sanitized_content = new DOMText(islandora_doi_filter_html($node, $action));
+            for ($i = 0; $i < $child_count; $i++) {
+              $node->removeChild($node->childNodes->item(0));
+            }
+            $node->appendChild($sanitized_content);
+            $new_value = $node->ownerDocument->saveXML($node);
+
+            drush_print("OLD VALUE:\n$old_value");
+            drush_print("NEW VALUE:\n$new_value");
+          }
+        }
+      }
+      drush_print("==========================================================================\n");
+      $object['MODS']->content = $doc->saveXML();
+    }
+  }
+  $sandbox['offset'] += $batch_size;
   $context['finished'] = $sandbox['offset'] / $sandbox['total'];
 }
