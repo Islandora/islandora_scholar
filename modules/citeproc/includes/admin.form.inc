@@ -20,10 +20,10 @@ function citeproc_admin_form() {
   if (citeproc_v2_supported()) {
     $options[CITEPROC_BACKEND_V2] = 'citeproc-php v2';
   }
-  $form['citeproc_backends'] = array(
+  $form['citeproc_backend'] = array(
     '#type' => 'radios',
     '#title' => t('What version of citeproc library should be used?'),
-    '#default_value' => variable_get('citeproc_backend'),
+    '#default_value' => variable_get('citeproc_backend', citeproc_default_backend()),
     '#options' => $options,
     '#description' => t('V2 of citeproc-php is recommended when your PHP version supports it.'),
   );

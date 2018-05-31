@@ -6,7 +6,7 @@
  */
 
 const CITEPROC_BACKEND_V1 = 'citeproc_backend_v1';
-const CITEPROC_BACKEND_v2 = 'citeproc_backend_v2';
+const CITEPROC_BACKEND_V2 = 'citeproc_backend_v2';
 
 /**
  * Implements hook_init().
@@ -14,11 +14,11 @@ const CITEPROC_BACKEND_v2 = 'citeproc_backend_v2';
 function citeproc_init() {
   module_load_include('inc', 'citeproc', 'includes/utilities');
   citeproc_default_backend();
-  $backend = variable_get('citeproc_backend');
-  if ($backend === CITEPROC_BACKEND_v1 && $citeproc_php_path = libraries_get_path('citeproc-php')) {
+  $backend = variable_get('citeproc_backend', citeproc_default_backend());
+  if ($backend === CITEPROC_BACKEND_V1 && $citeproc_php_path = libraries_get_path('citeproc-php')) {
     require_once "$citeproc_php_path/CiteProc.php";
   }
-  elseif ($backend === CITEPROC_BACKEND_v2 && file_exists(__DIR__ . "/vendor/autoload.php")) {
+  elseif ($backend === CITEPROC_BACKEND_V2 && file_exists(__DIR__ . "/vendor/autoload.php")) {
     require_once __DIR__ . "/vendor/autoload.php";
   }
 }
@@ -111,7 +111,7 @@ function citeproc_get_citeproc_php_instance($style) {
 
   if (!array_key_exists($style['name'], $citeprocs)) {
     global $language;
-    $backend = variable_get('citeproc_backend');
+    $backend = variable_get('citeproc_backend', citeproc_default_backend());
     $citeproc = NULL;
     if ($backend === CITEPROC_BACKEND_V1) {
       $citeproc = new CiteProc($style['data'], $language->language);
@@ -142,7 +142,10 @@ function citeproc_get_citeproc_php_instance($style) {
  */
 function citeproc_bibliography_from_object($style, $raw) {
   $citeproc = citeproc_get_citeproc_php_instance($style);
-  return $citeproc->render(array($raw), 'bibliography');
+  if (variable_get('citeproc_backend', citeproc_default_backend()) == CITEPROC_BACKEND_V2) {
+    $raw = array($raw);
+  }
+  return $citeproc->render($raw, 'bibliography');
 }
 
 /**
@@ -162,7 +165,10 @@ function citeproc_bibliography_from_object($style, $raw) {
  */
 function citeproc_citation_from_object($style, $raw) {
   $citeproc = citeproc_get_citeproc_php_instance($style);
-  return $citeproc->render(array($raw), 'citation');
+  if (variable_get('citeproc_backend', citeproc_default_backend()) == CITEPROC_BACKEND_V2) {
+    $raw = array($raw);
+  }
+  return $citeproc->render($raw, 'citation');
 }
 
 /**

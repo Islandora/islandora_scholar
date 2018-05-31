@@ -22,12 +22,10 @@ function citeproc_v2_supported() {
  *   String with the backend name or NULL if already set.
  */
 function citeproc_default_backend() {
-  if (variable_get('citeproc_backends', NULL) !== NULL) {
+  if (variable_get('citeproc_backend', NULL) !== NULL) {
     return NULL;
   }
-
-  $backend = !citeproc_v2_supported() ? CITEPROC_BACKEND_V1 : CITEPROC_BACKEND_v2;
-  variable_set('citeproc_backends', $backend);
+  $backend = !citeproc_v2_supported() ? CITEPROC_BACKEND_V1 : CITEPROC_BACKEND_V2;
   return $backend;
 }
 
