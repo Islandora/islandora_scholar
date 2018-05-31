@@ -888,6 +888,7 @@ function islandora_doi_filter_html($node, $action = NULL) {
     if (!$action) {
       $action = variable_get('islandora_doi_handle_imported_metadata', 'strip');
     }
+
     switch ($action) {
       case 'strip':
         $text = strip_tags($text);
@@ -900,8 +901,11 @@ function islandora_doi_filter_html($node, $action = NULL) {
       default:
         drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => $action)), 'error');
         break;
-
     }
+
+    // Double encode ampersands regardless of prior filtering
+    $text = str_replace(' & ', ' &amp; ', $text);
+    $text = str_replace(' &amp; ', ' &amp;amp; ', $text);
   }
 
   return $text;
