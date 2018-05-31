@@ -14,7 +14,7 @@ use Seboettg\CiteProc\CiteProc;
  * @return array
  *   An associative array with two pairs:
  *   - name: A name for the style.
- *   - data: A string containg the XML representing the CSL style.
+ *   - data: A string containing the XML representing the CSL style.
  *   or boolean FALSE on failure.
  */
 function citeproc_default_style() {
@@ -31,7 +31,7 @@ function citeproc_default_style() {
  * @return array
  *   An associative array with two pairs:
  *   - name: A name for the style.
- *   - data: A string containg the XML representing the CSL style.
+ *   - data: A string containing the XML representing the CSL style.
  *   or boolean FALSE on failure.
  */
 function citeproc_style($style) {
@@ -68,7 +68,7 @@ function citeproc_get_id() {
  * @param array $style
  *   An associative array with two pairs:
  *   - name: A name for the style.
- *   - data: A string containg the XML representing the CSL style.
+ *   - data: A string containing the XML representing the CSL style.
  *
  * @return citeproc
  *   An instance of the CiteProc-PHP processor, for the given style.
@@ -132,7 +132,7 @@ function citeproc_get_citeproc_php_instance($style) {
  * @param array $style
  *   An associative array with two pairs:
  *   - name: A name for the style.
- *   - data: A string containg the XML representing the CSL style.
+ *   - data: A string containing the XML representing the CSL style.
  * @param object $raw
  *   An object containing extracted fields used by CSLs might be produced in a
  *   manner similar to _citeproc_array_to_object()... Essentially, objects
@@ -174,7 +174,7 @@ function citeproc_citation_from_object($style, $raw) {
  * @param array $style
  *   An associative array with two pairs:
  *   - name: A name for the style.
- *   - data: A string containg the XML representing the CSL style.
+ *   - data: A string containing the XML representing the CSL style.
  * @param mixed $mods
  *   Either a string or a DOMNode, representing a MODS record.
  *
@@ -197,7 +197,7 @@ function citeproc_bibliography_from_mods($style, $mods) {
  * @param array $style
  *   An associative array with two pairs:
  *   - name: A name for the style.
- *   - data: A string containg the XML representing the CSL style.
+ *   - data: A string containing the XML representing the CSL style.
  * @param mixed $mods
  *   Either a string or a DOMNode, representing a MODS record.
  *
