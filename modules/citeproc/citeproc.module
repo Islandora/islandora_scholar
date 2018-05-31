@@ -78,8 +78,8 @@ function citeproc_get_citeproc_php_instance($style) {
 
   if (!array_key_exists($style['name'], $citeprocs)) {
     global $language;
-    // Taken from citeproc-php v1.
-    // https://github.com/Islandora/citeproc-php/blob/master/CiteProc.php#L1545-L1585
+    // Taken from citeproc-php v1. CiteProc.php#L1545-L1585
+    // Used to choose language based on language code from Drupal. 
     $lang_bases = array(
       "af" => "af-ZA",
       "ar" => "ar-AR",
