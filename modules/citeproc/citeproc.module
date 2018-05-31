@@ -5,8 +5,40 @@
  * Implements hooks and callbacks for this module.
  */
 
-include "vendor/autoload.php";
-use Seboettg\CiteProc\CiteProc;
+const CITEPROC_BACKEND_V1 = 'citeproc_backend_v1';
+const CITEPROC_BACKEND_v2 = 'citeproc_backend_v2';
+
+/**
+ * Implements hook_init().
+ */
+function citeproc_init() {
+  module_load_include('inc', 'citeproc', 'includes/utilities');
+  citeproc_default_backend();
+  $backend = variable_get('citeproc_backend');
+  if ($backend === CITEPROC_BACKEND_v1 && $citeproc_php_path = libraries_get_path('citeproc-php')) {
+    require_once "$citeproc_php_path/CiteProc.php";
+  }
+  elseif ($backend === CITEPROC_BACKEND_v2 && file_exists(__DIR__ . "/vendor/autoload.php")) {
+    require_once __DIR__ . "/vendor/autoload.php";
+  }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function citeproc_menu() {
+  $items = array();
+  $items['admin/islandora/solution_pack_config/scholar/citeproc'] = array(
+    'title' => 'Citeproc',
+    'description' => 'Configure citeproc-php utilities.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('citeproc_admin_form'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/admin.form.inc',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
 
 /**
  * Get the default style.
@@ -28,7 +60,7 @@ function citeproc_default_style() {
  * @param string $style
  *   A string identifying the style in the database.
  *
- * @return array
+ * @return array|bool
  *   An associative array with two pairs:
  *   - name: A name for the style.
  *   - data: A string containing the XML representing the CSL style.
@@ -74,53 +106,20 @@ function citeproc_get_id() {
  *   An instance of the CiteProc-PHP processor, for the given style.
  */
 function citeproc_get_citeproc_php_instance($style) {
+  module_load_include('inc', 'citeproc', 'includes/utilities');
   $citeprocs = &drupal_static(__FUNCTION__, array());
 
   if (!array_key_exists($style['name'], $citeprocs)) {
     global $language;
-    // Taken from citeproc-php v1. CiteProc.php#L1545-L1585
-    // Used to choose language based on language code from Drupal.
-    $lang_bases = array(
-      "af" => "af-ZA",
-      "ar" => "ar-AR",
-      "bg" => "bg-BG",
-      "ca" => "ca-AD",
-      "cs" => "cs-CZ",
-      "da" => "da-DK",
-      "de" => "de-DE",
-      "el" => "el-GR",
-      "en" => "en-US",
-      "es" => "es-ES",
-      "et" => "et-EE",
-      "fa" => "fa-IR",
-      "fi" => "fi-FI",
-      "fr" => "fr-FR",
-      "he" => "he-IL",
-      "hu" => "hu-HU",
-      "is" => "is-IS",
-      "it" => "it-IT",
-      "ja" => "ja-JP",
-      "km" => "km-KH",
-      "ko" => "ko-KR",
-      "mn" => "mn-MN",
-      "nb" => "nb-NO",
-      "nl" => "nl-NL",
-      "nn" => "nn-NO",
-      "pl" => "pl-PL",
-      "pt" => "pt-PT",
-      "ro" => "ro-RO",
-      "ru" => "ru-RU",
-      "sk" => "sk-SK",
-      "sl" => "sl-SI",
-      "sr" => "sr-RS",
-      "sv" => "sv-SE",
-      "th" => "th-TH",
-      "tr" => "tr-TR",
-      "uk" => "uk-UA",
-      "vi" => "vi-VN",
-      "zh" => "zh-CN",
-    );
-    $citeprocs[$style['name']] = new CiteProc($style['data'], $lang_bases[$language->language]);
+    $backend = variable_get('citeproc_backend');
+    $citeproc = NULL;
+    if ($backend === CITEPROC_BACKEND_V1) {
+      $citeproc = new CiteProc($style['data'], $language->language);
+    }
+    elseif ($backend === CITEPROC_BACKEND_V2) {
+      $citeproc = new \Seboettg\CiteProc\CiteProc($style['data'], citeproc_lookup_language($language->language));
+    }
+    $citeprocs[$style['name']] = $citeproc;
   }
 
   return $citeprocs[$style['name']];
@@ -143,7 +142,6 @@ function citeproc_get_citeproc_php_instance($style) {
  */
 function citeproc_bibliography_from_object($style, $raw) {
   $citeproc = citeproc_get_citeproc_php_instance($style);
-
   return $citeproc->render(array($raw), 'bibliography');
 }
 
@@ -153,7 +151,7 @@ function citeproc_bibliography_from_object($style, $raw) {
  * @param array $style
  *   An associative array with two pairs:
  *   - name: A name for the style.
- *   - data: A string containg the XML representing the CSL style.
+ *   - data: A string containing the XML representing the CSL style.
  * @param object $raw
  *   An object containing extracted fields used by CSLs might be produced in a
  *   manner similar to _citeproc_array_to_object()... Essentially, objects
@@ -164,7 +162,6 @@ function citeproc_bibliography_from_object($style, $raw) {
  */
 function citeproc_citation_from_object($style, $raw) {
   $citeproc = citeproc_get_citeproc_php_instance($style);
-
   return $citeproc->render(array($raw), 'citation');
 }
 

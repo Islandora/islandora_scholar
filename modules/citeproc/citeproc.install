@@ -13,3 +13,10 @@ function citeproc_update_7100() {
     drupal_set_message(t('The "citeproc" module is now dependent on "libraries", and the "citeproc-php" library must be installed. See the README for more info.'), 'warning');
   }
 }
+
+/**
+ * Set citeproc version if you are updating, so the library used doesn't switch under your feet.
+ */
+function citeproc_update_7101() {
+  variable_set('citeproc_backend', 'citeproc_backend_v1');
+}
