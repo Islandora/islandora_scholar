@@ -15,7 +15,8 @@ function citeproc_update_7100() {
 }
 
 /**
- * Set citeproc version if you are updating, so the library used doesn't switch under your feet.
+ * Set citeproc version if you are updating, so the library used doesn't switch
+ * under your feet, when updating to the latest version.
  */
 function citeproc_update_7101() {
   variable_set('citeproc_backend', 'citeproc_backend_v1');

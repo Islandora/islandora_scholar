@@ -16,7 +16,7 @@ function citeproc_v2_supported() {
 }
 
 /**
- * Sets and returns default backend based on the PHP version of the installation.
+ * Returns default backend based on the PHP version of the installation.
  *
  * @return null|string
  *   String with the backend name or NULL if already set.
@@ -34,12 +34,12 @@ function citeproc_default_backend() {
  *
  * @param string $language
  *   String returned from Drupal's $language->language.
+ *
  * @return string
  *   Citeproc style language code.
  */
 function citeproc_lookup_language($language) {
   // Taken from citeproc-php v1.
-  // https://github.com/Islandora/citeproc-php/blob/master/CiteProc.php#L1545-L1585
   $lang_bases = array(
     "af" => "af-ZA",
     "ar" => "ar-AR",
