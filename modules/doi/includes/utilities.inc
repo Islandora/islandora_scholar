@@ -202,36 +202,39 @@ function islandora_doi_crossref_translator($crossref_data) {
       foreach ($metadata->childNodes as $child) {
         switch ($child->nodeName) {
           case 'full_title':
+            $titleinfo = $mods->createElement('titleInfo');
+            $relateditem->appendChild($titleinfo);
+            $title = $mods->createElement('title');
+            $titleinfo->appendChild($title);
             if (!is_null($child->firstChild)) {
-              $titleinfo = $mods->createElement('titleInfo');
-              $relateditem->appendChild($titleinfo);
-              $title_text = islandora_doi_filter_html($child);
-              $title = $mods->createElement('title', $title_text);
-              $titleinfo->appendChild($title);
+              $title_text = $mods->importNode($child->firstChild);
+              $title->appendChild($title_text);
             }
             break;
 
           case 'abbrev_title':
+            $titleinfo = $mods->createElement('titleInfo');
+            $titleinfo_attribute = $mods->createAttribute('type');
+            $titleinfo_attribute->value = 'abbreviated';
+            $titleinfo->appendChild($titleinfo_attribute);
+            $relateditem->appendChild($titleinfo);
+            $title = $mods->createElement('title');
+            $titleinfo->appendChild($title);
             if (!is_null($child->firstChild)) {
-              $titleinfo = $mods->createElement('titleInfo');
-              $titleinfo_attribute = $mods->createAttribute('type');
-              $titleinfo_attribute->value = 'abbreviated';
-              $titleinfo->appendChild($titleinfo_attribute);
-              $relateditem->appendChild($titleinfo);
-              $title_text = islandora_doi_filter_html($child);
-              $title = $mods->createElement('title', $title_text);
-              $titleinfo->appendChild($title);
+              $title_text = $mods->importNode($child->firstChild);
+              $title->appendChild($title_text);
             }
             break;
 
           case 'issn':
+            $identifier = $mods->createElement('identifier');
+            $identifier_attribute = $mods->createAttribute('type');
+            $identifier_attribute->value = 'issn';
+            $identifier->appendChild($identifier_attribute);
+            $relateditem->appendChild($identifier);
             if (!is_null($child->firstChild)) {
-              $identifier_text = islandora_doi_filter_html($child);
-              $identifier = $mods->createElement('identifier', $identifier_text);
-              $identifier_attribute = $mods->createAttribute('type');
-              $identifier_attribute->value = 'issn';
-              $identifier->appendChild($identifier_attribute);
-              $relateditem->appendChild($identifier);
+              $identifier_text = $mods->importNode($child->firstChild);
+              $identifier->appendChild($identifier_text);
             }
             break;
         }
@@ -246,15 +249,15 @@ function islandora_doi_crossref_translator($crossref_data) {
                 foreach ($child->childNodes as $date_part) {
                   switch ($date_part->nodeName) {
                     case 'month':
-                      $pubdate_month = islandora_doi_filter_html($date_part);
+                      $pubdate_month = $date_part->nodeValue;
                       break;
 
                     case 'year':
-                      $pubdate_year = islandora_doi_filter_html($date_part);
+                      $pubdate_year = $date_part->nodeValue;
                       break;
 
                     case 'day':
-                      $pubdate_day = islandora_doi_filter_html($date_part);
+                      $pubdate_day = $date_part->nodeValue;
                       break;
                   }
                 }
@@ -358,15 +361,16 @@ function islandora_doi_crossref_translator($crossref_data) {
 
             case 'contributors':
               foreach ($child->getElementsByTagName('organization') as $organization) {
+                $name = $mods->createElement('name');
+                $mods->firstChild->appendChild($name);
+                $name_attribute = $mods->createAttribute('type');
+                $name_attribute->value = 'corporate';
+                $name->appendChild($name_attribute);
+                $namepart = $mods->createElement('namePart');
+                $name->appendChild($namepart);
                 if (!is_null($organization->firstChild)) {
-                  $name = $mods->createElement('name');
-                  $mods->firstChild->appendChild($name);
-                  $name_attribute = $mods->createAttribute('type');
-                  $name_attribute->value = 'corporate';
-                  $name->appendChild($name_attribute);
-                  $namepart_text = islandora_doi_filter_html($organization);
-                  $namepart = $mods->createElement('namePart');
-                  $name->appendChild($namepart);
+                  $namepart_text = $mods->importNode($organization->firstChild);
+                  $namepart->appendChild($namepart_text);
                 }
               }
 
@@ -380,43 +384,47 @@ function islandora_doi_crossref_translator($crossref_data) {
                 foreach ($person->childNodes as $person_part) {
                   switch ($person_part->nodeName) {
                     case 'given_name':
+                      $namepart = $mods->createElement('namePart');
+                      $name->appendChild($namepart);
+                      $namepart_attribute = $mods->createAttribute('type');
+                      $namepart_attribute->value = 'given';
+                      $namepart->appendChild($namepart_attribute);
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($person_part);
-                        $namepart = $mods->createElement('namePart', $name_text);
-                        $name->appendChild($namepart);
-                        $namepart_attribute = $mods->createAttribute('type');
-                        $namepart_attribute->value = 'given';
-                        $namepart->appendChild($namepart_attribute);
+                        $given_name_part = $mods->importNode($person_part->firstChild);
+                        $namepart->appendChild($given_name_part);
                       }
                       break;
 
                     case 'surname':
+                      $namepart = $mods->createElement('namePart');
+                      $name->appendChild($namepart);
+                      $namepart_attribute = $mods->createAttribute('type');
+                      $namepart_attribute->value = 'family';
+                      $namepart->appendChild($namepart_attribute);
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($person_part);
-                        $namepart = $mods->createElement('namePart', $name_text);
-                        $name->appendChild($namepart);
-                        $namepart_attribute = $mods->createAttribute('type');
-                        $namepart_attribute->value = 'family';
-                        $namepart->appendChild($namepart_attribute);
+                        $surname_part = $mods->importNode($person_part->firstChild);
+                        $namepart->appendChild($surname_part);
                       }
                       break;
 
                     case 'suffix':
+                      $terms_of_address = $mods->createElement('namePart');
+                      $name->appendChild($terms_of_address);
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($person_part);
-                        $terms_of_address = $mods->createElement('namePart', $name_text);
-                        $name->appendChild($terms_of_address);
-                        $terms_of_address_attribute = $mods->createAttribute('type');
-                        $terms_of_address_attribute->value = 'termsOfAddress';
-                        $terms_of_address->appendChild($terms_of_address_attribute);
+                        $terms_of_address_text = $mods->importNode($person_part->firstChild);
+                        $terms_of_address->appendChild($terms_of_address_text);
                       }
+                      $terms_of_address_attribute = $mods->createAttribute('type');
+                      $terms_of_address_attribute->value = 'termsOfAddress';
+                      $terms_of_address->appendChild($terms_of_address_attribute);
                       break;
 
                     case 'affiliation':
+                      $affiliation = $mods->createElement('affiliation');
+                      $name->appendChild($affiliation);
                       if (!is_null($person_part->firstChild)) {
-                        $name_text = islandora_doi_filter_html($person_part);
-                        $affiliation = $mods->createElement('affiliation', $name_text);
-                        $name->appendChild($affiliation);
+                        $affiliation_text = $mods->importNode($person_part->firstChild);
+                        $affiliation->appendChild($affiliation_text);
                       }
                       break;
                   }
@@ -427,10 +435,10 @@ function islandora_doi_crossref_translator($crossref_data) {
                     case 'contributor_role':
                       $role = $mods->createElement('role');
                       $name->appendChild($role);
-                      $roleterm_text = strtolower(islandora_doi_filter_html($att));
-                      $roleterm = $mods->createElement('roleTerm', $roleterm_text);
+                      $roleterm = $mods->createElement('roleTerm');
                       $role->appendChild($roleterm);
-
+                      $roleterm_text = $mods->createTextNode(strtolower($att->nodeValue));
+                      $roleterm->appendChild($roleterm_text);
                       $roles = array('author', 'editor', 'translator');
                       if (in_array(strtolower($att->nodeValue), $roles)) {
                         $roleterm_attribute = $mods->createAttribute('authority');
@@ -460,15 +468,15 @@ function islandora_doi_crossref_translator($crossref_data) {
                 foreach ($child->childNodes as $date_part) {
                   switch ($date_part->nodeName) {
                     case 'month':
-                      $pubdate_month = islandora_doi_filter_html($date_part);
+                      $pubdate_month = $date_part->nodeValue;
                       break;
 
                     case 'year':
-                      $pubdate_year = islandora_doi_filter_html($date_part);
+                      $pubdate_year = $date_part->nodeValue;
                       break;
 
                     case 'day':
-                      $pubdate_day = islandora_doi_filter_html($date_part);
+                      $pubdate_day = $date_part->nodeValue;
                       break;
                   }
                 }
@@ -515,23 +523,25 @@ function islandora_doi_crossref_translator($crossref_data) {
                   switch ($identifier->nodeName) {
                     case 'doi':
                       if (!is_null($identifier->firstChild)) {
-                        $doi_text = islandora_doi_filter_html($identifier);
-                        $doi = $mods->createElement('identifier', $doi_text);
+                        $doi = $mods->createElement('identifier');
                         $mods->firstChild->appendChild($doi);
                         $doi_attribute = $mods->createAttribute('type');
                         $doi_attribute->value = 'doi';
                         $doi->appendChild($doi_attribute);
+                        $doi_text = $mods->importNode($identifier->firstChild);
+                        $doi->appendChild($doi_text);
                       }
                       break;
 
                     case 'resource':
                       if (!is_null($identifier->firstChild)) {
-                        $uri_text = islandora_doi_filter_html($identifier);
-                        $uri = $mods->createElement('identifier', $uri_text);
+                        $uri = $mods->createElement('identifier');
                         $mods->firstChild->appendChild($uri);
                         $uri_attribute = $mods->createAttribute('type');
                         $uri_attribute->value = 'uri';
                         $uri->appendChild($uri_attribute);
+                        $uri_text = $mods->importNode($identifier->firstChild);
+                        $uri->appendChild($uri_text);
                       }
                       break;
                   }
