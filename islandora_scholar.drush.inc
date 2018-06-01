@@ -236,7 +236,7 @@ EOQ;
     unstructured_citation (not implemented in the doi translator).
     src: https://support.crossref.org/hc/en-us/articles/214532023
     */
-    foreach (array('title', 'subtitle') as $local_name) {
+    foreach (array('title', 'subTitle') as $local_name) {
       $dubious_nodes = $doc->getElementsByTagNameNS($namespace, $local_name);
       foreach ($dubious_nodes as $node) {
         if ($node->childNodes->length > 1) {
@@ -253,7 +253,7 @@ EOQ;
       drush_print("\n=========== Fixing {$object->id}. ========================================\n");
       drush_print("Old MODS datastream saved to temporary://$filename");
       module_load_include('inc', 'islandora_doi', 'includes/utilities');
-      foreach (array('title', 'subtitle') as $local_name) {
+      foreach (array('title', 'subTitle') as $local_name) {
         $dubious_nodes = $doc->getElementsByTagNameNS($namespace, $local_name);
         foreach ($dubious_nodes as $node) {
           $child_count = $node->childNodes->length;
