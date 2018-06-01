@@ -319,7 +319,7 @@ function islandora_doi_crossref_translator($crossref_data) {
               foreach ($child->childNodes as $grandchild) {
                 switch ($grandchild->nodeName) {
                   case 'title':
-                    if (!is_null($grandchild)) {
+                    if (!is_null($grandchild->firstChild)) {
                       $article_title_text = islandora_doi_filter_html($grandchild);
                       $article_title = $mods->createElement('title', $article_title_text);
                       $titleinfo->appendChild($article_title);
@@ -895,17 +895,13 @@ function islandora_doi_filter_html($node, $action = NULL) {
         break;
 
       case 'encode':
-        $text = htmlspecialchars($text);
+        $text = htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8', FALSE);
         break;
 
       default:
         drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => $action)), 'error');
         break;
     }
-
-    // Double encode ampersands regardless of prior filtering
-    $text = str_replace(' & ', ' &amp; ', $text);
-    $text = str_replace(' &amp; ', ' &amp;amp; ', $text);
   }
 
   return $text;

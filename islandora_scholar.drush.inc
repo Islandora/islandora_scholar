@@ -151,8 +151,8 @@ function drush_islandora_scholar_fix_doi_html_in_mods() {
   "content in place. Backups of modified datastreams, pre-alterations, " .
   "will be stored in Drupal's temporary:// directory. \n");
   $warnings .= ($action == 'strip') ?
-  dt("You have chosen to strip errant HTML tags - this will result in data loss.\n") :
-  dt("You have chosen to encode errant HTML tags - this will by default result in unencoded tags being displayed to the user.\n");
+  dt("You have chosen to strip errant HTML tags - this will result in a loss of some markup information.\n") :
+  dt("You have chosen to encode errant HTML tags - this will by default result in HTML source tags being displayed to the user.\n");
   $warnings .= dt("Are you sure you wish to continue? \n");
 
   if (drush_confirm($warnings, 2)) {

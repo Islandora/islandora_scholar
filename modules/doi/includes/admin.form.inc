@@ -30,7 +30,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     'islandora_doi_handle_imported_metadata' => array(
       '#type' => 'radios',
       '#title' => t('How should embedded HTML in imported DOI metadata be handled?'),
-      '#description' => t('For example, stripping tags will change "H&lt;sub&gt;2&lt;/sub&gt;O" to "H2O". Encoding tags will change  "H&lt;sub&gt;2&lt;/sub&gt;O" to  "H&amp;lt;sub&amp;gt;2&amp;lt;/sub&amp;gt;O". Re-encoding tags for display is not yet implemented in Islandora.'),
+      '#description' => t('For example, stripping tags will change "H&lt;sub&gt;2&lt;/sub&gt;O" to "H2O". Encoding tags will change  "H&lt;sub&gt;2&lt;/sub&gt;O" to  "H&amp;lt;sub&amp;gt;2&amp;lt;/sub&amp;gt;O". Re-decoding tags for display is not yet implemented in Islandora.'),
       '#options' => array(
         'strip' => t('Strip embedded HTML tags'),
         'encode' => t('Encode embedded HTML tags'),
