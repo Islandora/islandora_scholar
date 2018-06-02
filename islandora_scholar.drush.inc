@@ -38,9 +38,20 @@ function islandora_scholar_drush_command() {
       'action' => array(
         'description' => 'Whether to strip (remove tags) or encode (into &lt; and &gt;) HTML entities. Can be "strip" or "encode".',
       ),
+      'audit' => array(
+        'description' => 'List the affected PIDs, but do not perform any modifications.',
+      ),
+      'dry-run' => array(
+        'description' => 'List the affected PIDs and the modifications that would result.',
+      ),
+      'modify-my-data' => array(
+        'description' => 'Update the affected datastreams.',
+      ),
     ),
     'examples' => array(
-      'drush -u 1 --action=strip islandora-scholar-fix-doi-html-in-mods' => dt('Strip html elements from citation objects\' title elements.'),
+      'drush -u 1 islandora-scholar-fix-doi-html-in-mods --audit' => dt('List objects found to have unruly HTML in MODS'),
+      'drush -u 1 islandora-scholar-fix-doi-html-in-mods --action=strip --dry-run' => dt('Show what changes would result from stripping HTML from MODS, but do not modify data.'),
+      'drush -u 1 islandora-scholar-fix-doi-html-in-mods --action=encode --modify-my-data' => dt('Encode HTML within MODS, modifying the datastreams in place and printing changes to drush output.'),
     ),
     'bootstrap' => DRUSH_BOOTSTRAP_DRUPAL_LOGIN,
   );
@@ -141,37 +152,60 @@ EOQ;
  */
 function drush_islandora_scholar_fix_doi_html_in_mods() {
   $action = drush_get_option('action', variable_get('islandora_doi_handle_imported_metadata', FALSE));
-  if (!in_array($action, array('strip', 'encode'))) {
-    drush_print("This function requires an option, since the GUI variable of how
+  $audit = drush_get_option('audit', FALSE);
+  $dry_run = drush_get_option('dry-run', FALSE);
+  $modify_my_data = drush_get_option('modify-my-data', FALSE);
+
+  // Require one and only one of --audit, --dry-run, --encode.
+  if (!($audit || $dry_run || $modify_my_data)) {
+    drush_print("This function requires one option of the following: --audit, --dry-run, --modify-my-data.");
+    drush_print("USAGE:");
+    drush_invoke('help',['islandora-scholar-fix-doi-html-in-mods']);
+    exit;
+  }
+  if (($audit && $dry_run) || (($audit || $dry_run) && $modify_my_data)) {
+    drush_print("This function requires ONLY one option of the following: --audit, --dry-run, --modify-my-data.");
+    drush_print("USAGE:");
+    drush_invoke('help',['islandora-scholar-fix-doi-html-in-mods']);
+    exit;
+  }
+
+  // Require an action if --dry-run or --modify-my-data is selected.
+  if (($modify_my_data OR $dry_run) AND (!in_array($action, array('strip', 'encode')))) {
+    drush_print("This function requires an action option, since the GUI variable of how
      to handle DOI imports is not set. Please use `--action=encode` or
      `--action=strip`. For more information use `drush help islandora-scholar-fix-doi-html-in-mods`.");
     exit;
   }
-  $warnings = dt("WARNING: You are about to irrevocably alter datastream " .
-  "content in place. Backups of modified datastreams, pre-alterations, " .
-  "will be stored in Drupal's temporary:// directory. \n");
-  $warnings .= ($action == 'strip') ?
-  dt("You have chosen to strip errant HTML tags - this will result in a loss of some markup information.\n") :
-  dt("You have chosen to encode errant HTML tags - this will by default result in HTML source tags being displayed to the user.\n");
-  $warnings .= dt("Are you sure you wish to continue? \n");
 
-  if (drush_confirm($warnings, 2)) {
-    batch_set(islandora_scholar_fix_doi_html_in_mods_create_batch($action));
-    drush_backend_batch_process();
+  $method = ($modify_my_data ? 'modify' : ($dry_run ? 'dry-run' : 'audit'));
+
+  // Confirm if modifying.
+  if ($modify_my_data) {
+    $warnings = dt("WARNING: You are about to alter datastream content in place.\n");
+    $warnings .= ($action == 'strip') ?
+      dt("You have chosen to strip errant HTML tags - this will result in a loss of some markup information.\n") :
+      dt("You have chosen to encode errant HTML tags - this will by default result in HTML source tags being displayed to the user.\n");
+    $warnings .= dt("Are you sure you wish to continue? \n");
+    if (!drush_confirm($warnings, 2)) {
+      drush_user_abort(dt('Exiting, no datastreams changed.'));
+      exit;
+    }
   }
-  else {
-    drush_user_abort(dt('Exiting, no datastreams changed.'));
-    exit;
-  }
+
+  batch_set(islandora_scholar_fix_doi_html_in_mods_create_batch($action, $method));
+  drush_backend_batch_process();
+
+
 }
 
 /**
  * Batch info for drush command to update citations with HTML in MODS.
  */
-function islandora_scholar_fix_doi_html_in_mods_create_batch($action) {
+function islandora_scholar_fix_doi_html_in_mods_create_batch($action, $method) {
   return array(
     'operations' => array(
-      array('islandora_scholar_fix_doi_html_in_mods_batch_operation', array($action)),
+      array('islandora_scholar_fix_doi_html_in_mods_batch_operation', array($action, $method)),
     ),
     'title' => t('Updating MODS for citations...'),
     'init_message' => t('Preparing to update MODS.'),
@@ -184,7 +218,7 @@ function islandora_scholar_fix_doi_html_in_mods_create_batch($action) {
 /**
  * Batch operations for drush command to update citations with HTML in MODS.
  */
-function islandora_scholar_fix_doi_html_in_mods_batch_operation($action, &$context) {
+function islandora_scholar_fix_doi_html_in_mods_batch_operation($action, $method, &$context) {
   $batch_size = 10;
   /* The islandora_doi_crossref_translator, which introduced the bug that this
   fixes, is part of the DOI importer, which is hard-coded to
@@ -236,7 +270,7 @@ EOQ;
     unstructured_citation (not implemented in the doi translator).
     src: https://support.crossref.org/hc/en-us/articles/214532023
     */
-    foreach (array('title', 'subtitle') as $local_name) {
+    foreach (array('title', 'subTitle') as $local_name) {
       $dubious_nodes = $doc->getElementsByTagNameNS($namespace, $local_name);
       foreach ($dubious_nodes as $node) {
         if ($node->childNodes->length > 1) {
@@ -245,15 +279,12 @@ EOQ;
       }
     }
     if ($needs_work) {
-      // Dump the original MODS to a backup file.
-      $filename = 'MODS-' . str_replace(':', '_', $object->id) . '-' . format_date(time(), 'custom', 'Y-m-d-His') . '.xml';
-      $mods_file = file_save_data($doc->saveXML(), "temporary://$filename");
-      $mods_file->status &= ~FILE_STATUS_PERMANENT;
-      file_save($mods_file);
-      drush_print("\n=========== Fixing {$object->id}. ========================================\n");
-      drush_print("Old MODS datastream saved to temporary://$filename");
-      module_load_include('inc', 'islandora_doi', 'includes/utilities');
-      foreach (array('title', 'subtitle') as $local_name) {
+      if ($method == 'audit') {
+        drush_print($object->id);
+        continue;
+      }
+      drush_print("\n===========  {$object->id}. ========================================\n");
+      foreach (array('title', 'subTitle') as $local_name) {
         $dubious_nodes = $doc->getElementsByTagNameNS($namespace, $local_name);
         foreach ($dubious_nodes as $node) {
           $child_count = $node->childNodes->length;
@@ -272,7 +303,9 @@ EOQ;
         }
       }
       drush_print("==========================================================================\n");
-      $object['MODS']->content = $doc->saveXML();
+      if ($method == 'modify') {
+        $object['MODS']->content = $doc->saveXML();
+      }
     }
   }
   $sandbox['offset'] += $batch_size;
