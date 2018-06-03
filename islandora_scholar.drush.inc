@@ -160,13 +160,13 @@ function drush_islandora_scholar_fix_doi_html_in_mods() {
   if (!($audit || $dry_run || $modify_my_data)) {
     drush_print("This function requires one option of the following: --audit, --dry-run, --modify-my-data.");
     drush_print("USAGE:");
-    drush_invoke('help',['islandora-scholar-fix-doi-html-in-mods']);
+    drush_invoke('help', ['islandora-scholar-fix-doi-html-in-mods']);
     exit;
   }
   if (($audit && $dry_run) || (($audit || $dry_run) && $modify_my_data)) {
     drush_print("This function requires ONLY one option of the following: --audit, --dry-run, --modify-my-data.");
     drush_print("USAGE:");
-    drush_invoke('help',['islandora-scholar-fix-doi-html-in-mods']);
+    drush_invoke('help', ['islandora-scholar-fix-doi-html-in-mods']);
     exit;
   }
 
@@ -195,8 +195,6 @@ function drush_islandora_scholar_fix_doi_html_in_mods() {
 
   batch_set(islandora_scholar_fix_doi_html_in_mods_create_batch($action, $method));
   drush_backend_batch_process();
-
-
 }
 
 /**
@@ -205,7 +203,10 @@ function drush_islandora_scholar_fix_doi_html_in_mods() {
 function islandora_scholar_fix_doi_html_in_mods_create_batch($action, $method) {
   return array(
     'operations' => array(
-      array('islandora_scholar_fix_doi_html_in_mods_batch_operation', array($action, $method)),
+      array(
+        'islandora_scholar_fix_doi_html_in_mods_batch_operation',
+        array($action, $method),
+      ),
     ),
     'title' => t('Updating MODS for citations...'),
     'init_message' => t('Preparing to update MODS.'),
