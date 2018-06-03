@@ -160,13 +160,13 @@ function drush_islandora_scholar_fix_doi_html_in_mods() {
   if (!($audit || $dry_run || $modify_my_data)) {
     drush_print("This function requires one option of the following: --audit, --dry-run, --modify-my-data.");
     drush_print("USAGE:");
-    drush_invoke('help', ['islandora-scholar-fix-doi-html-in-mods']);
+    drush_invoke('help', array('islandora-scholar-fix-doi-html-in-mods'));
     exit;
   }
   if (($audit && $dry_run) || (($audit || $dry_run) && $modify_my_data)) {
     drush_print("This function requires ONLY one option of the following: --audit, --dry-run, --modify-my-data.");
     drush_print("USAGE:");
-    drush_invoke('help', ['islandora-scholar-fix-doi-html-in-mods']);
+    drush_invoke('help', array('islandora-scholar-fix-doi-html-in-mods'));
     exit;
   }
 
