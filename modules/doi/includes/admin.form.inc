@@ -22,11 +22,22 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     'islandora_doi_use_legacy_mode' => array(
       '#type' => 'checkbox',
       '#title' => t('Use legacy retrieval mode'),
-      '#description' => t("Keep fetching metadata directly from CrossREF's OpenURL (account required!). If unchecked, use content negotiation as explained by https://www.crosscite.org."),
+      '#description' => t("Keep fetching metadata directly from Crossref's OpenURL (account required!). If unchecked, use content negotiation as explained by https://www.crosscite.org."),
       '#default_value' => (islandora_doi_use_legacy_mode() === TRUE ? 1 : 0),
       // Ensure correct return value if selected (although 1 is the default).
       '#return_value' => 1,
     ),
+    'islandora_doi_handle_imported_metadata' => array(
+      '#type' => 'radios',
+      '#title' => t('How should embedded HTML in imported DOI metadata be handled?'),
+      '#description' => t('For example, stripping tags will change "H&lt;sub&gt;2&lt;/sub&gt;O" to "H2O". Encoding tags will change  "H&lt;sub&gt;2&lt;/sub&gt;O" to  "H&amp;lt;sub&amp;gt;2&amp;lt;/sub&amp;gt;O". Re-decoding tags for display is not yet implemented in Islandora.'),
+      '#options' => array(
+        'strip' => t('Strip embedded HTML tags'),
+        'encode' => t('Encode embedded HTML tags'),
+      ),
+      '#default_value' => variable_get('islandora_doi_handle_imported_metadata', 'strip'),
+    ),
+
     'islandora_doi_url_config' => array(
       '#type' => 'fieldset',
       '#title' => t('DOI URL configuration'),

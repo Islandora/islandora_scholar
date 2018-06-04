@@ -319,17 +319,19 @@ function islandora_doi_crossref_translator($crossref_data) {
               foreach ($child->childNodes as $grandchild) {
                 switch ($grandchild->nodeName) {
                   case 'title':
-                    $article_title = $mods->importNode($grandchild, TRUE);
-                    $titleinfo->appendChild($article_title);
+                    if (!is_null($grandchild->firstChild)) {
+                      $article_title_text = islandora_doi_filter_html($grandchild);
+                      $article_title = $mods->createElement('title', $article_title_text);
+                      $titleinfo->appendChild($article_title);
+                    }
                     break;
 
                   case 'subtitle':
-                    $article_subtitle = $mods->createElement('subTitle');
                     if (!is_null($grandchild->firstChild)) {
-                      $article_subtitle_text = $mods->importNode($grandchild->firstChild, TRUE);
-                      $article_subtitle->appendChild($article_subtitle_text);
+                      $article_subtitle_text = islandora_doi_filter_html($grandchild);
+                      $article_subtitle = $mods->createElement('subTitle', $article_subtitle_text);
+                      $titleinfo->appendChild($article_subtitle);
                     }
-                    $titleinfo->appendChild($article_subtitle);
                     break;
 
                   case 'original_language_title':
@@ -347,12 +349,10 @@ function islandora_doi_crossref_translator($crossref_data) {
                           break;
                       }
                     }
-
-                    $translated_title = $mods->createElement('title');
-                    $translated_titleinfo->appendChild($translated_title);
                     if (!is_null($grandchild->firstChild)) {
-                      $translated_title_text = $mods->importNode($grandchild->firstChild);
-                      $translated_title->appendChild($translated_title_text);
+                      $translated_title_text = islandora_doi_filter_html($grandchild);
+                      $translated_title = $mods->createElement('title', $translated_title_text);
+                      $translated_titleinfo->appendChild($translated_title);
                     }
                     break;
                 }
@@ -439,7 +439,6 @@ function islandora_doi_crossref_translator($crossref_data) {
                       $role->appendChild($roleterm);
                       $roleterm_text = $mods->createTextNode(strtolower($att->nodeValue));
                       $roleterm->appendChild($roleterm_text);
-
                       $roles = array('author', 'editor', 'translator');
                       if (in_array(strtolower($att->nodeValue), $roles)) {
                         $roleterm_attribute = $mods->createAttribute('authority');
@@ -643,7 +642,6 @@ function islandora_doi_crossref_translator($crossref_data) {
     // Return after first instance.
     return $mods;
   }
-
   return FALSE;
 }
 
@@ -853,7 +851,7 @@ function islandora_doi_get_source($id) {
  *
  * @return DOMDocument|bool
  *   A DOMDocument containing a MODS document, or FALSE if either an error
- *   occured or nothing could be transformed.
+ *   occurred or nothing could be transformed.
  */
 function islandora_doi_get_mods($id) {
   $source_array = islandora_doi_get_source($id);
@@ -863,4 +861,48 @@ function islandora_doi_get_mods($id) {
   list($source_string, $content_type) = $source_array;
 
   return islandora_doi_translate($source_string, $content_type);
+}
+
+/**
+ * Filter HTML tags from imported XML metadata.
+ *
+ * @param DOMNode $node
+ *   The node containing metadata that should be converted into a string,
+ *   possibly containing markup.
+ *
+ * @return string 
+ *   The node's inner content with markup escaped or stripped.
+ */
+function islandora_doi_filter_html($node, $action = NULL) {
+  if (!$node) {
+    return "";
+  }
+  else {
+    $text  = '';
+    foreach ($node->childNodes as $child) {
+      $text .= $child->ownerDocument->saveXML($child);
+    }
+
+    $text = preg_replace('/\n\s+/', ' ', $text);
+
+    if (!$action) {
+      $action = variable_get('islandora_doi_handle_imported_metadata', 'strip');
+    }
+
+    switch ($action) {
+      case 'strip':
+        $text = strip_tags($text);
+        break;
+
+      case 'encode':
+        $text = htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8', FALSE);
+        break;
+
+      default:
+        drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => $action)), 'error');
+        break;
+    }
+  }
+
+  return $text;
 }
