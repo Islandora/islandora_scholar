@@ -23,3 +23,19 @@ function citeproc_update_7100() {
 function citeproc_update_7101() {
   variable_set('citeproc_backend', 'citeproc_backend_v1');
 }
+
+/**
+ * Implements hook_install().
+ */
+function citeproc_install() {
+  module_load_include('inc', 'citeproc', 'includes/utilities');
+  $default = citeproc_v2_supported() ? CITEPROC_BACKEND_V2 : CITEPROC_BACKEND_V1;
+  variable_set('citeproc_backend', $default);
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function citeproc_uninstall() {
+  variable_del('citeproc_backend');
+}

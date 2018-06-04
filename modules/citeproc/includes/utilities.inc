@@ -16,20 +16,6 @@ function citeproc_v2_supported() {
 }
 
 /**
- * Returns default backend based on the PHP version of the installation.
- *
- * @return null|string
- *   String with the backend name or NULL if already set.
- */
-function citeproc_default_backend() {
-  if (variable_get('citeproc_backend', NULL) !== NULL) {
-    return NULL;
-  }
-  $backend = !citeproc_v2_supported() ? CITEPROC_BACKEND_V1 : CITEPROC_BACKEND_V2;
-  return $backend;
-}
-
-/**
  * Lookup the language to use for citeproc-php v2.
  *
  * @param string $language
