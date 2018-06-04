@@ -890,9 +890,11 @@ function islandora_doi_filter_html($node, $action = NULL) {
       case 'strip':
         $text = strip_tags($text);
         break;
+
       case 'encode':
         $text = htmlspecialchars($text, ENT_NOQUOTES, 'UTF-8', FALSE);
         break;
+
       default:
         drupal_set_message(t('@var is not a recognized option for handling HTML in imported DOI metadata.', array('@var' => $action)), 'error');
         break;
