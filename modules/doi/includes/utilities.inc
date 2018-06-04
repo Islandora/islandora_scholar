@@ -353,6 +353,7 @@ function islandora_doi_crossref_translator($crossref_data) {
                       $translated_title_text = islandora_doi_filter_html($grandchild);
                       $translated_title = $mods->createElement('title', $translated_title_text);
                       $translated_titleinfo->appendChild($translated_title);
+                    }
                     break;
                 }
               }
