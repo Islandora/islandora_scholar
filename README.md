@@ -2,7 +2,15 @@
 
 ## Introduction
 
-Based on the UPEI scholar module, Islandora Scholar is designed to implement a feature-rich Institutional Repository.
+Islandora Scholar is a suite of modules designed to help Islandora function as an Institutional Repository. It provides a framework for handling Citation and Thesis objects, and a variety of additional features for working with citations. It includes:
+* Citation Content Model and Thesis Content Model (and associated default forms)
+* Display formatted citations based on MODS data based on user-uploaded CSL files
+* (optional) tab on Citation objects containing the self-archiving policies of the associated periodical, based on Sherpa/RoMEO
+* (optional) links on Citation and Thesis objects to search for them in Google Scholar or your local discovery layer
+* Importers and populators to create objects based on DOIs, PMIDs, Endnote XML, or RIS files (see associated submodules)
+* Ability to embargo objects or datastreams permanently or with a time limit (see Scholar Embargo submodule)
+* Google Scholar-ready microdata in meta tags (see Islandora Google Scholar submodule)
+
 
 ## Requirements
 
@@ -15,19 +23,23 @@ This module requires the following modules/libraries:
 * [Citeproc](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/citeproc) (included in /modules)
 * [CSL](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/csl) (included in /modules)
 
-Additionally, it is necessary to install the citeproc-php library. More information is available in [Citeproc's README.md file](https://github.com/Islandora/islandora_scholar/blob/7.x/modules/citeproc/README.md#requirements).
+
+The Citeproc module depends on the [citeproc-php](https://github.com/Islandora/citeproc-php) library, which should be installed in the `sites/all/libraries` directory, such that the main `CiteProc.php` file is located at `sites/all/libraries/citeproc-php/CiteProc.php`. More information is available in [Citeproc's README.md file](https://github.com/Islandora/islandora_scholar/blob/7.x/modules/citeproc/README.md).
+
+The Bibutils module depends on Bibutils, a command-line tool which must be installed on the server. More information is available in [Bibutils' README.md file](https://github.com/Islandora/islandora_scholar/tree/7.x/modules/bibutils).
+
 
 ## Installation
 
-Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
+Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information. This module requires new Fedora objects. If enabling through Drush, use the administrative user (e.g. `drush en -u 1 islandora_scholar`).
 
 ## Configuration
 
-Set the path for `Sherpa/RoMEO` in Administration » Islandora » Solution pack configuation » Scholar (admin/islandora/solution_pack_config/scholar).
+Configure Islandora Scholar at __Administration » Islandora » Solution pack configuation » Scholar__ (`admin/islandora/solution_pack_config/scholar`).
+Further documentation of the available options is available at [our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Scholar).
 
-![image](https://cloud.githubusercontent.com/assets/2738244/19038481/b1391c48-8949-11e6-9db9-3f681380c65f.png)
-
-Islandora 7 has re-defined how we are displaying citations to the user. As such, existing citations should be updated using the provided Drush script. The command creates PDF derivatives for any existing attached PDFs as the Google PDF Viewer has been removed in favor of displaying just the PREVIEW datastream.
+## Upgrade notice
+As of Islandora 7.x-1.3, PDF datastreams of citationCModel objects are expected to have derivatives (PREVIEW, TN, optionally FULL_TEXT). Existing citations that are missing PDF-derived datastreams can be updated using the provided Drush script, which will generate the derivatives.
 
 This can be done by running:
 `drush -u 1 islandora-scholar-update-citations`
@@ -35,6 +47,15 @@ This can be done by running:
 ## Documentation
 
 Further documentation for this module is available at [our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Scholar).
+
+## Complementary Modules
+
+Aside from the submodules bundled with Scholar, several other modules can be useful for creating an institutional repository:
+
+* [Entities Solution Pack](https://github.com/Islandora/islandora_solution_pack_entities) - create and manage objects representing people (scholars) and organizations (departments)
+* [Islandora Badges](https://github.com/Islandora/islandora_badges) - display citation counts for objects, pulling from a variety of citation-tracking APIs
+* [Islandora Usage Stats](https://github.com/Islandora/islandora_usage_stats) - keeps track of views/downloads of Islandora objects.
+
 
 ## Troubleshooting/Issues
 
