@@ -59,7 +59,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     ),
     'islandora_doi_openurl' => array(
       '#type' => 'textfield',
-      '#title' => t('URL for Crossref OpenURL ("legacy") API '),
+      '#title' => t('URL for Crossref OpenURL ("legacy") API'),
       '#description' => t("The URL which we will query in legacy mode to obtain metadata. (it is probably not recommended to change this from the default value '@url').", array(
         '@url' => ISLANDORA_DOI_OPENURL_DEFAULT,
       )),
@@ -73,7 +73,7 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     'islandora_doi_openurl_pid' => array(
       '#type' => 'textfield',
       '#title' => t('OpenURL PID'),
-      '#description' => t('Email address registered with Crossref\'s free query service. https://www.crossref.org/requestaccount/'),
+      '#description' => t("Email address registered with Crossref's free query service. https://www.crossref.org/requestaccount/"),
       '#default_value' => variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT),
       '#states' => array(
         'visible' => array(
