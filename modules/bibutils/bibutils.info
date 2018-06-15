@@ -8,6 +8,6 @@ files[] = includes/bibutils.inc
 files[] = tests/endx2xml.test
 files[] = tests/ris2xml.test
 files[] = tests/transform_test_base.inc
-version = 7.x-1.11RC1
+version = 7.x-1.11
 core = 7.x
 php = 5.2
