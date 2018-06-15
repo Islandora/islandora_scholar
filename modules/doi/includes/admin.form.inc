@@ -19,14 +19,6 @@
 function islandora_doi_admin_form(array $form, array &$form_state) {
   form_load_include($form_state, 'inc', 'islandora_doi', 'includes/utilities');
   $form += array(
-    'islandora_doi_use_legacy_mode' => array(
-      '#type' => 'checkbox',
-      '#title' => t('Use legacy retrieval mode'),
-      '#description' => t("Keep fetching metadata directly from Crossref's OpenURL (account required!). If unchecked, use content negotiation as explained by https://www.crosscite.org."),
-      '#default_value' => (islandora_doi_use_legacy_mode() === TRUE ? 1 : 0),
-      // Ensure correct return value if selected (although 1 is the default).
-      '#return_value' => 1,
-    ),
     'islandora_doi_handle_imported_metadata' => array(
       '#type' => 'radios',
       '#title' => t('How should embedded HTML in imported DOI metadata be handled?'),
@@ -39,31 +31,55 @@ function islandora_doi_admin_form(array $form, array &$form_state) {
     ),
     'islandora_doi_url_config' => array(
       '#type' => 'fieldset',
-      '#title' => t('DOI URL configuration'),
-      '#description' => t('Various URL related parameters used by the metadata retrieval via DOI.'),
+      '#title' => t('DOI API configuration'),
       '#collapsible' => TRUE,
     ),
   );
   $form['islandora_doi_url_config'] += array(
+    'islandora_doi_use_legacy_mode' => array(
+      '#type' => 'checkbox',
+      '#title' => t('Use legacy API (Crossref OpenURL)'),
+      '#description' => t("Fetch metadata directly from Crossref's OpenURL API (account required!). If unchecked, use doi.org's content negotiation as explained by https://www.crosscite.org/docs.html."),
+      '#default_value' => (islandora_doi_use_legacy_mode() === TRUE ? 1 : 0),
+      // Ensure correct return value if selected (although 1 is the default).
+      '#return_value' => 1,
+    ),
     'islandora_doi_doiurl' => array(
       '#type' => 'textfield',
-      '#title' => t('DOI URL supporting content negotiation'),
-      '#description' => t("The URL which we will query in non-legacy mode to obtain our metadata (it is probably not recommended to change this from the default value '@url').", array(
+      '#title' => t('URL for Content Negotiation API'),
+      '#description' => t("The URL which we will query in non-legacy mode to obtain metadata (it is probably not recommended to change this from the default value '@url').", array(
         '@url' => ISLANDORA_DOI_DOIURL_DEFAULT,
       )),
       '#default_value' => variable_get('islandora_doi_doiurl', ISLANDORA_DOI_DOIURL_DEFAULT),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_doi_use_legacy_mode"]' => array('checked' => FALSE),
+        ),
+      ),
     ),
     'islandora_doi_openurl' => array(
       '#type' => 'textfield',
-      '#title' => t('DOI OpenURL'),
-      '#description' => t('The URL which we will query in legacy mode to obtain our CrossREF information.'),
+      '#title' => t('URL for Crossref OpenURL ("legacy") API'),
+      '#description' => t("The URL which we will query in legacy mode to obtain metadata. (it is probably not recommended to change this from the default value '@url').", array(
+        '@url' => ISLANDORA_DOI_OPENURL_DEFAULT,
+      )),
       '#default_value' => variable_get('islandora_doi_openurl', ISLANDORA_DOI_OPENURL_DEFAULT),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_doi_use_legacy_mode"]' => array('checked' => TRUE),
+        ),
+      ),
     ),
     'islandora_doi_openurl_pid' => array(
       '#type' => 'textfield',
       '#title' => t('OpenURL PID'),
-      '#description' => t('An identifier to call yourself, for the OpenURL endpoint. To use this service you first need to register for an account here: https://www.crossref.org/requestaccount/'),
+      '#description' => t("Email address registered with Crossref's free query service. https://www.crossref.org/requestaccount/"),
       '#default_value' => variable_get('islandora_doi_openurl_pid', ISLANDORA_DOI_OPENURL_PID_DEFAULT),
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_doi_use_legacy_mode"]' => array('checked' => TRUE),
+        ),
+      ),
     ),
   );
 
