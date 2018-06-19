@@ -55,14 +55,341 @@ function islandora_scholar_admin_form() {
       '#description' => t('Various parameters used by your Library Catalog'),
       '#collapsible' => TRUE,
     ),
+    'islandora_scholar_xpaths' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Islandora Scholar Xpath configuration'),
+      '#description' => t('Manually set various xpaths for Islandora Scholar to use instead of the defaults'),
+      '#collapsible' => TRUE,
+    ),
   );
 
+  
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_title', '//mods:mods[1]/mods:titleInfo/mods:title', array(
+    '#type' => 'textfield',
+    '#title' => t('Title'),
+    '#description' => t('The default xpath you want to use to search'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_abstract', '//mods:mods[1]/mods:abstract', array(
+    '#type' => 'textfield',
+    '#title' => t('Abstract'),
+    '#description' => t('The default xpath you want to use to search'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_call-number', '//mods:mods[1]/mods:classification', array(
+    '#type' => 'textfield',
+    '#title' => t('Call number'),
+    '#description' => t('The default xpath you want to use to search'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_collection-title', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title', array(
+    '#type' => 'textfield',
+    '#title' => t('Collection title'),
+    '#description' => t('The default xpath you want to use for collection title'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_container-title', '//mods:mods[1]/mods:relatedItem[@type="host"]/mods:titleInfo[not(@type)]/mods:title', array(
+    '#type' => 'textfield',
+    '#title' => t('Container title'),
+    '#description' => t('The default xpath you want to use to search'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_DOI', '//mods:mods[1]/mods:identifier[@type="doi"]', array(
+    '#type' => 'textfield',
+    '#title' => t('DOI'),
+    '#description' => t('The default xpath you want to use for DOI'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_edition', '//mods:mods[1]/mods:originInfo/mods:edition', array(
+    '#type' => 'textfield',
+    '#title' => t('Edition'),
+    '#description' => t('The default xpath you want to use edition'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_event', '//mods:mods[1][mods:genre[@authority="local"]="conferencePaper"]/mods:relatedItem/mods:titleInfo/mods:title', array(
+    '#type' => 'textfield',
+    '#title' => t('Event'),
+    '#description' => t('The default xpath you want to use for event type'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_genre', '//mods:mods[1]/mods:genre', array(
+    '#type' => 'textfield',
+    '#title' => t('Genre'),
+    '#description' => t('The default xpath for a genre'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_ISBN', '//mods:mods[1]/mods:identifier[@type="isbn"]', array(
+    '#type' => 'textfield',
+    '#title' => t('ISBN'),
+    '#description' => t('The default xpath you want to use for ISBN number'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_volume', '//mods:mods[1]/mods:part/mods:detail[@type="volume"]/mods:number', array(
+    '#type' => 'textfield',
+    '#title' => t('Volume'),
+    '#description' => t('The default xpath you want to use for volume number or title'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_issue', '//mods:mods[1]/mods:part/mods:detail[@type="issue"]/mods:number', array(
+    '#type' => 'textfield',
+    '#title' => t('Issue'),
+    '#description' => t('The default xpath you want to use for the issue title, name or number'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_note', '//mods:mods[1]/mods:note', array(
+    '#type' => 'textfield',
+    '#title' => t('Note'),
+    '#description' => t('The default xpath you want to use for notes.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_number', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo/mods:partNumber', array(
+    '#type' => 'textfield',
+    '#title' => t('Number'),
+    '#description' => t('The default xpath you want to use for number'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_publisher', '//mods:mods[1]/mods:originInfo/mods:publisher', array(
+    '#type' => 'textfield',
+    '#title' => t('Publisher'),
+    '#description' => t('The default xpath you want to use for Publisher'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_publisher-place', '//mods:mods[1]/mods:originInfo/mods:place/mods:placeTerm', array(
+    '#type' => 'textfield',
+    '#title' => t('Publisher place'),
+    '#description' => t('The default xpath you want to use for publisher-place'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_URL', '//mods:mods[1]/mods:location/mods:url', array(
+    '#type' => 'textfield',
+    '#title' => t('URL'),
+    '#description' => t('The default xpath you want to use for URL'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_number-pmid', '//mods:mods[1]/mods:identifier[@type="accession"]', array(
+    '#type' => 'textfield',
+    '#title' => t('PubMed ID'),
+    '#description' => t('The default xpath you want to use for the PubMed ID'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_number-pmcid', '//mods:mods[1]/mods:identifier[@type="pmc"]', array(
+    '#type' => 'textfield',
+    '#title' => t('PMCID'),
+    '#description' => t('The default xpath you want to use for the PubMed Central reference number (PMCID)'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_number-nihmsid', '//mods:mods[1]/mods:identifier[@type="mid"]', array(
+    '#type' => 'textfield',
+    '#title' => t('NIH Manuscript Submission Reference Number'),
+    '#description' => t('The default xpath you want to use for NIH Manuscript Submission Reference Number (NIHMSID)'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_authors_xpath', '//mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]', array(
+    '#type' => 'textfield',
+    '#title' => t('Authors'),
+    '#description' => t('The default xpath you want to use for authors'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_property', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title', array(
+    '#type' => 'textfield',
+    '#title' => t('property'),
+    '#description' => t('The default xpath you want to use for property'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_pages', '//mods:mods[1]/mods:part/mods:extent[@unit="pages"]', array(
+    '#type' => 'textfield',
+    '#title' => t('Pages'),
+    '#description' => t('The default xpath you want to use for pages'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_types', '//mods:mods[1]/mods:genre[@authority="endnote"]', array(
+    '#type' => 'textfield',
+    '#title' => t('Types'),
+    '#description' => t('The default xpath you want to use for types'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_type_marcgt', '//mods:mods[1]/mods:genre[@authority="marcgt"]', array(
+    '#type' => 'textfield',
+    '#title' => t('type_marcgt'),
+    '#description' => t('The default xpath you want to use for type_marcgt'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_type_marcgt_related', '//mods:mods[1]/mods:relatedItem/mods:genre[@authority="marcgt"]', array(
+    '#type' => 'textfield',
+    '#title' => t('type_marcgt_related'),
+    '#description' => t('The default xpath you want to use for type_marcgt_related'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_types_local_auth', '//mods:mods[1]/mods:genre[not(@authority="marcgt" or @authority="endnote")]', array(
+    '#type' => 'textfield',
+    '#title' => t('types_local_auth'),
+    '#description' => t('The default xpath you want to use for types_local_auth'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_season', '//mods:originInfo/mods:dateOther[@type="season"]', array(
+    '#type' => 'textfield',
+    '#title' => t('Season'),
+    '#description' => t('The default xpath you want to use for season'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_date_captured', '//mods:originInfo/mods:dateCaptured', array(
+    '#type' => 'textfield',
+    '#title' => t('date_captured'),
+    '#description' => t('The default xpath you want to use date_captured'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_date_issued', '//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type="host"]/mods:part/mods:date', array(
+    '#type' => 'textfield',
+    '#title' => t('date_issued'),
+    '#description' => t('The default xpath you want to use for date_issued'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_title_results', '//mods:mods[1]/mods:titleInfo/mods:title', array(
+    '#type' => 'textfield',
+    '#title' => t('title_results'),
+    '#description' => t('The default xpath you want to use for title_results'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_degree_grantor', '//mods:mods/mods:name[@type="corporate"][mods:role/mods:roleTerm = "Degree grantor"]/mods:namePart', array(
+    '#type' => 'textfield',
+    '#title' => t('degree_grantor'),
+    '#description' => t('The default xpath you want to use for degree_grantor'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
   $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search_enabled', FALSE, array(
     '#type' => 'checkbox',
     '#title' => t('Render Google Scholar Search link'),
     '#description' => t('Enable Searching in Google Scholar.'),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_primary_search_xpath', "//mods:identifier[@type=\"doi\"]", array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_primary_search_xpath', '//mods:identifier[@type=\"doi\"]', array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Primary Search XPath'),
     '#description' => t('The primary xpath you want to use to search.'),
@@ -72,7 +399,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:mods[1]/mods:titleInfo/mods:title", array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', '//mods:mods[1]/mods:titleInfo/mods:title', array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Default Search XPath'),
     '#description' => t('The default xpath you want to use to search'),
@@ -107,7 +434,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_primary_search_xpath', "//mods:identifier[@type=\"doi\"]", array(
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_primary_search_xpath', '//mods:identifier[@type=\"doi\"]', array(
     '#type' => 'textfield',
     '#title' => t('Library Catalog Primary Search XPath'),
     '#description' => t('The primary xpath you want to use to search.'),
@@ -117,7 +444,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_default_search_xpath', "//mods:title", array(
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_default_search_xpath', '//mods:title', array(
     '#type' => 'textfield',
     '#title' => t('Library Catalog Default Search XPath'),
     '#description' => t('The default xpath you want to use to search'),
