@@ -38,6 +38,172 @@ Install as usual, see [this](https://drupal.org/documentation/install/modules-th
 Configure Islandora Scholar at __Administration » Islandora » Solution pack configuation » Scholar__ (`admin/islandora/solution_pack_config/scholar`).
 Further documentation of the available options is available at [our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Scholar).
 
+### Manually Setting XPaths
+Ouch! Using caution here can be useful. A small change can cause an issue that could easily go unnoticed for some time. The documentation for this can be extensive. Please use [MODS User Guidelines Version 3](https://www.loc.gov/standards/mods/userguide/index.html) for the basics. Islandora Scholar XPath Configuration is at /admin/islandora/solution_pack_config/scholar
+
+![ISLANDORA SCHOLAR XPATH CONFIGURATION](https://user-images.githubusercontent.com/2738244/41784378-8481d2c8-760d-11e8-935e-527b6c5c02c2.png)
+
+Clicking the "__Save Configuration__" will create drupal variable for each of these. Clicking "__Reset all XPaths to Defaults__" will delete the drupal global variables and fault back to the hard coded ones. 
+- __Title__
+  * Default Value: //mods:mods[1]/mods:titleInfo/mods:title
+  * Context:
+- __Abstract__
+  * Default Value: //mods:mods[1]/mods:abstract
+  * Context:
+- __Call number__
+  * Default Value: //mods:mods[1]/mods:classification
+  * Context:
+- __Collection title__
+  * Default Value: //mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title
+  * Context:
+- __Container title__
+  * Default Value: //mods:mods[1]/mods:relatedItem[@type="host"]/mods:titleInfo[not(@type)]/mods:title
+  * Context:
+- __DOI__
+  * Default Value: //mods:mods[1]/mods:identifier[@type="doi"]
+  * Context:
+- __Edition__
+  * Default Value: //mods:mods[1]/mods:originInfo/mods:edition
+  * Context:
+- __Event__
+  * Default Value: //mods:mods[1][mods:genre[@authority="local"]="conferencePaper"]/mods:relatedItem/mods:titleInfo/mods:title
+  * Context:
+- __Genre__
+  * Default Value: //mods:mods[1]/mods:genre
+  * Context:
+- __ISBN__
+  * Default Value: //mods:mods[1]/mods:identifier[@type="isbn"]
+  * Context:
+- __Volume__
+  * Default Value: //mods:mods[1]/mods:part/mods:detail[@type="volume"]/mods:number
+  * Context:
+- __Issue__
+  * Default Value: //mods:mods[1]/mods:part/mods:detail[@type="issue"]/mods:number
+  * Context:
+- __Note__
+  * Default Value: //mods:mods[1]/mods:note
+  * Context:
+- __Number__
+  * Default Value: //mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo/mods:partNumber
+  * Context:
+- __Publisher__
+  * Default Value: //mods:mods[1]/mods:originInfo/mods:publisher
+  * Context:
+- __Publisher place__
+  * Default Value: //mods:mods[1]/mods:originInfo/mods:place/mods:placeTerm
+  * Context:
+- __URL__
+  * Default Value: //mods:mods[1]/mods:location/mods:url
+  * Context:
+- __PubMed ID__
+  * Default Value: //mods:mods[1]/mods:identifier[@type="accession"]
+  * Context:
+- __PMCID__
+  * Default Value: //mods:mods[1]/mods:identifier[@type="pmc"]
+  * Context:
+- __NIH Manuscript Submission Reference Number__
+  * Default Value: //mods:mods[1]/mods:identifier[@type="mid"]
+  * Context:
+- __Authors__
+  * Default Value: //mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]
+  * Context:
+- __Property__
+  * Default Value: //mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title 
+  * Context:
+- __Pages__
+  * Default Value: //mods:mods[1]/mods:part/mods:extent[@unit="pages"]
+  * Context:
+- __Types__
+  * Default Value: //mods:mods[1]/mods:genre[@authority="endnote"]
+  * Context:
+- __MARC genre type__
+  * Default Value: //mods:mods[1]/mods:genre[@authority="marcgt"]
+  * Context:
+- __MARC genre type related__
+  * Default Value: //mods:mods[1]/mods:relatedItem/mods:genre[@authority="marcgt"]
+  * Context:
+- __types local auth__
+  * Default Value: //mods:mods[1]/mods:genre[not(@authority="marcgt" or @authority="endnote")]
+  * Context:
+- __Season__
+  * Default Value: //mods:originInfo/mods:dateOther[@type="season"]
+  * Context:
+- __Date Captured__
+  * Default Value: //mods:originInfo/mods:dateCaptured
+  * Context:
+- __Date Issued__
+  * Default Value: //mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type="host"]/mods:part/mods:date
+  * Context:
+- __Title Results__
+  * Default Value: //mods:mods[1]/mods:titleInfo/mods:title
+  * Context:
+- __Degree Grantor__
+  * Default Value: //mods:mods/mods:name[@type="corporate"][mods:role/mods:roleTerm = "Degree grantor"]/mods:namePart
+  * Context:
+- __Date Captured__
+  * Default Value: //mods:originInfo/mods:dateCaptured
+  * Context:
+- __Date Issued__
+  * Default Value: //mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type='host']/mods:part/mods:date
+  * Context:
+- __Names__
+  * Default Value: //mods:mods[1]/mods:name[normalize-space(mods:namePart)]
+  * Context:
+- __Container Author__
+  * Default Value: //mods:mods[1]/mods:relatedItem[@type="host"]/mods:name
+  * Context:
+- __Collection Editor__
+  * Default Value: //mods:mods[1]/mods:relatedItem[@type="series"]/mods:name
+  * Context:
+- __Origin Date__
+  * Default Value: //mods:originInfo/mods:dateIssued
+  * Context:
+- __Part Date__
+  * Default Value: //mods:part/mods:date
+  * Context:
+- __Related Date__
+  * Default Value: //mods:relatedItem[@type="host"]//mods:date
+  * Context:
+- __Created Date__
+  * Default Value: //mods:originInfo/mods:dateCreated
+  * Context:
+- __Host Title__
+  * Default Value: //mods:relatedItem[@type="host"]//mods:title
+  * Context:
+- __ISSN__
+  * Default Value: //mods:identifier[@type="issn"]
+  * Context:
+- __Start Page__
+  * Default Value: //mods:extent[@unit="page"]/mods:start
+  * Context:
+- __End Page__
+  * Default Value: //mods:extent[@unit="page"]/mods:end
+  * Context:
+- __Online Date__
+  * Default Value: //mods:recordInfo/mods:recordCreationDate
+  * Context:
+- __Sub Title__
+  * Default Value: //mods:subTitle
+  * Context:
+- __Embargo Date__
+  * Default Value: //mods:dateOther[@type="embargo"]
+  * Context:
+- __Department__
+  * Default Value: //mods:identifier[@type="u2"]
+  * Context:
+- __Given Name__
+  * Default Value: mods:namePart[@type = 'given']
+  * Note how this doesn't start with a double slash '//'
+  * Context:
+- __Family Name__
+  * Default Value: mods:namePart[@type = 'family']
+  * Note how this doesn't start with a double slash '//'
+  * Context:
+- __Role Term__
+  * Default Value: mods:role/mods:roleTerm
+  * Note how this doesn't start with a double slash '//'
+  * Context:
+
 ## Upgrade notice
 As of Islandora 7.x-1.3, PDF datastreams of citationCModel objects are expected to have derivatives (PREVIEW, TN, optionally FULL_TEXT). Existing citations that are missing PDF-derived datastreams can be updated using the provided Drush script, which will generate the derivatives.
 
