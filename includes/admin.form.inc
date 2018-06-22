@@ -715,7 +715,7 @@ function _islandora_scholar_xpaths_reset() {
     'islandora_scholar_default_search_xpath_call-number',
     'islandora_scholar_default_search_xpath_collection-title',
     'islandora_scholar_default_search_xpath_container-title',
-    'islandora_scholar_default_search_xpath_DOI',
+    'islandora_scholar_default_search_xpath_doi',
     'islandora_scholar_default_search_xpath_edition',
     'islandora_scholar_default_search_xpath_event',
     'islandora_scholar_default_search_xpath_genre',

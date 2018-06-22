@@ -128,7 +128,7 @@ function convert_mods_to_citeproc_jsons($mods_in) {
       'call-number' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_call-number', '//mods:mods[1]/mods:classification')),
       'collection-title' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_collection-title', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title')),
       'container-title' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_container-title', '//mods:mods[1]/mods:relatedItem[@type="host"]/mods:titleInfo[not(@type)]/mods:title')),
-      'DOI' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_DOI', '//mods:mods[1]/mods:identifier[@type="doi"]')),
+      'DOI' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_doi', '//mods:mods[1]/mods:identifier[@type="doi"]')),
       'edition' => preg_replace('/[^0-9]/', '', convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_edition', '//mods:mods[1]/mods:originInfo/mods:edition')),
       'event' => convert_mods_to_citeproc_json_event($mods),
       'event-place' => convert_mods_to_citeproc_json_event_place($mods),
