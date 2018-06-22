@@ -210,7 +210,7 @@ function convert_mods_to_citeproc_json_genre($mods) {
 function convert_mods_to_citeproc_json_title(SimpleXMLElement $mods) {
   $output = '';
   add_mods_namespace($mods);
-  $titles = $mods->xpath( variable_get('islandora_scholar_default_search_xpath_title',"//mods:mods[1]/mods:titleInfo/mods:title"));
+  $titles = $mods->xpath(variable_get('islandora_scholar_default_search_xpath_title', "//mods:mods[1]/mods:titleInfo/mods:title"));
 
   if (!empty($titles)) {
     while (list($num, $node) = each($titles)) {
@@ -599,7 +599,7 @@ function convert_mods_to_citeproc_json_name(SimpleXMLElement $name) {
  */
 function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
   $output = array();
-  $name_parts = $name->xpath("mods:namePart");
+  $name_parts = $name->xpath(variable_get('islandora_scholar_default_search_xpath_local_author', "mods:namePart"));
 
   foreach ($name_parts as $name_part) {
     $type = (string) $name_part->attributes()->type;
@@ -651,7 +651,7 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
  */
 function convert_mods_to_citeproc_json_name_corporate(SimpleXMLElement $name) {
   $output = array();
-  $name_parts = $name->xpath("mods:namePart");
+  $name_parts = $name->xpath(variable_get('islandora_scholar_default_search_xpath_local_author', "mods:namePart"));
   foreach ($name_parts as $name_part) {
     $content = (string) $name_part . ' ';
     $output['literal'] = isset($output['literal']) ? $output['literal'] . $content : $content;
@@ -676,7 +676,7 @@ function convert_mods_to_citeproc_json_name_corporate(SimpleXMLElement $name) {
  */
 function convert_mods_to_citeproc_json_name_role(SimpleXMLElement $name, array $valid_roles, $default_role) {
   module_load_include('inc', 'citeproc', 'includes/marcrelator_conversion');
-  $role_term = $name->xpath("mods:role/mods:roleTerm");
+  $role_term = $name->xpath(variable_get('islandora_scholar_default_search_xpath_role_term', "mods:role/mods:roleTerm"));
   if (isset($role_term[0])) {
     $role = strtolower((string) $role_term[0]);
     $role_term = $role_term[0];
@@ -711,18 +711,18 @@ function _try_parse_date(&$output, $date_string) {
  */
 function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
   $output = array();
-  $season = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateOther[@type='season']");
-  $date_captured = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateCaptured");
+  $season = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_season', "//mods:originInfo/mods:dateOther[@type='season']"));
+  $date_captured = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_dateCaptured', "//mods:originInfo/mods:dateCaptured"));
   if (!empty($date_captured)) {
     _try_parse_date($output['accessed'], $date_captured);
   }
 
-  $date_issued = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type='host']/mods:part/mods:date");
+  $date_issued = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_date_issued', "//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type='host']/mods:part/mods:date"));
   if (!empty($date_issued)) {
     _try_parse_date($output['issued'], $date_issued);
   }
 
-  $date_created = convert_mods_to_citeproc_json_query($mods, "//mods:originInfo/mods:dateCreated");
+  $date_created = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_created_date', "//mods:originInfo/mods:dateCreated"));
   if (!empty($date_created) && empty($output['issued'])) {
     _try_parse_date($output['issued'], $date_created);
   }
