@@ -594,7 +594,7 @@ function islandora_scholar_admin_form() {
     '#title' => t('Render Google Scholar Search link'),
     '#description' => t('Enable Searching in Google Scholar.'),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_primary_search_xpath', '//mods:identifier[@type=\"doi\"]', array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_primary_search_xpath', '//mods:identifier[@type="doi"]', array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Primary Search XPath'),
     '#description' => t('The primary xpath you want to use to search.'),
@@ -604,7 +604,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', '//mods:mods[1]/mods:titleInfo/mods:title', array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:mods[1]/mods:titleInfo/mods:title", array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Default Search XPath'),
     '#description' => t('The default xpath you want to use to search'),
@@ -639,7 +639,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_primary_search_xpath', '//mods:identifier[@type=\"doi\"]', array(
+  $form['library_catalog_search'] += _islandora_scholar_add_variable('islandora_scholar_library_catalog_primary_search_xpath', '//mods:identifier[@type="doi"]', array(
     '#type' => 'textfield',
     '#title' => t('Library Catalog Primary Search XPath'),
     '#description' => t('The primary xpath you want to use to search.'),

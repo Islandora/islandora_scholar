@@ -129,7 +129,7 @@ function convert_mods_to_citeproc_jsons($mods_in) {
       'collection-title' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_collection-title', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title')),
       'container-title' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_container-title', '//mods:mods[1]/mods:relatedItem[@type="host"]/mods:titleInfo[not(@type)]/mods:title')),
       'DOI' => convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_doi', '//mods:mods[1]/mods:identifier[@type="doi"]')),
-      'edition' => preg_replace('/[^0-9]/', '', convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_edition', '//mods:mods[1]/mods:originInfo/mods:edition')),
+      'edition' => preg_replace('/[^0-9]/', '', convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_edition', '//mods:mods[1]/mods:originInfo/mods:edition'))),
       'event' => convert_mods_to_citeproc_json_event($mods),
       'event-place' => convert_mods_to_citeproc_json_event_place($mods),
       // 'genre' => convert_mods_to_citeproc_json_genre($mods),
@@ -210,7 +210,7 @@ function convert_mods_to_citeproc_json_genre($mods) {
 function convert_mods_to_citeproc_json_title(SimpleXMLElement $mods) {
   $output = '';
   add_mods_namespace($mods);
-  $titles = $mods->xpath(variable_get('islandora_scholar_default_search_xpath_title', "//mods:mods[1]/mods:titleInfo/mods:title"));
+  $titles = $mods->xpath(variable_get('islandora_scholar_default_search_xpath_title', '//mods:mods[1]/mods:titleInfo/mods:title'));
 
   if (!empty($titles)) {
     while (list($num, $node) = each($titles)) {
@@ -237,14 +237,14 @@ function convert_mods_to_citeproc_json_title(SimpleXMLElement $mods) {
  *   The event property for the Citation.
  */
 function convert_mods_to_citeproc_json_event(SimpleXMLElement $mods) {
-  $property = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_event', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title');
+  $property = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_event', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title'));
   // marcgt.
   if (isset($property)) {
     return $property;
   }
   else {
     // zotero.
-    return convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_event', '//mods:mods[1][mods:genre[@authority="local"]="conferencePaper"]/mods:relatedItem/mods:titleInfo/mods:title');
+    return convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_event', '//mods:mods[1][mods:genre[@authority="local"]="conferencePaper"]/mods:relatedItem/mods:titleInfo/mods:title'));
   }
 }
 
@@ -258,14 +258,14 @@ function convert_mods_to_citeproc_json_event(SimpleXMLElement $mods) {
  *   The event-place property for the Citation.
  */
 function convert_mods_to_citeproc_json_event_place(SimpleXMLElement $mods) {
-  $property = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_place', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:originInfo/mods:place/mods:placeTerm');
+  $property = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_place', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:originInfo/mods:place/mods:placeTerm'));
   // marcgt.
   if (isset($property)) {
     return $property;
   }
   else {
     // zotero.
-    return convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_place', '//mods:mods[1][mods:genre[@authority="local"][text()="conferencePaper"]]/mods:originInfo/mods:place/mods:placeTerm');
+    return convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_default_search_xpath_place', '//mods:mods[1][mods:genre[@authority="local"][text()="conferencePaper"]]/mods:originInfo/mods:place/mods:placeTerm'));
   }
 }
 
