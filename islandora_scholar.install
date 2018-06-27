@@ -83,7 +83,7 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_default_search_xpath_dateCaptured',
     'islandora_scholar_default_search_xpath_date_issued',
     'islandora_scholar_default_search_xpath_local_author',
-    'islandora_scholar_default_search_xpath_local_container-author'',
+    'islandora_scholar_default_search_xpath_local_container-author',
     'islandora_scholar_default_search_xpath_local_collection-editor',
     'islandora_scholar_default_search_xpath_origin_date',
     'islandora_scholar_default_search_xpath_part_date',
