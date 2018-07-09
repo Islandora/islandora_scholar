@@ -23,7 +23,7 @@ function citeproc_admin_form() {
   $form['citeproc_backend'] = array(
     '#type' => 'radios',
     '#title' => t('What version of citeproc library should be used?'),
-    '#default_value' => variable_get('citeproc_backend', citeproc_default_backend()),
+    '#default_value' => variable_get('citeproc_backend', citeproc_v2_supported() ? CITEPROC_BACKEND_V2 : CITEPROC_BACKEND_V1),
     '#options' => $options,
     '#description' => t('V2 of citeproc-php is recommended when your PHP version supports it.'),
   );
