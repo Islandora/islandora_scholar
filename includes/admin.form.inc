@@ -79,6 +79,27 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_title_subtitle', '../mods:subTitle', array(
+    '#type' => 'textfield',
+    '#title' => t('→ Title (child): subtitle'),
+    '#description' => t('Default Value: ../mods:subTitle <br/>The XPath to use to use for subtitle and is a relative path.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_title_nonsort', '../mods:nonSort', array(
+    '#type' => 'textfield',
+    '#title' => t('→ Title (child): nonsort'),
+    '#description' => t('Default Value: ../mods:nonSort <br/>The XPath to use to use for title\'s nonsort values and is a relative path.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_abstract', '//mods:mods[1]/mods:abstract', array(
     '#type' => 'textfield',
     '#title' => t('Abstract'),

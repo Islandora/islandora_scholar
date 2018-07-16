@@ -216,8 +216,8 @@ function convert_mods_to_citeproc_json_title(SimpleXMLElement $mods) {
     while (list($num, $node) = each($titles)) {
       add_mods_namespace($node);
       $title = (string) $node;
-      $subtitle = convert_mods_to_citeproc_json_query($node, '../mods:subTitle');
-      $non_sort = convert_mods_to_citeproc_json_query($node, '../mods:nonSort');
+      $subtitle = convert_mods_to_citeproc_json_query($node, variable_get('islandora_scholar_default_search_xpath_title_subtitle', '../mods:subTitle'));
+      $non_sort = convert_mods_to_citeproc_json_query($node, variable_get('islandora_scholar_default_search_xpath_title_nonsort', '../mods:nonSort'));
       $title = !empty($subtitle) ? "$title: $subtitle" : $title;
       $title = !empty($non_sort) ? "$non_sort $title" : $title;
       // Choose the longest title.

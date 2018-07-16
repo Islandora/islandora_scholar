@@ -49,6 +49,8 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_library_catalog_primary_search_xpath',
     'islandora_scholar_library_catalog_default_search_xpath',
     'islandora_scholar_default_search_xpath_title',
+    'islandora_scholar_default_search_xpath_title_subtitle',
+    'islandora_scholar_default_search_xpath_title_nonsort',
     'islandora_scholar_default_search_xpath_abstract',
     'islandora_scholar_default_search_xpath_call-number',
     'islandora_scholar_default_search_xpath_collection-title',
