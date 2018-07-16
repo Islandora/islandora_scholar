@@ -63,16 +63,16 @@
         },
         {
             "name": "seboettg/citeproc-php",
-            "version": "v2.1.2",
+            "version": "v2.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/seboettg/citeproc-php.git",
-                "reference": "39afc0559e5374550fd74174b8a9675fb835febc"
+                "reference": "8063510c7f2065bf311bfc36bf12054d9d8d21b7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/seboettg/citeproc-php/zipball/39afc0559e5374550fd74174b8a9675fb835febc",
-                "reference": "39afc0559e5374550fd74174b8a9675fb835febc",
+                "url": "https://api.github.com/repos/seboettg/citeproc-php/zipball/8063510c7f2065bf311bfc36bf12054d9d8d21b7",
+                "reference": "8063510c7f2065bf311bfc36bf12054d9d8d21b7",
                 "shasum": ""
             },
             "require": {
@@ -103,7 +103,7 @@
                 }
             ],
             "description": "Full-featured CSL processor (https://citationstyles.org)",
-            "time": "2018-04-18 06:20:13"
+            "time": "2018-06-15 06:53:02"
         },
         {
             "name": "seboettg/collection",
