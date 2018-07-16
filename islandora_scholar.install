@@ -75,6 +75,7 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_default_search_xpath_pages',
     'islandora_scholar_default_search_xpath_types',
     'islandora_scholar_default_search_xpath_type_marcgt',
+    'islandora_scholar_default_search_xpath_type_marcgt_host_titles',
     'islandora_scholar_default_search_xpath_type_marcgt_related',
     'islandora_scholar_default_search_xpath_types_local_auth',
     'islandora_scholar_default_search_xpath_season',

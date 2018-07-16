@@ -422,7 +422,7 @@ function _get_marcgt_type(SimpleXMLElement $mods) {
     $interim_type =& $type_marcgt[0];
     add_mods_namespace($interim_type);
     if (!strcasecmp($interim_type, 'book')) {
-      $host_titles = $interim_type->xpath("../mods:relatedItem[@type='host']/mods:titleInfo/mods:title");
+      $host_titles = $interim_type->xpath(variable_get('islandora_scholar_default_search_xpath_type_marcgt_host_titles', "../mods:relatedItem[@type='host']/mods:titleInfo/mods:title"));
       if (!empty($host_titles)) {
         // This is but a chapter in a book.
         $output = 'chapter';
