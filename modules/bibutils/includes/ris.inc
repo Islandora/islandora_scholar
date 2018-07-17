@@ -287,8 +287,8 @@ class RIS {
   protected function renderName($names, $field) {
     if (!empty($field)) {
       $names->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-      $given = $names->xpath("mods:namePart[@type = 'given']");
-      $family = $names->xpath("mods:namePart[@type = 'family']");
+      $given = $names->xpath(variable_get('islandora_scholar_default_search_xpath_given', "mods:namePart[@type = 'given']"));
+      $family = $names->xpath(variable_get('islandora_scholar_default_search_xpath_family', "mods:namePart[@type = 'family']"));
       if (!empty($given[0]) && !empty($family[0])) {
         $this->text .= "$field  - {$family[0]}, {$given[0]}.\n";
       }

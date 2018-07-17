@@ -28,7 +28,7 @@ function islandora_google_scholar_create_meta_tags($object) {
     $mods_xml = new SimpleXMLElement($mods);
     $mods_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
 
-    $title_results = $mods_xml->xpath('//mods:mods[1]/mods:titleInfo/mods:title');
+    $title_results = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_title', '//mods:mods[1]/mods:titleInfo/mods:title'));
     $title = (string) reset($title_results);
 
     if (!empty($title)) {
@@ -72,10 +72,10 @@ function islandora_google_scholar_create_meta_tags($object) {
       return FALSE;
     }
 
-    $origin_date = $mods_xml->xpath('//mods:originInfo/mods:dateIssued');
-    $part_date = $mods_xml->xpath('//mods:part/mods:date');
-    $related_date = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:date');
-    $created_date = $mods_xml->xpath('//mods:originInfo/mods:dateCreated');
+    $origin_date = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_origin_date', '//mods:originInfo/mods:dateIssued'));
+    $part_date = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_part_date', '//mods:part/mods:date'));
+    $related_date = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_related_date', '//mods:relatedItem[@type="host"]//mods:date'));
+    $created_date = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_created_date', '//mods:originInfo/mods:dateCreated'));
 
     if ($origin_date) {
       $date = (string) reset($origin_date);
@@ -106,8 +106,8 @@ function islandora_google_scholar_create_meta_tags($object) {
       }
     }
 
-    $host_title = $mods_xml->xpath('//mods:relatedItem[@type="host"]//mods:title');
-    $genre = $mods_xml->xpath('//mods:genre');
+    $host_title = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_host_title', '//mods:relatedItem[@type="host"]//mods:title'));
+    $genre = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_genre', '//mods:genre'));
     $genre = strtolower((string) reset($genre));
     switch ($genre) {
       case 'book section':
@@ -127,12 +127,12 @@ function islandora_google_scholar_create_meta_tags($object) {
       $tags[$host_tag] = (string) reset($host_title);
     }
 
-    $volume = $mods_xml->xpath('//mods:part/mods:detail[@type="volume"]/mods:number');
+    $volume = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_volume', '//mods:part/mods:detail[@type="volume"]/mods:number'));
     if ($volume) {
       $tags['citation_volume'] = (string) reset($volume);
     }
 
-    $issn = $mods_xml->xpath('//mods:identifier[@type="issn"]');
+    $issn = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_issn', '//mods:identifier[@type="issn"]'));
     if ($issn) {
       $tags['citation_issn'] = str_replace(
           array("&", "=", ",", ";"),
@@ -140,27 +140,27 @@ function islandora_google_scholar_create_meta_tags($object) {
           (string) reset($issn));
     }
 
-    $isbn = $mods_xml->xpath('//mods:identifier[@type="isbn"]');
+    $isbn = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_isbn', '//mods:identifier[@type="isbn"]'));
     if ($isbn) {
       $tags['citation_isbn'] = (string) reset($isbn);
     }
 
-    $issue = $mods_xml->xpath('//mods:part/mods:detail[@type="issue"]/mods:number');
+    $issue = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_issue', '//mods:part/mods:detail[@type="issue"]/mods:number'));
     if ($issue) {
       $tags['citation_issue'] = (string) reset($issue);
     }
 
-    $start_page = $mods_xml->xpath('//mods:extent[@unit="page"]/mods:start');
+    $start_page = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_start_page', '//mods:extent[@unit="page"]/mods:start'));
     if ($start_page) {
       $tags['citation_firstpage'] = (string) reset($start_page);
     }
 
-    $end_page = $mods_xml->xpath('//mods:extent[@unit="page"]/mods:end');
+    $end_page = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_end_page', '//mods:extent[@unit="page"]/mods:end'));
     if ($end_page) {
       $tags['citation_lastpage'] = (string) reset($end_page);
     }
 
-    $online_date = $mods_xml->xpath('//mods:recordInfo/mods:recordCreationDate');
+    $online_date = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_online_date', '//mods:recordInfo/mods:recordCreationDate'));
     if ($online_date) {
       $date_string = islandora_google_scholar_parse_date_foryear($online_date);
       if ($date_string) {
@@ -168,12 +168,12 @@ function islandora_google_scholar_create_meta_tags($object) {
       }
     }
 
-    $doi = $mods_xml->xpath('//mods:identifier[@type="doi"]');
+    $doi = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_doi', '//mods:identifier[@type="doi"]'));
     if ($doi) {
       $tags['citation_doi'] = (string) reset($doi);
     }
 
-    $degree_grantor = $mods_xml->xpath('//mods:mods/mods:name[@type="corporate"][mods:role/mods:roleTerm = "Degree grantor"]/mods:namePart');
+    $degree_grantor = $mods_xml->xpath(variable_get('islandora_scholar_default_search_xpath_degree_grantor', '//mods:mods/mods:name[@type="corporate"][mods:role/mods:roleTerm = "Degree grantor"]/mods:namePart'));
     if ($degree_grantor) {
       $tags['citation_dissertation_institution'] = (string) reset($degree_grantor);
     }
