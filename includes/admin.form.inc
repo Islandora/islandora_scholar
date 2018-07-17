@@ -58,7 +58,8 @@ function islandora_scholar_admin_form() {
     'islandora_scholar_xpaths' => array(
       '#type' => 'fieldset',
       '#title' => t('Islandora Scholar Xpath configuration'),
-      '#description' => t('Various xpaths. <a href="https://github.com/Islandora/islandora_scholar/">Additional information</a><br/><br/>'),
+      '#description' => t('Override Islandora Scholar XPaths<br/> Reset will remove these global variables and rely solely on the hard coded XPaths. A XPaths breakdown <a href="https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys" title="XPaths and Keys Islandora-Collaboration-Group ICG CSV Import Module">XPaths and Keys</a>.<br/><a href="https://github.com/Islandora/islandora_scholar/" title="Additional information at Github Islandora Scholar">Additional information</a><br/><br/>'),
+      '#collapsed' => TRUE,
       '#collapsible' => TRUE,
     ),
   );
