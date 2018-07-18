@@ -343,7 +343,7 @@ function islandora_scholar_admin_form() {
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_default_search_xpath_type_marcgt_host_titles', "../mods:relatedItem[@type='host']/mods:titleInfo/mods:title", array(
     '#type' => 'textfield',
     '#title' => t('→ MARC genre type (relative child): chapter titles in a book'),
-    '#description' => t('Default Value: ../mods:relatedItem[@type=\'host\']/mods:titleInfo/mods:title <br/>The XPath to use for type_marcgt titles (Book uses this for title or defaults back to the book title).'),
+    '#description' => t("Default Value: ../mods:relatedItem[@type='host']/mods:titleInfo/mods:title <br/>The XPath to use for type_marcgt titles (Book uses this for title or defaults back to the book title)."),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
