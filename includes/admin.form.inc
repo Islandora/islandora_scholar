@@ -881,16 +881,6 @@ function islandora_scholar_admin_xpath_form() {
       ),
     ),
   ));
-  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_sub_title', '//mods:subTitle', array(
-    '#type' => 'textfield',
-    '#title' => t('Sub Title'),
-    '#description' => t('Default Value: //mods:subTitle <br/>XPath to use for the sub_title.'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
-      ),
-    ),
-  ));
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_embargo_date', '//mods:dateOther[@type="embargo"]', array(
     '#type' => 'textfield',
     '#title' => t('Embargo Date'),
@@ -940,6 +930,7 @@ function islandora_scholar_admin_xpath_form() {
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
       ),
     ),
+
   ));
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   return system_settings_form($form);
@@ -1021,7 +1012,6 @@ function _islandora_scholar_xpaths_reset() {
     'islandora_scholar_xpaths_start_page',
     'islandora_scholar_xpaths_end_page',
     'islandora_scholar_xpaths_online_date',
-    'islandora_scholar_xpaths_sub_title',
     'islandora_scholar_xpaths_embargo_date',
     'islandora_scholar_xpaths_department',
     'islandora_scholar_xpaths_given',
