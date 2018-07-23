@@ -403,7 +403,17 @@ function islandora_scholar_admin_xpath_form() {
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_title_subtitle', '../mods:subTitle', array(
     '#type' => 'textfield',
     '#title' => t('→ Title (child): subtitle'),
-    '#description' => t('Default Value: ../mods:subTitle <br/>Relative child XPath to use for subtitle and is a relative path.'),
+    '#description' => t('Default Value: ../mods:subTitle <br/>Relative child XPath to use for genre subtitle and is a relative path.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_title_sub_title', '//mods:subTitle', array(
+    '#type' => 'textfield',
+    '#title' => t('Subtitle'),
+    '#description' => t('Default Value: //mods:subTitle <br/>XPath to use for subtitle.'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -420,7 +430,6 @@ function islandora_scholar_admin_xpath_form() {
       ),
     ),
   ));
-
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_abstract', '//mods:mods[1]/mods:abstract', array(
     '#type' => 'textfield',
     '#title' => t('Abstract'),
@@ -966,6 +975,7 @@ function _islandora_scholar_xpaths_reset() {
     'islandora_scholar_xpaths_title',
     'islandora_scholar_xpaths_title_nonsort',
     'islandora_scholar_xpaths_title_subtitle',
+    'islandora_scholar_xpaths_title_sub_title',
     'islandora_scholar_xpaths_abstract',
     'islandora_scholar_xpaths_call-number',
     'islandora_scholar_xpaths_collection-title',

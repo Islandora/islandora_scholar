@@ -149,7 +149,7 @@ class Coins {
       $this->title = $title[0];
     }
 
-    $sub_title = $xml->xpath(variable_get('islandora_scholar_xpaths_title_subtitle', '//mods:subTitle'));
+    $sub_title = $xml->xpath(variable_get('islandora_scholar_xpaths_title_sub_title', '//mods:subTitle'));
     if ($sub_title) {
       $this->subTitle = $sub_title[0];
     }
