@@ -62,6 +62,7 @@ function islandora_scholar_admin_form() {
     '#type' => 'checkbox',
     '#title' => t('Render Google Scholar Search link'),
     '#description' => t('Enable Searching in Google Scholar.'),
+    '#required' => TRUE,
   ));
   $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_primary_search_xpath', '//mods:identifier[@type="doi"]', array(
     '#type' => 'textfield',
@@ -359,7 +360,7 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
  * @return array
  *   Drupal form definition.
  */
-function islandora_scholar_admin_xpath_form() {
+function islandora_scholar_admin_xpath_form($form, &$form_state) {
   $form = array(
     'islandora_scholar_search_xpaths' => array(
       '#type' => 'fieldset',
@@ -377,7 +378,7 @@ function islandora_scholar_admin_xpath_form() {
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_enabled', FALSE, array(
       '#type' => 'checkbox',
       '#title' => t('Enable Custom XPaths'),
-      '#description' => t('Set custom XPaths to the element to update and read.'),
+      '#description' => t('Set custom XPaths to the element to update and read. Unchecking will result in a reset of all form values.'),
   ));
   $form['islandora_scholar_xpaths']['reset'] = array(
     '#type' => 'submit',
@@ -939,9 +940,10 @@ function islandora_scholar_admin_xpath_form() {
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
       ),
     ),
-
   ));
+
   module_load_include('inc', 'islandora', 'includes/solution_packs');
+
   return system_settings_form($form);
 }
 
@@ -959,6 +961,21 @@ function islandora_scholar_admin_pdf_form_validate($form, &$form_state) {
 }
 
 /**
+ * Admin xpath form validate function.
+ * Clears values when "Enable Custom XPaths" is unchecked
+ * and save configuration is executed.
+ */
+function islandora_scholar_admin_xpath_form_validate(&$form, &$form_state) {
+  // Loooks to see if "Enable Custom XPaths" is unchecked
+  if ($form_state['input']['islandora_scholar_xpaths_enabled'] == NULL) {
+    // Reset all values
+    _islandora_scholar_xpaths_reset();
+    // Stops drupal from using the default hidden values in the form.
+    $form_state['rebuild']=TRUE;
+  }
+}
+
+/**
  * Function updates PDF to text URL div.
  */
 function islandora_scholar_update_pdftotext_url_div($form, $form_state) {
@@ -970,7 +987,7 @@ function islandora_scholar_update_pdftotext_url_div($form, $form_state) {
  * Function removes and resets the custom XPaths.
  */
 function _islandora_scholar_xpaths_reset() {
-  $variables = array(
+  $islandora_scholar_xpaths = array(
     'islandora_scholar_xpaths_enabled',
     'islandora_scholar_xpaths_title',
     'islandora_scholar_xpaths_title_nonsort',
@@ -1030,5 +1047,5 @@ function _islandora_scholar_xpaths_reset() {
   );
   $message = t('All custom Islandora Scholar XPaths have been reset.');
   drupal_set_message(check_plain($message));
-  array_walk($variables, 'variable_del');
+  array_walk($islandora_scholar_xpaths, 'variable_del');
 }
