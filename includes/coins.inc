@@ -124,12 +124,12 @@ class Coins {
       $this->date = $date;
     }
 
-    $volume = $xml->xpath(variable_get('islandora_scholar_xpaths_volume', '//mods:part/mods:detail[@type="volume"]/mods:number'));
+    $volume = $xml->xpath(variable_get('islandora_scholar_xpaths_volume', '//mods:mods[1]/mods:part/mods:detail[@type="volume"]/mods:number'));
     if ($volume) {
       $this->volume = $volume[0];
     }
 
-    $issue = $xml->xpath(variable_get('islandora_scholar_xpaths_issue', '//mods:part/mods:detail[@type="issue"]/mods:number'));
+    $issue = $xml->xpath(variable_get('islandora_scholar_xpaths_issue', '//mods:mods[1]/mods:part/mods:detail[@type="issue"]/mods:number'));
     if ($issue) {
       $this->issue = $issue[0];
     }
@@ -159,7 +159,7 @@ class Coins {
       $this->journalTitle = $journal_title[0];
     }
 
-    $abstract = $xml->xpath(variable_get('islandora_scholar_xpaths_abstract', '//mods:abstract'));
+    $abstract = $xml->xpath(variable_get('islandora_scholar_xpaths_abstract', '//mods:mods[1]/mods:abstract'));
     if ($abstract) {
       $this->abstract = $abstract[0];
     }
@@ -181,7 +181,7 @@ class Coins {
       $this->embargoDate = $embargo_date[0];
     }
 
-    $genre = $xml->xpath(variable_get('islandora_scholar_xpaths_genre', '//mods:genre'));
+    $genre = $xml->xpath(variable_get('islandora_scholar_xpaths_genre', '//mods:mods[1]/mods:genre'));
     if ($genre) {
       $this->genre = $genre;
     }
