@@ -962,16 +962,14 @@ function islandora_scholar_admin_pdf_form_validate($form, &$form_state) {
 
 /**
  * Admin xpath form validate function.
- * Clears values when "Enable Custom XPaths" is unchecked
- * and save configuration is executed.
  */
 function islandora_scholar_admin_xpath_form_validate(&$form, &$form_state) {
-  // Loooks to see if "Enable Custom XPaths" is unchecked
+  // Loooks to see if "Enable Custom XPaths" is unchecked.
   if ($form_state['input']['islandora_scholar_xpaths_enabled'] == NULL) {
-    // Reset all values
+    // Reset all values.
     _islandora_scholar_xpaths_reset();
     // Stops drupal from using the default hidden values in the form.
-    $form_state['rebuild']=TRUE;
+    $form_state['rebuild'] = TRUE;
   }
 }
 
