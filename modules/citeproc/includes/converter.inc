@@ -599,7 +599,7 @@ function convert_mods_to_citeproc_json_name(SimpleXMLElement $name) {
  */
 function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
   $output = array();
-  $name_parts = $name->xpath(variable_get('islandora_scholar_xpaths_local_author', "mods:namePart"));
+  $name_parts = $name->xpath('mods:namePart');
 
   foreach ($name_parts as $name_part) {
     $type = (string) $name_part->attributes()->type;
