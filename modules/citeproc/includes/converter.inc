@@ -281,7 +281,7 @@ function convert_mods_to_citeproc_json_event_place(SimpleXMLElement $mods) {
  *   The note property for the Citation.
  */
 function convert_mods_to_citeproc_json_note(SimpleXMLElement $mods) {
-  $notes = $mods->xpath(variable_get('islandora_scholar_xpaths_note', "//mods:mods[1]/mods:note"));
+  $notes = $mods->xpath(variable_get('islandora_scholar_xpaths_note', '//mods:mods[1]/mods:note'));
   $ouput = '';
   while (list($num, $note) = each($notes)) {
     $ouput .= $num + 1 . ". " . rtrim(strip_tags($note), '. ') . ".  ";
@@ -300,10 +300,10 @@ function convert_mods_to_citeproc_json_note(SimpleXMLElement $mods) {
  */
 function convert_mods_to_citeproc_json_page(SimpleXMLElement $mods) {
   $output = NULL;
-  $pages = $mods->xpath(variable_get('islandora_scholar_xpaths_pages', "//mods:mods[1]/mods:part/mods:extent[@unit='pages']"));
+  $pages = $mods->xpath(variable_get('islandora_scholar_xpaths_pages', '//mods:mods[1]/mods:part/mods:extent[@unit="pages"]'));
   // Note: "pages" is correct, but Zotero uses "page".
   if (empty($pages)) {
-    $pages = $mods->xpath("//mods:mods[1]/mods:part/mods:extent[@unit='page']");
+    $pages = $mods->xpath('//mods:mods[1]/mods:part/mods:extent[@unit="page"]');
   }
 
   $pages = (!empty($pages) ? $pages[0] : NULL);
@@ -402,7 +402,7 @@ function _get_endnote_type(SimpleXMLElement $mods) {
     'Working Paper' => 'chapter',
     'Thesis' => 'thesis',
   );
-  $types = $mods->xpath(variable_get('islandora_scholar_xpaths_types', "//mods:mods[1]/mods:genre[@authority='endnote']"));
+  $types = $mods->xpath(variable_get('islandora_scholar_xpaths_types', '//mods:mods[1]/mods:genre[@authority="endnote"]'));
 
   if (!empty($types)) {
     $type = $types[0];
@@ -417,12 +417,12 @@ function _get_endnote_type(SimpleXMLElement $mods) {
  */
 function _get_marcgt_type(SimpleXMLElement $mods) {
   $output = '';
-  $type_marcgt = $mods->xpath(variable_get('islandora_scholar_xpaths_type_marcgt', "//mods:mods[1]/mods:genre[@authority='marcgt']"));
+  $type_marcgt = $mods->xpath(variable_get('islandora_scholar_xpaths_type_marcgt', '//mods:mods[1]/mods:genre[@authority="marcgt"]'));
   if (!empty($type_marcgt)) {
     $interim_type =& $type_marcgt[0];
     add_mods_namespace($interim_type);
     if (!strcasecmp($interim_type, 'book')) {
-      $host_titles = $interim_type->xpath(variable_get('islandora_scholar_xpaths_type_marcgt_host_titles', "../mods:relatedItem[@type='host']/mods:titleInfo/mods:title"));
+      $host_titles = $interim_type->xpath(variable_get('islandora_scholar_xpaths_type_marcgt_host_titles', '../mods:relatedItem[@type="host"]/mods:titleInfo/mods:title'));
       if (!empty($host_titles)) {
         // This is but a chapter in a book.
         $output = 'chapter';
@@ -444,7 +444,7 @@ function _get_marcgt_type(SimpleXMLElement $mods) {
 function _get_related_marcgt_type(SimpleXMLElement $mods) {
   $output = '';
 
-  $type_marcgt_related = $mods->xpath(variable_get('islandora_scholar_xpaths_type_marcgt_related', "//mods:mods[1]/mods:relatedItem/mods:genre[@authority='marcgt']"));
+  $type_marcgt_related = $mods->xpath(variable_get('islandora_scholar_xpaths_type_marcgt_related', '//mods:mods[1]/mods:relatedItem/mods:genre[@authority="marcgt"]'));
   if (!empty($type_marcgt_related)) {
     $interim_type = (string) $type_marcgt_related[0];
     if (!strcasecmp($interim_type, 'book')) {
@@ -464,7 +464,7 @@ function _get_related_marcgt_type(SimpleXMLElement $mods) {
 function _get_other_types(SimpleXMLElement $mods) {
   $output = '';
 
-  $types_local_auth = $mods->xpath(variable_get('islandora_scholar_xpaths_types_local_auth', "//mods:mods[1]/mods:genre[not(@authority='marcgt' or @authority='endnote')]"));
+  $types_local_auth = $mods->xpath(variable_get('islandora_scholar_xpaths_types_local_auth', '//mods:mods[1]/mods:genre[not(@authority="marcgt" or @authority="endnote")]'));
   while (empty($output) && list($num, $type) = each($types_local_auth)) {
     $interim_type = (string) $type;
     $output = mods_genre_to_csl_type($interim_type);
@@ -651,7 +651,7 @@ function convert_mods_to_citeproc_json_name_personal(SimpleXMLElement $name) {
  */
 function convert_mods_to_citeproc_json_name_corporate(SimpleXMLElement $name) {
   $output = array();
-  $name_parts = $name->xpath(variable_get('islandora_scholar_xpaths_local_author', "mods:namePart"));
+  $name_parts = $name->xpath(variable_get('islandora_scholar_xpaths_local_author', 'mods:namePart'));
   foreach ($name_parts as $name_part) {
     $content = (string) $name_part . ' ';
     $output['literal'] = isset($output['literal']) ? $output['literal'] . $content : $content;
@@ -676,7 +676,7 @@ function convert_mods_to_citeproc_json_name_corporate(SimpleXMLElement $name) {
  */
 function convert_mods_to_citeproc_json_name_role(SimpleXMLElement $name, array $valid_roles, $default_role) {
   module_load_include('inc', 'citeproc', 'includes/marcrelator_conversion');
-  $role_term = $name->xpath(variable_get('islandora_scholar_xpaths_role_term', "mods:role/mods:roleTerm"));
+  $role_term = $name->xpath(variable_get('islandora_scholar_xpaths_role_term', 'mods:role/mods:roleTerm'));
   if (isset($role_term[0])) {
     $role = strtolower((string) $role_term[0]);
     $role_term = $role_term[0];
@@ -711,18 +711,18 @@ function _try_parse_date(&$output, $date_string) {
  */
 function convert_mods_to_citeproc_json_dates(SimpleXMLElement $mods) {
   $output = array();
-  $season = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_season', "//mods:originInfo/mods:dateOther[@type='season']"));
-  $date_captured = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_dateCaptured', "//mods:originInfo/mods:dateCaptured"));
+  $season = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_season', '//mods:originInfo/mods:dateOther[@type="season"]'));
+  $date_captured = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_dateCaptured', '//mods:originInfo/mods:dateCaptured'));
   if (!empty($date_captured)) {
     _try_parse_date($output['accessed'], $date_captured);
   }
 
-  $date_issued = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_date_issued', "//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type='host']/mods:part/mods:date"));
+  $date_issued = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_date_issued', '//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type="host"]/mods:part/mods:date'));
   if (!empty($date_issued)) {
     _try_parse_date($output['issued'], $date_issued);
   }
 
-  $date_created = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_created_date', "//mods:originInfo/mods:dateCreated"));
+  $date_created = convert_mods_to_citeproc_json_query($mods, variable_get('islandora_scholar_xpaths_created_date', '//mods:originInfo/mods:dateCreated'));
   if (!empty($date_created) && empty($output['issued'])) {
     _try_parse_date($output['issued'], $date_created);
   }

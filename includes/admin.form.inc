@@ -671,7 +671,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
     ),
   ));
-  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_type_marcgt_host_titles', "../mods:relatedItem[@type='host']/mods:titleInfo/mods:title", array(
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_type_marcgt_host_titles', '../mods:relatedItem[@type="host"]/mods:titleInfo/mods:title', array(
     '#type' => 'textfield',
     '#title' => t('→ MARC genre type (relative child): chapter titles in a book'),
     '#description' => t("Default Value: ../mods:relatedItem[@type='host']/mods:titleInfo/mods:title <br/>Relative child XPath to use for type_marcgt titles (Book uses this for title or defaults back to the book title)."),
@@ -911,7 +911,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
     ),
   ));
-  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_given', "mods:namePart[@type = 'given']", array(
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_given', 'mods:namePart[@type = "given"]', array(
     '#type' => 'textfield',
     '#title' => t('Given Name'),
     '#description' => t("Default Value: mods:namePart[@type = 'given'] <br/>XPath to use for the given."),
@@ -921,7 +921,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
     ),
   ));
-  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_family', "mods:namePart[@type = 'family']", array(
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_family', 'mods:namePart[@type = "family"]', array(
     '#type' => 'textfield',
     '#title' => t('Family Name'),
     '#description' => t("Default Value: mods:namePart[@type = 'family'] <br/>XPath to use for the family."),
