@@ -501,6 +501,28 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
     ),
   ));
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_event_place_property', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:originInfo/mods:place/mods:placeTerm', array(
+    '#type' => 'textfield',
+    '#title' => t('Event'),
+    '#description' => t('Default Value: //mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:originInfo/mods:place/mods:placeTerm <br/>XPath to use for event place property.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_event_place', '//mods:mods[1][mods:genre[@authority="local"][text()="conferencePaper"]]/mods:originInfo/mods:place/mods:placeTerm', array(
+    '#type' => 'textfield',
+    '#title' => t('Event'),
+    '#description' => t('Default Value: //mods:mods[1][mods:genre[@authority="local"][text()="conferencePaper"]]/mods:originInfo/mods:place/mods:placeTerm <br/>XPath to use for event place.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
+
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_genre', '//mods:mods[1]/mods:genre', array(
     '#type' => 'textfield',
     '#title' => t('Genre'),
@@ -624,14 +646,14 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_authors_xpath', '//mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]', array(
     '#type' => 'textfield',
     '#title' => t('Authors'),
-    '#description' => t('Default Value: //mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"] <br/>XPath to use for authors.'),
+    '#description' => t('Default Value: //mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]<br/>XPath to use for authors.'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
       ),
     ),
   ));
-  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_property', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title', array(
+  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_event_property', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title', array(
     '#type' => 'textfield',
     '#title' => t('Property'),
     '#description' => t('Default Value: //mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title <br/>XPath to use for property.'),
@@ -711,16 +733,6 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
     ),
   ));
-  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_date_captured', '//mods:originInfo/mods:dateCaptured', array(
-    '#type' => 'textfield',
-    '#title' => t('Date Captured'),
-    '#description' => t('Default Value: //mods:originInfo/mods:dateCaptured <br/>The XPath to use date_captured.'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
-      ),
-    ),
-  ));
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_date_issued', '//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type="host"]/mods:part/mods:date', array(
     '#type' => 'textfield',
     '#title' => t('Date Issued'),
@@ -755,16 +767,6 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Date Captured'),
     '#description' => t('Default Value: //mods:originInfo/mods:dateCaptured <br/>XPath to use for the date_captured.'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
-      ),
-    ),
-  ));
-  $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_date_issued', "//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type='host']/mods:part/mods:date", array(
-    '#type' => 'textfield',
-    '#title' => t('Date Issued'),
-    '#description' => t("Default Value: //mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type='host']/mods:part/mods:date <br/>XPath to use for the date_issued."),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -941,9 +943,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
     ),
   ));
-
   module_load_include('inc', 'islandora', 'includes/solution_packs');
-
   return system_settings_form($form);
 }
 
