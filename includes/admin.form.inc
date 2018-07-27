@@ -362,41 +362,62 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
  */
 function islandora_scholar_admin_xpath_form($form, &$form_state) {
   $form = array(
-    'islandora_scholar_search_xpaths' => array(
-      '#type' => 'fieldset',
-      '#title' => t('Additional XPath Configurations'),
-      '#description' => t('<a href="admin/islandora/solution_pack_config/scholar#edit-google-scholar-search" title="Google Scholar Search XPaths Configuration Page">Google Scholar Search XPaths</a><br/><a href="admin/islandora/solution_pack_config/scholar#edit-library-catalog-search" title="Library Catalog Search XPaths Configuration Page">Library Catalog Search XPaths</a><br/>'),
-      '#collapsible' => FALSE,
-    ),
     'islandora_scholar_xpaths' => array(
       '#type' => 'fieldset',
       '#title' => t('Islandora Scholar Xpath configuration'),
-      '#description' => t('Set custom XPaths for Islandora Scholar. Islandora-Collaboration-Group: <a href="https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys" title="Description and breakdown of XPaths and Keys">Descriptions and breakdown of XPaths and Keys</a><br/><a href="https://github.com/Islandora/islandora_scholar/" title="Additional information at Github/Islandora Scholar">Additional information</a><br/><br/>'),
-      '#collapsible' => TRUE,
+      '#description' => t('Set custom XPaths for Islandora Scholar. Islandora-Collaboration-Group: <a href="https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys" title="Description and breakdown of XPaths and Keys">Descriptions and breakdown of XPaths and Keys</a><br/><a href="https://github.com/Islandora/islandora_scholar/" title="Additional information at Github/Islandora Scholar">Additional information</a><br/>
+        <p>Additional XPath Configurations<br/>
+        <a href="admin/islandora/solution_pack_config/scholar#edit-google-scholar-search" title="Google Scholar Search XPaths Configuration Page">Google Scholar Search XPaths</a> |
+        <a href="admin/islandora/solution_pack_config/scholar#edit-library-catalog-search" title="Library Catalog Search XPaths Configuration Page">Library Catalog Search XPaths</a><br/></p>
+        <br/>'),
     ),
     'islandora_scholar_xpaths_general' => array(
       '#type' => 'fieldset',
       '#title' => t('General Xpath configurations'),
       '#description' => t(''),
       '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+        ),
+      ),
     ),
     'islandora_scholar_xpaths_google' => array(
       '#type' => 'fieldset',
       '#title' => t('Google Scholar Submodule Xpath configurations'),
       '#description' => t('Not limited to Google Scholar, most of these are used by Coins and Citeproc as well.'),
       '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+        ),
+      ),
     ),
     'islandora_scholar_xpaths_coins' => array(
       '#type' => 'fieldset',
       '#title' => t('Coins Submodule Xpath configurations'),
       '#description' => t('XPaths for the construction of COINS URLs.'),
       '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+        ),
+      ),
     ),
     'islandora_scholar_xpaths_citeproc' => array(
       '#type' => 'fieldset',
       '#title' => t('Citeproc Submodule Xpath configurations'),
       '#description' => t('MODS to Citeproc JSON Submodule Converter Xpath configurations'),
       '#collapsible' => TRUE,
+      '#collapsed' => TRUE,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+        ),
+      ),
     ),
   );
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_enabled', FALSE, array(
