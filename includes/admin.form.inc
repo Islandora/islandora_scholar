@@ -367,14 +367,26 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       '#title' => t('Islandora Scholar Xpath configuration'),
       '#description' => t('Set custom XPaths for Islandora Scholar. Islandora-Collaboration-Group: <a href="https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys" title="Description and breakdown of XPaths and Keys">Descriptions and breakdown of XPaths and Keys</a><br/><a href="https://github.com/Islandora/islandora_scholar/" title="Additional information at Github/Islandora Scholar">Additional information</a><br/>
         <p>Additional XPath Configurations<br/>
-        <a href="admin/islandora/solution_pack_config/scholar#edit-google-scholar-search" title="Google Scholar Search XPaths Configuration Page">Google Scholar Search XPaths</a> |
+        <a href="admin/islandora/solution_pack_config/scholar#edit-google-scholar-search" title="Google Scholar Search XPaths Configuration Page">Google Scholar Search XPaths</a> &
         <a href="admin/islandora/solution_pack_config/scholar#edit-library-catalog-search" title="Library Catalog Search XPaths Configuration Page">Library Catalog Search XPaths</a><br/></p>
         <br/>'),
+    ),
+    'islandora_scholar_xpaths_demo' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Object to Test values with'),
+      '#description' => t('Check your values against an existing object via a PID'),
+      '#collapsible' => TRUE,
+      'access callback' => TRUE,
+      '#states' => array(
+        'visible' => array(
+          ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+        ),
+      ),
     ),
     'islandora_scholar_xpaths_general' => array(
       '#type' => 'fieldset',
       '#title' => t('General Xpath configurations'),
-      '#description' => t(''),
+      '#description' => t('These XPaths are shared within most of the submodules.'),
       '#collapsible' => TRUE,
       '#collapsed' => TRUE,
       '#states' => array(
@@ -420,6 +432,47 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
     ),
   );
+  $form['islandora_scholar_xpaths_demo'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Demo Object'),
+    '#description' => t('PID to check these values against. ') . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "<br/><img src='/islandora/object/" . $form_state['values']['islandora_scholar_xpaths_demo'] . "/datastream/TN/view'>" : t("No PID entered to verify MODS validity.")),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+    '#autocomplete_path' => 'islandora_compound_object/autocomplete/child',
+    '#ajax' => array(
+      'callback' => 'islandora_scholar_xpaths_image_callback',
+      'wrapper' => 'demo_image',
+    ),
+    '#prefix' => '<div id="demo_image">',
+    '#suffix' => '</div>',
+    '#field_suffix' => t(''),
+  );
+  if (isset($form_state['values']['islandora_scholar_xpaths_demo'])) {
+    $object = islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo']);
+    $xmlstr = $object['MODS']->content;
+    if ($xmlstr == NULL || strlen($xmlstr) < 5) {
+      drupal_set_message(t('No MODS datastream found!'), 'warning');
+      return " ";
+    }
+    $mods_doc = new DOMDocument();
+    $mods_doc->loadXML($object['MODS']->content);
+    $mods_xpath = new DOMXPath($mods_doc);
+    $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
+
+    $issn_results = $mods_xpath->query($form_state['values']['islandora_scholar_xpaths_title']);
+    if ($issn_results->length > 0) {
+      $issn = $issn_results->item(0)->textContent;
+      dsm($issn);
+    }
+    // dsm($form_state['values']);
+    // foreach ($form_state['values'] as $key => $value) {
+    // dsm($form_state['values']);
+    // }
+
+  }
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_enabled', FALSE, array(
       '#type' => 'checkbox',
       '#title' => t('Enable Custom XPaths'),
@@ -1061,8 +1114,7 @@ function _islandora_scholar_xpaths_reset() {
     'islandora_scholar_xpaths_issue',
     'islandora_scholar_xpaths_local_author',
     'islandora_scholar_xpaths_local_collection-editor',
-    'islandora_scholar_xpaths_local_container-author',
-    'islandora_scholar_xpaths_note',
+    'islandora_scholar_xpaths_local_containimg src="https://digital.lib.utk.edu/collections/islandora/object/acwiley%3A280/datastream/TN/view"></a>',
     'islandora_scholar_xpaths_number',
     'islandora_scholar_xpaths_number-nihmsid',
     'islandora_scholar_xpaths_number-pmcid',
@@ -1093,4 +1145,8 @@ function _islandora_scholar_xpaths_reset() {
   $message = t('All custom Islandora Scholar XPaths have been reset.');
   drupal_set_message(check_plain($message));
   array_walk($islandora_scholar_xpaths, 'variable_del');
+}
+
+function islandora_scholar_xpaths_image_callback($form, &$form_state) {
+  return $form['islandora_scholar_xpaths_demo'];
 }
