@@ -458,9 +458,6 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     $list_of_keys = islandora_scholar_xpaths_list();
     $object = islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo']);
     $xmlstr = $object['MODS']->content;
-    // dsm($xmlstr);
-      $mark = islandora_object_load($form_state['values']);
-      // dsm($mark . 'MARK');
 
     if ($xmlstr == NULL || strlen($xmlstr) < 5) {
       drupal_set_message(t('No MODS datastream found!'), 'warning');
@@ -475,7 +472,6 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     foreach ($form_state['values'] as $key => $value) {
       if (in_array($key, $list_of_keys)) {
         $lookup_results = $mods_xpath->query($value);
-        dsm($key);
         dsm($lookup_results->item(0)->textContent);
       }
     }
@@ -1178,7 +1174,6 @@ function islandora_scholar_xpaths_test($key, $form, &$form_state) {
   // dsm($form[$key]['#field_suffix']);
   // return $form;
   // dsm($key);
-
   $form_state['rebuild'] = TRUE;
   return $form[$key];
 }
