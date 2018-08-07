@@ -439,7 +439,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Demo Object'),
     '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? t("<span style='color:green'>Successfully loaded PID!</span>") : t("No PID entered to verify MODS validity.")),
-    '#description' => t('PID to check these values against.') . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "<br/><img src='/islandora/object/" . t($form_state['values']['islandora_scholar_xpaths_demo']) . "/datastream/TN/view'>" : t("")),
+    '#description' => t('PID to check these values against.') . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? t("<br/><img src='/islandora/object/") . t($form_state['values']['islandora_scholar_xpaths_demo']) . t("/datastream/TN/view'>") : t("")),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
