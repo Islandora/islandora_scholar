@@ -434,8 +434,8 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   $form['islandora_scholar_xpaths_demo'] = array(
     '#type' => 'textfield',
     '#title' => t('Demo Object'),
-    '#field_suffix' => ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1 ) ? t("<span style='color:green'>Successfully loaded PID!</span>") : t("No PID entered to verify MODS validity.")),
-    '#description' => t('PID to check these values against.' . ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1 ) ? "<br/><img src='/islandora/object/" . $form_state['values']['islandora_scholar_xpaths_demo'] . "/datastream/TN/view'>" : "")),
+    '#field_suffix' => ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1) ? t("<span style='color:green'>Successfully loaded PID!</span><br/><br/><img src='/islandora/object/" . $form_state['values']['islandora_scholar_xpaths_demo'] . "/datastream/TN/view'>") : t("No PID entered to verify MODS validity.")),
+    '#description' => check_plain('PID to check these values against.' . ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1 ) ? " " . $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
