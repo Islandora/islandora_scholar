@@ -1358,7 +1358,7 @@ function islandora_scholar_xpaths_list() {
     'islandora_scholar_xpaths_issue',
     'islandora_scholar_xpaths_local_author',
     'islandora_scholar_xpaths_local_collection-editor',
-    'islandora_scholar_xpaths_local_containimg src="https://digital.lib.utk.edu/collections/islandora/object/acwiley%3A280/datastream/TN/view"></a>',
+    'islandora_scholar_xpaths_local_container-author',
     'islandora_scholar_xpaths_number',
     'islandora_scholar_xpaths_number-nihmsid',
     'islandora_scholar_xpaths_number-pmcid',
