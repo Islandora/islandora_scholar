@@ -365,6 +365,8 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       '#type' => 'fieldset',
       '#title' => t('Islandora Scholar Xpath configuration'),
       '#description' => filter_xss('Set custom XPaths for Islandora Scholar. Islandora-Collaboration-Group: <a href="https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys" title="Description and breakdown of XPaths and Keys">Descriptions and breakdown of XPaths and Keys</a> <a href="https://github.com/Islandora/islandora_scholar/" title="Additional information at Github/Islandora Scholar">Additional information</a> Additional XPath Configurations <a href="admin/islandora/solution_pack_config/scholar#edit-google-scholar-search" title="Google Scholar Search XPaths Configuration Page">Google Scholar Search XPaths</a> & <a href="admin/islandora/solution_pack_config/scholar#edit-library-catalog-search" title="Library Catalog Search XPaths Configuration Page">Library Catalog Search XPaths</a>'),
+      '#prefix' => t('<div id="islandora_scholar_xpaths_title">'),
+      '#suffix' => t('</div>'),
     ),
     'islandora_scholar_xpaths_demo' => array(
       '#type' => 'fieldset',
@@ -377,11 +379,13 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
           ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
         ),
       ),
+      '#prefix' => t('<div id="islandora_scholar_xpaths_demo">'),
+      '#suffix' => t('</div>'),
     ),
     'islandora_scholar_xpaths_general' => array(
       '#type' => 'fieldset',
       '#title' => t('General Xpath configurations'),
-      '#description' => check_plain('These XPaths are shared within most of the submodules.' . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "Testing against pid: " . $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
+      '#description' => check_plain('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field. ' . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "Testing against pid: " . $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
       '#collapsible' => TRUE,
       '#states' => array(
         'visible' => array(
@@ -394,7 +398,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     'islandora_scholar_xpaths_google' => array(
       '#type' => 'fieldset',
       '#title' => t('Google Scholar Submodule Xpath configurations'),
-      '#description' => check_plain('Not limited to Google Scholar, most of these are used by Coins and Citeproc as well.' . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "Testing against pid: " . $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
+      '#description' => check_plain('Not limited to Google Scholar, most of these are used by Coins and Citeproc as well. To see the MODS value after editing an entry, tab to the next field. ' . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "Testing against pid: " . $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
       '#collapsible' => TRUE,
       '#states' => array(
         'visible' => array(
@@ -407,7 +411,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     'islandora_scholar_xpaths_coins' => array(
       '#type' => 'fieldset',
       '#title' => t('Coins Submodule Xpath configurations'),
-      '#description' => check_plain('XPaths for the construction of COINS URLs.' . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "Testing against pid: " . $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
+      '#description' => check_plain('XPaths for the construction of COINS URLs. To see the MODS value after editing an entry, tab to the next field. ' . (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? "Testing against pid: " . $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
       '#collapsible' => TRUE,
       '#states' => array(
         'visible' => array(
@@ -434,7 +438,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   $form['islandora_scholar_xpaths_demo'] = array(
     '#type' => 'textfield',
     '#title' => t('Demo Object'),
-    '#field_suffix' => ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1) ? islandora_scholar_xpaths_demo_prefix_callback($form_state['values']['islandora_scholar_xpaths_demo']) : t("No PID entered to verify MODS validity.")),
+    '#field_suffix' => ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1) ? islandora_scholar_xpaths_demo_prefix_callback($form_state['values']['islandora_scholar_xpaths_demo']) : t("Modify to refresh value (PID for demo object is required).")),
     '#description' => check_plain('PID to check these values against.' . ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1) ? $form_state['values']['islandora_scholar_xpaths_demo'] : "")),
     '#states' => array(
       'visible' => array(
@@ -444,9 +448,9 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     '#autocomplete_path' => 'islandora_compound_object/autocomplete/child',
     '#ajax' => array(
       'callback' => 'islandora_scholar_xpaths_image_callback',
-      'wrapper' => 'demo_image',
+      'wrapper' => 'islandora_scholar_xpaths_demo_image',
     ),
-    '#prefix' => t('<div id="demo_image">'),
+    '#prefix' => t('<div id="islandora_scholar_xpaths_demo_image">'),
     '#suffix' => t('</div>'),
   );
   $form['islandora_scholar_xpaths'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_enabled', FALSE, array(
@@ -459,6 +463,18 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     '#value' => t('Reset all Xpaths to defaults'),
     '#submit' => array('_islandora_scholar_xpaths_reset'),
     '#description' => check_plain('Reset will remove these global variables and rely solely on the hard coded XPaths.'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  );
+  $form['islandora_scholar_xpaths_general']['reset'] = array(
+    '#type' => 'button',
+    '#value' => t('Get Xpaths Values'),
+    '#attributes' => array("onclick" => 'foreach (islandora_scholar_xpaths_list() as $key => $value) {
+      document.querySelector("#islandora_scholar_xpaths_title").focus();
+    }'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -478,7 +494,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_general'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_title_sub_title', '//mods:subTitle', array(
     '#type' => 'textfield',
@@ -493,7 +509,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_sub_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_sub_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_general'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_abstract', '//mods:mods[1]/mods:abstract', array(
     '#type' => 'textfield',
@@ -508,7 +524,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_abstract'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_abstract'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_general'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_family', 'mods:namePart[@type = "family"]', array(
     '#type' => 'textfield',
@@ -523,7 +539,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_family'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_family'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_general'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_given', 'mods:namePart[@type = "given"]', array(
     '#type' => 'textfield',
@@ -538,7 +554,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_sub_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_sub_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_general'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_authors_xpath', '//mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]', array(
     '#type' => 'textfield',
@@ -553,7 +569,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_authors_xpath'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_authors_xpath'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_general'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_created_date', '//mods:originInfo/mods:dateCreated', array(
     '#type' => 'textfield',
@@ -568,7 +584,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_sub_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_sub_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_google'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_degree_grantor', '//mods:mods/mods:name[@type="corporate"][mods:role/mods:roleTerm = "Degree grantor"]/mods:namePart', array(
     '#type' => 'textfield',
@@ -583,7 +599,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_google_callback',
       'wrapper' => 'islandora_scholar_xpaths_google_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_degree_grantor'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_degree_grantor'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_google'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_genre', '//mods:mods[1]/mods:genre', array(
     '#type' => 'textfield',
@@ -598,7 +614,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_google_callback',
       'wrapper' => 'islandora_scholar_xpaths_google_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_genre'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_genre'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_google'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_host_title', '//mods:relatedItem[@type="host"]//mods:title', array(
     '#type' => 'textfield',
@@ -613,7 +629,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_google_callback',
       'wrapper' => 'islandora_scholar_xpaths_google_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_host_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_host_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_google'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_issn', '//mods:identifier[@type="issn"]', array(
     '#type' => 'textfield',
@@ -628,7 +644,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_google_callback',
       'wrapper' => 'islandora_scholar_xpaths_google_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_issn'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_issn'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_google'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_issue', '//mods:mods[1]/mods:part/mods:detail[@type="issue"]/mods:number', array(
     '#type' => 'textfield',
@@ -643,7 +659,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_google_callback',
       'wrapper' => 'islandora_scholar_xpaths_google_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_issue'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_issue'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_google'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_online_date', '//mods:recordInfo/mods:recordCreationDate', array(
     '#type' => 'textfield',
@@ -658,7 +674,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_google_callback',
       'wrapper' => 'islandora_scholar_xpaths_google_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_online_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_online_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_department', '//mods:identifier[@type="u2"]', array(
     '#type' => 'textfield',
@@ -673,7 +689,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_department'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_department'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_related_date', '//mods:relatedItem[@type="host"]//mods:date', array(
     '#type' => 'textfield',
@@ -688,7 +704,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_related_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_related_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_start_page', '//mods:extent[@unit="page"]/mods:start', array(
     '#type' => 'textfield',
@@ -703,7 +719,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_start_page'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_start_page'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_embargo_date', '//mods:dateOther[@type="embargo"]', array(
     '#type' => 'textfield',
@@ -718,7 +734,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_embargo_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_embargo_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_end_page', '//mods:extent[@unit="page"]/mods:end', array(
     '#type' => 'textfield',
@@ -733,7 +749,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_end_page'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_end_page'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_origin_date', '//mods:originInfo/mods:dateIssued', array(
     '#type' => 'textfield',
@@ -748,7 +764,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_origin_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_origin_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_part_date', '//mods:part/mods:date', array(
     '#type' => 'textfield',
@@ -763,7 +779,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_part_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_part_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_coins'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_volume', '//mods:mods[1]/mods:part/mods:detail[@type="volume"]/mods:number', array(
     '#type' => 'textfield',
@@ -778,7 +794,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_coins_callback',
       'wrapper' => 'islandora_scholar_xpaths_coins_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_volume'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_volume'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_title_subtitle', '../mods:subTitle', array(
     '#type' => 'textfield',
@@ -793,7 +809,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_subtitle'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_subtitle'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_title_nonsort', '../mods:nonSort', array(
     '#type' => 'textfield',
@@ -808,7 +824,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_nonsort'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_nonsort'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_call-number', '//mods:mods[1]/mods:classification', array(
     '#type' => 'textfield',
@@ -823,7 +839,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_call-number'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_call-number'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_collection-title', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title', array(
     '#type' => 'textfield',
@@ -838,7 +854,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_collection-title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_collection-title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_container-title', '//mods:mods[1]/mods:relatedItem[@type="host"]/mods:titleInfo[not(@type)]/mods:title', array(
     '#type' => 'textfield',
@@ -853,7 +869,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_container-title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_container-title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_DOI', '//mods:mods[1]/mods:identifier[@type="doi"]', array(
     '#type' => 'textfield',
@@ -868,7 +884,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_DOI'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_DOI'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_edition', '//mods:mods[1]/mods:originInfo/mods:edition', array(
     '#type' => 'textfield',
@@ -883,7 +899,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_edition'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_edition'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_event', '//mods:mods[1][mods:genre[@authority="local"]="conferencePaper"]/mods:relatedItem/mods:titleInfo/mods:title', array(
     '#type' => 'textfield',
@@ -898,7 +914,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_event_place_property', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:originInfo/mods:place/mods:placeTerm', array(
     '#type' => 'textfield',
@@ -913,7 +929,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event_place_property'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event_place_property'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_event_place', '//mods:mods[1][mods:genre[@authority="local"][text()="conferencePaper"]]/mods:originInfo/mods:place/mods:placeTerm', array(
     '#type' => 'textfield',
@@ -928,7 +944,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event_place'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event_place'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_ISBN', '//mods:mods[1]/mods:identifier[@type="isbn"]', array(
     '#type' => 'textfield',
@@ -943,7 +959,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_ISBN'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_ISBN'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_note', '//mods:mods[1]/mods:note', array(
     '#type' => 'textfield',
@@ -958,7 +974,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_note'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_note'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_number', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo/mods:partNumber', array(
     '#type' => 'textfield',
@@ -973,7 +989,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_publisher', '//mods:mods[1]/mods:originInfo/mods:publisher', array(
     '#type' => 'textfield',
@@ -988,7 +1004,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_publisher'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_publisher'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_publisher-place', '//mods:mods[1]/mods:originInfo/mods:place/mods:placeTerm', array(
     '#type' => 'textfield',
@@ -1003,7 +1019,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_publisher-place'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_publisher-place'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_URL', '//mods:mods[1]/mods:location/mods:url', array(
     '#type' => 'textfield',
@@ -1018,7 +1034,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_URL'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_URL'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_number-pmid', '//mods:mods[1]/mods:identifier[@type="accession"]', array(
     '#type' => 'textfield',
@@ -1033,7 +1049,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number-pmid'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number-pmid'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_number-pmcid', '//mods:mods[1]/mods:identifier[@type="pmc"]', array(
     '#type' => 'textfield',
@@ -1048,7 +1064,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number-pmcid'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number-pmcid'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_number-nihmsid', '//mods:mods[1]/mods:identifier[@type="mid"]', array(
     '#type' => 'textfield',
@@ -1063,7 +1079,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number-nihmsid'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_number-nihmsid'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_event_property', '//mods:mods[1][mods:genre[@authority="marcgt"][text()="conference publication"]]/mods:relatedItem/mods:titleInfo/mods:title', array(
     '#type' => 'textfield',
@@ -1078,7 +1094,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event_property'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_event_property'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_pages', '//mods:mods[1]/mods:part/mods:extent[@unit="pages"]', array(
     '#type' => 'textfield',
@@ -1093,7 +1109,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_pages'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_pages'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_types', '//mods:mods[1]/mods:genre[@authority="endnote"]', array(
     '#type' => 'textfield',
@@ -1108,7 +1124,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_types'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_types'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_type_marcgt', '//mods:mods[1]/mods:genre[@authority="marcgt"]', array(
     '#type' => 'textfield',
@@ -1123,7 +1139,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_type_marcgt'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_type_marcgt'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_type_marcgt_host_titles', '../mods:relatedItem[@type="host"]/mods:titleInfo/mods:title', array(
     '#type' => 'textfield',
@@ -1138,7 +1154,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_type_marcgt_host_titles'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_type_marcgt_host_titles'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_type_marcgt_related', '//mods:mods[1]/mods:relatedItem/mods:genre[@authority="marcgt"]', array(
     '#type' => 'textfield',
@@ -1153,7 +1169,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_type_marcgt_related'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_type_marcgt_related'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_types_local_auth', '//mods:mods[1]/mods:genre[not(@authority="marcgt" or @authority="endnote")]', array(
     '#type' => 'textfield',
@@ -1168,7 +1184,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_types_local_auth'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_types_local_auth'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_season', '//mods:originInfo/mods:dateOther[@type="season"]', array(
     '#type' => 'textfield',
@@ -1183,7 +1199,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_season'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_season'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_date_issued', '//mods:originInfo/mods:dateIssued | //mods:mods[1]/mods:relatedItem[@type="host"]/mods:part/mods:date', array(
     '#type' => 'textfield',
@@ -1198,7 +1214,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_date_issued'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_date_issued'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_title_results', '//mods:mods[1]/mods:titleInfo/mods:title', array(
     '#type' => 'textfield',
@@ -1213,7 +1229,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_results'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_title_results'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_dateCaptured', '//mods:originInfo/mods:dateCaptured', array(
     '#type' => 'textfield',
@@ -1228,7 +1244,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_dateCaptured'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_dateCaptured'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_local_author', '//mods:mods[1]/mods:name[normalize-space(mods:namePart)]', array(
     '#type' => 'textfield',
@@ -1243,7 +1259,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_local_author'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_local_author'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_local_container-author', '//mods:mods[1]/mods:relatedItem[@type="host"]/mods:name', array(
     '#type' => 'textfield',
@@ -1258,7 +1274,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_local_container-author'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_local_container-author'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_local_collection-editor', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:name', array(
     '#type' => 'textfield',
@@ -1273,7 +1289,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_local_collection-editor'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_local_collection-editor'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_role_term', 'mods:role/mods:roleTerm', array(
     '#type' => 'textfield',
@@ -1288,8 +1304,17 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_citeproc_callback',
       'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
     ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_role_term'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("No PID entered to verify MODS validity.")),
+   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id($form_state['values']['islandora_scholar_xpaths_role_term'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
+  drupal_add_js("(function($) {
+    Drupal.behaviors.islandora_scholar = {
+      attach: function (context, settings) {
+      $('body').on('load', function(){
+        console.log('xxx');
+      });
+      }
+    };
+  })(jQuery);", 'inline');
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   return system_settings_form($form);
 }
@@ -1359,6 +1384,7 @@ function islandora_scholar_xpaths_list() {
     'islandora_scholar_xpaths_local_author',
     'islandora_scholar_xpaths_local_collection-editor',
     'islandora_scholar_xpaths_local_container-author',
+    'islandora_scholar_xpaths_note',
     'islandora_scholar_xpaths_number',
     'islandora_scholar_xpaths_number-nihmsid',
     'islandora_scholar_xpaths_number-pmcid',
@@ -1496,34 +1522,44 @@ function islandora_scholar_xpaths_citeproc_callback($form, &$form_state) {
  * @param array $mods_value
  *   A string specifying the MODS value to test.
  * @param array $pid
- *   A string specifying the form_id.
+ *   A string specifying the object's pid.
  *
  * @return array
  *   An array of AJAX commands.
  */
 function _mods_id($mods_value = NULL, $pid = NULL) {
-  $object = islandora_object_load($pid);
-  $xmlstr = $object['MODS']->content;
-  $mods_doc = new DOMDocument();
-  $mods_doc->loadXML($object['MODS']->content);
-  $mods_xpath = new DOMXPath($mods_doc);
-  $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
-  $lookup_results = $mods_xpath->query($mods_value);
-  $build_string = '';
+  try{
+    $object = islandora_object_load($pid);
+    $xmlstr = $object['MODS']->content;
+    $mods_doc = new DOMDocument();
+    $mods_doc->loadXML($object['MODS']->content);
+    $mods_xpath = new DOMXPath($mods_doc);
+    $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
+    $lookup_results = $mods_xpath->query($mods_value);
+    $build_string = '';
 
-  // Test inputs for validity and to avoid a 500 error.
-  if (strlen($mods_value) == 0) {
-    $build_string = 'For pid "' . $pid . '" <span style="color:red">Path cannot be blank</span>';
+    // Test inputs for validity and to avoid a 500 error.
+    if (isset($lookup_results->item(0)->textContent)) {
+      $mods_value_string = $lookup_results->item(0)->textContent;
+    } else {
+      $mods_value_string = '';
+    }
+    // Build the field suffix.
+    if (strlen($mods_value) == 0) {
+      $build_string = 'For pid "' . $pid . '" <span style="color:red">Path cannot be blank</span>';
+    }
+    elseif ($lookup_results == NULL) {
+      $build_string = 'For pid "' . $pid . '" <span style="color:red">ERROR</span>';
+    }
+    elseif (strlen($mods_value_string) == 0) {
+      $build_string = 'For pid "' . $pid . '" <span style="color:orange">Nothing Found</span>';
+    }
+    else {
+      $build_string = 'For pid "' . $pid . '": <span style="color:blue">' . $mods_value_string . '</span>';
+    }
+    return $build_string;
   }
-  elseif ($lookup_results == NULL) {
-    $build_string = 'For pid "' . $pid . '" <span style="color:red">ERROR</span>';
+  catch(Exception $e) {
+    echo 'Message: ' .$e->getMessage();
   }
-  elseif (strlen($lookup_results->item(0)->textContent) == 0) {
-    $build_string = 'For pid "' . $pid . '" <span style="color:orange">Nothing Found</span>';
-  }
-  else {
-    $build_string = 'For pid "' . $pid . '": <span style="color:blue">' . $lookup_results->item(0)->textContent . '</span>';
-  }
-
-  return $build_string;
 }
