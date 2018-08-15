@@ -367,11 +367,12 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       '#description' => filter_xss('Set custom XPaths for Islandora Scholar. Islandora-Collaboration-Group: <a href="https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys" title="Description and breakdown of XPaths and Keys">Descriptions and breakdown of XPaths and Keys</a> <a href="https://github.com/Islandora/islandora_scholar/" title="Additional information at Github/Islandora Scholar">Additional information</a> Additional XPath Configurations <a href="admin/islandora/solution_pack_config/scholar#edit-google-scholar-search" title="Google Scholar Search XPaths Configuration Page">Google Scholar Search XPaths</a> & <a href="admin/islandora/solution_pack_config/scholar#edit-library-catalog-search" title="Library Catalog Search XPaths Configuration Page">Library Catalog Search XPaths</a>'),
       '#prefix' => t('<div id="islandora_scholar_xpaths_title">'),
       '#suffix' => t('</div>'),
+      '#tree' => FALSE,
     ),
     'islandora_scholar_xpaths_demo' => array(
       '#type' => 'fieldset',
       '#title' => t('Object to Test values with'),
-      '#description' => check_plain('Check your values against an existing object via a PID'),
+      '#description' => t('Check your values against an existing object via a PID'),
       '#collapsible' => TRUE,
       'access callback' => TRUE,
       '#states' => array(
@@ -381,6 +382,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
       '#prefix' => t('<div id="islandora_scholar_xpaths_demo">'),
       '#suffix' => t('</div>'),
+      '#tree' => FALSE,
     ),
     'islandora_scholar_xpaths_general' => array(
       '#type' => 'fieldset',
@@ -394,6 +396,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
       '#prefix' => t('<div id="islandora_scholar_xpaths_general_title">'),
       '#suffix' => t('</div>'),
+      '#tree' => FALSE,
     ),
     'islandora_scholar_xpaths_google' => array(
       '#type' => 'fieldset',
@@ -407,6 +410,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
       '#prefix' => t('<div id="islandora_scholar_xpaths_google_title">'),
       '#suffix' => t('</div>'),
+      '#tree' => FALSE,
     ),
     'islandora_scholar_xpaths_coins' => array(
       '#type' => 'fieldset',
@@ -420,6 +424,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
       '#prefix' => t('<div id="islandora_scholar_xpaths_coins_title">'),
       '#suffix' => t('</div>'),
+      '#tree' => FALSE,
     ),
     'islandora_scholar_xpaths_citeproc' => array(
       '#type' => 'fieldset',
@@ -433,6 +438,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       ),
       '#prefix' => t('<div id="islandora_scholar_xpaths_citeproc_title">'),
       '#suffix' => t('</div>'),
+      '#tree' => FALSE,
     ),
   );
   $form['islandora_scholar_xpaths_demo'] = array(
