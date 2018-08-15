@@ -478,9 +478,8 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   $form['islandora_scholar_xpaths_general']['reset'] = array(
     '#type' => 'button',
     '#value' => t('Get Xpaths Values'),
-    '#attributes' => array("onclick" => 'foreach (islandora_scholar_xpaths_list() as $key => $value) {
-      document.querySelector("#islandora_scholar_xpaths_title").focus();
-    }'),
+    '#attributes' => array(
+      "onclick" => 'foreach (islandora_scholar_xpaths_list() as $key => $value) {document.querySelector("#islandora_scholar_xpaths_title").focus(); }'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -1547,7 +1546,8 @@ function _mods_id($mods_value = NULL, $pid = NULL) {
     // Test inputs for validity and to avoid a 500 error.
     if (isset($lookup_results->item(0)->textContent)) {
       $mods_value_string = $lookup_results->item(0)->textContent;
-    } else {
+    }
+    else {
       $mods_value_string = '';
     }
     // Build the field suffix.
@@ -1565,7 +1565,7 @@ function _mods_id($mods_value = NULL, $pid = NULL) {
     }
     return $build_string;
   }
-  catch(Exception $e) {
-    echo 'Message: ' .$e->getMessage();
+  catch (Exception $e) {
+    echo 'Message: ' . $e->getMessage();
   }
 }
