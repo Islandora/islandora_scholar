@@ -360,20 +360,42 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
  *   Drupal form definition.
  */
 function islandora_scholar_admin_xpath_form($form, &$form_state) {
+  form_load_include($form_state, 'inc', 'islandora_scholar', 'includes/admin.form');
+  if (!empty($form_state['values']['islandora_scholar_xpaths_demo'])) {
+    $islandora_scholar_xpath_pid = $form_state['values']['islandora_scholar_xpaths_demo'];
+    exec($islandora_scholar_xpath_pid, $output, $return_value);
+    $islandora_scholar_xpaths_general_description = t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field. Testing against pid: !pid <img src="', array(
+        '!pid' => "$islandora_scholar_xpath_pid",
+      )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
+    $islandora_scholar_xpaths_google_description = t('Not limited to Google Scholar, most of these are used by Coins and Citeproc as well. To see the MODS value after editing an entry, tab to the next field. Testing against pid: !pid <img src="', array(
+        '!pid' => "$islandora_scholar_xpath_pid",
+      )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
+    $islandora_scholar_xpaths_coins_description = t('XPaths for the construction of COINS URLs. To see the MODS value after editing an entry, tab to the next field. Testing against pid: !pid <img src="', array(
+        '!pid' => "$islandora_scholar_xpath_pid",
+      )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
+    $islandora_scholar_xpaths_citeproc_description = t('MODS to Citeproc JSON Submodule Converter Xpath configurations Testing against pid: !pid <img src="', array(
+        '!pid' => "$islandora_scholar_xpath_pid",
+      )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
+  }
+  else {
+    $islandora_scholar_xpaths_general_description = t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.');
+    $islandora_scholar_xpaths_google_description = t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.');
+    $islandora_scholar_xpaths_coins_description = t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.');
+    $islandora_scholar_xpaths_citeproc_description = t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.');
+  }
   $form = array(
     'islandora_scholar_xpaths' => array(
       '#type' => 'fieldset',
       '#title' => t('Islandora Scholar Xpath configuration'),
       '#description' => t("Set custom XPaths for Islandora Scholar. <br/><br/>
       Islandora-Collaboration-Group: !description_and_breakdown !gh_islandora_scholar<br/>
-
       Additional XPath Configurations !gs_search_xpaths_configuration & !library_catalog_search_xpaths_configuration<br/><br/>",
         array(
-        '!description_and_breakdown' => l(t('Description and breakdown of XPaths and Keys'), 'https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys'),
-        '!gh_islandora_scholar' => l(t('Additional information at Github/Islandora Scholar'), 'https://github.com/Islandora/islandora_scholar/'),
-        '!gs_search_xpaths_configuration' => l(t('Google Scholar Search XPaths'), 'admin/islandora/solution_pack_config/scholar#edit-google-scholar-search'),
-        '!library_catalog_search_xpaths_configuration' => l(t('Library Catalog Search XPaths Configuration Page'), 'admin/islandora/solution_pack_config/scholar#edit-library-catalog-search'),
-      )),
+          '!description_and_breakdown' => l(t('Description and breakdown of XPaths and Keys'), 'https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys'),
+          '!gh_islandora_scholar' => l(t('Additional information at Github/Islandora Scholar'), 'https://github.com/Islandora/islandora_scholar/'),
+          '!gs_search_xpaths_configuration' => l(t('Google Scholar Search XPaths'), 'admin/islandora/solution_pack_config/scholar#edit-google-scholar-search'),
+          '!library_catalog_search_xpaths_configuration' => l(t('Library Catalog Search XPaths Configuration Page'), 'admin/islandora/solution_pack_config/scholar#edit-library-catalog-search'),
+        )),
       '#prefix' => '<div id="islandora_scholar_xpaths_title">',
       '#suffix' => '</div>',
       '#tree' => FALSE,
@@ -396,7 +418,10 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     'islandora_scholar_xpaths_general' => array(
       '#type' => 'fieldset',
       '#title' => t('General Xpath configurations'),
-      '#description' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field. Testing against pid: @pid', array('@pid' => $form_state['values']['islandora_scholar_xpaths_demo'])): t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.')),
+      '#description' => t('!description_message',
+        array(
+          '!description_message' => $islandora_scholar_xpaths_general_description,
+        )),
       '#collapsible' => TRUE,
       '#states' => array(
         'visible' => array(
@@ -410,7 +435,10 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     'islandora_scholar_xpaths_google' => array(
       '#type' => 'fieldset',
       '#title' => t('Google Scholar Submodule Xpath configurations'),
-      '#description' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? t('Not limited to Google Scholar, most of these are used by Coins and Citeproc as well. To see the MODS value after editing an entry, tab to the next field. Testing against pid: @pid', array('@pid' => $form_state['values']['islandora_scholar_xpaths_demo'])): t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.')),
+      '#description' => t('!description_message',
+        array(
+          '!description_message' => $islandora_scholar_xpaths_google_description,
+        )),
       '#collapsible' => TRUE,
       '#states' => array(
         'visible' => array(
@@ -424,7 +452,10 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     'islandora_scholar_xpaths_coins' => array(
       '#type' => 'fieldset',
       '#title' => t('Coins Submodule Xpath configurations'),
-      '#description' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? t('XPaths for the construction of COINS URLs. To see the MODS value after editing an entry, tab to the next field. Testing against pid: @pid', array('@pid' => $form_state['values']['islandora_scholar_xpaths_demo'])): t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.')),
+      '#description' => t('!description_message',
+        array(
+          '!description_message' => $islandora_scholar_xpaths_coins_description,
+        )),
       '#collapsible' => TRUE,
       '#states' => array(
         'visible' => array(
@@ -438,7 +469,10 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     'islandora_scholar_xpaths_citeproc' => array(
       '#type' => 'fieldset',
       '#title' => t('Citeproc Submodule Xpath configurations'),
-      '#description' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? t('MODS to Citeproc JSON Submodule Converter Xpath configurations Testing against pid: @pid', array('@pid' => $form_state['values']['islandora_scholar_xpaths_demo'])): t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.')),
+      '#description' => t('!description_message',
+        array(
+          '!description_message' => $islandora_scholar_xpaths_citeproc_description,
+        )),
       '#collapsible' => TRUE,
       '#states' => array(
         'visible' => array(
@@ -454,14 +488,13 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Demo Object'),
     '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1)) ? islandora_scholar_xpaths_demo_prefix_callback($form_state['values']['islandora_scholar_xpaths_demo']) : t("Modify to refresh value (PID for demo object is required)."),
-    '#description' => t('PID to check these values against. "@option"', array('@option' => ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1) ? $form_state['values']['islandora_scholar_xpaths_demo'] : ""))),
+    '#description' => t('PID to check these values against. @option', array('@option' => ((!empty($form_state['values']['islandora_scholar_xpaths_demo'])) && (islandora_object_access(ISLANDORA_VIEW_OBJECTS, islandora_object_load($form_state['values']['islandora_scholar_xpaths_demo'])) == 1) ? $form_state['values']['islandora_scholar_xpaths_demo'] : ''))),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
       ),
     ),
     '#autocomplete_path' => 'islandora_compound_object/autocomplete/child',
-    // '#element_validate' => array('islandora_compound_object_autocomplete_child'),
     '#ajax' => array(
       'callback' => 'islandora_scholar_xpaths_image_callback',
       'wrapper' => 'islandora_scholar_xpaths_demo_image',
@@ -1564,21 +1597,32 @@ function _mods_id($mods_value = NULL, $pid = NULL) {
       }
       // Build the field suffix.
       if (strlen($mods_value) == 0) {
-        $build_string = 'For pid "' . $pid . '" <span style="color:red">Path cannot be blank</span>';
+        $build_string = t('For pid !pid: <span style="color:red">Path cannot be blank</span>', array(
+          '!pid' => $pid,
+        ));
       }
       elseif ($lookup_results == NULL) {
-        $build_string = 'For pid "' . $pid . '" <span style="color:red">ERROR</span>';
+        $build_string = t('For pid !pid: <span style="color:red">ERROR</span>', array(
+          '!pid' => $pid,
+        ));
       }
       elseif (strlen($mods_value_string) == 0) {
-        $build_string = 'For pid "' . $pid . '" <span style="color:orange">Nothing Found</span>';
+        $build_string = t('For pid !pid: <span style="color:orange">Nothing Found</span>', array(
+          '!pid' => $pid,
+        ));
       }
       else {
-        $build_string = 'For pid "' . $pid . '": <span style="color:blue">' . $mods_value_string . '</span>';
+        $build_string = t('For pid !pid: <span style="color:blue">!mods_value_string</span>', array(
+          '!pid' => $pid,
+          '!mods_value_string' => $mods_value_string,
+        ));
       }
       return $build_string;
     }
     catch (Exception $e) {
-      echo 'Message: ' . $e->getMessage();
+      watchdog('islandora_scholar', 'Got exception: @message', array(
+        '@message' => $e->getMessage(),
+      ));
     }
   }
 }
