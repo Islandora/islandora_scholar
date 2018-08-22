@@ -363,16 +363,16 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   if (!empty($form_state['values']['islandora_scholar_xpaths_demo'])) {
     $islandora_scholar_xpath_pid = $form_state['values']['islandora_scholar_xpaths_demo'];
     exec($islandora_scholar_xpath_pid, $output, $return_value);
-    $islandora_scholar_xpaths_general_description = t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field. Testing against pid: !pid <img src="', array(
+    $islandora_scholar_xpaths_general_description = t('These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field. <span style="color:blue">Testing against pid:</span> <span style="color:green">!pid</span> <img src="', array(
         '!pid' => "$islandora_scholar_xpath_pid",
       )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
-    $islandora_scholar_xpaths_google_description = t('Not limited to Google Scholar, most of these are used by Coins and Citeproc as well. To see the MODS value after editing an entry, tab to the next field. Testing against pid: !pid <img src="', array(
+    $islandora_scholar_xpaths_google_description = t('Not limited to Google Scholar, most of these are used by Coins and Citeproc as well. To see the MODS value after editing an entry, tab to the next field. <span style="color:blue">Testing against pid:</span> <span style="color:green">!pid</span> <img src="', array(
         '!pid' => "$islandora_scholar_xpath_pid",
       )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
-    $islandora_scholar_xpaths_coins_description = t('XPaths for the construction of COINS URLs. To see the MODS value after editing an entry, tab to the next field. Testing against pid: !pid <img src="', array(
+    $islandora_scholar_xpaths_coins_description = t('XPaths for the construction of COINS URLs. To see the MODS value after editing an entry, tab to the next field. <span style="color:blue">Testing against pid:</span> <span style="color:green">!pid</span> <img src="', array(
         '!pid' => "$islandora_scholar_xpath_pid",
       )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
-    $islandora_scholar_xpaths_citeproc_description = t('MODS to Citeproc JSON Submodule Converter Xpath configurations Testing against pid: !pid <img src="', array(
+    $islandora_scholar_xpaths_citeproc_description = t('MODS to Citeproc JSON Submodule Converter Xpath configurations <span style="color:blue">Testing against pid:</span> <span style="color:green">!pid</span> <img src="', array(
         '!pid' => "$islandora_scholar_xpath_pid",
       )) . url('misc/watchdog-ok.png') . '"/><br/><br/>';
   }
