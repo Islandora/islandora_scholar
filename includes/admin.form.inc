@@ -232,10 +232,9 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
   else {
     $islandora_scholar_path_to_pdftotext = variable_get('islandora_scholar_path_to_pdftotext', '/usr/bin/pdftotext');
   }
-  exec($islandora_scholar_path_to_pdftotext, $output, $return_value);
   $confirmation_message = '<img src="' . url('misc/watchdog-ok.png') . '"/>'
     . t('pdftotext executable found at !url', array('!url' => "<strong>$islandora_scholar_path_to_pdftotext</strong>"));
-  if ($return_value != 99) {
+  if (_islandora_scholar_check_path($islandora_scholar_path_to_pdftotext) != 99) {
     $confirmation_message = '<img src="' . url('misc/watchdog-error.png') . '"/> '
       . t('Unable to find pdftotext executable at !url', array('!url' => "<strong>$islandora_scholar_path_to_pdftotext</strong>"));
   }
@@ -1373,8 +1372,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
 function islandora_scholar_admin_pdf_form_validate($form, &$form_state) {
   if ($form_state['values']['islandora_scholar_create_fulltext']) {
     $islandora_scholar_path_to_pdftotext = $form_state['values']['islandora_scholar_path_to_pdftotext'];
-    exec($islandora_scholar_path_to_pdftotext, $output, $return_value);
-    if ($return_value != 99) {
+    if (_islandora_scholar_check_path($islandora_scholar_path_to_pdftotext) != 99) {
       form_set_error('islandora_scholar_path_to_pdftotext', t('Cannot extract text from PDF without a valid path to pdftotext.'));
     }
   }
@@ -1624,5 +1622,50 @@ function _mods_id($mods_value = NULL, $pid = NULL) {
         '@message' => $e->getMessage(),
       ));
     }
+  }
+}
+
+/**
+ * Verifies file path of a binary by executing it.
+ *
+ * @param $check_path
+ *   The user-submitted path to an executable binary.
+ *
+ * @return
+ *   An associative array containing:
+ *   - output: The shell output of the execusion of the binary, if any.
+ *   - errors: A list of error messages indicating whether it could not
+ *     be found or executed.
+ */
+function _islandora_scholar_check_path($check_path) {
+  try{
+    $status = array(
+      'output' => '',
+      'errors' => array(),
+    );
+    if (!is_file($check_path)) {
+      $status['errors'][] = t('The specified application file path %file does not exist.', array('%file' => $check_path));
+    }
+    elseif (!is_executable($check_path)) {
+      $status['errors'][] = t('The specified application file path %file is not executable.', array('%file' => $check_path));
+    }
+    if ($status['errors'] && ($open_basedir = ini_get('open_basedir'))) {
+      $status['errors'][] = t('The PHP <a href="@php-url">open_basedir</a> security restriction is set to %open-basedir, which may prevent to locate the application.', array(
+        '%open-basedir' => $open_basedir,
+        '@php-url' => 'http://php.net/manual/en/ini.core.php#ini.open-basedir',
+      ));
+    }
+    if (!$status['errors']) {
+      exec(escapeshellcmd($check_path), $error, $output);
+      if ($output !== '') {
+        $status['output'] = $output;
+      }
+    }
+    return $status['output'];
+  }
+  catch (Exception $e) {
+    watchdog('islandora_scholar', 'Got exception: @message', array(
+      '@message' => $e->getMessage(),
+    ));
   }
 }
