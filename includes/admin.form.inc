@@ -521,9 +521,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     '#type' => 'button',
     '#value' => t('Get Xpaths Values'),
     '#attributes' => array(
-      "onclick" => 'foreach (islandora_scholar_xpaths_list() as $key => $value) {
-        document.querySelectorAll(".form-text").focus();
-        }'),
+      "onclick" => 'foreach (islandora_scholar_xpaths_list() as $key => $value) { document.querySelectorAll(".form-text").focus(); }'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -1458,7 +1456,7 @@ function islandora_scholar_xpaths_list() {
  * Function concatenates strings and a veriable to return a preview image.
  */
 function islandora_scholar_xpaths_demo_prefix_callback($image) {
-  if(isset($image)) {
+  if (isset($image)) {
     $image_tag = "<span style='color:green'>Successfully loaded PID!</span><br/><br/><img src='/islandora/object/" . $image . "/datastream/TN/view'>";
     return $image_tag;
   }
@@ -1495,7 +1493,7 @@ function islandora_scholar_xpaths_image_callback($form, &$form_state) {
  *   The part of the form array that needs asynchronous updating.
  */
 function islandora_scholar_xpaths_general_callback($form, &$form_state) {
-    return $form['islandora_scholar_xpaths_general'];
+  return $form['islandora_scholar_xpaths_general'];
 }
 
 /**
@@ -1618,14 +1616,11 @@ function _mods_id($field = NULL, $mods_value = NULL, $pid = NULL) {
 /**
  * Verifies file path of a binary by executing it.
  *
- * @param $check_path
+ * @param string $check_path
  *   The user-submitted path to an executable binary.
  *
- * @return
- *   An associative array containing:
- *   - output: The shell output of the execusion of the binary, if any.
- *   - errors: A list of error messages indicating whether it could not
- *     be found or executed.
+ * @return int
+ *   Returns a integer to determine if the directory is executable.
  */
 function _islandora_scholar_check_path($check_path) {
   try{
