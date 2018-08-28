@@ -631,7 +631,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
       'callback' => 'islandora_scholar_xpaths_general_callback',
       'wrapper' => 'islandora_scholar_xpaths_general_title',
     ),
-    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id('islandora_scholar_xpaths_created_date', $form_state['values']['islandora_scholar_xpaths_title_sub_title'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
+    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id('islandora_scholar_xpaths_created_date', $form_state['values']['islandora_scholar_xpaths_created_date'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
   $form['islandora_scholar_xpaths_google'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_degree_grantor', '//mods:mods[1]/mods:name[@type="corporate"][mods:role/mods:roleTerm = "Degree grantor"]/mods:namePart', array(
     '#type' => 'textfield',
