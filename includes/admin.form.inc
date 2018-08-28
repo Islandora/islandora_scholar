@@ -890,8 +890,8 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_collection-title', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title', array(
     '#type' => 'textfield',
-    '#title' => t('Collection title'),
-    '#description' => t('Default Value: //mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title <br/>XPath to use for collection title.'),
+    '#title' => t('Series Title'),
+    '#description' => t('Default Value: //mods:mods[1]/mods:relatedItem[@type="series"]/mods:titleInfo[not(@type)]/mods:title <br/>XPath to use for series title.'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -1085,8 +1085,8 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_number-pmid', '//mods:mods[1]/mods:identifier[@type="accession"]', array(
     '#type' => 'textfield',
-    '#title' => t('PubMed ID'),
-    '#description' => t('Default Value: //mods:mods[1]/mods:identifier[@type="accession"] <br/>XPath to use for the PubMed ID.'),
+    '#title' => t('Accession Number'),
+    '#description' => t('Default Value: //mods:mods[1]/mods:identifier[@type="accession"] <br/>XPath to use for the accession number.'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -1160,8 +1160,8 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_types', '//mods:mods[1]/mods:genre[@authority="endnote"]', array(
     '#type' => 'textfield',
-    '#title' => t('Types'),
-    '#description' => t('Default Value: //mods:mods[1]/mods:genre[@authority="endnote"] <br/>XPath to use for types.'),
+    '#title' => t('Endnote authority genre types'),
+    '#description' => t('Default Value: //mods:mods[1]/mods:genre[@authority="endnote"] <br/>XPath to use for types like "Journal Article, ".'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
@@ -1175,7 +1175,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_type_marcgt', '//mods:mods[1]/mods:genre[@authority="marcgt"]', array(
     '#type' => 'textfield',
-    '#title' => t('MARC genre type'),
+    '#title' => t('MARC authority genre types'),
     '#description' => t('Default Value: //mods:mods[1]/mods:genre[@authority="marcgt"] <br/>XPath to use for type_marcgt.'),
     '#states' => array(
       'visible' => array(
@@ -1325,8 +1325,8 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_local_collection-editor', '//mods:mods[1]/mods:relatedItem[@type="series"]/mods:name', array(
     '#type' => 'textfield',
-    '#title' => t('Collection Editor'),
-    '#description' => t('Default Value: //mods:mods[1]/mods:relatedItem[@type="series"]/mods:name <br/>XPath to use for the collection-editor.'),
+    '#title' => t('Series Editor'),
+    '#description' => t('Default Value: //mods:mods[1]/mods:relatedItem[@type="series"]/mods:name <br/>XPath to use for the series editor.'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
