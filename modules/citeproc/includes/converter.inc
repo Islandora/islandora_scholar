@@ -406,7 +406,12 @@ function _get_endnote_type(SimpleXMLElement $mods) {
 
   if (!empty($types)) {
     $type = $types[0];
-    $output = $type_map[(string) $type];
+    if (isset($type_map[(string) $type])) {
+      $output = $type_map[(string) $type];
+    }
+    else {
+      echo '<br/>' . t('Endnote genre needs to be limited to the mapped array(Book Section, Book, Edited Book, Journal Article, Working Paper, or Thesis). Please contact the system administrator about this message.') . '<br/><br/>';
+    }
   }
 
   return $output;
