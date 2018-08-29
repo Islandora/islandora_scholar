@@ -94,7 +94,6 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_xpaths_start_page',
     'islandora_scholar_xpaths_title',
     'islandora_scholar_xpaths_title_nonsort',
-    'islandora_scholar_xpaths_title_results',
     'islandora_scholar_xpaths_title_subtitle',
     'islandora_scholar_xpaths_title_sub_title',
     'islandora_scholar_xpaths_types',

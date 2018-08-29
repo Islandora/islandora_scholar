@@ -1263,21 +1263,6 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     ),
    '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id('islandora_scholar_xpaths_date_issued', $form_state['values']['islandora_scholar_xpaths_date_issued'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
   ));
-  $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_title_results', '//mods:mods[1]/mods:titleInfo/mods:title', array(
-    '#type' => 'textfield',
-    '#title' => t('Title Results'),
-    '#description' => t('Default Value: //mods:mods[1]/mods:titleInfo/mods:title <br/>XPath to use for title_results.'),
-    '#states' => array(
-      'visible' => array(
-        ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
-      ),
-    ),
-    '#ajax' => array(
-      'callback' => 'islandora_scholar_xpaths_citeproc_callback',
-      'wrapper' => 'islandora_scholar_xpaths_citeproc_title',
-    ),
-   '#field_suffix' => (!empty($form_state['values']['islandora_scholar_xpaths_demo']) ? _mods_id('islandora_scholar_xpaths_title_results', $form_state['values']['islandora_scholar_xpaths_title_results'], check_plain($form_state['values']['islandora_scholar_xpaths_demo'])) : t("Modify to refresh value (PID for demo object is required).")),
-  ));
   $form['islandora_scholar_xpaths_citeproc'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_dateCaptured', '//mods:mods[1]/mods:originInfo/mods:dateCaptured', array(
     '#type' => 'textfield',
     '#title' => t('Date Captured'),
@@ -1438,7 +1423,6 @@ function islandora_scholar_xpaths_list() {
     'islandora_scholar_xpaths_start_page',
     'islandora_scholar_xpaths_title',
     'islandora_scholar_xpaths_title_nonsort',
-    'islandora_scholar_xpaths_title_results',
     'islandora_scholar_xpaths_title_subtitle',
     'islandora_scholar_xpaths_title_sub_title',
     'islandora_scholar_xpaths_types',
