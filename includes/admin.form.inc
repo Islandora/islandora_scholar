@@ -573,7 +573,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
   $form['islandora_scholar_xpaths_general'] += _islandora_scholar_add_variable('islandora_scholar_xpaths_family', '//mods:mods[1]/mods:name[mods:role/mods:roleTerm = "author"]/mods:namePart[@type = "family"]', array(
     '#type' => 'textfield',
     '#title' => t('Family Name'),
-    '#description' => t("Default Value: //mods:mods[1]/mods:name[mods:role/mods:roleTerm = \"author\"]/mods:namePart[@type = \"family\"]"),
+    '#description' => t('Default Value: //mods:mods[1]/mods:name[mods:role/mods:roleTerm = "author"]/mods:namePart[@type = "family"]'),
     '#states' => array(
       'visible' => array(
         ':input[name="islandora_scholar_xpaths_enabled"]' => array('checked' => TRUE),
