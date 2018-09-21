@@ -101,7 +101,7 @@ class Bibutils {
   }
 
   /**
-   * Executes the given command and the exit status and output of the command.
+   * Executes the given command and returns the exit status and output.
    *
    * @param string $command
    *   The command to execute.
