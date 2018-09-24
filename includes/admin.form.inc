@@ -386,12 +386,7 @@ function islandora_scholar_admin_xpath_form($form, &$form_state) {
     'islandora_scholar_xpaths' => array(
       '#type' => 'fieldset',
       '#title' => t('Islandora Scholar Xpath configuration'),
-      '#description' => t("Set custom XPaths for Islandora Scholar. <br/><br/>
-      Additional XPath Configurations !gs_search_xpaths_configuration & !library_catalog_search_xpaths_configuration<br/><br/>",
-        array(
-          '!gs_search_xpaths_configuration' => l(t('Google Scholar Search XPaths'), 'admin/islandora/solution_pack_config/scholar#edit-google-scholar-search'),
-          '!library_catalog_search_xpaths_configuration' => l(t('Library Catalog Search XPaths Configuration Page'), 'admin/islandora/solution_pack_config/scholar#edit-library-catalog-search'),
-        )),
+      '#description' => t("Set custom XPaths for Islandora Scholar. <br/>"),
       '#prefix' => '<div id="islandora_scholar_xpaths_title">',
       '#suffix' => '</div>',
       '#tree' => FALSE,

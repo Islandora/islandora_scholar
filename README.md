@@ -44,7 +44,7 @@ Ouch! Using caution here can be useful. A small change can cause an issue that c
 Islandora-Collaboration-Group: [Description and breakdown of XPaths and Keys](https://github.com/Islandora-Collaboration-Group/icg_csv_import/blob/master/README.md#xpaths-and-keys), [Additional information at Github/Islandora Scholar](https://github.com/Islandora/islandora_scholar/)
 
 Additional XPath Configurations:
-- Google Scholar Search XPaths: admin/islandora/solution_pack_config/scholar <br/>
+- Google Scholar Search XPaths: admin/islandora/solution_pack_config/scholar
 - Library Catalog Search XPaths Configuration Page:  'admin/islandora/solution_pack_config/scholar#edit-library-catalog-search
 
 ![ISLANDORA SCHOLAR XPATH CONFIGURATION](https://user-images.githubusercontent.com/2738244/41784378-8481d2c8-760d-11e8-935e-527b6c5c02c2.png)
