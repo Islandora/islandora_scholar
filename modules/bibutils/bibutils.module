@@ -30,7 +30,7 @@ function bibutils_menu() {
     'page arguments' => array('bibutils_admin_form'),
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/admin.form.inc',
-    'type' => MENU_NORMAL_ITEM,
+    'type' => MENU_LOCAL_TASK,
   );
 
   return $items;
