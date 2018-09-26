@@ -410,10 +410,10 @@ function _get_endnote_type(SimpleXMLElement $mods) {
       $output = $type_map[(string) $type];
     }
     else {
-      drupal_set_message(t('Endnote genre needs to be limited to the mapped array(Book Section, Book, Edited Book, Journal Article, Working Paper, or Thesis). Please contact the system administrator about this message.'), 'error');
+      $output = 'generic';
+      watchdog('Endnote genre needs to be limited to the mapped array(Book Section, Book, Edited Book, Journal Article, Working Paper, or Thesis).', '!q', array('!q' => check_plain($_GET['q'])), WATCHDOG_WARNING);
     }
   }
-
   return $output;
 }
 
