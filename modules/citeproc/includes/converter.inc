@@ -411,7 +411,7 @@ function _get_endnote_type(SimpleXMLElement $mods) {
     }
     else {
       $output = 'generic';
-      watchdog('Islandora Scholar', 'Endnote genre needs to be limited to the mapped array(Book Section, Book, Edited Book, Journal Article, Working Paper, or Thesis).', WATCHDOG_WARNING);
+      watchdog('Islandora Scholar', 'Endnote genre needs to be limited to the mapped array(Book Section, Book, Edited Book, Journal Article, Working Paper, or Thesis).', array(), WATCHDOG_WARNING);
     }
   }
   return $output;
