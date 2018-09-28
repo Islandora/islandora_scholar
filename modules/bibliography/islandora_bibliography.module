@@ -75,8 +75,8 @@ function islandora_bibilography_get_title_authors($pid) {
   if ($mods) {
     $mods = simplexml_import_dom($mods);
     $mods->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-    $title = implode(' ', $mods->xpath('//mods:mods[1]/mods:titleInfo/mods:title'));
-    $authors_xpath = $mods->xpath('//mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]');
+    $title = implode(' ', $mods->xpath(variable_get('islandora_scholar_xpaths_title', '//mods:mods[1]/mods:titleInfo/mods:title')));
+    $authors_xpath = $mods->xpath(variable_get('islandora_scholar_xpaths_authors_xpath', '//mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/../mods:namePart[@type="family"]'));
     $authors = is_array($authors_xpath) ? implode(' ', $authors_xpath) : NULL;
   }
   return array('title' => $title, 'authors' => $authors);

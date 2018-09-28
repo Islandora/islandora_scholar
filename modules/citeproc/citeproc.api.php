@@ -20,7 +20,7 @@ function hook_convert_mods_to_citeproc_jsons_alter(array &$output, SimpleXMLElem
     // CSL can't build up a "structured" abstract on its own, as cannot accept
     // multiple abstracts with labels... So something like this has been
     // desirable elsewhere.
-    foreach ($mods->xpath('//mods:mods[1]/mods:abstract') as $abstract) {
+    foreach ($mods->xpath(variable_get('islandora_scholar_xpaths_abstract', '//mods:mods[1]/mods:abstract')) as $abstract) {
       $text = isset($abstract['displayLabel']) ?
         trim($abstract['displayLabel']) . ': ':
         '';

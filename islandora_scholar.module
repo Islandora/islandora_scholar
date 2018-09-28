@@ -23,6 +23,15 @@ function islandora_scholar_menu() {
       'title' => 'Basic Configuration',
       'type' => MENU_DEFAULT_LOCAL_TASK,
     ),
+    'admin/islandora/solution_pack_config/scholar/xpaths' => array(
+      'title' => 'XPath Configuration',
+      'description' => 'Configure Islandora Scholar XPaths',
+      'type' => MENU_LOCAL_TASK,
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array('islandora_scholar_admin_xpath_form'),
+      'access arguments' => array('administer site configuration'),
+      'file' => 'includes/admin.form.inc',
+    ),
     'admin/islandora/solution_pack_config/scholar/pdf' => array(
       'title' => 'PDF Configuration',
       'type' => MENU_LOCAL_TASK,
