@@ -61,7 +61,6 @@ function islandora_scholar_admin_form() {
     '#type' => 'checkbox',
     '#title' => t('Render Google Scholar Search link'),
     '#description' => t('Enable Searching in Google Scholar.'),
-    '#required' => TRUE,
   ));
   $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_primary_search_xpath', '//mods:mods[1]/mods:identifier[@type="doi"]', array(
     '#type' => 'textfield',
