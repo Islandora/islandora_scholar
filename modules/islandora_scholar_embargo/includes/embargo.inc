@@ -460,6 +460,7 @@ SELECT ?obj ?date
 FROM <#ri>
 WHERE {
   ?obj is:embargo-until ?date
+  !namespace_filter
 }
 EOQ;
   if ($count) {
@@ -467,6 +468,10 @@ EOQ;
 ORDER BY ?obj
 EOQ;
   }
+  $namespace_filter = islandora_scholar_embargo_get_namespace_filters();
+  $current_embargo = format_string($current_embargo, array(
+    '!namespace_filter' => !empty($namespace_filter) ? $namespace_filter : '',
+  ));
   $connection = islandora_get_tuque_connection();
   $ri = $connection->repository->ri;
   return $count ? $ri->countQuery($current_embargo, 'sparql') : $ri->sparqlQuery($current_embargo, 'unlimited', '0');
@@ -506,13 +511,35 @@ EOQ;
     $current_embargo .= "FILTER(?date > '{$slice_params['offset_date']}'^^xs:dateTime || (?date = '{$slice_params['offset_date']}'^^xs:dateTime && xs:string(?obj) > xs:string('info:fedora/{$slice_params['offset_pid']}')))";
   }
   $current_embargo .= <<<EOQ
+  !namespace_filter
 }
 ORDER BY ASC(?date) ASC(?obj)
 EOQ;
+  $namespace_filter = islandora_scholar_embargo_get_namespace_filters();
+  $current_embargo = format_string($current_embargo, array(
+    '!namespace_filter' => !empty($namespace_filter) ? $namespace_filter : '',
+  ));
 
   // Use the query.
   $connection = islandora_get_tuque_connection();
   return $connection->repository->ri->sparqlQuery($current_embargo, $limit);
+}
+
+/**
+ * Implements islandora_scholar_embargo_get_namespace_filters().
+ */
+function islandora_scholar_embargo_get_namespace_filters() {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  $enforced = variable_get('islandora_namespace_restriction_enforced', FALSE);
+  if ($enforced) {
+    $namespace_array = islandora_get_allowed_namespaces();
+    $namespace_sparql = implode('|', $namespace_array);
+    $filter = format_string('regex(str(?obj), "info:fedora/(!namespaces):")', array('!namespaces' => $namespace_sparql));
+    if (!empty($filter)) {
+      return "FILTER($filter)";
+    }
+  }
+  return '';
 }
 
 /**
