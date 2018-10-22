@@ -19,7 +19,12 @@
 function islandora_embargo_admin(array $form, array &$form_state) {
   module_load_include('inc', 'islandora', 'includes/utilities');
   $options = islandora_get_content_models();
-  $selected = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
+  if (module_exists('islandora_scholar')) {
+    $selected = variable_get('islandora_embargo_content_models', array('ir:citationCModel', 'ir:thesisCModel'));
+  }
+  else {
+    $selected = variable_get('islandora_embargo_content_models', array());
+  }
   foreach ($selected as $cmodel) {
     if (isset($options[$cmodel])) {
       $options = array($cmodel => $options[$cmodel]) + $options;
