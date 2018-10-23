@@ -7,5 +7,5 @@ dependencies[] = citeproc
 dependencies[] = bibutils
 dependencies[] = libraries
 files[] = includes/citation.export.inc
-version = 7.x-dev
+version = 7.x-1.12
 core = 7.x
