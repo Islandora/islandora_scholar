@@ -6,6 +6,6 @@ dependencies[] = islandora
 dependencies[] = islandora_scholar
 dependencies[] = csl
 dependencies[] = libraries
-version = 7.x-dev
+version = 7.x-1.12
 core = 7.x
 php = 5.2

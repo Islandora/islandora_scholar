@@ -6,5 +6,5 @@ dependencies[] = islandora_bookmark
 dependencies[] = islandora_scholar
 dependencies[] = csl
 dependencies[] = citeproc
-version = 7.x-dev
+version = 7.x-1.12
 core = 7.x

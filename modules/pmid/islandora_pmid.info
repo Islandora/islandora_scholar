@@ -3,5 +3,5 @@ description = Support code for Pubmed IDs, to create citation objects.
 package = Islandora Solution Packs
 dependencies[] = islandora
 dependencies[] = islandora_scholar
-version = 7.x-dev
+version = 7.x-1.12
 core = 7.x
