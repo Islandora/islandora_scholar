@@ -81,7 +81,10 @@ This is where the replacement goes.
 zzz
 
 
-![ISLANDORA SCHOLAR XPATH CONFIGURATION](https://raw.githubusercontent.com/cdeaneGit/islandora_scholar/ISLANDORA-2338/XPATH_config2_full.JPG)
+![ISLANDORA SCHOLAR XPATH CONFIGURATION](https://raw.githubusercontent.com/cdeaneGit/islandora_scholar/ISLANDORA-2338/XPATH_config2_trim.JPG)
+
+
+
 
 
 
