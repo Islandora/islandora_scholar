@@ -51,6 +51,8 @@ Additional XPath Configurations:
 
 xxx  
 
+https://raw.githubusercontent.com/cdeaneGit/islandora_scholar/ISLANDORA-2338/XPATH_config2_full.JPG
+
 
 This is where the replacement goes.
 
