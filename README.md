@@ -47,7 +47,16 @@ Additional XPath Configurations:
 - Google Scholar Search XPaths: admin/islandora/solution_pack_config/scholar
 - Library Catalog Search XPaths Configuration Page:  'admin/islandora/solution_pack_config/scholar#edit-library-catalog-search
 
+incorrect image handling
 ![ISLANDORA SCHOLAR XPATH CONFIGURATION](https://wiki.lib.utk.edu/download/attachments/58917139/XPATH_config2_trim.PNG?version=1&modificationDate=1542656097296&api=v2)
+
+Place new image between xxx and yyy.
+XXX
+
+
+
+
+YYY
 
 Clicking the "__Save Configuration__" will create drupal variable for each of these. Clicking "__Reset all XPaths to Defaults__" will delete the drupal global variables and fault back to the hard coded ones. Using the demo object will not modify the object, this is for identifying what MODS values are read with the specified XPath.
 
