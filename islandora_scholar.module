@@ -99,6 +99,7 @@ function islandora_scholar_xml_form_builder_form_associations() {
       'dsid' => 'MODS',
       'title_field' => array('titleInfo', 'title'),
       'transform' => 'mods_to_dc.xsl',
+      'self_transform' => 'islandora_cleanup_mods_extended.xsl',
       'template' => FALSE,
     ),
     'islandora_thesis_mods_form' => array(
@@ -107,6 +108,7 @@ function islandora_scholar_xml_form_builder_form_associations() {
       'dsid' => 'MODS',
       'title_field' => array('titleInfo', 'title'),
       'transform' => 'mods_to_dc.xsl',
+      'self_transform' => 'islandora_cleanup_mods_extended.xsl',
       'template' => FALSE,
     ),
   );
