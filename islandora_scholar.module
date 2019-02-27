@@ -67,6 +67,44 @@ function islandora_scholar_menu() {
       'access arguments' => array(2),
       'file' => 'includes/callbacks.inc',
     ),
+    'gs_years' => array(
+      'title' => 'Google Scholar Years',
+      'page callback' => '_islandora_google_scholar_page_years',
+      'file' => 'includes/page_callbacks.inc',
+      'access arguments' => array(
+        'access content',
+      ),
+      'type' => MENU_CALLBACK,
+    ),
+    'gs_updated' => array(
+      'title' => 'Google Scholar Articles Added/Updated',
+      'page callback' => '_islandora_google_scholar_updated',
+      'file' => 'includes/page_callbacks.inc',
+      'access arguments' => array(
+        'access content',
+      ),
+      'type' => MENU_CALLBACK,
+    ),
+    'gs_year/%' => array(
+      'title' => 'Google Scholar Year',
+      'page callback' => '_islandora_google_scholar_page_year',
+      'page arguments' => array(1),
+      'file' => 'includes/page_callbacks.inc',
+      'access arguments' => array(
+        'access content',
+      ),
+      'type' => MENU_CALLBACK,
+    ),
+    'gs_abstract/%' => array(
+      'title' => 'Abstract',
+      'page callback' => '_islandora_google_scholar_abstract',
+      'page arguments' => array(1),
+      'file' => 'includes/page_callbacks.inc',
+      'access arguments' => array(
+        'access content',
+      ),
+      'type' => MENU_CALLBACK,
+    ),
   );
 }
 
