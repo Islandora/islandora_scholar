@@ -55,7 +55,7 @@ before_install:
   - ln -s $HOME/islandora_bookmark sites/all/modules/islandora_bookmark
   - ln -s $HOME/islandora_batch sites/all/modules/islandora_batch
   - drush cc all
-  - drush -u 1 en --yes islandora_scholar bibutils citation_exporter doi_importer islandora_google_scholar islandora_scholar_embargo islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
+  - drush -u 1 en --yes islandora_scholar islandora_scholar_embargo bibutils citation_exporter doi_importer islandora_google_scholar islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
 before_script:
   # Mysql might time out for long tests, increase the wait timeout.
   - mysql -e 'SET @@GLOBAL.wait_timeout=1200'
