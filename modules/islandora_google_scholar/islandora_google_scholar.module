@@ -30,9 +30,16 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     $title_results = $mods_xml->xpath(variable_get('islandora_scholar_xpaths_title', '//mods:mods[1]/mods:titleInfo/mods:title'));
     $title = (string) reset($title_results);
+    $subtitle_results = $mods_xml->xpath(variable_get('islandora_scholar_xpaths_title_sub_title', '//mods:mods[1]/mods:titleInfo/mods:subTitle'));
+    $subtitle = (string) reset($subtitle_results);
 
     if (!empty($title)) {
-      $tags['citation_title'] = $title;
+      if (!empty($subtitle)) {
+        $tags['citation_title'] = "{$title}: {$subtitle}";
+      }
+      else {
+        $tags['citation_title'] = $title;
+      }
     }
     else {
       return FALSE;
