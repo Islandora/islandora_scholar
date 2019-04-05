@@ -1,10 +1,9 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "hash": "1ad181bcc151ad91ab6438aaf5f86df5",
     "content-hash": "b12f7528020da5a1579de7712a46030b",
     "packages": [
         {
@@ -19,19 +18,20 @@
         },
         {
             "name": "myclabs/php-enum",
-            "version": "1.6.1",
+            "version": "1.6.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/myclabs/php-enum.git",
-                "reference": "8c5649e4ed99acd53a40eada270154dcac089f7e"
+                "reference": "32c4202886c51fbe5cc3a7c34ec5c9a4a790345e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/php-enum/zipball/8c5649e4ed99acd53a40eada270154dcac089f7e",
-                "reference": "8c5649e4ed99acd53a40eada270154dcac089f7e",
+                "url": "https://api.github.com/repos/myclabs/php-enum/zipball/32c4202886c51fbe5cc3a7c34ec5c9a4a790345e",
+                "reference": "32c4202886c51fbe5cc3a7c34ec5c9a4a790345e",
                 "shasum": ""
             },
             "require": {
+                "ext-json": "*",
                 "php": ">=5.4"
             },
             "require-dev": {
@@ -59,26 +59,29 @@
             "keywords": [
                 "enum"
             ],
-            "time": "2018-05-09 08:09:15"
+            "time": "2019-02-04T21:18:49+00:00"
         },
         {
             "name": "seboettg/citeproc-php",
-            "version": "v2.1.3",
+            "version": "v2.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/seboettg/citeproc-php.git",
-                "reference": "8063510c7f2065bf311bfc36bf12054d9d8d21b7"
+                "reference": "795c6a4cfb070137df1f7bb7832c4cff2bf40a38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/seboettg/citeproc-php/zipball/8063510c7f2065bf311bfc36bf12054d9d8d21b7",
-                "reference": "8063510c7f2065bf311bfc36bf12054d9d8d21b7",
+                "url": "https://api.github.com/repos/seboettg/citeproc-php/zipball/795c6a4cfb070137df1f7bb7832c4cff2bf40a38",
+                "reference": "795c6a4cfb070137df1f7bb7832c4cff2bf40a38",
                 "shasum": ""
             },
             "require": {
+                "ext-intl": "*",
+                "ext-json": "*",
+                "ext-simplexml": "*",
                 "myclabs/php-enum": "^1.5",
                 "seboettg/collection": "^1.2",
-                "symfony/polyfill-mbstring": "^1.3"
+                "symfony/polyfill-mbstring": "v1.10.*"
             },
             "require-dev": {
                 "phpunit/phpunit": "6.0.13",
@@ -87,7 +90,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "": "src/"
+                    "Seboettg\\": "src/Seboettg/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -103,30 +106,30 @@
                 }
             ],
             "description": "Full-featured CSL processor (https://citationstyles.org)",
-            "time": "2018-06-15 06:53:02"
+            "time": "2019-03-24T20:26:11+00:00"
         },
         {
             "name": "seboettg/collection",
-            "version": "v1.3.0",
+            "version": "v1.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/seboettg/Collection.git",
-                "reference": "75f956a766b0c039be51ce503a8f1264135d7fdd"
+                "reference": "7f0bbf93dba9b261f6d8c725a4f1583f4402162a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/seboettg/Collection/zipball/75f956a766b0c039be51ce503a8f1264135d7fdd",
-                "reference": "75f956a766b0c039be51ce503a8f1264135d7fdd",
+                "url": "https://api.github.com/repos/seboettg/Collection/zipball/7f0bbf93dba9b261f6d8c725a4f1583f4402162a",
+                "reference": "7f0bbf93dba9b261f6d8c725a4f1583f4402162a",
                 "shasum": ""
             },
             "require-dev": {
-                "phpunit/phpunit": "^6.2",
+                "phpunit/phpunit": "6.5.*",
                 "satooshi/php-coveralls": "^v2.0"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "": "src/"
+                    "Seboettg\\Collection\\": "src/Seboettg/Collection"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -140,20 +143,20 @@
                 }
             ],
             "description": "Simple PHP ArrayList collection",
-            "time": "2018-05-11 11:37:39"
+            "time": "2019-02-13T07:13:15+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.8.0",
+            "version": "v1.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "3296adf6a6454a050679cde90f95350ad604b171"
+                "reference": "c79c051f5b3a46be09205c73b80b346e4153e494"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/3296adf6a6454a050679cde90f95350ad604b171",
-                "reference": "3296adf6a6454a050679cde90f95350ad604b171",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/c79c051f5b3a46be09205c73b80b346e4153e494",
+                "reference": "c79c051f5b3a46be09205c73b80b346e4153e494",
                 "shasum": ""
             },
             "require": {
@@ -165,7 +168,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.8-dev"
+                    "dev-master": "1.9-dev"
                 }
             },
             "autoload": {
@@ -199,7 +202,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2018-04-26 10:06:28"
+            "time": "2018-09-21T13:07:52+00:00"
         }
     ],
     "packages-dev": [],
