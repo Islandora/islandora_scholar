@@ -210,6 +210,7 @@ class Coins {
    * describing the reference
    */
   public function renderView($type = 'citation') {
+    module_load_include('inc', 'citeproc', 'includes/utilities');
     global $base_url;
     $admin = user_access('administer scholarly research');
     $fedora_url = variable_get('fedora_base_url', 'http://localhost:8080/fedora');
@@ -327,7 +328,7 @@ class Coins {
     }
     return array(
       'headers' => $headers,
-      'rows' => $rows,
+      'rows' => citeproc_deep_array_filter_xss($rows),
     );
   }
 

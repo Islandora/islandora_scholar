@@ -100,6 +100,7 @@ function _citeproc_array_to_object($in) {
  *   extracted for them from the provided MODS record.
  */
 function convert_mods_to_citeproc_jsons($mods_in) {
+  module_load_include('inc', 'citeproc', 'includes/utilities');
   $mods = NULL;
   if ($mods_in instanceof DOMNode) {
     $mods = simplexml_import_dom($mods_in);
@@ -157,7 +158,7 @@ function convert_mods_to_citeproc_jsons($mods_in) {
 
     drupal_alter('convert_mods_to_citeproc_jsons', $output, $mods);
 
-    return $output;
+    return citeproc_deep_array_filter_xss($output);
   }
   else {
     watchdog('citeproc', 'Not a SimpleXMLElement!');

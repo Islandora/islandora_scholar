@@ -70,3 +70,16 @@ function citeproc_lookup_language($language) {
   drupal_alter('citeproc_language', $citeproc_lang);
   return $citeproc_lang;
 }
+
+/**
+ * Call filter_xss on the leaves of an array.
+ */
+function citeproc_deep_array_filter_xss(&$array) {
+  // @codingStandardsIgnoreStart
+  $func = function ($item) use (&$func) {
+    return is_array($item) ? array_map($func, $item) : filter_xss($item);
+  };
+  // @codingStandardsIgnoreEnd
+
+  return array_map($func, $array);
+};
