@@ -47,7 +47,7 @@ function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FA
     $height = variable_get('islandora_scholar_thumbnail_height', 200);
     $colorspace = variable_get('islandora_scholar_thumbnail_colorspace', 'sRGB');
     $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
-    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force, $hook['source_dsid']);
+    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force, $hook['source_dsid'], $colorspace);
     file_unmanaged_delete($file_uri);
     return $results;
   }
@@ -165,7 +165,7 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
     $height = variable_get('islandora_scholar_preview_height', 700);
     $colorspace = variable_get('islandora_scholar_preview_colorspace', 'sRGB');
     $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
-    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $colorspace, $force, $hook['source_dsid']);
+    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force, $hook['source_dsid'], $colorspace);
     file_unmanaged_delete($file_uri);
     return $results;
   }
@@ -184,12 +184,12 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
  *   The width to make the derived datastream.
  * @param int $height
  *   The height to make the derived datastream.
- * @param string $colorspace
- *   The colorspace for the derived datastream.
  * @param bool $force
  *   Whether the derivative generation is being forced or not.
  * @param string $source_dsid
  *   The source DSID that triggered the derivative creation.
+ * @param string $colorspace
+ *   The colorspace for the derived datastream.
  *
  * @return array|NULL
  *   An array describing the outcome of adding the JPG derivative or NULL if no
@@ -197,7 +197,7 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri, $dsid, $width, $height, $colorspace, $force, $source_dsid) {
+function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri, $dsid, $width, $height, $force, $source_dsid, $colorspace = NULL) {
   if (!isset($object[$dsid]) || (isset($object[$dsid]) && $force === TRUE)) {
     if (!isset($object[$source_dsid])) {
       return islandora_scholar_missing_pdf_datastream($object->id);
