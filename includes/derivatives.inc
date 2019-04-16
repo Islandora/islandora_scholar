@@ -45,8 +45,9 @@ function islandora_scholar_add_tn_derivative(AbstractObject $object, $force = FA
   if ($force || !isset($object['TN'])) {
     $width = variable_get('islandora_scholar_thumbnail_width', 200);
     $height = variable_get('islandora_scholar_thumbnail_height', 200);
+    $colorspace = variable_get('islandora_scholar_thumbnail_colorspace', 'sRGB');
     $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
-    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force, $hook['source_dsid']);
+    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'TN', $width, $height, $force, $hook['source_dsid'], $colorspace);
     file_unmanaged_delete($file_uri);
     return $results;
   }
@@ -162,8 +163,9 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
   if ($force || !isset($object['PREVIEW'])) {
     $width = variable_get('islandora_scholar_preview_width', 500);
     $height = variable_get('islandora_scholar_preview_height', 700);
+    $colorspace = variable_get('islandora_scholar_preview_colorspace', 'sRGB');
     $file_uri = islandora_scholar_get_derivative_source_as_unmanaged_file($object, $hook['source_dsid']);
-    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force, $hook['source_dsid']);
+    $results = islandora_scholar_add_jpg_derivative($object, $file_uri, 'PREVIEW', $width, $height, $force, $hook['source_dsid'], $colorspace);
     file_unmanaged_delete($file_uri);
     return $results;
   }
@@ -186,6 +188,8 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
  *   Whether the derivative generation is being forced or not.
  * @param string $source_dsid
  *   The source DSID that triggered the derivative creation.
+ * @param string $colorspace
+ *   The colorspace for the derived datastream.
  *
  * @return array|NULL
  *   An array describing the outcome of adding the JPG derivative or NULL if no
@@ -193,12 +197,12 @@ function islandora_scholar_add_preview_derivative(AbstractObject $object, $force
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri, $dsid, $width, $height, $force, $source_dsid) {
+function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri, $dsid, $width, $height, $force, $source_dsid, $colorspace = NULL) {
   if (!isset($object[$dsid]) || (isset($object[$dsid]) && $force === TRUE)) {
     if (!isset($object[$source_dsid])) {
       return islandora_scholar_missing_pdf_datastream($object->id);
     }
-    $derivative_file_uri = islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $height);
+    $derivative_file_uri = islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $height, $colorspace);
     // Receive a valid file URI to add or an error message otherwise.
     if (!is_array($derivative_file_uri) && file_valid_uri($derivative_file_uri)) {
       $success = islandora_scholar_add_datastream($object, $dsid, $derivative_file_uri);
@@ -252,13 +256,21 @@ function islandora_scholar_add_jpg_derivative(AbstractObject $object, $file_uri,
  *   The width to make the derived datastream.
  * @param int $height
  *   The height to make the derived datastream.
+ * @param string $colorspace
+ *   The colorspace for the derived datastream.
  *
  * @return string|array
  *   A URI to the generated derivative if successful, error message otherwise.
  *
  * @see hook_islandora_derivative()
  */
-function islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $height) {
+function islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $height, $colorspace = NULL) {
+  module_load_include('inc', 'islandora', 'includes/utilities');
+  if (is_null($colorspace)) {
+    $colorspace = 'sRGB';
+    $message = islandora_deprecated('7.x-1.12', t('The colorspace now needs to be specified in islandora_scholar_create_jpg_derivative'));
+    trigger_error(filter_xss($message), E_USER_DEPRECATED);
+  }
   $source = drupal_realpath($file_uri) . '[0]';
   // Get the base name of the source file.
   $base = pathinfo($source, PATHINFO_FILENAME);
@@ -266,7 +278,7 @@ function islandora_scholar_create_jpg_derivative($file_uri, $dsid, $width, $heig
   $dest = drupal_realpath($temp);
   $args['quality'] = '-quality ' . escapeshellarg(variable_get('imagemagick_quality', 75));
   $args['previewsize'] = '-resize ' . escapeshellarg("{$width}x{$height}");
-  $args['colors'] = '-colorspace RGB';
+  $args['colors'] = "-colorspace {$colorspace}";
   $args['flatten'] = '-flatten';
   $context = array(
     'source' => $source,

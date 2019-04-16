@@ -317,6 +317,19 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
     '#size' => 5,
   );
 
+  $form['islandora_scholar_thumbnail_fieldset']['islandora_scholar_thumbnail_colorspace'] = array(
+    '#type' => 'select',
+    '#title' => t('Colorspace'),
+    '#options' => array(
+      'sRGB' => t('sRGB'),
+      'RGB' => t('RGB'),
+      'CMYK' => t('CMYK'),
+      'Gray' => t('Grayscale'),
+    ),
+    '#description' => t('The colorspace for the derived thumbnail.'),
+    '#default_value' => variable_get('islandora_scholar_thumbnail_colorspace', 'sRGB'),
+  );
+
   $form['islandora_scholar_preview_fieldset'] = array(
     '#type' => 'fieldset',
     '#title' => t('Preview image'),
@@ -340,6 +353,20 @@ function islandora_scholar_admin_pdf_form($form, &$form_state) {
     '#default_value' => variable_get('islandora_scholar_preview_height', 700),
     '#size' => 5,
   );
+
+  $form['islandora_scholar_preview_fieldset']['islandora_scholar_preview_colorspace'] = array(
+    '#type' => 'select',
+    '#title' => t('Colorspace'),
+    '#options' => array(
+      'sRGB' => t('sRGB'),
+      'RGB' => t('RGB'),
+      'CMYK' => t('CMYK'),
+      'Gray' => t('Grayscale'),
+    ),
+    '#description' => t('The colorspace for the derived preview.'),
+    '#default_value' => variable_get('islandora_scholar_preview_colorspace', 'sRGB'),
+  );
+
   $form['islandora_scholar_preview_fieldset']['islandora_scholar_preview_density'] = array(
     '#type' => 'textfield',
     '#title' => t('Density used to generate preview'),
