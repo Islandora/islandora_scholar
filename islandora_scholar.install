@@ -31,9 +31,11 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_romeo_enable',
     'islandora_scholar_thumbnail_width',
     'islandora_scholar_thumbnail_height',
+    'islandora_scholar_thumbnail_colorspace',
     'islandora_scholar_path_to_pdftotext',
     'islandora_scholar_preview_width',
     'islandora_scholar_preview_height',
+    'islandora_scholar_preview_colorspace',
     'islandora_scholar_issn_cache_time',
     'islandora_scholar_romeo_key',
     'islandora_scholar_romeo_url',
@@ -136,4 +138,14 @@ function islandora_scholar_update_7101(&$sandbox) {
  */
 function islandora_scholar_update_7102(&$sandbox) {
   return t('The permission to administer the Islandora Scholar module has been changed to "Administer site configuration"; roles that could previously access Islandora Scholar management pages via the "Use the administration pages and help" permission will no longer be able to do so. Permissions may need to be reviewed.');
+}
+
+/**
+ * Maintain existing RGB colorspace profile configuration.
+ */
+function islandora_scholar_update_7103(&$sandbox) {
+  variable_set('islandora_scholar_preview_colorspace', 'RGB');
+  variable_set('islandora_scholar_thumbnail_colorspace', 'RGB');
+  $t = get_t();
+  return $t('Set colorspace configuration to RBG to maintain existing profile.');
 }
