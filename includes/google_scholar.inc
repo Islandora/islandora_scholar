@@ -44,7 +44,7 @@ function islandora_scholar_create_meta_tags($object) {
     else {
       return FALSE;
     }
-    foreach ($mods_xml->xpath('mods:name') as $name_xml) {
+    foreach ($mods_xml->xpath(variable_get('islandora_scholar_xpaths_authors_xpath','mods:name')) as $name_xml) {
       $name_parts = array();
       $name_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
       $roles = $name_xml->xpath('mods:role/mods:roleTerm');
