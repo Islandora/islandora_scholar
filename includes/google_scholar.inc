@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Module used to embed meta tags in the HEAD for use in indexing in Google
@@ -43,45 +44,35 @@ function islandora_google_scholar_create_meta_tags($object) {
     else {
       return FALSE;
     }
-    foreach ($mods_xml->xpath(variable_get('islandora_scholar_xpaths_authors_xpath', 'mods:name')) as $name_xml) {
+    foreach ($mods_xml->xpath(variable_get('islandora_scholar_xpaths_authors_xpath','mods:name')) as $name_xml) {
       $name_parts = array();
       $name_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-      // Use Mods DisplayForm as a backup source for name.
-      // Only taking the first result for displayForm.
-      $name_displayForm = '';
-      $mods_displayform = $name_xml->xpath('mods:displayForm');
-      if (is_array($mods_displayform)) {
-        $name_displayForm = array_shift($mods_displayform);
-      }
-      foreach ($name_xml->xpath('mods:namePart') as $name_part) {
-        if ((string) $name_part != '') {
-          // Strip periods off the end.
-          $np = (string) rtrim($name_part, '.');
-          if ($name_part['type'] == 'given') {
-            // Middle name is also marked as given name in MODS.
-            if (isset($name_parts['first_name'])) {
-              $name_parts['first_name'] = $name_parts['first_name'] . ' ' . (string) $name_part;
+      $roles = $name_xml->xpath('mods:role/mods:roleTerm');
+      $role = strtolower((string) reset($roles));
+      if ($role) {
+        if ($role == 'author') {
+          foreach ($name_xml->xpath('mods:namePart') as $name_part) {
+            if ((string) $name_part != '') {
+              // Strip periods off the end.
+              $np = (string) rtrim($name_part, '.');
+              if ($name_part['type'] == 'given') {
+                $name_parts['first_name'] = (string) $name_part;
+              }
+              if ($name_part['type'] == 'family') {
+                $name_parts['last_name'] = $np;
+              }
+              if (!isset($name_part['type'])) {
+                $name_parts['no_type'] = $np;
+              }
             }
-            else {
-              $name_parts['first_name'] = (string) $name_part;
-            }
-          }
-          if ($name_part['type'] == 'family') {
-            $name_parts['last_name'] = $np;
-          }
-          if (!isset($name_part['type'])) {
-            $name_parts['no_type'] = $np;
           }
         }
-      }
-      if (isset($name_parts['last_name']) && isset($name_parts['first_name'])) {
-        $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
-      }
-      elseif ($name_displayForm != '') {
-        $tags['citation_author'][] = $name_displayForm;
-      }
-      elseif (isset($name_parts['no_type'])) {
-        $tags['citation_author'][] = $name_parts['no_type'];
+        if (isset($name_parts['last_name']) && isset($name_parts['first_name'])) {
+          $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
+        }
+        elseif (isset($name_parts['no_type'])) {
+          $tags['citation_author'][] = $name_parts['no_type'];
+        }
       }
     }
     if (count($tags['citation_author']) == 0) {
