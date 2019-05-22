@@ -54,7 +54,12 @@ function islandora_scholar_create_meta_tags($object) {
               // Strip periods off the end.
               $np = (string) rtrim($name_part, '.');
               if ($name_part['type'] == 'given') {
-                $name_parts['first_name'] = (string) $name_part;
+				  //middle name is also marked as given name in MODS
+				  if(isset($name_parts['first_name'])){
+					$name_parts['first_name'] = $name_parts['first_name']. ' ' .(string) $name_part;
+				  }else{
+					 $name_parts['first_name'] = (string) $name_part; 
+				  }
               }
               if ($name_part['type'] == 'family') {
                 $name_parts['last_name'] = $np;
