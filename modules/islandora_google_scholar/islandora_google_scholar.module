@@ -47,10 +47,8 @@ function islandora_google_scholar_create_meta_tags($object) {
     foreach ($mods_xml->xpath(variable_get('islandora_scholar_xpaths_authors_xpath','mods:name')) as $name_xml) {
       $name_parts = array();
       $name_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-      $roles = $name_xml->xpath('mods:role/mods:roleTerm');
-      $role = strtolower((string) reset($roles));
-      if ($role) {
-        if ($role == 'author') {
+	  //use Mods DisplayForm as a backup source for name
+	  $name_displayForm = $name_xml->xpath('mods:displayForm');
           foreach ($name_xml->xpath('mods:namePart') as $name_part) {
             if ((string) $name_part != '') {
               // Strip periods off the end.
@@ -66,15 +64,16 @@ function islandora_google_scholar_create_meta_tags($object) {
               }
             }
           }
-        }
         if (isset($name_parts['last_name']) && isset($name_parts['first_name'])) {
           $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
         }
         elseif (isset($name_parts['no_type'])) {
           $tags['citation_author'][] = $name_parts['no_type'];
         }
+		elseif (isset($name_displayForm)) {
+		  $tags['citation_author'][] = $name_displayForm;
+		}
       }
-    }
     if (count($tags['citation_author']) == 0) {
       return FALSE;
     }
