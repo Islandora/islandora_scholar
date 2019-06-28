@@ -13,6 +13,9 @@
 function islandora_scholar_install() {
   module_load_include('inc', 'islandora', 'includes/solution_packs');
   islandora_install_solution_pack('islandora_scholar');
+  $modules = array('islandora_google_scholar');
+  $enable_dependencies = TRUE;
+  module_enable($modules, $enable_dependencies);
 }
 
 /**
@@ -148,4 +151,16 @@ function islandora_scholar_update_7103(&$sandbox) {
   variable_set('islandora_scholar_thumbnail_colorspace', 'RGB');
   $t = get_t();
   return $t('Set colorspace configuration to RBG to maintain existing profile.');
+}
+
+/**
+ * Ensure Islandora Google Scholar is enabled.
+ */
+function islandora_scholar_update_7104(&$sandbox) {
+  if (!module_exists('islandora_google_scholar')) {
+    $modules = array('islandora_google_scholar');
+    $enable_dependencies = TRUE;
+    module_enable($modules, $enable_dependencies);
+    return t('The Islandora Google Scholar module has been enabled by default. If you wish to disable it you may do so at admin/modules.');
+  }
 }
