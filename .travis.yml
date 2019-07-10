@@ -97,7 +97,6 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citeproc
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty csl
   # XXX: Move the 3rd-party library stuff back in, for tests.
-  - mv $HOME/tcpdf $TRAVIS_BUILD_DIR/modules/exporter/lib/
   - cp -Rv $JAVASCRIPT_DIR/* $TRAVIS_BUILD_DIR
   - phpcpd --names *.module,*.inc,*.test sites/all/modules/islandora_scholar
   - vendor/bin/phpunit sites/all/modules/islandora_scholar/modules/citeproc/tests/CSL_Dateparser.test
