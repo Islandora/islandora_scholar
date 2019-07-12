@@ -68,7 +68,7 @@ before_install:
   - ln -s $HOME/islandora_bookmark sites/all/modules/islandora_bookmark
   - ln -s $HOME/islandora_batch sites/all/modules/islandora_batch
   - drush cc all
-  - drush -u 1 en --yes islandora_scholar islandora_scholar_embargo bibutils citation_exporter doi_importer islandora_google_scholar islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
+  - drush -u 1 en --yes islandora_scholar islandora_scholar_embargo bibutils citation_exporter doi_importer islandora_bibliography ris_importer endnotexml_importer pmid_importer citeproc csl
 before_script:
   # Mysql might time out for long tests, increase the wait timeout.
   - mysql -e 'SET @@GLOBAL.wait_timeout=1200'
@@ -87,7 +87,6 @@ script:
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty bibutils
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty citation_exporter
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty doi_importer
-  - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_google_scholar
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_scholar_embargo
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty islandora_bibliography
   - drush coder-review --reviews=production,security,style,i18n,potx,sniffer --no-empty ris_importer
