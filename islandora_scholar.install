@@ -158,6 +158,10 @@ function islandora_scholar_update_7104(&$sandbox) {
   if (module_exists($module)) {
     module_disable($module, FALSE);
   }
+  db_delete('system')
+    ->condition('name', $module, 'IN')
+    ->condition('type', 'module')
+    ->execute();
   return t('The Islandora Google Scholar submodule has been removed, and its functionality has been moved into the main Islandora Scholar module.');
 }
 
