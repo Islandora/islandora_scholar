@@ -197,9 +197,11 @@ function islandora_scholar_islandora_required_objects(IslandoraTuque $connection
  */
 function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
-  module_load_include('inc', 'islandora_scholar', 'includes/google_scholar');
-  $tags = islandora_scholar_create_meta_tags($object);
-  islandora_scholar_embed_tags($tags);
+  if (variable_get('islandora_scholar_google_scholar_metatags_enabled', TRUE)) {
+    module_load_include('inc', 'islandora_scholar', 'includes/google_scholar');
+    $tags = islandora_scholar_create_meta_tags($object);
+    islandora_scholar_embed_tags($tags);
+  }
   return islandora_scholar_get_view($object);
 }
 
@@ -208,9 +210,11 @@ function islandora_scholar_ir_citationCModel_islandora_view_object($object) {
  */
 function islandora_scholar_ir_thesisCModel_islandora_view_object($object) {
   module_load_include('inc', 'islandora_scholar', 'includes/utilities');
-  module_load_include('inc', 'islandora_scholar', 'includes/google_scholar');
-  $tags = islandora_scholar_create_meta_tags($object);
-  islandora_scholar_embed_tags($tags);
+  if (variable_get('islandora_scholar_google_scholar_metatags_enabled', TRUE)) {
+    module_load_include('inc', 'islandora_scholar', 'includes/google_scholar');
+    $tags = islandora_scholar_create_meta_tags($object);
+    islandora_scholar_embed_tags($tags);
+  }
   return islandora_scholar_get_view($object);
 }
 

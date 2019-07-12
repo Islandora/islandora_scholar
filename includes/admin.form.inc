@@ -43,6 +43,11 @@ function islandora_scholar_admin_form() {
       '#description' => t('Various parameters used by RoMEO'),
       '#collapsible' => TRUE,
     ),
+    'google_scholar_metatags' => array(
+      '#type' => 'fieldset',
+      '#title' => t('Google Scholar metatag configuration'),
+      '#collapsible' => TRUE,
+    ),
     'google_scholar_search' => array(
       '#type' => 'fieldset',
       '#title' => t('Google Scholar Search configuration'),
@@ -57,6 +62,10 @@ function islandora_scholar_admin_form() {
     ),
   );
 
+  $form['google_scholar_metatags'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_metatags_enabled', TRUE, array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable Google Scholar metatags on Citation/Thesis objects'),
+  ));
   $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_search_enabled', FALSE, array(
     '#type' => 'checkbox',
     '#title' => t('Render Google Scholar Search link'),
