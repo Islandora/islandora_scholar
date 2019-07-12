@@ -149,3 +149,15 @@ function islandora_scholar_update_7103(&$sandbox) {
   $t = get_t();
   return $t('Set colorspace configuration to RBG to maintain existing profile.');
 }
+
+/**
+ * Disable Islandora Google Scholar if it is currently enabled, since logic now lives in Islandora Scholar 
+ */
+function islandora_scholar_update_7104(&$sandbox) {
+  $module = array('islandora_google_scholar');
+  if (module_exists($module)) {
+    module_disable($module, FALSE);
+  }
+  return t('The Islandora Google Scholar submodule has been removed, and its functionality has been moved into the main Islandora Scholar module.');
+}
+
