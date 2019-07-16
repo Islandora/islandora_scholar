@@ -42,6 +42,7 @@ function islandora_scholar_uninstall() {
     'islandora_scholar_romeo_cache_time',
     'islandora_scholar_create_fulltext',
     'islandora_scholar_preview_density',
+    'islandora_scholar_google_scholar_metatags_enabled',
     'islandora_scholar_google_scholar_search_enabled',
     'islandora_scholar_google_scholar_primary_search_xpath',
     'islandora_scholar_google_scholar_default_search_xpath',
@@ -149,3 +150,19 @@ function islandora_scholar_update_7103(&$sandbox) {
   $t = get_t();
   return $t('Set colorspace configuration to RBG to maintain existing profile.');
 }
+
+/**
+ * Disable Islandora Google Scholar if it is currently enabled, since logic now lives in Islandora Scholar 
+ */
+function islandora_scholar_update_7104(&$sandbox) {
+  $module = array('islandora_google_scholar');
+  if (module_exists($module)) {
+    module_disable($module, FALSE);
+  }
+  db_delete('system')
+    ->condition('name', $module, 'IN')
+    ->condition('type', 'module')
+    ->execute();
+  return t('The Islandora Google Scholar submodule has been removed, and its functionality has been moved into the main Islandora Scholar module.');
+}
+
