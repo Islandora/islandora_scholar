@@ -47,6 +47,7 @@ Additional XPath Configurations:
 - Google Scholar Search XPaths: admin/islandora/solution_pack_config/scholar
 - Library Catalog Search XPaths Configuration Page:  'admin/islandora/solution_pack_config/scholar#edit-library-catalog-search
 
+incorrect image handling
 ![ISLANDORA SCHOLAR XPATH CONFIGURATION](https://user-images.githubusercontent.com/11573234/48782673-b3362400-ecac-11e8-869c-3928c43df253.PNG)
 
 xxx  
