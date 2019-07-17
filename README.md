@@ -395,7 +395,7 @@ This can be done by running:
 
 ### 7.x-1.14
 
-The `citation_exporter` submodule previously included the TCPDF library has been removed so that it can be managed properly via the Drupal Libraries module. If the `citation_exporter` submodule is installed when updating to Islandora 7.x-1.14, it is imperative that the TCPDF library is installed in the site libraries folder for citation exports to continue to properly function.
+The TCPDF library was previously directly included inside the `citation_exporter` module; it has now been removed so that it can be managed properly via the Drupal Libraries module. If the `citation_exporter` submodule is installed when updating to Islandora 7.x-1.14, it is imperative that the TCPDF library is installed in the site libraries folder for citation exports to continue to properly function.
 
 Check the `README.md` for the `citation_exporter` submodule for details on downloading and installing the TCPDF library.
 
