@@ -101,8 +101,8 @@ function _islandora_google_scholar_page_years() {
 function _islandora_google_scholar_page_year($year) {
 
   if (is_int((int) $year) && abs($year) < 99999) {
-
-    drupal_set_title(t('Google Scholar Year: ' . $year));
+    $page_title= 'Google Scholar Year: ' . $year;
+    drupal_set_title($page_title);
     $breadcrumb = drupal_get_breadcrumb();
     $breadcrumb[] = l(t('Google Scholar Years'), 'gs_years');
     drupal_set_breadcrumb($breadcrumb);
