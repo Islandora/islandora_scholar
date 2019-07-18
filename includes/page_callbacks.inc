@@ -40,19 +40,23 @@ function _islandora_google_scholar_page_years() {
   $query->solrParams['facet.mincount'] = '1';
   $query->solrParams['facet.limit'] = '2000';
   $query->solrParams['facet.date'] = [$solr_field];
-  $query->solrParams["f.$solr_field.facet.date.start"] = 'NOW/YEAR-20000YEARS';
-  $query->solrParams["f.$solr_field.facet.date.end"] = 'NOW/YEAR+20000YEARS';
+  // To avoid spanning two years, we have to fudge the start and end dates by subtracting 1 millisecond.
+  // See http://lucene.472066.n3.nabble.com/Date-Facet-duplicate-counts-td525335.html
+  $query->solrParams["f.$solr_field.facet.date.start"] = 'NOW/YEAR-20000YEARS-1MILLI';
+  $query->solrParams["f.$solr_field.facet.date.end"] = 'NOW/YEAR+20000YEARS-1MILLI';
   $query->solrParams["f.$solr_field.facet.date.gap"] = '+1YEAR';
   $query->solrParams["f.$solr_field.facet.date.sort"] = 'index';
 
   $query->executeQuery(FALSE);
-  if (!empty($query->islandoraSolrResult['facet_counts']['facet_fields'][$solr_field])) {
+  if (!empty($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field])) {
     $buckets = [];
-    foreach ($query->islandoraSolrResult['facet_counts']['facet_fields'][$solr_field] as $start => $count) {
+    foreach ($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field] as $start => $count) {
       $st = strtotime($start);
       if ($st) {
-        $bucket = idate('Y', $st);
-        if(!empty($buckets[$bucket])) {
+        // The facet start date is 1 millisecond into the prior year. So we add one second to it
+        // before to extracting the year value.
+        $bucket = idate('Y', $st + 1);
+        if (!empty($buckets[$bucket])) {
           $buckets[$bucket]['count'] += $count;
         }
         else {
@@ -78,6 +82,7 @@ function _islandora_google_scholar_page_years() {
     return $content;
 
   }
+  return "No results found.";
 }
 
 /**
