@@ -86,22 +86,6 @@ function _islandora_google_scholar_page_years() {
 }
 
 /**
- * Page callback: displays a table of the articles published in a the current year.
- *
- * @see _islandora_google_scholar_page_year().
- *
- * @return string
- * @throws \Exception
- *
- * @see islandora_google_scholar_menu()
- */
-function _islandora_google_scholar_page_current_year() {
-  $year = (new DateTime)->format("Y");
-  return _islandora_google_scholar_page_year($year);
-}
-
-
-/**
  * Page callback: displays a table of the articles published in a given year.
  *
  * Each row in the table provides two links:
@@ -117,7 +101,10 @@ function _islandora_google_scholar_page_current_year() {
  *
  * @see islandora_google_scholar_menu()
  */
-function _islandora_google_scholar_page_year($year) {
+function _islandora_google_scholar_page_year($year = NULL) {
+  if(empty($year)) {
+    $year = (new DateTime)->format("Y");
+  }
 
   if (is_int((int) $year) && abs($year) < 99999) {
     $page_title= 'Google Scholar Year: ' . $year;
@@ -131,42 +118,12 @@ function _islandora_google_scholar_page_year($year) {
     $start = $year . '-01-01T00:00:00Z';
     $end = $year . '-12-31T23:59:59Z';
     $search_query = $solr_field . ':[' . $start . ' TO ' . $end . ']';
-    $query = new IslandoraSolrQueryProcessor();
-    $query->tag = '_islandora_google_scholar_page_year';
 
-    $query->buildQuery($search_query);
-    $query->solrStart = 0;
-    $query->solrLimit = 10000;
-
-    $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
-    if ($exclude_types) {
-      $exclude_types = array_map('trim', explode(',', $exclude_types));
-      foreach ($exclude_types as $exclude_type) {
-        $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
-      }
-    }
-    $query->executeQuery();
-    $header = [
-      'View object',
-      'View abstract',
-    ];
-    $rows = [];
-    if (!empty($query->islandoraSolrResult['response']['objects'])) {
-      foreach ($query->islandoraSolrResult['response']['objects'] as $result) {
-        $rows[] = [
-          'link' => l($result['object_label'], $result['object_url'], ['query' => drupal_get_destination()]),
-          'abstract' => l(t('abstract'), 'gs_abstract/' . $result['PID'], ['query' => drupal_get_destination()]),
-        ];
-      }
-    }
-    $content = theme('table', [
-      'header' => $header,
-      'rows' => $rows,
-      'empty' => t("No objects found."),
-    ]);
+    $content = _islandora_google_scholar_get_object_table($search_query, '_islandora_google_scholar_page_year');
     $content .= '<div class="weeks">' . l(t('Articles added or updated in the past two weeks'), '/gs_updated') . '</div>';
     return $content;
   }
+  return "No valid year selected";
 }
 
 /**
@@ -190,44 +147,12 @@ function _islandora_google_scholar_updated($weeks = '') {
 
   $breadcrumb = drupal_get_breadcrumb();
   $breadcrumb[] = l(t('Google Scholar Years'), 'gs_years');
-
-  $search_query = 'fgs_lastModifiedDate_dt:[' . $date_filter . ' TO *]';
-  $query = new IslandoraSolrQueryProcessor();
-  $query->tag = '_islandora_google_scholar_page_weeks';
-
-  $query->buildQuery($search_query);
-  $query->solrStart = 0;
-  $query->solrLimit = 10000;
-
-  $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
-  if ($exclude_types) {
-    $exclude_types = array_map('trim', explode(',', $exclude_types));
-    foreach ($exclude_types as $exclude_type) {
-      $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
-    }
-  }
-  $query->executeQuery();
-  $header = [
-    'View object',
-    'View abstract',
-  ];
-  $rows = [];
-  if (!empty($query->islandoraSolrResult['response']['objects'])) {
-    foreach ($query->islandoraSolrResult['response']['objects'] as $result) {
-      $rows[] = [
-        'link' => l($result['object_label'], $result['object_url'], ['query' => drupal_get_destination()]),
-        'abstract' => l(t('abstract'), 'gs_abstract/' . $result['PID'], ['query' => drupal_get_destination()]),
-      ];
-    }
-  }
-
   drupal_set_breadcrumb($breadcrumb);
 
-  return theme('table', [
-    'header' => $header,
-    'rows' => $rows,
-    'empty' => t("No objects found."),
-  ]);
+  $search_query = 'fgs_lastModifiedDate_dt:[' . $date_filter . ' TO *]';
+  $content = _islandora_google_scholar_get_object_table($search_query, '_islandora_google_scholar_page_weeks');
+
+  return $content;
 
 }
 
@@ -283,5 +208,54 @@ function _islandora_google_scholar_abstract($pid) {
 
   }
   drupal_not_found();
+
+}
+
+/**
+ * Utility function to show a table of objects found by a solr query
+ *
+ * @param string $search_query
+ * @param null $tag
+ *
+ * @return mixed
+ */
+function _islandora_google_scholar_get_object_table($search_query, $tag = NULL) {
+
+  $query = new IslandoraSolrQueryProcessor();
+  if($tag) {
+    $query->tag = $tag;
+  }
+
+  $query->buildQuery($search_query);
+  $query->solrStart = 0;
+  $query->solrLimit = 10000;
+
+  $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
+  if ($exclude_types) {
+    $exclude_types = array_map('trim', explode(',', $exclude_types));
+    foreach ($exclude_types as $exclude_type) {
+      $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
+    }
+  }
+  $query->executeQuery();
+  $header = [
+    'View object',
+    'View abstract',
+  ];
+  $rows = [];
+  if (!empty($query->islandoraSolrResult['response']['objects'])) {
+    foreach ($query->islandoraSolrResult['response']['objects'] as $result) {
+      $rows[] = [
+        'link' => l($result['object_label'], $result['object_url'], ['query' => drupal_get_destination()]),
+        'abstract' => l(t('abstract'), 'gs_abstract/' . $result['PID'], ['query' => drupal_get_destination()]),
+      ];
+    }
+  }
+  return theme('table', [
+    'header' => $header,
+    'rows' => $rows,
+    'empty' => t("No objects found."),
+  ]);
+
 
 }
