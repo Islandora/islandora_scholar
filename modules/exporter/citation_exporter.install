@@ -113,3 +113,11 @@ function citation_exporter_update_7100() {
     db_create_table($table_name, $structure);
   }
 }
+
+/**
+ * Inform of the moved TCPDF library.
+ */
+function citation_exporter_update_7101() {
+  $t = get_t();
+  return $t('The TCPDF library has been removed from the citation exporter module to allow it to be sourced as a proper Drupal library. It is imperative that the TCPDF library is installed in the site libraries folder in order for PDF citation exports to continue to properly function. Check the README.md under islandora_scholar/modules/exporter for more details on where to find the most up to date version of TCPDF, and how to install it.');
+}

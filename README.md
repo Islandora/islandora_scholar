@@ -384,11 +384,20 @@ These XPaths are shared within most of the submodules. To see the MODS value aft
   * Default Value: //mods:mods[1]//mods:role/mods:roleTerm
   * XPath to use for the role_term.
 
-## Upgrade notice
+## Upgrade notices
+
+### 7.x-1.3
+
 As of Islandora 7.x-1.3, PDF datastreams of citationCModel objects are expected to have derivatives (PREVIEW, TN, optionally FULL_TEXT). Existing citations that are missing PDF-derived datastreams can be updated using the provided Drush script, which will generate the derivatives.
 
 This can be done by running:
 `drush -u 1 islandora-scholar-update-citations`
+
+### 7.x-1.14
+
+The TCPDF library was previously directly included inside the `citation_exporter` module; it has now been removed so that it can be managed properly via the Drupal Libraries module. If the `citation_exporter` submodule is installed when updating to Islandora 7.x-1.14, it is imperative that the TCPDF library is installed in the site libraries folder for citation exports to continue to properly function.
+
+Check the `README.md` for the `citation_exporter` submodule for details on downloading and installing the TCPDF library.
 
 ## Documentation
 

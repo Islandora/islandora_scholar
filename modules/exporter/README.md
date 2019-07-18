@@ -12,10 +12,13 @@ This module requires the following modules/libraries:
 * [Islandora Scholar](https://github.com/islandora/islandora_scholar)
 * [Citeproc](https://github.com/islandora/islandora_scholar/tree/7.x/modules/citeproc)
 * [Bibutils](https://github.com/islandora/islandora_scholar/tree/7.x/modules/bibutils)
+* [Libraries](https://www.drupal.org/project/libraries)
 
 ## Installation
 
 Install as usual, see [this](https://drupal.org/documentation/install/modules-themes/modules-7) for further information.
+
+Additionally, the [TCPDF](https://github.com/tecnickcom/TCPDF) library should be cloned into your site's libraries folder.
 
 ## Configuration
 

@@ -27,9 +27,15 @@
  *
  * @param string $output_filename
  *   The location to save the generated PDF.
+ *
+ * @throws Exception
+ *   If the TCPDF library is not installed.
  */
 function citation_exporter_create_pdf($html_input, $output_filename) {
-  module_load_include('php', 'citation_exporter', '/lib/tcpdf/tcpdf');
+  $tcpdf = libraries_load('TCPDF');
+  if (!$tcpdf['installed']) {
+    throw new Exception(t('Attempting to export a PDF, but the TCPDF library is not installed.'));
+  }
 
   // Create new PDF document.
   $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, TRUE, 'UTF-8', FALSE, FALSE);

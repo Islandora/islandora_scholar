@@ -52,3 +52,25 @@ function citation_exporter_cron() {
   module_load_include('inc', 'citation_exporter', 'includes/db');
   array_map('citation_exporter_drop_set', $sets);
 }
+
+/**
+ * Implements hook_libraries_info().
+ */
+function citation_exporter_libraries_info() {
+  return array(
+    'TCPDF' => array(
+      'name' => t('TCPDF'),
+      'vendor url' => 'https://tcpdf.org',
+      'download url' => 'https://github.com/tecnickcom/TCPDF/releases',
+      'download file url' => 'https://github.com/tecnickcom/TCPDF/archive/master.zip',
+      'files' => array(
+        'php' => array('tcpdf.php'),
+      ),
+      'version arguments' => array(
+        'file' => 'CHANGELOG.TXT',
+        'pattern' => '@([0-9.]+)@',
+        'lines' => 1,
+      ),
+    ),
+  );
+}

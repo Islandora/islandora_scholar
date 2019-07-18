@@ -211,19 +211,16 @@ function convert_mods_to_citeproc_json_genre($mods) {
 function convert_mods_to_citeproc_json_title(SimpleXMLElement $mods) {
   $output = '';
   add_mods_namespace($mods);
-  $titles = $mods->xpath(variable_get('islandora_scholar_xpaths_title', '//mods:mods[1]/mods:titleInfo/mods:title'));
 
-  if (!empty($titles)) {
-    while (list($num, $node) = each($titles)) {
-      add_mods_namespace($node);
-      $title = (string) $node;
-      $subtitle = convert_mods_to_citeproc_json_query($node, variable_get('islandora_scholar_xpaths_title_subtitle', '../mods:subTitle'));
-      $non_sort = convert_mods_to_citeproc_json_query($node, variable_get('islandora_scholar_xpaths_title_nonsort', '../mods:nonSort'));
-      $title = !empty($subtitle) ? "$title: $subtitle" : $title;
-      $title = !empty($non_sort) ? "$non_sort $title" : $title;
-      // Choose the longest title.
-      $output = strlen($title) > strlen($output) ? $title : $output;
-    }
+  foreach ($mods->xpath(variable_get('islandora_scholar_xpaths_title', '//mods:mods[1]/mods:titleInfo/mods:title')) as $node) {
+    add_mods_namespace($node);
+    $title = (string) $node;
+    $subtitle = convert_mods_to_citeproc_json_query($node, variable_get('islandora_scholar_xpaths_title_subtitle', '../mods:subTitle'));
+    $non_sort = convert_mods_to_citeproc_json_query($node, variable_get('islandora_scholar_xpaths_title_nonsort', '../mods:nonSort'));
+    $title = !empty($subtitle) ? "$title: $subtitle" : $title;
+    $title = !empty($non_sort) ? "$non_sort $title" : $title;
+    // Choose the longest title.
+    $output = strlen($title) > strlen($output) ? $title : $output;
   }
   return !empty($output) ? $output : NULL;
 }
@@ -282,12 +279,16 @@ function convert_mods_to_citeproc_json_event_place(SimpleXMLElement $mods) {
  *   The note property for the Citation.
  */
 function convert_mods_to_citeproc_json_note(SimpleXMLElement $mods) {
-  $notes = $mods->xpath(variable_get('islandora_scholar_xpaths_note', '//mods:mods[1]/mods:note'));
-  $ouput = '';
-  while (list($num, $note) = each($notes)) {
-    $ouput .= $num + 1 . ". " . rtrim(strip_tags($note), '. ') . ".  ";
-  }
-  return !empty($ouput) ? $ouput : NULL;
+  $output = '';
+  $as_string = function ($note, $idx) use (&$output) {
+    $output .= format_string('!idx. !note.  ', array(
+      '!idx' => $idx + 1,
+      '!note' => rtrim(strip_tags((string) $note), '. '),
+    ));
+  };
+  $elements = $mods->xpath(variable_get('islandora_scholar_xpaths_note', '//mods:mods[1]/mods:note'));
+  array_walk($elements, $as_string);
+  return empty($output) ? NULL : $output;
 }
 
 /**
@@ -468,15 +469,13 @@ function _get_related_marcgt_type(SimpleXMLElement $mods) {
  * Get other types.
  */
 function _get_other_types(SimpleXMLElement $mods) {
-  $output = '';
-
-  $types_local_auth = $mods->xpath(variable_get('islandora_scholar_xpaths_types_local_auth', '//mods:mods[1]/mods:genre[not(@authority="marcgt" or @authority="endnote")]'));
-  while (empty($output) && list($num, $type) = each($types_local_auth)) {
-    $interim_type = (string) $type;
-    $output = mods_genre_to_csl_type($interim_type);
+  foreach ($mods->xpath(variable_get('islandora_scholar_xpaths_types_local_auth', '//mods:mods[1]/mods:genre[not(@authority="marcgt" or @authority="endnote")]')) as $type) {
+    $as_string = mods_genre_to_csl_type((string) $type);
+    if ($as_string && !empty($as_string)) {
+      return $as_string;
+    }
   }
-
-  return $output;
+  return '';
 }
 
 /**

@@ -6,5 +6,6 @@ dependencies[] = islandora_bookmark
 dependencies[] = islandora_scholar
 dependencies[] = csl
 dependencies[] = citeproc
+dependencies[] = citation_exporter
 version = 7.x-dev
 core = 7.x
