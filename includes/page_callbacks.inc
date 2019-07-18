@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Module used provide Google Scholar with required aggregation pages.
+ */
+
+/**
  * Page callback: displays a list of years that have articles.
  *
  * Each year is a link to another page that displays a table of articles
@@ -10,6 +15,7 @@
  * from earliest to latest.
  *
  * @return string
+ *   HTML containing a list of years that have articles.
  * @throws \Exception
  *
  * @see islandora_google_scholar_menu()
@@ -24,9 +30,9 @@ function _islandora_google_scholar_page_years() {
   $query->solrStart = 0;
   $query->solrLimit = 0;
   $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
-  if($exclude_types) {
+  if ($exclude_types) {
     $exclude_types = array_map('trim', explode(',', $exclude_types));
-    foreach($exclude_types as $exclude_type) {
+    foreach ($exclude_types as $exclude_type) {
       $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
     }
   }
@@ -41,7 +47,6 @@ function _islandora_google_scholar_page_years() {
 
   $query->executeQuery(FALSE);
   if (!empty($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field])) {
-
 
     $counts = array_diff_key($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field], array_flip([
       'gap',
@@ -71,7 +76,7 @@ function _islandora_google_scholar_page_years() {
       'pid' => '',
     ]);
 
-    $content .= '<div class="weeks">' . l('Articles added or updated in the past two weeks', '/gs_updated') . '</div>';
+    $content .= '<div class="weeks">' . l(t('Articles added or updated in the past two weeks'), '/gs_updated') . '</div>';
     return $content;
 
   }
@@ -84,9 +89,11 @@ function _islandora_google_scholar_page_years() {
  *   - To the standard islandora object page
  *   - To a page that displays just the title and the contents of the abstract.
  *
- * @param $year
+ * @param int $year
+ *   The year for which you want a full list of related articles.
  *
  * @return string
+ *   HTML containing a table of the articles published in a given year.
  * @throws \Exception
  *
  * @see islandora_google_scholar_menu()
@@ -95,9 +102,9 @@ function _islandora_google_scholar_page_year($year) {
 
   if (is_int((int) $year) && abs($year) < 99999) {
 
-    drupal_set_title(t('Google Scholar Year: ' . $year));
+    drupal_set_title('Google Scholar Year: ' . $year);
     $breadcrumb = drupal_get_breadcrumb();
-    $breadcrumb[] = l('Google Scholar Years', 'gs_years');
+    $breadcrumb[] = l(t('Google Scholar Years'), 'gs_years');
     drupal_set_breadcrumb($breadcrumb);
 
     $solr_field = variable_get('islandora_scholar_google_scholar_publication_date_solr_field', "mods_originInfo_dateIssued_mdt");
@@ -113,9 +120,9 @@ function _islandora_google_scholar_page_year($year) {
     $query->solrLimit = 10000;
 
     $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
-    if($exclude_types) {
+    if ($exclude_types) {
       $exclude_types = array_map('trim', explode(',', $exclude_types));
-      foreach($exclude_types as $exclude_type) {
+      foreach ($exclude_types as $exclude_type) {
         $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
       }
     }
@@ -129,7 +136,7 @@ function _islandora_google_scholar_page_year($year) {
       foreach ($query->islandoraSolrResult['response']['objects'] as $result) {
         $rows[] = [
           'link' => l($result['object_label'], $result['object_url'], ['query' => drupal_get_destination()]),
-          'abstract' => l('abstract', 'gs_abstract/' . $result['PID'], ['query' => drupal_get_destination()]),
+          'abstract' => l(t('abstract'), 'gs_abstract/' . $result['PID'], ['query' => drupal_get_destination()]),
         ];
       }
     }
@@ -138,18 +145,20 @@ function _islandora_google_scholar_page_year($year) {
       'rows' => $rows,
       'empty' => t("No objects found."),
     ]);
-    $content .= '<div class="weeks">' . l('Articles added or updated in the past two weeks', '/gs_updated') . '</div>';
+    $content .= '<div class="weeks">' . l(t('Articles added or updated in the past two weeks'), '/gs_updated') . '</div>';
     return $content;
   }
 }
 
 /**
- * Page callback: displays a list of articles created or modified in the past N weeks.
+ * Page callback: displays list of articles created or modified in past N weeks.
  *
  * @param string $weeks
  *   defaults to 2 weeks.
  *
  * @return string
+ *   HTML page content.
+ *
  * @throws \Exception
  *
  * @see islandora_google_scholar_menu()
@@ -157,11 +166,11 @@ function _islandora_google_scholar_page_year($year) {
 function _islandora_google_scholar_updated($weeks = '') {
   $weeks = !empty($weeks) && is_int((int) $weeks) ? (int) $weeks : 2;
 
-  drupal_set_title(format_plural($weeks, 'Added/updated objects in the past week' ,'Added/updated objects in the past @count weeks'));
+  drupal_set_title(format_plural($weeks, 'Added/updated objects in the past week', 'Added/updated objects in the past @count weeks'));
   $date_filter = gmdate('Y-m-d\TH:i:s\Z', strtotime('-' . $weeks . ' weeks'));
 
   $breadcrumb = drupal_get_breadcrumb();
-  $breadcrumb[] = l('Google Scholar Years', 'gs_years');
+  $breadcrumb[] = l(t('Google Scholar Years'), 'gs_years');
 
   $search_query = 'fgs_lastModifiedDate_dt:[' . $date_filter . ' TO *]';
   $query = new IslandoraSolrQueryProcessor();
@@ -172,9 +181,9 @@ function _islandora_google_scholar_updated($weeks = '') {
   $query->solrLimit = 10000;
 
   $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
-  if($exclude_types) {
+  if ($exclude_types) {
     $exclude_types = array_map('trim', explode(',', $exclude_types));
-    foreach($exclude_types as $exclude_type) {
+    foreach ($exclude_types as $exclude_type) {
       $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
     }
   }
@@ -188,7 +197,7 @@ function _islandora_google_scholar_updated($weeks = '') {
     foreach ($query->islandoraSolrResult['response']['objects'] as $result) {
       $rows[] = [
         'link' => l($result['object_label'], $result['object_url'], ['query' => drupal_get_destination()]),
-        'abstract' => l('abstract', 'gs_abstract/' . $result['PID'], ['query' => drupal_get_destination()]),
+        'abstract' => l(t('abstract'), 'gs_abstract/' . $result['PID'], ['query' => drupal_get_destination()]),
       ];
     }
   }
@@ -204,12 +213,13 @@ function _islandora_google_scholar_updated($weeks = '') {
 }
 
 /**
- * Page callback: provides an extremely basic view of a given object, showing
- * just the title and the abstract.
+ * Page callback: provides just the title and the abstract for given object.
  *
- * @param $pid
+ * @param string $pid
+ *   The PID of the object you which to display the abstract for.
  *
  * @return string
+ *   HTML page content.
  *
  * @see islandora_google_scholar_menu()
  */
@@ -219,7 +229,7 @@ function _islandora_google_scholar_abstract($pid) {
   }
 
   $breadcrumb = drupal_get_breadcrumb();
-  $breadcrumb[] = l('Google Scholar Years', 'gs_years');
+  $breadcrumb[] = l(t('Google Scholar Years'), 'gs_years');
 
   $solr_abstract_field = variable_get('islandora_scholar_google_scholar_abstract_solr_field', "mods_abstract_ms");
   $pid = preg_replace('#:#', '\\:', $pid);
@@ -244,12 +254,12 @@ function _islandora_google_scholar_abstract($pid) {
     }
     $params = drupal_get_query_parameters();
     if (!empty($params['destination'])) {
-      $breadcrumb[] = l('Search', $params['destination']);
+      $breadcrumb[] = l(t('Search'), $params['destination']);
     }
     $breadcrumb[] = l($label, $result['object_url']);
     drupal_set_breadcrumb($breadcrumb);
 
-    $content .= '<div class="weeks">' . l('Articles added or updated in the past two weeks', '/gs_updated') . '</div>';
+    $content .= '<div class="weeks">' . l(t('Articles added or updated in the past two weeks'), '/gs_updated') . '</div>';
     return $content;
 
   }
