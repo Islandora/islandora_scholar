@@ -85,6 +85,15 @@ function islandora_scholar_menu() {
       ),
       'type' => MENU_CALLBACK,
     ),
+    'gs_year' => array(
+      'title' => 'Google Scholar Current Year',
+      'page callback' => '_islandora_google_scholar_page_current_year',
+      'file' => 'includes/page_callbacks.inc',
+      'access arguments' => array(
+        'access content',
+      ),
+      'type' => MENU_CALLBACK,
+    ),
     'gs_year/%' => array(
       'title' => 'Google Scholar Year',
       'page callback' => '_islandora_google_scholar_page_year',

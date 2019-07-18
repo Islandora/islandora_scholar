@@ -46,27 +46,25 @@ function _islandora_google_scholar_page_years() {
   $query->solrParams["f.$solr_field.facet.date.sort"] = 'index';
 
   $query->executeQuery(FALSE);
-  if (!empty($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field])) {
-
-    $counts = array_diff_key($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field], array_flip([
-      'gap',
-      'start',
-      'end',
-    ]));
+  if (!empty($query->islandoraSolrResult['facet_counts']['facet_fields'][$solr_field])) {
     $buckets = [];
-    foreach ($counts as $start => $count) {
+    foreach ($query->islandoraSolrResult['facet_counts']['facet_fields'][$solr_field] as $start => $count) {
       $st = strtotime($start);
       if ($st) {
-        $bucket = idate('Y', strtotime($start));
-        $link['link'] = '<a' . drupal_attributes([
-            'rel' => 'nofollow',
-            'href' => url('gs_year/' . $bucket),
-          ]) . '>' . $bucket . '</a>';
-        $link['count'] = $count;
-        $link['link_plus'] = '';
-        $link['link_minus'] = '';
-        $buckets[] = $link;
-
+        $bucket = idate('Y', $st);
+        if(!empty($buckets[$bucket])) {
+          $buckets[$bucket]['count'] += $count;
+        }
+        else {
+          $link['link'] = '<a' . drupal_attributes([
+              'rel' => 'nofollow',
+              'href' => url('gs_year/' . $bucket),
+            ]) . '>' . $bucket . '</a>';
+          $link['count'] = $count;
+          $link['link_plus'] = '';
+          $link['link_minus'] = '';
+          $buckets[$bucket] = $link;
+        }
       }
     }
 
@@ -81,6 +79,22 @@ function _islandora_google_scholar_page_years() {
 
   }
 }
+
+/**
+ * Page callback: displays a table of the articles published in a the current year.
+ *
+ * @see _islandora_google_scholar_page_year().
+ *
+ * @return string
+ * @throws \Exception
+ *
+ * @see islandora_google_scholar_menu()
+ */
+function _islandora_google_scholar_page_current_year() {
+  $year = (new DateTime)->format("Y");
+  return _islandora_google_scholar_page_year($year);
+}
+
 
 /**
  * Page callback: displays a table of the articles published in a given year.
@@ -110,7 +124,7 @@ function _islandora_google_scholar_page_year($year) {
     $solr_field = variable_get('islandora_scholar_google_scholar_publication_date_solr_field', "mods_originInfo_dateIssued_mdt");
 
     $start = $year . '-01-01T00:00:00Z';
-    $end = gmdate('Y-m-d\TH:i:s\Z', strtotime('+1 year', strtotime($start)));
+    $end = $year . '-12-31T23:59:59Z';
     $search_query = $solr_field . ':[' . $start . ' TO ' . $end . ']';
     $query = new IslandoraSolrQueryProcessor();
     $query->tag = '_islandora_google_scholar_page_year';
