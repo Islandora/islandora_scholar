@@ -102,7 +102,7 @@ function _islandora_google_scholar_page_years() {
  * @see islandora_google_scholar_menu()
  */
 function _islandora_google_scholar_page_year($year = NULL) {
-  if(empty($year)) {
+  if (empty($year)) {
     $year = (new DateTime)->format("Y");
   }
 
@@ -222,7 +222,7 @@ function _islandora_google_scholar_abstract($pid) {
 function _islandora_google_scholar_get_object_table($search_query, $tag = NULL) {
 
   $query = new IslandoraSolrQueryProcessor();
-  if($tag) {
+  if ($tag) {
     $query->tag = $tag;
   }
 
