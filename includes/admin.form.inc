@@ -81,7 +81,7 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
-  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_publication_date_solr_field', "mods_originInfo_keyDate_yes_dateIssued_mdt", array(
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_publication_date_solr_field', "mods_originInfo_dateIssued_mdt", array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Publication Date SOLR Field'),
     '#description' => t('The solr date field used to facet by publication date during Google Scholar indexing. <em>Be sure to select a field ending with "_dt" or "_mdt", otherwise solr errors will result during google indexing.</em>'),
