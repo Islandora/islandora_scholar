@@ -68,7 +68,7 @@ function islandora_scholar_menu() {
       'file' => 'includes/callbacks.inc',
     ),
     'gs_years' => array(
-      'title' => 'Google Scholar Years',
+      'title' => 'Scholarly article publications by year',
       'page callback' => '_islandora_google_scholar_page_years',
       'file' => 'includes/page_callbacks.inc',
       'access arguments' => array(

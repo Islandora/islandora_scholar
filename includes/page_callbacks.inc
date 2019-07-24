@@ -29,13 +29,17 @@ function _islandora_google_scholar_page_years() {
   $query->internalSolrQuery = variable_get('islandora_solr_base_query', '*:*');
   $query->solrStart = 0;
   $query->solrLimit = 0;
-  $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
-  if ($exclude_types) {
-    $exclude_types = array_map('trim', explode(',', $exclude_types));
-    foreach ($exclude_types as $exclude_type) {
-      $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
+
+  $include_types = variable_get('islandora_scholar_google_scholar_include_content_types', 'ir:citationCModel,ir:thesisCModel');
+  if ($include_types) {
+    $content_model_solr_field = variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms');
+    $include_types = array_map('trim', explode(',', $include_types));
+    foreach($include_types as $key => $include_type) {
+      $include_types[$key] = $content_model_solr_field . ':"info:fedora/' . $include_type . '"';
     }
+    $query->solrParams['fq'][] = implode(' OR ', $include_types);
   }
+
   $query->solrParams['facet'] = 'true';
   $query->solrParams['facet.mincount'] = '1';
   $query->solrParams['facet.limit'] = '2000';
@@ -49,37 +53,45 @@ function _islandora_google_scholar_page_years() {
 
   $query->executeQuery(FALSE);
   if (!empty($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field])) {
-    $buckets = [];
-    foreach ($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field] as $start => $count) {
-      $st = strtotime($start);
-      if ($st) {
-        // The facet start date is 1 millisecond into the prior year. So we add one second to it
-        // before to extracting the year value.
-        $bucket = idate('Y', $st + 1);
-        if (!empty($buckets[$bucket])) {
-          $buckets[$bucket]['count'] += $count;
-        }
-        else {
-          $link['link'] = '<a' . drupal_attributes([
-              'rel' => 'nofollow',
-              'href' => url('gs_year/' . $bucket),
-            ]) . '>' . $bucket . '</a>';
-          $link['count'] = $count;
-          $link['link_plus'] = '';
-          $link['link_minus'] = '';
-          $buckets[$bucket] = $link;
+    $query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field] = array_diff_key($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field], array_flip([
+      'gap',
+      'start',
+      'end'
+    ]));
+    if (!empty($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field])) {
+
+      $buckets = [];
+      foreach ($query->islandoraSolrResult['facet_counts']['facet_dates'][$solr_field] as $start => $count) {
+        $st = strtotime($start);
+        if ($st) {
+          // The facet start date is 1 millisecond into the prior year. So we add one second to it
+          // before to extracting the year value.
+          $bucket = idate('Y', $st + 1);
+          if (!empty($buckets[$bucket])) {
+            $buckets[$bucket]['count'] += $count;
+          }
+          else {
+            $link['link'] = '<a' . drupal_attributes([
+                'rel' => 'nofollow',
+                'href' => url('gs_year/' . $bucket),
+              ]) . '>' . $bucket . '</a>';
+            $link['count'] = $count;
+            $link['link_plus'] = '';
+            $link['link_minus'] = '';
+            $buckets[$bucket] = $link;
+          }
         }
       }
+
+      $content = theme('islandora_solr_facet', [
+        'buckets' => $buckets,
+        'hidden' => FALSE,
+        'pid' => '',
+      ]);
+
+      $content .= '<div class="weeks">' . l(t('Articles added or updated in the past two weeks'), '/gs_updated') . '</div>';
+      return $content;
     }
-
-    $content = theme('islandora_solr_facet', [
-      'buckets' => $buckets,
-      'hidden' => FALSE,
-      'pid' => '',
-    ]);
-
-    $content .= '<div class="weeks">' . l(t('Articles added or updated in the past two weeks'), '/gs_updated') . '</div>';
-    return $content;
 
   }
   return "No results found.";
@@ -107,7 +119,7 @@ function _islandora_google_scholar_page_year($year = NULL) {
   }
 
   if (is_int((int) $year) && abs($year) < 99999) {
-    $page_title= 'Google Scholar Year: ' . $year;
+    $page_title= 'Scholarly articles published in ' . $year;
     drupal_set_title($page_title);
     $breadcrumb = drupal_get_breadcrumb();
     $breadcrumb[] = l(t('Google Scholar Years'), 'gs_years');
@@ -142,7 +154,7 @@ function _islandora_google_scholar_page_year($year = NULL) {
 function _islandora_google_scholar_updated($weeks = '') {
   $weeks = !empty($weeks) && is_int((int) $weeks) ? (int) $weeks : 2;
 
-  drupal_set_title(format_plural($weeks, 'Added/updated objects in the past week', 'Added/updated objects in the past @count weeks'));
+  drupal_set_title(format_plural($weeks, 'Added/updated scholarly articles in the past week', 'Added/updated scholarly articles in the past @count weeks'));
   $date_filter = gmdate('Y-m-d\TH:i:s\Z', strtotime('-' . $weeks . ' weeks'));
 
   $breadcrumb = drupal_get_breadcrumb();
@@ -230,13 +242,16 @@ function _islandora_google_scholar_get_object_table($search_query, $tag = NULL) 
   $query->solrStart = 0;
   $query->solrLimit = 10000;
 
-  $exclude_types = variable_get('islandora_scholar_google_scholar_exclude_content_types', 'islandora:collectionCModel');
-  if ($exclude_types) {
-    $exclude_types = array_map('trim', explode(',', $exclude_types));
-    foreach ($exclude_types as $exclude_type) {
-      $query->solrParams['fq'][] = '-RELS_EXT_hasModel_uri_s: "info:fedora/' . $exclude_type . '"';
+  $include_types = variable_get('islandora_scholar_google_scholar_include_content_types', 'ir:citationCModel,ir:thesisCModel');
+  if ($include_types) {
+    $content_model_solr_field = variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms');
+    $include_types = array_map('trim', explode(',', $include_types));
+    foreach($include_types as $key => $include_type) {
+      $include_types[$key] = $content_model_solr_field . ':"info:fedora/' . $include_type . '"';
     }
+    $query->solrParams['fq'][] = implode(' OR ', $include_types);
   }
+
   $query->executeQuery();
   $header = [
     'View object',
