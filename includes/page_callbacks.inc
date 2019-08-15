@@ -34,7 +34,7 @@ function _islandora_google_scholar_page_years() {
   if ($include_types) {
     $content_model_solr_field = variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms');
     $include_types = array_map('trim', explode(',', $include_types));
-    foreach($include_types as $key => $include_type) {
+    foreach ($include_types as $key => $include_type) {
       $include_types[$key] = $content_model_solr_field . ':"info:fedora/' . $include_type . '"';
     }
     $query->solrParams['fq'][] = implode(' OR ', $include_types);
@@ -246,7 +246,7 @@ function _islandora_google_scholar_get_object_table($search_query, $tag = NULL) 
   if ($include_types) {
     $content_model_solr_field = variable_get('islandora_solr_content_model_field', 'RELS_EXT_hasModel_uri_ms');
     $include_types = array_map('trim', explode(',', $include_types));
-    foreach($include_types as $key => $include_type) {
+    foreach ($include_types as $key => $include_type) {
       $include_types[$key] = $content_model_solr_field . ':"info:fedora/' . $include_type . '"';
     }
     $query->solrParams['fq'][] = implode(' OR ', $include_types);
