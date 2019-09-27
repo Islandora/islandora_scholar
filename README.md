@@ -9,7 +9,7 @@ Islandora Scholar is a suite of modules designed to help Islandora function as a
 * (optional) links on Citation and Thesis objects to search for them in Google Scholar or your local discovery layer
 * Importers and populators to create objects based on DOIs, PMIDs, Endnote XML, or RIS files (see associated submodules)
 * Ability to embargo objects or datastreams permanently or with a time limit (see Scholar Embargo submodule)
-* Google Scholar-ready microdata in meta tags (see Islandora Google Scholar submodule)
+* Google Scholar-ready microdata in meta tags 
 
 
 ## Requirements
@@ -151,7 +151,7 @@ These XPaths are shared within most of the submodules. To see the MODS value aft
 
 
 - __Additional Google Scholar Configuration Notes__
-  * The islandora_google_scholar module exposes several pages to facilitate Google Scholar indexing of your repository. Urls to these pages should be entered into your [Google Scholar Inclusions dashboard](https://partnerdash.google.com/partnerdash/d/scholarinclusions).
+  * The module exposes several pages to facilitate Google Scholar indexing of your repository. Urls to these pages should be entered into your [Google Scholar Inclusions dashboard](https://partnerdash.google.com/partnerdash/d/scholarinclusions).
   * **Year index:** "Please provide the URL of a page listing all years available."
     * Path: /gs_years, e.g, http://repository.example.edu/gs_years
   * **List of articles for each year:** "Please provide examples of URLs to pages that provide a list of articles for a given year."
