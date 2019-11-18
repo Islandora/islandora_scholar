@@ -156,7 +156,7 @@ function islandora_scholar_update_7103(&$sandbox) {
  */
 function islandora_scholar_update_7104(&$sandbox) {
   $module = array('islandora_google_scholar');
-  if (module_exists($module)) {
+  if (module_exists($module[0])) {
     module_disable($module, FALSE);
   }
   db_delete('system')
