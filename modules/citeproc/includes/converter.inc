@@ -107,7 +107,7 @@ function convert_mods_to_citeproc_jsons($mods_in) {
   }
   else {
     try {
-      $mods = simplexml_load_string($mods_in);
+      $mods = simplexml_load_string(islandora_sanitize_input_for_valid_xml($mods_in));
     }
     catch (Exception $e) {
       watchdog('citeproc', 'Got exception while parsing.  Message: !msg Errors: !error', array(
