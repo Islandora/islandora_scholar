@@ -51,7 +51,16 @@ class Coins {
       drupal_set_message(t('No MODS datastream found!'), 'warning');
       return " ";
     }
-    $xml = new SimpleXMLElement($xmlstr);
+    try {
+      $xml = new SimpleXMLElement(islandora_sanitize_input_for_valid_xml($xmlstr));
+    }
+    catch (Exception $e) {
+      watchdog('islandora_scholar', 'The "@dsid" of "@pid" could not be parsed as XML.', array(
+        '@dsid' => 'MODS',
+        '@pid' => $object->id,
+      ), WATCHDOG_WARNING, l(t("manage object"), "islandora/object/{$object->id}/manage/datastreams"));
+      return " ";
+    }
     $xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
 
     $this->mods = $xml;
