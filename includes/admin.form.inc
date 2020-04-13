@@ -81,6 +81,39 @@ function islandora_scholar_admin_form() {
       ),
     ),
   ));
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_publication_date_solr_field', "mods_originInfo_dateIssued_mdt", array(
+    '#type' => 'textfield',
+    '#title' => t('Google Scholar Publication Date SOLR Field'),
+    '#description' => t('The solr date field used to facet by publication date during Google Scholar indexing. <em>Be sure to select a field ending with "_dt" or "_mdt", otherwise solr errors will result during google indexing.</em>'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_google_scholar_search_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+    '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
+  ));
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_abstract_solr_field', "mods_abstract_ms", array(
+    '#type' => 'textfield',
+    '#title' => t('Google Scholar Abstract SOLR Field'),
+    '#description' => t('This is used when displaying object abstracts as required by Google Scholar'),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_google_scholar_search_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+    '#autocomplete_path' => 'islandora_solr/autocomplete_luke',
+  ));
+  $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_include_content_types', 'ir:citationCModel, ir:thesisCModel', array(
+    '#type' => 'textfield',
+    '#title' => t('Included Content Models'),
+    '#description' => t('Enter a comma-separated list of content model PIDs to include in Google Scholar search indexing. <br>For example: <em>ir:citationCModel, ir:thesisCModel</em>'),
+    '#size' => 120,
+    '#states' => array(
+      'visible' => array(
+        ':input[name="islandora_scholar_google_scholar_search_enabled"]' => array('checked' => TRUE),
+      ),
+    ),
+  ));
   $form['google_scholar_search'] += _islandora_scholar_add_variable('islandora_scholar_google_scholar_default_search_xpath', "//mods:mods[1]/mods:titleInfo/mods:title", array(
     '#type' => 'textfield',
     '#title' => t('Google Scholar Default Search XPath'),
