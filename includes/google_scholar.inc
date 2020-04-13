@@ -15,7 +15,7 @@
  *   Associative array where the key is the name of the tag and the value is
  *   the content.
  */
-function islandora_google_scholar_create_meta_tags($object) {
+function islandora_scholar_create_meta_tags($object) {
   // Need at least title, full name of at least one author, publication year.
   if (!isset($object['MODS']) || !islandora_datastream_access(ISLANDORA_VIEW_OBJECTS, $object['MODS'])) {
     return FALSE;
@@ -113,7 +113,7 @@ function islandora_google_scholar_create_meta_tags($object) {
     // and we don't have a consistent structure of input we will just return the
     // year for now.
     if ($date) {
-      $date_string = islandora_google_scholar_parse_date_foryear($date);
+      $date_string = islandora_scholar_parse_date_foryear($date);
       if ($date_string) {
         $tags['citation_publication_date'] = $date_string;
       }
@@ -178,7 +178,7 @@ function islandora_google_scholar_create_meta_tags($object) {
 
     $online_date = $mods_xml->xpath(variable_get('islandora_scholar_xpaths_online_date', '//mods:recordInfo/mods:recordCreationDate'));
     if ($online_date) {
-      $date_string = islandora_google_scholar_parse_date_foryear($online_date);
+      $date_string =  islandora_parse_date_foryear($online_date);
       if ($date_string) {
         $tags['citation_online_date'] = $date_string;
       }
@@ -214,7 +214,7 @@ function islandora_google_scholar_create_meta_tags($object) {
  * @return null|string
  *   returns the year if the date was parsable and NULL otherwise
  */
-function islandora_google_scholar_parse_date_foryear($date) {
+function islandora_scholar_parse_date_foryear($date) {
   if (is_array($date)) {
     $date = (string) reset($date);
   }
@@ -241,7 +241,7 @@ function islandora_google_scholar_parse_date_foryear($date) {
  * @param array $tags
  *   An associate array containing the name => content of the meta tags.
  */
-function islandora_google_scholar_embed_tags($tags) {
+function islandora_scholar_embed_tags($tags) {
   $weight = 1000;
   if ($tags != FALSE) {
     foreach ($tags as $name => $content) {
@@ -275,18 +275,3 @@ function islandora_google_scholar_embed_tags($tags) {
   }
 }
 
-/**
- * Implements hook_CMODEL_islandora_view_object().
- */
-function islandora_google_scholar_ir_citationCModel_islandora_view_object($object) {
-  $tags = islandora_google_scholar_create_meta_tags($object);
-  islandora_google_scholar_embed_tags($tags);
-}
-
-/**
- * Implements hook_CMODEL_islandora_view_object().
- */
-function islandora_google_scholar_ir_thesisCModel_islandora_view_object($object) {
-  $tags = islandora_google_scholar_create_meta_tags($object);
-  islandora_google_scholar_embed_tags($tags);
-}
