@@ -9,7 +9,7 @@ Islandora Scholar is a suite of modules designed to help Islandora function as a
 * (optional) links on Citation and Thesis objects to search for them in Google Scholar or your local discovery layer
 * Importers and populators to create objects based on DOIs, PMIDs, Endnote XML, or RIS files (see associated submodules)
 * Ability to embargo objects or datastreams permanently or with a time limit (see Scholar Embargo submodule)
-* Google Scholar-ready microdata in meta tags (see Islandora Google Scholar submodule)
+* Google Scholar-ready microdata in meta tags 
 
 
 ## Requirements
@@ -133,6 +133,31 @@ These XPaths are shared within most of the submodules. To see the MODS value aft
   * Modify to refresh value (PID for demo object is required).
   * Default Value: //mods:mods[1]/mods:recordInfo/mods:recordCreationDate
   * XPath to use for the online_date.
+
+
+- __Google Scholar Publication Date SOLR Field__
+  * The solr date field used to facet by publication date during Google Scholar indexing. This is an autocomplete field. Start typing the solr field name and then select from the list. *Be sure to select a field ending with "_dt" or "_mdt", otherwise solr errors will result during google indexing.*
+  * Defaults value: `mods_originInfo_dateIssued_mdt`
+
+
+- __Google Scholar Abstract SOLR Field__
+  * This is used when displaying object abstracts as required by Google Scholar.
+  * Defaults value: `mods_abstract_ms`
+
+
+- __Excluded Content Models__
+  * Enter a comma-separated list of content model PIDs to exclude from Google Scholar search indexing. For example: `islandora:collectionCModel, islandora:newspaperCModel`
+  * Defaults to: `islandora:collectionCModel`
+
+
+- __Additional Google Scholar Configuration Notes__
+  * The module exposes several pages to facilitate Google Scholar indexing of your repository. Urls to these pages should be entered into your [Google Scholar Inclusions dashboard](https://partnerdash.google.com/partnerdash/d/scholarinclusions).
+  * **Year index:** "Please provide the URL of a page listing all years available."
+    * Path: /gs_years, e.g, http://repository.example.edu/gs_years
+  * **List of articles for each year:** "Please provide examples of URLs to pages that provide a list of articles for a given year."
+    * Path: /gs_year/[YYYY], e.g. http://repository.example.edu/gs_year/1850
+  * **Abstract examples:** "Please provide examples of individual abstract pages."
+    * Path: /gs_abstract/[PID], e.g. http://repository.example.edu/gs_abstract/samples:1
 
 #### COINS SUBMODULE XPATH CONFIGURATIONS
 These XPaths are shared within most of the submodules. To see the MODS value after editing an entry, tab to the next field.

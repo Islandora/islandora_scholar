@@ -69,7 +69,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
 
       $display['google_scholar_search'] = array(
         '#type' => 'item',
-        '#markup' => l(t('Search for this publication on Google Scholar'), "http://scholar.google.ca/scholar?q=\"$search_term\""),
+        '#markup' => l(t('Search for this publication on Google Scholar'), "http://scholar.google.ca/scholar?q=\"$search_term\"", array('attributes' => array('class' => 'scholar-google-scholar-search-link'))),
         '#weight' => 0,
       );
     }
@@ -157,8 +157,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
     $filename = str_replace(":", "_", $object->id);
     $display['pdf_download'] = array(
       '#type' => 'item',
-      '#title' => t('Download'),
-      '#markup' => l(t('PDF'), "islandora/object/$object->id/datastream/PDF/download/$filename.pdf"),
+      '#markup' => l(t('Download PDF'), "islandora/object/$object->id/datastream/PDF/download/citation.pdf", array('attributes' => array('class' => 'scholar-pdf-download-link'))),
       '#weight' => $display['pdf_download']['#weight'],
     );
   }

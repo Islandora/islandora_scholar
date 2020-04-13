@@ -201,7 +201,8 @@ function islandora_google_scholar_create_meta_tags($object) {
     $tags['citation_abstract_html_url'] = url("islandora/object/$object->id/", array('absolute' => TRUE));
   }
 
-  return $tags;
+  // Array filter so no tags are created for empty values!
+  return array_filter($tags);
 }
 
 /**
