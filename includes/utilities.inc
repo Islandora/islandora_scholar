@@ -66,7 +66,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
       if (!$search_term) {
         $search_term = $object->label;
       }
-
+      $search_term = urlencode($search_term);
       $display['google_scholar_search'] = array(
         '#type' => 'item',
         '#markup' => l(t('Search for this publication on Google Scholar'), "http://scholar.google.ca/scholar?q=\"$search_term\"", array('attributes' => array('class' => 'scholar-google-scholar-search-link'))),
@@ -98,7 +98,7 @@ function islandora_scholar_get_view(AbstractObject $object) {
       if (!$search_term) {
         $search_term = $object->label;
       }
-
+      $search_term = urlencode($search_term);
       $display['library_catalog_search'] = array(
         '#type' => 'item',
         '#markup' => l(t('Search for this publication in your library discovery service'), "$search_url$search_params\"$search_term\""),
