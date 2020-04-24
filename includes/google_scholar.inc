@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Module used to embed meta tags in the HEAD for use in indexing in Google
@@ -43,7 +44,7 @@ function islandora_scholar_create_meta_tags($object) {
     else {
       return FALSE;
     }
-    foreach ($mods_xml->xpath(variable_get('islandora_scholar_xpaths_authors_xpath', 'mods:name')) as $name_xml) {
+    foreach ($mods_xml->xpath(variable_get('islandora_scholar_xpaths_authors_xpath', '//mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/..')) as $name_xml) {
       $name_parts = array();
       $name_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
       // Use Mods DisplayForm as a backup source for name.
@@ -178,7 +179,7 @@ function islandora_scholar_create_meta_tags($object) {
 
     $online_date = $mods_xml->xpath(variable_get('islandora_scholar_xpaths_online_date', '//mods:recordInfo/mods:recordCreationDate'));
     if ($online_date) {
-      $date_string =  islandora_parse_date_foryear($online_date);
+      $date_string = islandora_scholar_date_foryear($online_date);
       if ($date_string) {
         $tags['citation_online_date'] = $date_string;
       }
@@ -274,4 +275,3 @@ function islandora_scholar_embed_tags($tags) {
     }
   }
 }
-
