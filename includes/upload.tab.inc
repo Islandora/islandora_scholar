@@ -223,7 +223,8 @@ function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractObject
   $xpath->registerNamespace('mods', $namespace);
 
   // Remove earlier instances of mods:accessCondition and mos:physicalDescription created by this form.
-  $access_condition_query = '//mods:accessCondition[@type="use and reproduction"][text()="author"]';
+  $access_condition_query = '//mods:accessCondition[@type="use and reproduction"][text()="author"] | 
+    //mods:accessCondition[@type="use and reproduction"][text()="publisher"]';
   $physical_description_query = '//mods:physicalDescription[@authority="local"]';
   $results = $xpath->query("{$access_condition_query} | {$physical_description_query}");
   foreach ($results as $result) {
