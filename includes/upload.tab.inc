@@ -227,11 +227,9 @@ function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractObject
   $access_condition_query = '//mods:accessCondition[@type="use and reproduction"][text()="author"] |
     //mods:accessCondition[@type="use and reproduction"][text()="publisher"]';
   foreach ($permissions_config AS $permission) {
+    $permission = str_replace( "\r", "", $permission);
     $access_condition_query = $access_condition_query . ' | //mods:accessCondition[@type="use and reproduction"][text()="' . $permission . '"]';
   }
-/*
-  $access_condition_query = '//mods:accessCondition[@type="use and reproduction"][text()="author"] | 
-    //mods:accessCondition[@type="use and reproduction"][text()="publisher"]'; */
   $physical_description_query = '//mods:physicalDescription[@authority="local"]';
   $results = $xpath->query("{$access_condition_query} | {$physical_description_query}");
   foreach ($results as $result) {
