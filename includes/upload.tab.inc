@@ -221,14 +221,22 @@ function islandora_scholar_add_usage_and_version_elements_to_mods(AbstractObject
   $doc->loadXML($object['MODS']->content);
   $xpath = new DOMXPath($doc);
   $xpath->registerNamespace('mods', $namespace);
-  // Remove all instances of mods:accessCondition and mods:physicalDescription
-  // from every mods:mods element instance.
-  $access_condition_query = '//mods:accessCondition[@type="use and reproduction"]';
+
+  // Remove earlier instances of mods:accessCondition and mos:physicalDescription created by this form.
+  $permissions_config = explode("\n", variable_get('islandora_scholar_use_permissions', 'Publisher\nAuthor'));
+  $access_condition_query = '//mods:accessCondition[@type="use and reproduction"][text()="author"] |
+    //mods:accessCondition[@type="use and reproduction"][text()="publisher"]';
+  foreach ($permissions_config AS $permission) {
+    $permission = str_replace( "\r", "", $permission);
+    $access_condition_query = $access_condition_query . ' | //mods:accessCondition[@type="use and reproduction"][text()="' . $permission . '"]';
+  }
   $physical_description_query = '//mods:physicalDescription[@authority="local"]';
   $results = $xpath->query("{$access_condition_query} | {$physical_description_query}");
   foreach ($results as $result) {
     $result->parentNode->removeChild($result);
   }
+
+
   // Regardless of the number of mods:mods elements in the document we only
   // add the usage and version to the first one.
   $results = $xpath->query('//mods:mods[1]');
