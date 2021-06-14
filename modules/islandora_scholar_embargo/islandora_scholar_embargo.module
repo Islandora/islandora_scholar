@@ -255,7 +255,14 @@ EOQ;
     }
 
     if (isset($params['dsid'])) {
-      rules_invoke_event('islandora_scholar_datastream_embargo_expiring', $item, $params['dsid']);
+      if (!isset($item[$params['dsid']])) {
+        $ds = $item->constructDatastream($params['dsid']);
+      }
+      else {
+        $ds = $item[$params['dsid']];
+      }
+
+      rules_invoke_event('islandora_scholar_datastream_embargo_expiring', $item, $ds);
     }
     else {
       rules_invoke_event('islandora_scholar_object_embargo_expiring', $item);
@@ -312,7 +319,13 @@ EOQ;
     // XXX: This needs to be removed as it is no longer shipped with the module
     // and is considered deprecated of 7.x-1.6.
     if (isset($params['dsid'])) {
-      rules_invoke_event('islandora_scholar_datastream_embargo_expired', $item, $params['dsid']);
+      if (!isset($item[$params['dsid']])) {
+        $ds = $item->constructDatastream($params['dsid']);
+      }
+      else {
+        $ds = $item[$params['dsid']];
+      }
+      rules_invoke_event('islandora_scholar_datastream_embargo_expired', $item, $ds);
     }
     else {
       rules_invoke_event('islandora_scholar_object_embargo_expired', $item);
