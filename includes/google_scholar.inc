@@ -44,35 +44,45 @@ function islandora_scholar_create_meta_tags($object) {
     else {
       return FALSE;
     }
-    foreach ($mods_xml->xpath('mods:name') as $name_xml) {
+    foreach ($mods_xml->xpath(variable_get('islandora_scholar_xpaths_authors_xpath', '//mods:mods[1]/mods:name/mods:role[mods:roleTerm = "author"]/..')) as $name_xml) {
       $name_parts = array();
       $name_xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
-      $roles = $name_xml->xpath('mods:role/mods:roleTerm');
-      $role = strtolower((string) reset($roles));
-      if ($role) {
-        if ($role == 'author') {
-          foreach ($name_xml->xpath('mods:namePart') as $name_part) {
-            if ((string) $name_part != '') {
-              // Strip periods off the end.
-              $np = (string) rtrim($name_part, '.');
-              if ($name_part['type'] == 'given') {
-                $name_parts['first_name'] = (string) $name_part;
-              }
-              if ($name_part['type'] == 'family') {
-                $name_parts['last_name'] = $np;
-              }
-              if (!isset($name_part['type'])) {
-                $name_parts['no_type'] = $np;
-              }
+      // Use Mods DisplayForm as a backup source for name.
+      // Only taking the first result for displayForm.
+      $name_displayForm = '';
+      $mods_displayform = $name_xml->xpath('mods:displayForm');
+      if (is_array($mods_displayform)) {
+        $name_displayForm = array_shift($mods_displayform);
+      }
+      foreach ($name_xml->xpath('mods:namePart') as $name_part) {
+        if ((string) $name_part != '') {
+          // Strip periods off the end.
+          $np = (string) rtrim($name_part, '.');
+          if ($name_part['type'] == 'given') {
+            // Middle name is also marked as given name in MODS.
+            if (isset($name_parts['first_name'])) {
+              $name_parts['first_name'] = $name_parts['first_name'] . ' ' . (string) $name_part;
+            }
+            else {
+              $name_parts['first_name'] = (string) $name_part;
             }
           }
+          if ($name_part['type'] == 'family') {
+            $name_parts['last_name'] = $np;
+          }
+          if (!isset($name_part['type'])) {
+            $name_parts['no_type'] = $np;
+          }
         }
-        if (isset($name_parts['last_name']) && isset($name_parts['first_name'])) {
-          $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
-        }
-        elseif (isset($name_parts['no_type'])) {
-          $tags['citation_author'][] = $name_parts['no_type'];
-        }
+      }
+      if (isset($name_parts['last_name']) && isset($name_parts['first_name'])) {
+        $tags['citation_author'][] = $name_parts['last_name'] . ', ' . $name_parts['first_name'];
+      }
+      elseif ($name_displayForm != '') {
+        $tags['citation_author'][] = $name_displayForm;
+      }
+      elseif (isset($name_parts['no_type'])) {
+        $tags['citation_author'][] = $name_parts['no_type'];
       }
     }
     if (count($tags['citation_author']) == 0) {
@@ -103,7 +113,6 @@ function islandora_scholar_create_meta_tags($object) {
     // Google requires dates in yy/mm/dd format or just the year. As dates suck
     // and we don't have a consistent structure of input we will just return the
     // year for now.
-
     if ($date) {
       $date_string = islandora_scholar_parse_date_foryear($date);
       if ($date_string) {
@@ -116,7 +125,6 @@ function islandora_scholar_create_meta_tags($object) {
 
     $host_title = $mods_xml->xpath(variable_get('islandora_scholar_xpaths_host_title', '//mods:relatedItem[@type="host"]//mods:title'));
     $genre = $mods_xml->xpath(variable_get('islandora_scholar_xpaths_genre', '//mods:mods[1]/mods:genre'));
-
     $genre = strtolower((string) reset($genre));
     switch ($genre) {
       case 'book section':
@@ -171,7 +179,7 @@ function islandora_scholar_create_meta_tags($object) {
 
     $online_date = $mods_xml->xpath(variable_get('islandora_scholar_xpaths_online_date', '//mods:recordInfo/mods:recordCreationDate'));
     if ($online_date) {
-      $date_string = islandora_scholar_parse_date_foryear($online_date);
+      $date_string = islandora_scholar_date_foryear($online_date);
       if ($date_string) {
         $tags['citation_online_date'] = $date_string;
       }
