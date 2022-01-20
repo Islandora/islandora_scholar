@@ -58,6 +58,13 @@ Current maintainers:
 
 If you would like to contribute to this module, please check out [CONTRIBUTING.md](CONTRIBUTING.md). In addition, we have helpful [Documentation for Developers](https://github.com/Islandora/islandora/wiki#wiki-documentation-for-developers) info, as well as our [Developers](http://islandora.ca/developers) section on the [Islandora.ca](http://islandora.ca) site.
 
+### Important considerations for Module development.
+
+* Is a single module (can "require" other modules but no embedded submodules)
+* When creating anything that may be impacted by switching themes, the module must determine the current default theme and associated changes with that theme and/or include a function that can be ran to add to the current default them.
+* Avoid relying on importing or merging template YML files.
+* Please review [Drupal's Coding Standards](https://www.drupal.org/docs/develop/standards/coding-standards) if (at all) possible.
+* Object/Node level view example can be found [here](https://miro.com/app/board/uXjVOd9c3Bw=/?fromRedirect=1)
 
 ## License
 
