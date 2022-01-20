@@ -2,19 +2,19 @@
 
 ## Introduction
 
-Islandora Scholar is a suite of modules designed to help Islandora function as an Institutional Repository. It provides a framework for handling Citation and Thesis objects, and a variety of additional features for working with citations. It includes:
+Islandora Scholar is a module designed to help Islandora function as an Institutional Repository. It provides a framework for handling Citation and Thesis objects, and a variety of additional features for working with citations.
+
+### It will soon include:
 * Citation Content Model and Thesis Content Model (and associated default forms)
-* Display formatted citations based on MODS data based on user-uploaded CSL files
-* (optional) tab on Citation objects containing the self-archiving policies of the associated periodical, based on Sherpa/RoMEO
+* Display formatted citations based on Drupal fields and RDF data model based.
 * (optional) links on Citation and Thesis objects to search for them in Google Scholar or your local discovery layer
-* Importers and populators to create objects based on DOIs, PMIDs, Endnote XML, or RIS files (see associated submodules)
 * Ability to embargo objects or datastreams permanently or with a time limit (see Scholar Embargo submodule)
-* Google Scholar-ready microdata in meta tags 
+* Optimized Google Scholar microdata in meta tags
 
 
 ## Requirements
 
-This module requires the following modules/libraries:
+This module requires Drupal 8|9 and the following modules/libraries:
 
 * ...
 
@@ -23,21 +23,29 @@ This module requires the following modules/libraries:
 
 ...
 
+
 ## Configuration
 
 ...
 
+
 ## Documentation
 
-Further documentation for this module is available at [our wiki](https://wiki.duraspace.org/display/ISLANDORA/Islandora+Scholar).
+Further documentation for this module is available at [our wiki](https://islandora.github.io/documentation).
+
 
 ## Complementary Modules
 
-* ...
+* Embargo Modules
+  * [IP Embargo](https://github.com/mjordan/ip_range_access): will restrict viewing of an object to users within a defined set of IP address ranges.
+  * [Embargo](https://github.com/discoverygarden/embargoes): Embargo by date on a node.
+* Mediated Submission Portal: this module is intended to extend Islandora's submission and approval process. Example [module](https://www.drupal.org/docs/8/core/modules/workflows/overview). A fork still needs to be done.
+* Migrating from 7.x or Bepress via [Islandora Workbench](https://github.com/mjordan/islandora_workbench)
 
 ## Troubleshooting/Issues
 
 * ...
+
 
 ## Maintainers/Sponsors
 
@@ -45,9 +53,11 @@ Current maintainers:
 
 * [Don Richards](https://github.com/DonRichards)
 
+
 ## Development
 
 If you would like to contribute to this module, please check out [CONTRIBUTING.md](CONTRIBUTING.md). In addition, we have helpful [Documentation for Developers](https://github.com/Islandora/islandora/wiki#wiki-documentation-for-developers) info, as well as our [Developers](http://islandora.ca/developers) section on the [Islandora.ca](http://islandora.ca) site.
+
 
 ## License
 
