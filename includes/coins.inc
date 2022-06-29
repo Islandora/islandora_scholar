@@ -54,8 +54,17 @@ class Coins {
     $xml = new SimpleXMLElement($xmlstr);
     $xml->registerXPathNamespace('mods', 'http://www.loc.gov/mods/v3');
 
-    $this->mods = $xml;
-
+    
+    try {
+    $this->mods = islandora_sanitize_input_for_valid_xml($xml);
+    }
+    catch (Exception $e) {
+      watchdog('islandora_scholar', 'The upload of "@dsid" of "@pid" could not be parsed as XML.', array(
+        '@dsid' => 'MODS',
+        '@pid' => $object->id,
+      ), WATCHDOG_WARNING, l(t("manage object"), "islandora/object/{$object->id}/manage/datastreams"));
+      return " ";
+    }
     $authors = array();
     $contributors = array();
 

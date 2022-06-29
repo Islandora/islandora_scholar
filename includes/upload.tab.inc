@@ -43,7 +43,16 @@ function islandora_scholar_modify_form(array $form, array &$form_state, Abstract
 
   $mods_doc = new DOMDocument();
   $mods_doc->loadXML($mods_str);
-  $mods_xpath = new DOMXPath($mods_doc);
+  try {
+    $mods_xpath = new DOMXPath(islandora_sanitize_input_for_valid_xml($mods_doc));
+  }
+  catch (Exception $e) {
+    watchdog('islandora_scholar', 'The upload of "@dsid" of "@pid" could not be parsed as XML.', array(
+      '@dsid' => 'MODS',
+      '@pid' => $object->id,
+    ), WATCHDOG_WARNING, l(t("manage object"), "islandora/object/{$object->id}/manage/datastreams"));
+    return " ";
+  }
   $mods_xpath->registerNamespace('m', 'http://www.loc.gov/mods/v3');
   $usage = t('No usage statement');
   $mods_usages = $mods_xpath->query('//m:mods/m:accessCondition[@type="use and reproduction"]');
